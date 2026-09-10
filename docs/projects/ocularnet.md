@@ -61,6 +61,13 @@ relying on it.
   [IOSTAR-AV](../datasets/iostar.md), [MBRSET](../datasets/mbrset.md)) and far-OoD (AV-WIDE, [RAVIR](../datasets/ravir.md)). The README tabulates each dataset's image count,
   field of view, resolution, country and pathologies, which makes it the most explicit statement of
   training-data diversity of any entry in this catalogue.
+
+  **But six of those fourteen entries are one download.** ENRICH, FIVES-AV, MAGREBHIA, MESSIDOR-AV,
+  AV-WIDE and TREND-AV are all served from the same Kaggle URL — [REYIA](../datasets/reyia.md)'s
+  link-shared archive — so the list counts one compilation's subsets six times, and two of those
+  subsets are annotations of [FIVES](../datasets/fives.md) and [MESSIDOR](../datasets/messidor.md)
+  photographs that the list does not otherwise name. A count of datasets is not a count of
+  independent evidence.
 - **Weights publicly available:** Yes.
 - **Download URLs:**
   - OCULARNet: https://huggingface.co/Anon-User-Retina/OCULARNet/resolve/main/OCULARNet.pth

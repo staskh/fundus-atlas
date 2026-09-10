@@ -12,8 +12,8 @@ cup but no A/V, FIVES has binary vessels but no A/V — plus a new 111-image set
 
 - **Images:** 589 complete image-and-annotation sets (the paper reports 586).
 - **Assembled from:** nine sources — [FIVES](fives.md) (75 photographs), [PAPILA](papila.md) (78),
-  [MESSIDOR](messidor.md), Magrabia, [mBRSET](mbrset.md), [GRAPE](grape.md), TREND, a re-annotated
-  AV-WIDE, and **ENRICH**, a new 111-image set appearing here first.
+  [MESSIDOR](messidor.md), MAGREBHIA, [mBRSET](mbrset.md), [GRAPE](grape.md), TREND-AV, a
+  re-annotated AV-WIDE, and **ENRICH**, a new 111-image set appearing here first.
 - **Purpose:** training data for a generative approach to vessel-segmentation generalisation.
 
 ## 2. Provenance
@@ -29,20 +29,65 @@ cup but no A/V, FIVES has binary vessels but no A/V — plus a new 111-image set
 
 Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 
-## 3. The images
+### 2.1 The one added source with its own publication
 
-Mixed by construction — nine sources, nine cameras, nine resolutions. The per-source detail belongs
-to those datasets' own pages; what matters here is that no single row of camera, field or resolution
-describes REYIA.
+Five of the nine sources are catalogued here in their own right — [FIVES](fives.md),
+[PAPILA](papila.md), [MESSIDOR](messidor.md), [mBRSET](mbrset.md) and [GRAPE](grape.md) — and their
+provenance is on those pages. Of the remaining four, one has an original publication:
 
 | | |
 | --- | --- |
-| Resolution (pixels) | **Mixed** — inherited from nine sources |
-| Microns per pixel | Unknown |
-| Camera | **Mixed** — nine sources |
-| Field of view | **Mixed**, including a wide-field set (AV-WIDE) |
-| Centring | Mixed |
-| Modality | Colour fundus photography |
+| Layer | **AV-WIDE**, 26 photographs |
+| Home | The authors' own release, linked from the paper below; inside REYIA it arrives as part of the compilation |
+| Download | **direct** from the authors for the original WIDE data; not separable from REYIA's archive |
+| Citation | Estrada R, Allingham MJ, Mettu PS, Cousins SW, Tomasi C, Farsiu S. *Retinal artery-vein classification via topology estimation.* IEEE Transactions on Medical Imaging 2015;34(12):2518–2534. DOI: [10.1109/TMI.2015.2443117](https://doi.org/10.1109/TMI.2015.2443117) · [PMC4685460](https://pmc.ncbi.nlm.nih.gov/articles/PMC4685460/) |
+| Licence | The authors state the wide-field images and ground-truth labels are freely available; no formal licence was established |
+| Content | The original **WIDE** release is 30 ultra-wide-field images captured at 3900×3072 on an Optos 200Tx and analysed downsampled by two. REYIA carries 26 of them at 829×1531 |
+| Annotations | Supplies artery/vein labels from **two independent raters**, the second — a fellowship-trained medical retina specialist — taken as ground truth |
+
+Collected at Duke University Medical Center between 2010 and 2014, from healthy eyes and eyes with
+age-related macular degeneration including geographic atrophy, drusen and fibrotic scarring.
+
+### 2.2 The three added sources with no established publication
+
+- **ENRICH** — 111 photographs from Belgium at 1958×2196, 45°. REYIA's own new contribution, with no
+  separate dataset paper. The name matches the ERA-CVD project *Endothelial Retinal Imaging as
+  Indicator of Cognitive Vascular Health*, which would fit the Belgian origin, but no publication
+  tying that project to these images was established.
+- **TREND-AV** — 48 photographs at 1444×1444, 45°, healthy eyes. **No describing publication and no
+  independent distribution were found**; it appears in the literature only as a REYIA subset.
+- **MAGREBHIA** — 69 photographs at 1444×1444, 30°, from North Africa, with glaucoma. Likewise no
+  describing publication established. Note the near-collision with **Magrabia**, which is something
+  else entirely: a 95-image Saudi subcollection of [RIGA](riga.md) from the Magrabi Eye Center.
+  Sources listing REYIA's contents as including "Magrabia" most likely mean MAGREBHIA.
+
+## 3. The images
+
+Mixed by construction, so the subcollections are listed individually. Counts, resolutions, fields
+and regions follow the tabulation published with the [OCULAR](../models/ocularnet.md) collection,
+which redistributes these subsets under these names.
+
+| Subcollection | Images | Resolution | Field | Region | Pathology | Source of the photographs |
+| --- | --- | --- | --- | --- | --- | --- |
+| ENRICH | 111 | 1958×2196 | 45° | Belgium | — | New in REYIA (section 2.2) |
+| PAPILA subset | 78 | 1444×1444 | 30° | Spain | glaucoma | [PAPILA](papila.md) |
+| FIVES-AV | 75 | 1444×1444 | 45° | China | — | [FIVES](fives.md) |
+| MAGREBHIA | 69 | 1444×1444 | 30° | North Africa | glaucoma | None established (section 2.2) |
+| MESSIDOR-AV | 66 | 1444×1444 | 45° | France | diabetic retinopathy | [MESSIDOR](messidor.md) |
+| TREND-AV | 48 | 1444×1444 | 45° | Not stated | healthy | None established (section 2.2) |
+| **AV-WIDE** | 26 | 829×1531 | **200°** | United States | AMD | Estrada et al. 2015 (section 2.1) |
+| mBRSET and GRAPE subsets | the remainder | per source | per source | Brazil, China | mixed | [mBRSET](mbrset.md), [GRAPE](grape.md) |
+
+Two things stand out. Most subsets arrive at **1444×1444** whatever their source camera produced, so
+they are renditions rather than natives — resized copies of other people's photographs, and a
+measurement in pixels is on REYIA's grid rather than the camera's. And **AV-WIDE is
+ultra-wide-field at 200°**, a different instrument from everything else here: pooling it with 30–45°
+photographs mixes fields of view by a factor of four or more.
+
+| | |
+| --- | --- |
+| Microns per pixel | Unknown for every subcollection |
+| Modality | Colour fundus photography, with AV-WIDE's ultra-wide-field images a separate case |
 
 Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 
@@ -56,9 +101,10 @@ Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 ## 5. Inheritance
 
 - **Reuses images from:** **[FIVES](fives.md) (75), [PAPILA](papila.md) (78),
-  [MESSIDOR](messidor.md), Magrabia, [mBRSET](mbrset.md), [GRAPE](grape.md), TREND and a
+  [MESSIDOR](messidor.md), MAGREBHIA, [mBRSET](mbrset.md), [GRAPE](grape.md), TREND-AV and a
   re-annotated AV-WIDE** — 478 of its 589 photographs come from elsewhere; only the 111-image ENRICH
-  set is new. Magrabia, TREND, AV-WIDE and ENRICH have no pages of their own here. No resizing was
+  set is new. MAGREBHIA, TREND-AV, AV-WIDE and ENRICH have no pages of their own — they are documented as
+  subcollections in sections 2.1, 2.2 and 3. No resizing was
   established, but each source arrives at its own native size. Note that
   [RITE](rite.md)/[DRIVE](drive.md) photographs also reach it through the MESSIDOR-era A/V
   collections it draws on.

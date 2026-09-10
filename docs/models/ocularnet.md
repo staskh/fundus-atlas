@@ -81,6 +81,15 @@ artery-vein data. The compensating virtue is that the authors declare the split 
 separate their test sets by degree of distribution shift, which is the clearest statement of
 expected generalisation in this catalogue.
 
+
+**Six of the fourteen training entries are one download.** ENRICH, FIVES-AV, MAGREBHIA,
+MESSIDOR-AV, AV-WIDE and TREND-AV are all served from the same Kaggle URL, which is
+[REYIA](../datasets/reyia.md)'s link-shared archive — so the training list counts one compilation's
+subsets as six datasets. Two of those subsets are themselves annotations of photographs from
+[FIVES](../datasets/fives.md) and [MESSIDOR](../datasets/messidor.md), which appear nowhere else in
+the list under their own names. The training data is therefore less independent than the count
+suggests.
+
 ## 7. Weights
 
 - **Publicly available:** Yes.
