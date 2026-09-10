@@ -25,6 +25,11 @@ an API rather than a whole-image pipeline.
 - **Code:** MIT License (`LICENSE` in the repository).
 - **Model weights:** No separate license is stated for the optic disc segmenter weights, which are
   downloaded from Google Drive at first use rather than shipped with the package.
+- **A licensing trap worth knowing:** those weights are derived from
+  [LUNet](../models/lunet.md), whose repository is licensed **CC BY-NC 4.0 — non-commercial**
+  (see [the disc model's page](../models/lunetv2-odc.md)). This
+  package is MIT, and nothing in it warns about the restriction, so a commercial user relying on
+  PVBM's disc segmentation needs to resolve it with the LUNet authors.
 
 ## 3. Major publications by the authors
 
@@ -40,7 +45,7 @@ lists fifteen), so the code and the publication do not match exactly.
 
 | Model | Segments | Origin |
 | --- | --- | --- |
-| Optic disc segmenter (`DiscSegmenter`) | Optic disc | Borrowed — the README states it was produced using [LUNet](https://github.com/aim-lab/LUNet), by the same laboratory |
+| [LUNet v2 disc segmenter](../models/lunetv2-odc.md) (`DiscSegmenter`) | Optic disc | Borrowed — the README states it was produced using [LUNet](../models/lunet.md), by the same laboratory. Its training data is Unknown and the file is unversioned |
 | Artery and vein segmentation | Arteries and veins | Not included. The user supplies these masks from another project |
 
 This is the important thing to understand about PVBM: the vessel segmentation step, which is where

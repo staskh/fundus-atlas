@@ -64,13 +64,15 @@ requiring the user to make choices they may not have known existed.
 
 ## 4. Segmentation models used
 
+Each model is catalogued separately.
+
 | Model | Weight file | Segments | Origin |
 | --- | --- | --- | --- |
-| VascX vessel ensemble | `vessels/vessels_july24.pt` | Blood vessels | Introduced here |
-| VascX artery/vein ensemble | `artery_vein/av_july24.pt` | Arteries against veins | Introduced here |
-| VascX disc ensemble | `disc/disc_july24.pt` | Optic disc | Introduced here |
-| VascX fovea model | `fovea/fovea_july24.pt` | Fovea location (a point, not a region) | Introduced here |
-| VascX quality model | `quality/quality.pt` | Image quality assessment, not anatomy | Introduced here |
+| [VascX vessels](../models/vascx-vessels.md) | `vessels/vessels_july24.pt` | Blood vessels | Introduced here |
+| [VascX artery/vein](../models/vascx-artery-vein.md) | `artery_vein/av_july24.pt` | Arteries against veins | Introduced here |
+| [VascX disc](../models/vascx-disc.md) | `disc/disc_july24.pt` | Optic disc | Introduced here |
+| [VascX fovea](../models/vascx-fovea.md) | `fovea/fovea_july24.pt` | Fovea location (a point, not a region) | Introduced here |
+| [VascX quality](../models/vascx-quality.md) | `quality/quality.pt` | Image quality assessment, not anatomy | Introduced here |
 | fundusprep preprocessing | — | Image bounds, cropping, contrast enhancement — not a segmentation | Borrowed from [retinalysis-fundusprep](https://github.com/Eyened/retinalysis-fundusprep) (AGPL-3.0), by the same group |
 
 Unlike pipelines assembled from other people's models, every model here comes from the same authors

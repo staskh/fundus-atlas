@@ -22,6 +22,7 @@ Say in a sentence why it exists — what it does differently from the models tha
 
 ## 4. What it produces
 
+- **Purpose:** <quality | vessels | artery/vein | disc/cup | other>
 - **Output classes:** <exactly as emitted, e.g. background, artery, vein, crossings>
 - **Input expected:** <resolution; cropped to field of view or not; disc-centred or macula-centred; colour space>
 - **Preprocessing in the published code:** <what the inference script does to an image before the model sees it>

@@ -5,11 +5,23 @@ description: Catalogue a fundus segmentation or classification model — a singl
 
 # Documenting a model
 
-A **model** here means one trained network, or one family of weights sharing an architecture, that
-takes a colour-fundus photograph and returns masks, landmark locations, or a grade. Vessel
-segmenters, artery/vein classifiers, optic disc and cup segmenters, fovea locators and image-quality
-graders are models. A pipeline that goes on to compute vessel width or tortuosity is a **project**,
-catalogued by the `document-project` skill instead.
+A **model** here means one trained network doing one task: one architecture, one set of published
+weights, one kind of output. Vessel segmenters, artery/vein classifiers, optic disc and cup
+segmenters, fovea locators and image-quality graders are models. A pipeline that goes on to compute
+vessel width or tortuosity is a **project**, catalogued by the `document-project` skill instead.
+
+**One model, one page — even when several are released together.** A project that publishes five
+models gets five pages, because a reader comparing artery/vein models needs to find one entry per
+model, not one entry per release. Apply these boundaries:
+
+- **Different task, different page.** A vessel segmenter and an artery/vein segmenter are two models
+  even when they share an architecture, a repository and a paper.
+- **Retrained for a different task, different page.** The same architecture retrained on other data
+  for another purpose is a distinct model with its own training data, weights and provenance.
+- **An ensemble of the same weights is one model.** Ten random seeds averaged for one output are one
+  entry; record the count in the architecture section.
+- **A smaller or larger variant released alongside is its own page** when it has its own weights,
+  because a reader must be able to tell which one produced a result.
 
 The two catalogues answer different questions. A project page answers "what will this software give
 me?"; a model page answers "where did this mask come from, what was it trained on, and may I trust
@@ -39,11 +51,23 @@ Use `template.md` verbatim and keep its section numbering. The sections are:
    redistributes.
 3. **Major publications by the authors** — the paper that introduced the model, with a DOI or stable
    link, plus any later paper that changed it.
-4. **What it produces** — the output classes exactly as the model emits them (for example
-   "background, artery, vein, crossings"), and the input it expects: resolution, whether the image
-   must be cropped to the field of view, whether it assumes a disc-centred or macula-centred
-   photograph, and any preprocessing baked into the published inference code. Mismatched
-   expectations are the most common cause of a model behaving worse than its paper reports.
+4. **What it produces** — begins with the **purpose class**, which is one of exactly five values
+   and never a new one:
+
+   | Purpose | What belongs in it |
+   | --- | --- |
+   | `quality` | Judging whether a photograph is good enough to measure |
+   | `vessels` | Blood vessels as a single class, artery and vein not distinguished |
+   | `artery/vein` | Arteries separated from veins, including models that add a crossings class |
+   | `disc/cup` | The optic disc, the optic cup, or both |
+   | `other` | Anything else — fovea location, lesions, landmarks |
+
+   A model that does two of these is two models and therefore two pages (see the boundaries above).
+   Then record the output classes exactly as the model emits them (for example "background, artery,
+   vein, crossings"), and the input it expects: resolution, whether the image must be cropped to the
+   field of view, whether it assumes a disc-centred or macula-centred photograph, and any
+   preprocessing baked into the published inference code. Mismatched expectations are the most
+   common cause of a model behaving worse than its paper reports.
 5. **Architecture** — the family (U-Net, W-Net, GAN-based, an encoder backbone), parameter count if
    stated, and whether the published weights are a single model or an ensemble. An ensemble is not
    interchangeable with one of its members: say how many, and how they are combined.
@@ -91,9 +115,10 @@ section whose answer could not be established is marked `Unknown` — never fill
 
 ## 4. The summary table
 
-`docs/MODELS.md` holds one row per model, sorted by last commit with the most recently committed
-model first; models whose most recent commit falls in the same month are ordered alphabetically.
-The columns are:
+`docs/MODELS.md` groups models into one table per purpose class — quality, vessels, artery/vein,
+disc/cup, other — in that order, so a reader looking for one kind of model sees only those. Within
+each table, rows are sorted by last commit with the most recently committed model first; models
+whose most recent commit falls in the same month are ordered alphabetically. The columns are:
 
 | Column | Content |
 | --- | --- |
