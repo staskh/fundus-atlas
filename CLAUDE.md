@@ -77,6 +77,8 @@ Skills that exist today:
 
 - **5.3** `document-project` — cataloguing a project: the page structure in `docs/projects/` and the
   columns of the `docs/PROJECTS.md` summary table.
+- **5.4** `document-model` — cataloguing a segmentation or classification model: the page structure
+  in `docs/models/` and the columns of the `docs/MODELS.md` summary table.
 
 Before adding or changing an entry of any kind, load the matching skill and follow it. Where a skill
 does not exist yet, stop and agree the convention with Stas, then write the skill — do not invent a
