@@ -45,6 +45,11 @@ and **no trained weights are published**. The repository as it stands cannot rep
 
 - **Purpose:** `disc/cup`
 - **Output classes:** joint optic disc and optic cup masks.
+- **Input grid:** 256×256 — the smallest grid in this catalogue, a quarter of BEAL's training grid
+  on each side despite ISFA being built on BEAL's code. On a 256-pixel disc crop the cup boundary is
+  a few pixels wide, which is worth remembering when reading the reported cup Dice improvement.
+- **Output grid:** joint disc and cup masks at 256×256.
+- **Grid set in:** `tr.Resize(256)` in both `train.py` and `test.py`.
 - **Input expected:** a colour-fundus photograph cropped around the optic disc, in the repository's
   `data/` layout. The method additionally expects synthesised target-like images at training time,
   which the published code cannot generate.

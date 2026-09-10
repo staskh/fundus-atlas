@@ -42,6 +42,13 @@ never evaluated in it.
 - **Purpose:** `disc/cup`
 - **Output classes:** optic disc and optic cup. The pipeline derives disc and cup height, width and
   the cup-to-disc ratio from these masks.
+- **Input grid:** 512×512, square, from AutoMorph's 912-diameter preprocessed image.
+- **Output grid:** disc and cup masks at 512×512, resampled back to the original photograph's
+  dimensions by the pipeline before the geometry is measured.
+- **Grid set in:** `--im_size 512` in `M2_lwnet_disc_cup/test_outside.sh`, matching `"im_size": "512"`
+  in each seed's `config.cfg`. **The folder name is misleading:** the experiment directory is called
+  `wnet_All_three_1024_disc_cup`, but nothing in the shipped inference runs at 1024 — anyone reading
+  the path rather than the config will assume the wrong grid.
 - **Input expected:** a preprocessed colour-fundus photograph from AutoMorph's cropping stage; the
   experiment name records a working resolution of 1024 pixels.
 - **Preprocessing in the published code:** cropping and resizing by the host pipeline.

@@ -36,6 +36,15 @@ publication".
 
 - **Purpose:** `artery/vein`
 - **Output classes:** four — background, artery, vein, **crossings**.
+- **Input grid:** 1024×1024 — **but not enforced by default.** `inference.py` takes
+  `--im_size 1024 1024` and resizes to it only when `--resize` is passed, which defaults to `False`
+  with the comment "recommended for best performance". Run without it and the image enters at
+  whatever size it already is, silently off-grid. The OCULAR dataset's own field-of-view and disc
+  annotations are distributed at 1024×1024, which is the grid the model was trained on.
+- **Output grid:** four-class masks at the grid the image was fed in on — 1024×1024 when `--resize`
+  is used, the source resolution otherwise.
+- **Grid set in:** the `--im_size` and `--resize` arguments and `preprocess_image()` in
+  `inference.py`.
 - **Input expected:** RGB fundus photographs **already cropped to the field of view**; cropping is
   the user's responsibility.
 - **Preprocessing in the published code:** none beyond loading.

@@ -33,6 +33,13 @@ than inside a vessel-segmentation entry.
 
 - **Purpose:** `artery/vein`
 - **Output classes:** multi-class — artery against vein.
+- **Input grid:** depends on which published configuration you load — **512×512** for the DRIVE-AV
+  weights, **1024×1024** for the HRF-AV weights. Two grids means two models in practice, and the
+  1024 configuration costs four times the pixels.
+- **Output grid:** the artery/vein mask at the input grid, resampled back to the original
+  photograph's dimensions as in the vessel path.
+- **Grid set in:** `"im_size"` in `experiments/big_wnet_drive_av/config.cfg` (512) and
+  `experiments/big_wnet_hrf_av_1024/config.cfg` (1024).
 - **Input expected:** a colour-fundus photograph. Two configurations are published, one for DRIVE
   and one for HRF at 1024 pixels, so the expected resolution depends on which weights are used.
 - **Preprocessing in the published code:** per-dataset preparation by `get_public_data.py`, which

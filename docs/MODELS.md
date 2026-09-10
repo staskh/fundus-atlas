@@ -16,47 +16,47 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 
 ### 1.1 Quality — is this photograph good enough to measure?
 
-| Model | Produces | Architecture | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [VascX quality](models/vascx-quality.md) | Image-quality assessment | U-Net ensemble | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
-| [AutoMorph quality grader](models/automorph-quality-grader.md) | Good / Usable / Reject | EfficientNet, ensemble of 8 | EyeQ training split, 12,543 EyePACS images | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md) | 2025-06 | 2026-09-10 |
-| [QuickQual](models/quickqual.md) | Good / Usable / Bad probabilities | Frozen DenseNet121 features plus an SVM | EyeQ (SVM fitted); ImageNet (frozen features) | Yes | Not applicable — nothing is trained | None stated | [AutoMorphalyzer](projects/automorphalyzer.md) | 2023-11 | 2026-09-10 |
+| Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [VascX quality](models/vascx-quality.md) | Image-quality assessment | U-Net ensemble | 1024² (no mask) | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [AutoMorph quality grader](models/automorph-quality-grader.md) | Good / Usable / Reject | EfficientNet, ensemble of 8 | 512² (no mask) | EyeQ training split, 12,543 EyePACS images | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md) | 2025-06 | 2026-09-10 |
+| [QuickQual](models/quickqual.md) | Good / Usable / Bad probabilities | Frozen DenseNet121 features plus an SVM | short side 512, aspect kept (no mask) | EyeQ (SVM fitted); ImageNet (frozen features) | Yes | Not applicable — nothing is trained | None stated | [AutoMorphalyzer](projects/automorphalyzer.md) | 2023-11 | 2026-09-10 |
 
 ### 1.2 Vessels — blood vessels as a single class
 
-| Model | Produces | Architecture | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [VascX vessels](models/vascx-vessels.md) | Blood vessels, one class | U-Net ensemble | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
-| [SEGAN vessel segmenter](models/segan-vessel.md) | Blood vessels, one class | GAN-based U-Net, ensemble of 10 | DRIVE, STARE, CHASE-DB1, HRF, IOSTAR, LES-AV (`ALL-SIX`) | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
-| [LWNet](models/lwnet.md) | Blood vessels, one class | W-Net, two chained U-Nets, ~70k parameters | DRIVE, CHASE-DB, HRF | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
+| Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [VascX vessels](models/vascx-vessels.md) | Blood vessels, one class | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [SEGAN vessel segmenter](models/segan-vessel.md) | Blood vessels, one class | GAN-based U-Net, ensemble of 10 | 912² → back to original | DRIVE, STARE, CHASE-DB1, HRF, IOSTAR, LES-AV (`ALL-SIX`) | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
+| [LWNet](models/lwnet.md) | Blood vessels, one class | W-Net, two chained U-Nets, ~70k parameters | 512² → back to original | DRIVE, CHASE-DB, HRF | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
 
 ### 1.3 Artery/vein — arteries separated from veins
 
-| Model | Produces | Architecture | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [OCULARNet](models/ocularnet.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-b3 encoder | 14 public A/V datasets | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
-| [OCULARNet-nano](models/ocularnet-nano.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-a0 encoder, ensemble of 5 | The same 14 datasets, five folds | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
-| [VascX artery/vein](models/vascx-artery-vein.md) | Artery against vein | U-Net ensemble | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
-| [LUNet](models/lunet.md) | Arterioles and venules | U-Net variant, TensorFlow | UZLF (Leuven-Haifa) 1444×1444 | Yes | Yes, in the repository | **CC BY-NC 4.0 — non-commercial** | — | 2024-12 | 2026-09-10 |
-| [Big W-Net](models/big-wnet.md) | Artery against vein | W-Net, larger configuration | DRIVE-AV, HRF-AV | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
-| [BF-Net](models/bf-net.md) | Artery against vein, by binary-to-multi fusion | GAN-based, main plus branch generator | DRIVE-AV, LES-AV, HRF-AV | Yes | Yes, in the repository | GPL-3.0 | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2023-02 | 2026-09-10 |
+| Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [OCULARNet](models/ocularnet.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-b3 encoder | 1024², **only with `--resize`** | 14 public A/V datasets | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
+| [OCULARNet-nano](models/ocularnet-nano.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-a0 encoder, ensemble of 5 | 1024², **only with `--resize`** | The same 14 datasets, five folds | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
+| [VascX artery/vein](models/vascx-artery-vein.md) | Artery against vein | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [LUNet](models/lunet.md) | Arterioles and venules | U-Net variant, TensorFlow | 1472² | UZLF (Leuven-Haifa) 1444×1444 | Yes | Yes, in the repository | **CC BY-NC 4.0 — non-commercial** | — | 2024-12 | 2026-09-10 |
+| [Big W-Net](models/big-wnet.md) | Artery against vein | W-Net, larger configuration | 512² or 1024², by config | DRIVE-AV, HRF-AV | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
+| [BF-Net](models/bf-net.md) | Artery against vein, by binary-to-multi fusion | GAN-based, main plus branch generator | 720² → back to original | DRIVE-AV, LES-AV, HRF-AV | Yes | Yes, in the repository | GPL-3.0 | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2023-02 | 2026-09-10 |
 
 ### 1.4 Disc/cup — the optic disc, the optic cup, or both
 
-| Model | Produces | Architecture | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [VascX disc](models/vascx-disc.md) | Optic disc (no cup) | U-Net ensemble | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
-| [AutoMorph disc-and-cup](models/automorph-disc-cup.md) | Optic disc **and cup** | W-Net retrained for this task, ensemble of 8 | REFUGE (800), GAMMA (100) | Yes | No — architecture's training code is in lwnet | Apache-2.0 (host); MIT architecture | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
-| [SegFormer disc/cup (pamixsun)](models/segformer-disc-cup.md) | Optic disc and cup | SegFormer transformer, single model | REFUGE | Yes, on Hugging Face | No | Apache-2.0 | — | 2023-09 | 2026-09-10 |
-| [ISFA](models/isfa.md) | Optic disc and cup | DeepLabv3+ with edge attention, image synthesis and feature alignment | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | **No** | Partly — the image-synthesis stage was never released | None stated | — | 2021-08 | 2026-09-10 |
-| [BEAL](models/beal.md) | Optic disc and cup | DeepLabv3+ with MobileNetV2 backbone, boundary and entropy discriminators | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | Yes | Yes, in the repository | MIT | — | 2021-05 | 2026-09-10 |
-| [LUNet v2 disc (`lunetv2_odc`)](models/lunetv2-odc.md) | Optic disc | Unknown | **Unknown** | Yes, from an unversioned Google Drive file | No | None stated; ancestor is CC BY-NC 4.0 | [PVBM](projects/pvbm.md), [OCULARNet](projects/ocularnet.md) | Not applicable | 2026-09-10 |
+| Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [VascX disc](models/vascx-disc.md) | Optic disc (no cup) | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [AutoMorph disc-and-cup](models/automorph-disc-cup.md) | Optic disc **and cup** | W-Net retrained for this task, ensemble of 8 | 512² → back to original | REFUGE (800), GAMMA (100) | Yes | No — architecture's training code is in lwnet | Apache-2.0 (host); MIT architecture | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
+| [SegFormer disc/cup (pamixsun)](models/segformer-disc-cup.md) | Optic disc and cup | SegFormer transformer, single model | 512² in, 128² logits out | REFUGE | Yes, on Hugging Face | No | Apache-2.0 | — | 2023-09 | 2026-09-10 |
+| [ISFA](models/isfa.md) | Optic disc and cup | DeepLabv3+ with edge attention, image synthesis and feature alignment | 256² | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | **No** | Partly — the image-synthesis stage was never released | None stated | — | 2021-08 | 2026-09-10 |
+| [BEAL](models/beal.md) | Optic disc and cup | DeepLabv3+ with MobileNetV2 backbone, boundary and entropy discriminators | 512² trained; as-stored at test | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | Yes | Yes, in the repository | MIT | — | 2021-05 | 2026-09-10 |
+| [LUNet v2 disc (`lunetv2_odc`)](models/lunetv2-odc.md) | Optic disc | Unknown | 512² → back to original | **Unknown** | Yes, from an unversioned Google Drive file | No | None stated; ancestor is CC BY-NC 4.0 | [PVBM](projects/pvbm.md), [OCULARNet](projects/ocularnet.md) | Not applicable | 2026-09-10 |
 
 ### 1.5 Other — landmarks and everything else
 
-| Model | Produces | Architecture | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [VascX fovea](models/vascx-fovea.md) | Fovea location, as a point | U-Net ensemble | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [VascX fovea](models/vascx-fovea.md) | Fovea location, as a point | U-Net ensemble | 1024² (point, no mask) | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
 
 ## 2. How to read this table
 
@@ -64,6 +64,13 @@ Grouped by purpose. Within each group the most recently committed model comes fi
   disc/cup, other. A repository that publishes several models appears once per model, in the group
   each belongs to, because a reader comparing artery/vein models needs one row per model rather than
   one row per release.
+- **Grid (in → out)** — the pixel raster the model works on: the size the image is resampled to
+  before inference, and the size of the mask that comes back. It is the most consequential column
+  for comparing models, because every biomarker measured in pixels is measured on this grid: a
+  4-pixel vessel width means one thing at 512 and another at 1472, and two models' masks cannot be
+  compared pixel-for-pixel unless their grids match. `→ back to original` means the code resamples
+  the mask to the input photograph's own dimensions before returning it. Each model page records
+  where the grid is set in code, because papers and model cards usually omit it.
 - **Trained on** — the datasets used to fit the model. A model cannot be fairly evaluated on a
   dataset it was trained on, so this column decides which benchmarks mean anything for a given
   model. `Unclear` means the papers or code did not state a split.

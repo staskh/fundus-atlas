@@ -42,6 +42,16 @@ labelling disc and cup boundaries takes an expert.
 - **Purpose:** `disc/cup`
 - **Output classes:** optic disc and optic cup masks. Both are needed for the cup-to-disc ratio used
   in glaucoma assessment.
+- **Input grid:** 512×512 at training time, produced by `RandomScaleCrop(512)` followed by
+  `RandomCrop(512)`. **At test time no resize is applied at all** — `test.py` composes only
+  `Normalize_tf()` and `ToTensor()`, and the dataloader reads each file as stored, so the grid is
+  whatever the preprocessed dataset holds. That is why the authors distribute their preprocessed
+  data: feed it a raw full-resolution photograph and it runs at that resolution instead, off the
+  grid it was trained on.
+- **Output grid:** disc and cup masks, plus a boundary map and an entropy map, at the input grid.
+- **Grid set in:** `tr.RandomScaleCrop(512)` and `tr.RandomCrop(512)` in `train.py`; the absence of
+  any resize in `test.py`'s transform composition and in
+  `dataloaders/fundus_dataloader.py`'s `_read_img_into_memory`.
 - **Input expected:** a colour-fundus photograph cropped around the optic disc. The authors
   distribute a preprocessed version of their datasets, which is the practical statement of what the
   model expects:

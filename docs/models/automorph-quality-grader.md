@@ -41,6 +41,11 @@ trained themselves on EyeQ's labelled EyePACS images, and it is distributed only
 - **Purpose:** `quality`
 - **Output classes:** three quality grades — Good, Usable, Reject — following EyeQ's grading scheme.
   AutoMorph uses the result to route images; images graded Reject are not carried into measurement.
+- **Input grid:** 512×512, square, resized with aspect ratio ignored from AutoMorph's
+  912-diameter preprocessed image.
+- **Output grid:** not applicable — the model returns three class scores, not a mask.
+- **Grid set in:** `image_size=(512,512)` and `img_size=(512,512)` in
+  `M1_Retinal_Image_quality_EyePACS/test_outside.py`.
 - **Input expected:** a preprocessed colour-fundus photograph from AutoMorph's own cropping stage.
 - **Preprocessing in the published code:** cropping and resizing by the host pipeline.
 

@@ -41,6 +41,12 @@ training.
 - **Purpose:** `quality`
 - **Output classes:** three probabilities, in order Good, Usable, Bad. AutoMorphalyzer stores the
   probability of rejection rather than a hard decision.
+- **Input grid:** shorter side 512 pixels, **aspect ratio preserved** — `F.resize(img, 512)` with a
+  single integer scales the smaller edge and leaves the other proportional, so unlike every
+  segmentation model here the input is not square and its pixel count varies with the source image.
+- **Output grid:** not applicable — three class probabilities, no mask.
+- **Grid set in:** the `F.resize(img, 512)` call in the README's inference example; the classifier
+  file is named `quickqual_dn121_512.pkl` after it.
 - **Input expected:** a fundus photograph resized to 512 pixels and normalised with mean and
   standard deviation 0.5 per channel, per the README's example. The authors' evaluation uses
   EyePACS images preprocessed by their `image_preprocessing.py`.

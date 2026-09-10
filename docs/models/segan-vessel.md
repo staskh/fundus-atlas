@@ -44,6 +44,14 @@ about whether a given vessel exists.
 - **Purpose:** `vessels`
 - **Output classes:** one class — blood vessel against background. AutoMorph writes both a raw
   probability map and a thresholded binary mask.
+- **Input grid:** 912×912. AutoMorph's preprocessing stage crops to the fundus bounds and resamples
+  so the fundus diameter is 912 pixels, then the module resizes to a square 912×912 with aspect
+  ratio ignored.
+- **Output grid:** 912×912 probability and binary masks, each then resampled back to the original
+  photograph's width and height and saved at both sizes.
+- **Grid set in:** `Define_image_size` in `M2_Vessel_seg/utils.py` (`(912, 912)` when `--uniform`,
+  which is what the shipped script passes); the diameter convention is `scale_list = [a*2/912 …]` in
+  `M0_Preprocess/EyeQ_process_main.py`.
 - **Input expected:** a preprocessed colour-fundus photograph from the pipeline's own cropping
   stage; AutoMorph works at a fixed internal size of 912 px.
 - **Preprocessing in the published code:** cropping and resizing by the host pipeline, plus a

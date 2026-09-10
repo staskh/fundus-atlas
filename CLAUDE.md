@@ -96,9 +96,8 @@ one-off format inline.
   request instead of looking for a way around it, and do not disable the protection to land a
   change.
 
-## 7. Layout and commands
+## 7. Layout
 
-Not yet established — at the time of writing the repository contains only `LICENSE` and
-`.gitignore`. Python is the intended language (per `.gitignore`); run Python through `uv`.
-
-Fill this section in as real structure and commands appear; do not guess them.
+Catalogues live under `docs/`: `PROJECTS.md` and `projects/` for pipelines, `MODELS.md` and
+`models/` for models. Each summary table and its detail pages are maintained together, per the
+skills in section 5.

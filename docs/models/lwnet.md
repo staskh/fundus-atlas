@@ -38,6 +38,12 @@ architecture retrained by other authors for a task this paper does not address.
 - **Purpose:** `vessels`
 - **Output classes:** one class — blood vessel against background. This model does not segment the
   optic disc; the pipelines that use the architecture for disc and cup retrained it themselves.
+- **Input grid:** 512×512, square, resized with aspect ratio ignored.
+- **Output grid:** the mask is produced at 512×512 and then resampled back to the original
+  photograph's dimensions with cubic interpolation, so what you get out matches what you put in.
+- **Grid set in:** `"im_size": "512"` in `experiments/wnet_drive/config.cfg`, and the
+  `--im_size` default of `512` in `predict_one_image.py`; the resample back is
+  `resize(pred, output_shape=original_sz, order=3)` in the same file.
 - **Input expected:** a colour-fundus photograph; the repository prepares each dataset to its own
   resolution.
 - **Preprocessing in the published code:** per-dataset preparation by `get_public_data.py`, which

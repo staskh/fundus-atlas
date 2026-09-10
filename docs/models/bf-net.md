@@ -33,6 +33,14 @@ and then fusing that binary result into the multi-class decision — hence "bina
 - **Purpose:** `artery/vein`
 - **Output classes:** multi-class vessel segmentation — artery, vein, and (in the fused output)
   vessel. The published inference writes artery, vein and combined-vessel maps separately.
+- **Input grid:** 720×720 when run with `--uniform=True`, which is how both this repository's own
+  scripts and AutoMorph invoke it. Without that flag the grid is per-dataset and non-square:
+  HRF-AV 880×592, DRIVE-AV 592×592, LES-AV 800×720. Note this is a **different grid from the vessel
+  model that runs beside it in AutoMorph** ([SEGAN](segan-vessel.md), 912×912).
+- **Output grid:** artery, vein and combined masks at the input grid, resampled back to the original
+  photograph's dimensions with nearest-neighbour interpolation before saving.
+- **Grid set in:** `Define_image_size` in `scripts/utils.py` here, and the identical function in
+  AutoMorph's `M2_Artery_vein/scripts/utils.py`.
 - **Input expected:** a colour-fundus photograph; the repository's own pipeline resizes per dataset,
   and the authors note image size settings must be reduced for weaker GPUs.
 - **Preprocessing in the published code:** dataset-specific resizing and normalisation, with a
