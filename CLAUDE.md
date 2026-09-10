@@ -81,6 +81,8 @@ Skills that exist today:
   in `docs/models/` and the columns of the `docs/MODELS.md` summary table.
 - **5.5** `document-biomarker` — cataloguing a biomarker: the page structure in `docs/biomarkers/`
   and the columns of the `docs/BIOMARKERS.md` summary table.
+- **5.6** `document-dataset` — cataloguing a dataset: the page structure in `docs/datasets/` and the
+  columns of the `docs/DATASETS.md` summary table.
 
 Before adding or changing an entry of any kind, load the matching skill and follow it. Where a skill
 does not exist yet, stop and agree the convention with Stas, then write the skill — do not invent a
