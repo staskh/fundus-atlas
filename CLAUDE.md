@@ -73,6 +73,11 @@ The detailed rules are not in this file. Each kind of entry has its own Claude s
   installation, and benchmark runs — so that every entry is fetched, installed, and measured the
   same way.
 
+Skills that exist today:
+
+- **5.3** `document-project` — cataloguing a project: the page structure in `docs/projects/` and the
+  columns of the `docs/PROJECTS.md` summary table.
+
 Before adding or changing an entry of any kind, load the matching skill and follow it. Where a skill
 does not exist yet, stop and agree the convention with Stas, then write the skill — do not invent a
 one-off format inline.
