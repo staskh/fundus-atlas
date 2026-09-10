@@ -106,15 +106,15 @@ to the modules in `vascx/fundus/features/`.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| Caliber (vessel width) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
-| Central retinal equivalents (CRAE, CRVE) | Hubbard reduction, √(d₁²+d₂²), with the artery and vein constants 0.88 and 0.95; the Knudtson variant is implemented separately in `cre_knudtson.py` | — | Reimplemented, with documented parameters: number of concentric circles around the disc, inner and outer radius in disc-diameter multiples, how many largest vessels to keep per circle (6 for the full mode, 4 for temporal or nasal), and orientation mode (temporal, nasal or full) |
+| [Caliber (vessel width)](../biomarkers/vessel-calibre.md) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
+| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) (CRAE, CRVE) | Hubbard reduction, √(d₁²+d₂²), with the artery and vein constants 0.88 and 0.95; the Knudtson variant is implemented separately in `cre_knudtson.py` | — | Reimplemented, with documented parameters: number of concentric circles around the disc, inner and outer radius in disc-diameter multiples, how many largest vessels to keep per circle (6 for the full mode, 4 for temporal or nasal), and orientation mode (temporal, nasal or full) |
 | Artery-vein ratio | Ratio of the two equivalents above | — | Derived from the CRE values |
-| Tortuosity | Three published families: distance ratio (arc length over chord length), mean curvature along a spline, and inflection counts | — | Reimplemented; selectable per segment or per whole vessel, spline or skeleton length, with optional caps on segment length and on implausible values |
-| Vascular density | Prior literature | — | Reimplemented |
-| Sparsity | Prior literature | — | Reimplemented, with mode options |
-| Bifurcation angles and counts | Prior literature | — | Reimplemented |
-| Temporal angles | Prior literature | — | Reimplemented |
-| Disc and fovea geometry (including disc-to-fovea distance) | Standard landmarks | — | Implemented here; also the scale reference for other biomarkers |
+| [Tortuosity](../biomarkers/tortuosity.md) | Three published families: distance ratio (arc length over chord length), mean curvature along a spline, and inflection counts | — | Reimplemented; selectable per segment or per whole vessel, spline or skeleton length, with optional caps on segment length and on implausible values |
+| [Vascular density](../biomarkers/vascular-density.md) | Prior literature | — | Reimplemented |
+| [Sparsity](../biomarkers/sparsity.md) | Prior literature | — | Reimplemented, with mode options |
+| [Bifurcation angles](../biomarkers/bifurcation-angle.md) and [counts](../biomarkers/junction-counts.md) | Prior literature | — | Reimplemented |
+| [Temporal angles](../biomarkers/temporal-angle.md) | Prior literature | — | Reimplemented |
+| Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/disc-fovea-distance.md)) | Standard landmarks | — | Implemented here; also the scale reference for other biomarkers |
 | Image quality metrics (edge strength, sharpness, variance of Laplacian) | Standard image-quality measures | — | Implemented here, alongside the learned quality model |
 
 ### 6.1 Regions

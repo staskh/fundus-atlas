@@ -73,13 +73,13 @@ contributions of the toolbox.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| Area, Length | Standard measures | — | Implemented here (in pixels and square pixels, not physical units) |
-| Tortuosity index, median tortuosity | Arc-chord ratio; the algorithm is presented as new in the PVBM paper | — | Introduced here |
-| Number of start points, end points, intersection points | Skeleton-based counts | — | Implemented here |
-| Median branching angle | Presented as new in the PVBM paper | — | Introduced here |
-| Capacity, entropy and correlation fractal dimensions; singularity length | Established fractal-analysis measures | — | Implemented here |
-| CRAE and CRVE (central retinal arteriolar and venular equivalents) | Knudtson and Hubbard formulas from prior literature | — | Both formulas implemented; the user chooses |
-| Arterio-venous ratio (AVR) | Ratio of CRAE to CRVE | — | Derived by the user from CRAE and CRVE |
+| [Area, Length](../biomarkers/vessel-area-and-length.md) | Standard measures | — | Implemented here (in pixels and square pixels, not physical units) |
+| [Tortuosity index, median tortuosity](../biomarkers/tortuosity.md) | Arc-chord ratio; the algorithm is presented as new in the PVBM paper | — | Introduced here |
+| [Number of start points, end points, intersection points](../biomarkers/junction-counts.md) | Skeleton-based counts | — | Implemented here |
+| [Median branching angle](../biomarkers/bifurcation-angle.md) | Presented as new in the PVBM paper | — | Introduced here |
+| [Capacity, entropy and correlation fractal dimensions; singularity length](../biomarkers/fractal-dimension.md) | Established fractal-analysis measures | — | Implemented here |
+| [CRAE and CRVE](../biomarkers/central-retinal-equivalents.md) (central retinal arteriolar and venular equivalents) | Knudtson and Hubbard formulas from prior literature | — | Both formulas implemented; the user chooses |
+| [Arterio-venous ratio (AVR)](../biomarkers/avr.md) | Ratio of CRAE to CRVE | — | Derived by the user from CRAE and CRVE |
 
 Areas and lengths are reported in pixels, so results are not comparable across cameras or image
 sizes without a resolution conversion of the user's own.

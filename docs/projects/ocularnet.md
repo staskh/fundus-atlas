@@ -79,10 +79,10 @@ which biomarkers are computed, and it does so using **PVBM's code**: the file
 
 | Output | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| Bifurcation points, arteries and veins separately, as 20-pixel regions of interest | The PVBM method | [PVBM](pvbm.md) (MIT) | Reused, via a modified copy of PVBM's `GeometricalVBMs` |
+| [Bifurcation points](../biomarkers/junction-counts.md), arteries and veins separately, as 20-pixel regions of interest | The PVBM method | [PVBM](pvbm.md) (MIT) | Reused, via a modified copy of PVBM's `GeometricalVBMs` |
 | Major vasculature regions, arteries and veins | This project | — | Two modes: morphological opening scaled to optic disc size, or largest connected components; the authors recommend a footprint width of 2–4 with visual inspection |
 | Crossing regions of interest | This project | — | Circular masks around the centroids of detected crossings — enabled by the crossings class, and not available from the other pipelines here |
-| Tortuosity, perimeter, branching angles | Prior literature via PVBM | PVBM | Imported from PVBM directly |
+| [Tortuosity](../biomarkers/tortuosity.md), perimeter, [branching angles](../biomarkers/bifurcation-angle.md) | Prior literature via PVBM | PVBM | Imported from PVBM directly |
 
 So OCULAR's numbers are, by construction, PVBM's numbers computed on OCULARNet's segmentations.
 That makes them directly comparable to PVBM results on other segmentations, and it means the

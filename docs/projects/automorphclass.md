@@ -95,7 +95,7 @@ these as AutoMorph-derived features, not as AutoMorph's numbers.
 
 ## 7. Examples and notebooks
 
-- [`example.ipynb`](https://github.com/kikatuso/AutoMorphClass/blob/main/example.ipynb) — start
+- [`example.ipynb`](https://github.com/kikatuso/AutoMorphClass/blob/master/example.ipynb) — start
   here. It loads an image from `example_images/`, runs the module and shows how to read the
   extracted features.
 - `example.py` — the same flow as a plain script, for use outside a notebook.
@@ -109,13 +109,22 @@ these as AutoMorph-derived features, not as AutoMorph's numbers.
 - **What the author states:** in [rmaphoh/AutoMorph#18](https://github.com/rmaphoh/AutoMorph/issues/18)
   the author describes this project as including "fixed tortuosity measures (as the original
   pipeline has a bug when extracting these)".
-- **Status:** claimed fixed; **unverified and undocumented in the code.** No comment or note
-  describing the change was found in `tortuosity_utils.py` or `feature_calculation.py`, so a reader
-  cannot tell from the source what was altered or how it differs from the fix in
-  [AutoMorphalyzer](automorphalyzer.md).
+- **What the code shows:** the fixes are real, and go further than the claim. Reading
+  `tortuosity_utils.py` and `feature_calculation.py` against retipy's originals, this project
+  repairs four of the lineage's defects — it orders each vessel's points along the path
+  (`order_vessel_points`), computes curvature with `np.gradient` rather than retipy's stencil that
+  divides by 4, multiplies the tortuosity-density count factor as Grisan's formula requires instead
+  of adding it, includes the vessel stretch after the last inflection, and weights each vessel by
+  its arc length when aggregating. It also repairs the mask before tracing: small components
+  removed, gaps up to 22 pixels bridged, nearby endpoints connected.
+- **What is not fixed:** the centreline is still not smoothed before curvature is taken, which
+  Hart's paper requires; see [vessel-tracing.md](../biomarkers/vessel-tracing.md) section 6.
+- **Status:** **none of it is documented** — no comment in the source says what changed, and the
+  author's only public statement is the sentence in issue #18. A reader comparing this project's
+  numbers with AutoMorph's can only discover the differences by reading both implementations.
 - **Consequence for a reader:** three pipelines (AutoMorph, AutoMorphalyzer, this one) now compute
-  tortuosity differently, with no cross-validation between them. Do not pool tortuosity values
-  across them.
+  tortuosity differently, they repaired different subsets of the same defects, and none validated
+  against another. Do not pool tortuosity values across them.
 
 ### 8.2 License file missing
 

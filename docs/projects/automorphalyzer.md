@@ -89,12 +89,12 @@ AutoMorph diverge most.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| Fractal dimension, vessel density, global vessel calibre | Prior literature, as in AutoMorph | [retipy](retipy.md) via AutoMorph | Unchanged, but computed for the whole image only — not for zones B and C |
-| Tortuosity (distance, and density) | Prior literature | retipy via AutoMorph | **Corrected.** The authors state AutoMorph extracted some vessel segments incorrectly, exaggerating tortuosity; segment extraction was rewritten with Numba and a depth-first search. Computed across all zones |
+| [Fractal dimension](../biomarkers/fractal-dimension.md), [vessel density](../biomarkers/vascular-density.md), [global vessel calibre](../biomarkers/vessel-calibre.md) | Prior literature, as in AutoMorph | [retipy](retipy.md) via AutoMorph | Unchanged, but computed for the whole image only — not for zones B and C |
+| [Tortuosity](../biomarkers/tortuosity.md) (distance, and density) | Prior literature | retipy via AutoMorph | **Corrected.** The authors state AutoMorph extracted some vessel segments incorrectly, exaggerating tortuosity; segment extraction was rewritten with Numba and a depth-first search. Computed across all zones |
 | Tortuosity (squared curvature) | Prior literature | retipy via AutoMorph | **Removed** as redundant with the other tortuosity measures |
-| Local calibre | Prior literature | retipy via AutoMorph | Corrected and made faster |
-| CRAE, CRVE | Knudtson formula only | retipy via AutoMorph | **Hubbard formula removed.** Measured in zones B and C only |
-| Arteriovenous ratio (AVR) | Ratio of the above | — | Added, in zones B and C |
+| [Local calibre](../biomarkers/vessel-calibre.md) | Prior literature | retipy via AutoMorph | Corrected and made faster |
+| [CRAE, CRVE](../biomarkers/central-retinal-equivalents.md) | Knudtson formula only | retipy via AutoMorph | **Hubbard formula removed.** Measured in zones B and C only |
+| [Arteriovenous ratio (AVR)](../biomarkers/avr.md) | Ratio of the above | — | Added, in zones B and C |
 | Quality (probability of rejection) | QuickQual | [QuickQual](https://github.com/justinengelmann/QuickQual) | Reused, and written into the collated results file |
 
 All measurements are in pixels at a fixed working size of 912×912, because the pipeline assumes no
@@ -126,8 +126,29 @@ Failures are recorded rather than hidden: a traceback goes to the terminal and t
 - **Status:** reported fixed by the authors; **not verified** here or, as far as could be
   established, by anyone independent. The authors themselves note that a comparison of output
   against AutoMorph is still to be published.
+- **What the code shows:** the ordering repair is real — `_reorder_coords` in
+  `automorph/measure/get_vessel_coords.py` walks each branch depth-first from an endpoint, after
+  branch points are erased and branches under 10 pixels dropped.
 - **Consequence for a reader:** tortuosity from this pipeline is not comparable with tortuosity from
   AutoMorph, nor with [AutoMorphClass](automorphclass.md), which fixed the same defect separately.
+
+### 8.2 The tortuosity-density formula is knowingly left incorrect
+
+- **What is wrong:** Grisan's formula multiplies the amplitude sum by `(n−1)/n`; this pipeline adds
+  it, inherited from retipy. Its own source states the position outright:
+
+  ```python
+  # return ((n - 1)/curve_length)*sum_segments  # This is the proper formula
+  return (n - 1)/n + (1/curve_length)*sum_segments # This is not
+  ```
+
+- **What it affects:** the tortuosity-density column. Because the amplitude term carries units of
+  1/length and is numerically small, the reported value is dominated by the additive constant — that
+  is, mostly a function of how many curvature sign changes were counted.
+- **Status:** open, and deliberate: the correct formula is written out and commented, presumably to
+  keep continuity with AutoMorph's output. The final vessel stretch after the last inflection is
+  also still dropped, and whole-image aggregation is still an unweighted mean over vessels. See
+  [vessel-tracing.md](../biomarkers/vessel-tracing.md) section 6.
 
 ## 9. Notes
 

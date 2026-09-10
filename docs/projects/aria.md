@@ -61,7 +61,7 @@ retraining.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| Vessel diameter (width) along each detected vessel | The paper in section 3 | This project | Introduced here |
+| [Vessel diameter (width)](../biomarkers/vessel-calibre.md) along each detected vessel | The paper in section 3 | This project | Introduced here |
 
 Whether ARIA also outputs derived summary measures such as tortuosity or calibre equivalents was
 not established at the time of checking. Treat vessel diameter as the measurement it is built to

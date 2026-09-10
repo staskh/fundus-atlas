@@ -59,8 +59,8 @@ artery/vein separation and no optic disc segmentation were found.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| Tortuosity measures (several) | Prior literature; the specific definitions were not established at the time of checking | This project | Implemented here |
-| Vessel bifurcation detection | Prior literature | This project | Implemented here |
+| [Tortuosity measures (several)](../biomarkers/tortuosity.md) | Prior literature; the specific definitions were not established at the time of checking | This project | Implemented here |
+| [Vessel bifurcation detection](../biomarkers/junction-counts.md) | Prior literature | This project | Implemented here |
 
 These implementations have downstream reach: AutoMorph's README names retipy as its
 feature-measurement component, so AutoMorph's tortuosity, calibre and fractal-dimension columns
