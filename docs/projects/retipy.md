@@ -73,7 +73,32 @@ evidence than it looks.
   application, which ships with a demo login (`alevalv` / `mypassword`). The authors note the
   default deployment has no persistence, so processed data is lost on restart.
 
-## 8. Notes
+## 8. Known defects
+
+### 8.1 Vessel segments are returned in discovery order, not path order — invalidating every tortuosity measure
+
+This is the root cause of a defect that has propagated into three other projects in this catalogue,
+and it lives here, in `retipy/retina.py`.
+
+- **What is wrong:** `vessel_extractor` collects each vessel segment with a flood fill that pops
+  from the front of its queue (`pending_pixels.pop(0)`), making the fill breadth-first. The pixels
+  it returns are therefore in the order they were *discovered*, not the order they occur *along the
+  vessel*. The raster scan that seeds each segment also starts wherever the segment is first met in
+  scan order — for anything but a vertical vessel, that is somewhere along its length rather than at
+  an end, so the fill then expands in both directions at once.
+- **What it affects:** every consumer of those coordinate lists treats them as an ordered curve.
+  That includes arc length (`_curve_length`, summing distances between successive points), chord
+  length (`_chord_length`, taking the first and last point), `squared_curvature_tortuosity`
+  (differentiating with `np.gradient`) and `tortuosity_density` (splitting the curve at inflection
+  points found by index). All tortuosity outputs are therefore affected.
+- **Evidence:** [rmaphoh/AutoMorph#19](https://github.com/rmaphoh/AutoMorph/issues/19), which
+  diagnoses the ordering bug in this code and reports a before-and-after benchmark against FIVES
+  expert vessel annotations.
+- **Status:** open. This project has had no commits since 2019, so it should be assumed unfixed
+  here. Anything reusing retipy's tortuosity code inherits it — see
+  [automorph.md](automorph.md) section 8.
+
+## 9. Notes
 
 - Dormant since 2019 and built on 2019-era dependencies. Expect installation friction, and treat it
   as a reference implementation to read rather than software to deploy.

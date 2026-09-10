@@ -58,6 +58,19 @@ Use `template.md` verbatim as the starting point and keep its section numbering.
 7. **Examples and notebooks** — the one or two entry points a reader should run first to see the
    pipeline work, with a sentence on what each demonstrates. Point at the most useful, not all of
    them.
+8. **Known defects** — bugs that change the numbers a user would report, each with the evidence:
+   the upstream issue or commit that documents it, whether it is fixed and in which version, and
+   which output columns are affected. This is the section that earns the atlas its keep, so it has
+   rules of its own:
+   - Record a defect where it **lives**, not only where it surfaces. A bug in a borrowed component
+     belongs on that component's page as the root cause, and on each dependent project's page as an
+     inherited defect pointing back to it.
+   - A fix claimed by a project's authors is their claim: attribute it, say whether anyone has
+     verified it, and never restate it as confirmed.
+   - Independent fixes of the same defect in different forks are worth stating plainly, because
+     they mean those projects now disagree on that biomarker.
+   - Where nothing is known, write `None recorded` and the date. That is an absence of findings,
+     not a clean bill of health, and the wording should not suggest otherwise.
 
 A section that does not apply stays in the page, marked `Not applicable` with a short reason. A
 section whose answer you could not establish is marked `Unknown` — never filled with a guess.

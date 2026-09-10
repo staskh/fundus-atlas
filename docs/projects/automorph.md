@@ -109,7 +109,31 @@ rather than as silently wrong numbers.
 - `run.sh` in the repository — the local entry point, and the place to read how the four stages are
   chained. It accepts flags such as `--no_quality` and `--no_segmentation` to skip stages.
 
-## 8. Notes
+## 8. Known defects
+
+### 8.1 Tortuosity measures are invalidated by vessel-segment ordering (inherited from retipy)
+
+- **What is wrong:** AutoMorph's feature measurement reuses retipy's code, and inherits its defect:
+  vessel segment pixels are returned in flood-fill discovery order rather than in order along the
+  vessel, while every tortuosity formula consumes them as an ordered curve. The root cause is
+  described in [retipy.md](retipy.md) section 8.1.
+- **What it affects:** all three tortuosity columns — distance measure, squared curvature and
+  tortuosity density. Calibre, density, fractal dimension and the disc measurements do not depend on
+  segment ordering.
+- **Evidence:** [rmaphoh/AutoMorph#19](https://github.com/rmaphoh/AutoMorph/issues/19), filed
+  2026-08-11, with a per-feature before-and-after benchmark against FIVES expert annotations.
+- **Status:** open and unfixed in this project as of 2026-09-10. Two forks fixed it independently
+  and separately from each other — see [automorphalyzer.md](automorphalyzer.md) and
+  [automorphclass.md](automorphclass.md) — so tortuosity values from AutoMorph and from either fork
+  are not comparable.
+
+### 8.2 Hardcoded values in the same code path
+
+- **What is wrong:** the issue above also reports two hardcoded constants in the tortuosity code
+  path that its author argues should be configurable.
+- **Status:** open; reported in the same issue. Details are in that issue rather than restated here.
+
+## 9. Notes
 
 - The authors state that invalid results (for instance a failed optic disc segmentation) are written
   as `NAN` values in the output CSV files, so output rows need filtering before analysis.
