@@ -178,6 +178,9 @@ choices; a value quoted without them is not reproducible.
 - **Segmentations:** vessels, or artery/vein for per-class tortuosity.
 - **Derived geometry:** a skeleton; **vessel segments split at junctions**; the ordered sequence of
   points along each segment; often a spline fit; inflection points for variants 3.2, 3.3 and 3.6.
+- **Tracing:** this biomarker is a measurement of the trace, not of the mask — see
+  [vessel-tracing.md](vessel-tracing.md) for how each project builds it, and which defects were
+  fixed where.
 - **Why this matters:** the ordered point sequence is where tortuosity is won or lost. Every formula
   above assumes the points arrive in path order, and a segmentation offers no such ordering — the
   code must trace it. Section 9 is what happens when that tracing is wrong.
@@ -241,12 +244,15 @@ choices; a value quoted without them is not reproducible.
   `t4` and `td` columns.
 - **Evidence:** [rmaphoh/AutoMorph#19](https://github.com/rmaphoh/AutoMorph/issues/19), with a
   before-and-after benchmark against FIVES expert annotations.
-- **Status:** **open** in retipy (dormant since 2019) and in AutoMorph.
-  [AutoMorphalyzer](../projects/automorphalyzer.md) states it rewrote segment extraction and
-  corrected exaggerated tortuosity; [AutoMorphClass](../projects/automorphclass.md)'s author states
-  the same in [issue #18](https://github.com/rmaphoh/AutoMorph/issues/18) but documents no change in
-  the code. Both fixes are their authors' claims, unverified here, and were made independently — so
-  **AutoMorph, AutoMorphalyzer and AutoMorphClass tortuosity values must not be pooled.**
+- **Status:** **open** in retipy (dormant since 2019) and in AutoMorph. **Fixed in both
+  derivatives, verifiably in their code:** [AutoMorphalyzer](../projects/automorphalyzer.md) walks
+  each branch depth-first from an endpoint (`_reorder_coords` in
+  `automorph/measure/get_vessel_coords.py`), and [AutoMorphClass](../projects/automorphclass.md)
+  walks an occupancy grid from a degree-one endpoint (`order_vessel_points`, applied in
+  `_tortuosity_per_window` before any measure is computed). The two repairs were made independently
+  and neither validated against the other, so **AutoMorph, AutoMorphalyzer and AutoMorphClass
+  tortuosity values must not be pooled.** See
+  [vessel-tracing.md](vessel-tracing.md) section 6 for the full defect-by-fork matrix.
 
 ### 9.2 The squared-curvature estimator differences raw pixels, which Hart's paper forbids
 
@@ -272,7 +278,9 @@ choices; a value quoted without them is not reproducible.
 - **Our own check:** correcting the divisor multiplies the reported value by exactly 4 on the
   synthetic curves above — which makes it **further** from the analytic answer, because the error in
   9.2 dominates and the wrong divisor happens to damp it. **Do not fix this one on its own.**
-- **Status:** open, and entangled with 9.2.
+- **Status:** open in retipy and AutoMorph; not applicable to AutoMorphalyzer, which removed the
+  squared-curvature measure; **fixed** in AutoMorphClass, which computes curvature with
+  `np.gradient` and so uses the correct spacing.
 
 ### 9.4 Tortuosity density adds the count factor where the paper multiplies, and drops the last subsegment
 
@@ -285,9 +293,12 @@ choices; a value quoted without them is not reproducible.
 - **Also missing:** the spline fit, the hysteresis band on the curvature sign, and the halving of
   zero-curvature runs — steps 1, 3 and 4 of the published algorithm. Inflections are instead taken
   from sign changes of a first difference of the raw pixel coordinates.
-- **What it affects:** the `td` column in AutoMorph, and tortuosity density in AutoMorphalyzer
-  unless its rewrite addressed this.
-- **Status:** open, established by reading the public code against the paper.
+- **What it affects:** the `td` column in AutoMorph and in AutoMorphalyzer.
+- **Status:** open in retipy and AutoMorph. **AutoMorphalyzer keeps it knowingly** — its source
+  carries the correct formula as a comment above the incorrect line, annotated "This is the proper
+  formula" and "This is not" — and still drops the final segment. **AutoMorphClass fixed both**: it
+  multiplies by `(n−1)/n` and includes the stretch after the last inflection. Established by reading
+  the public code against the paper.
 
 ### 9.5 Whole-image aggregation is an unweighted mean, where the paper requires arc-length weighting
 
@@ -297,8 +308,10 @@ choices; a value quoted without them is not reproducible.
   `evaluate_window` takes a plain mean over vessels.
 - **Why it matters here:** junction splitting cuts each tree into many branches of very different
   lengths, so an unweighted mean lets a three-pixel twig count as much as a major arcade.
-- **Status:** open. VascX offers a length-weighted aggregator for calibre and tortuosity, which is
-  the behaviour Hart prescribes; the AutoMorph lineage does not.
+- **Status:** open in retipy, AutoMorph and AutoMorphalyzer, which divides its totals by a plain
+  vessel count. **Fixed in AutoMorphClass**, whose `_tortuosity_per_window` weights each vessel by
+  its curve length by default. VascX also offers a length-weighted aggregator, which is the
+  behaviour Hart prescribes.
 
 ## 10. Notes
 

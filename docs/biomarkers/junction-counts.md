@@ -62,6 +62,9 @@ neighbour-counting rule and not a bifurcation at all to a graph-based one.
   a crossings class for OCULAR's crossing masks.
 - **Derived geometry:** a skeleton, and either a neighbour count per pixel (PVBM) or a resolved
   vessel graph (VascX).
+- **Tracing:** this biomarker is a measurement of the trace, not of the mask — see
+  [vessel-tracing.md](vessel-tracing.md) for how each project builds it, and which defects were
+  fixed where.
 - **Why this matters:** skeletonisation decides the answer. A one-pixel spur creates an endpoint; a
   slightly thick junction creates several intersection points where anatomy has one.
 

@@ -54,6 +54,9 @@ its own convention. Two "median branching angle" values from the two are differe
   venules separately).
 - **Derived geometry:** a skeleton; a graph of the vessel tree with identified bifurcation nodes;
   outgoing branch directions sampled at some distance from each node.
+- **Tracing:** this biomarker is a measurement of the trace, not of the mask — see
+  [vessel-tracing.md](vessel-tracing.md) for how each project builds it, and which defects were
+  fixed where.
 - **Why this matters:** which junctions are found at all. A crossing mistaken for a bifurcation
   contributes a meaningless angle, and thin-vessel skeletons produce spurious branch points — so
   the junction detector shapes the distribution before any angle is measured.

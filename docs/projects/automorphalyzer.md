@@ -126,8 +126,29 @@ Failures are recorded rather than hidden: a traceback goes to the terminal and t
 - **Status:** reported fixed by the authors; **not verified** here or, as far as could be
   established, by anyone independent. The authors themselves note that a comparison of output
   against AutoMorph is still to be published.
+- **What the code shows:** the ordering repair is real — `_reorder_coords` in
+  `automorph/measure/get_vessel_coords.py` walks each branch depth-first from an endpoint, after
+  branch points are erased and branches under 10 pixels dropped.
 - **Consequence for a reader:** tortuosity from this pipeline is not comparable with tortuosity from
   AutoMorph, nor with [AutoMorphClass](automorphclass.md), which fixed the same defect separately.
+
+### 8.2 The tortuosity-density formula is knowingly left incorrect
+
+- **What is wrong:** Grisan's formula multiplies the amplitude sum by `(n−1)/n`; this pipeline adds
+  it, inherited from retipy. Its own source states the position outright:
+
+  ```python
+  # return ((n - 1)/curve_length)*sum_segments  # This is the proper formula
+  return (n - 1)/n + (1/curve_length)*sum_segments # This is not
+  ```
+
+- **What it affects:** the tortuosity-density column. Because the amplitude term carries units of
+  1/length and is numerically small, the reported value is dominated by the additive constant — that
+  is, mostly a function of how many curvature sign changes were counted.
+- **Status:** open, and deliberate: the correct formula is written out and commented, presumably to
+  keep continuity with AutoMorph's output. The final vessel stretch after the last inflection is
+  also still dropped, and whole-image aggregation is still an unweighted mean over vessels. See
+  [vessel-tracing.md](../biomarkers/vessel-tracing.md) section 6.
 
 ## 9. Notes
 

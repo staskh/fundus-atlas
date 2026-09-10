@@ -52,12 +52,71 @@ Grouped by family; alphabetical within each family.
 | [Cup-to-disc ratio](biomarkers/cup-to-disc-ratio.md) | Size of the optic cup relative to the disc | Disc **and cup** | Optic nerve head | Dimensionless, **scale-invariant** | 1 (height/width ratios) | AutoMorph, AutoMorphalyzer, AutoMorphClass | Clinical measure | 2026-09-10 |
 | [Disc-fovea distance](biomarkers/disc-fovea-distance.md) | Distance between the two landmarks — and the ruler other measures use | Disc + fovea | Not applicable | Pixels; used as a normalisation factor | 1 | VascX | VascX toolbox paper 2026 | 2026-09-10 |
 
-## 2. Traps found in the implementations
+## 2. Vessel tracing — the shared step beneath the shape measurements
+
+Several biomarkers above are measurements of a **trace** rather than of a mask. Tracing is the step
+that turns "these pixels are vessel" into "this is one vessel, and these are its points in order
+from one end to the other" — and it is where these pipelines differ most. Two of them can run the
+same segmentation model on the same photograph, produce identical masks, and still disagree about
+tortuosity. [vessel-tracing.md](biomarkers/vessel-tracing.md) documents each implementation; this is
+the summary.
+
+### 2.1 How each project traces vessels
+
+| Project | Centreline | Junctions | Point ordering | Smoothing | Joins branches into whole vessels |
+| --- | --- | --- | --- | --- | --- |
+| [ARIA](projects/aria.md) | Spline fitted in the image — **no skeleton** | In the tracking algorithm | Intrinsic to the spline | Intrinsic | — |
+| [VascX](projects/vascx.md) | Skeleton, disc masked out | Graph nodes, typed bifurcation or endpoint | From the graph | Cubic smoothing spline per segment | **Yes** — resolved segments |
+| [PVBM](projects/pvbm.md) | Skeleton | Tree of parents and children | **Traversal from the optic disc outward** | None | Tree structure |
+| [OCULARNet](projects/ocularnet.md) | PVBM's | PVBM's, plus 20-px discs at bifurcations and **crossings** | PVBM's | None | Major-vessel extraction |
+| [AutoMorphalyzer](projects/automorphalyzer.md) | Skeleton | **Erased**; branches under 10 px dropped | Depth-first walk from an endpoint | 4-point path refinement | No |
+| [AutoMorphClass](projects/automorphclass.md) | Skeleton, after gap bridging and component removal | Detected, components labelled | Endpoint walk over an occupancy grid | None | No, but **bridges gaps up to 22 px** |
+| [AutoMorph](projects/automorph.md) | Skeleton | **Erased** — 3×3 hole where a pixel has >2 neighbours | **None** — flood-fill discovery order | None | No |
+| [retipy](projects/retipy.md) | Skeleton | Not removed | **Sorted by x, repeated x dropped** | None | No |
+
+Reading the table from the bottom up is reading the history: retipy's sort-and-decimate, AutoMorph
+disabling it without replacing it, and then two independent repairs. Reading it from the top down is
+reading the design space: an image-domain spline, a typed graph, a tree rooted at the disc, and
+three variants of "erase the junctions and hope".
+
+### 2.2 Which biomarkers depend on the trace
+
+| Depends critically | Depends partly | Does not depend at all |
+| --- | --- | --- |
+| [Tortuosity](biomarkers/tortuosity.md) · [bifurcation angle](biomarkers/bifurcation-angle.md) · [junction counts](biomarkers/junction-counts.md) | [Vessel calibre](biomarkers/vessel-calibre.md) (per-segment) · [central retinal equivalents](biomarkers/central-retinal-equivalents.md) · [temporal angle](biomarkers/temporal-angle.md) · [vessel length](biomarkers/vessel-area-and-length.md) | [Vascular density](biomarkers/vascular-density.md) · [fractal dimension](biomarkers/fractal-dimension.md) · [sparsity](biomarkers/sparsity.md) · [vessel area](biomarkers/vessel-area-and-length.md) · [cup-to-disc ratio](biomarkers/cup-to-disc-ratio.md) · [disc-fovea distance](biomarkers/disc-fovea-distance.md) |
+
+This is the most useful diagnostic in the atlas: **a disagreement in density or fractal dimension
+points at the segmentation model; a disagreement in tortuosity, angles or counts points at the
+tracer**, and can happen with identical masks.
+
+### 2.3 Which tracing defects were fixed where
+
+Seven defects in the retipy lineage, all inherited by AutoMorph. Its two derivatives repaired
+different subsets and neither repaired all — so the three pipelines that describe themselves as
+AutoMorph produce three different tortuosity numbers from one photograph.
+
+| Defect | retipy | AutoMorph | AutoMorphalyzer | AutoMorphClass |
+| --- | --- | --- | --- | --- |
+| Sorted by x, repeated x dropped | yes | **removed** | own tracer | own tracer |
+| No path ordering | yes | **yes** | **fixed** | **fixed** |
+| No smoothing before curvature | yes | yes | partly | no |
+| Second derivative divided by 4 | yes | yes | not applicable | **fixed** |
+| Density adds the count factor instead of multiplying | yes | yes | **kept knowingly** | **fixed** |
+| Density drops the last segment | yes | yes | yes | **fixed** |
+| Unweighted mean instead of arc-length weighting | yes | yes | yes | **fixed** |
+
+Two of these are worth stating plainly. AutoMorphalyzer's source contains the correct
+tortuosity-density formula **as a comment**, with the incorrect one live beneath it and the remark
+"This is not" — a deliberate choice of continuity with AutoMorph over agreement with the paper it
+cites. And AutoMorphClass fixed four of the seven while documenting none of them, so its numbers
+differ from AutoMorph's for reasons a reader can only discover by reading both implementations.
+
+## 3. Traps found in the implementations
 
 These came out of reading the code behind the pages above, not out of the papers. Each one can make
 two numbers look comparable when they are not.
 
-### 2.1 The Hubbard formula's constants are in microns, so it cannot be used on pixel widths
+### 3.1 The Hubbard formula's constants are in microns, so it cannot be used on pixel widths
 
 The two central-retinal-equivalent formulas are not the same kind of object. Knudtson combines a
 pair of vessel widths as `0.88·√(w₁² + w₂²)` for arterioles and `0.95·√(w₁² + w₂²)` for venules —
@@ -73,7 +132,7 @@ meaningful when a real pixel resolution was supplied.
 authors present as simplification, and which this reading suggests was the right call. See
 [central retinal equivalents](biomarkers/central-retinal-equivalents.md).
 
-### 2.2 Tortuosity is six formulas wearing one name, and they do not agree on rank order
+### 3.2 Tortuosity is nine measures wearing one name, and they do not agree on rank order
 
 [Hart et al. 1999](https://www.siue.edu/~sumbaug/RetinalProjectPapers/Measurement%20and%20classification%20of%20retinal%20vascular%20tortuosity.pdf)
 defines seven measures, τ1 to τ7; Grisan et al. define tortuosity density; three more exist only
@@ -90,7 +149,7 @@ segment length and on implausible values — each of which changes the number. A
 therefore not interpretable without its formula and those options. See
 [tortuosity](biomarkers/tortuosity.md).
 
-### 2.3 "Zone B" and "Zone C" differ by a factor of two between pipelines
+### 3.3 "Zone B" and "Zone C" differ by a factor of two between pipelines
 
 Measurements near the disc are taken in a ring, and the pipelines describe their rings in different
 units. [PVBM](projects/pvbm.md) builds zones at 1, 2 and 3 optic disc **radii** and measures in the
@@ -100,7 +159,7 @@ disc **diameters**. The words are the same, the rings are not, and the same form
 ring is a different number. See
 [central retinal equivalents](biomarkers/central-retinal-equivalents.md) section 5.
 
-### 2.4 AutoMorph's fractal dimension measures the vessels' boundary, not their occupancy
+### 3.4 AutoMorph's fractal dimension measures the vessels' boundary, not their occupancy
 
 Box-counting covers the vessel mask with boxes and counts how many contain vessel. The
 implementation in AutoMorph's `FD_cal.py`, inherited from [retipy](projects/retipy.md), counts only
@@ -111,7 +170,7 @@ it will diverge on thick or densely packed masks. [PVBM](projects/pvbm.md) compu
 thing again — a multifractal set (D₀, D₁, D₂ and singularity length), averaged over 25 rotations.
 See [fractal dimension](biomarkers/fractal-dimension.md).
 
-### 2.5 Only two catalogued models segment the optic cup, which is why most pipelines report no cup-to-disc ratio
+### 3.5 Only two catalogued models segment the optic cup, which is why most pipelines report no cup-to-disc ratio
 
 The cup-to-disc ratio needs a cup, and a cup boundary is defined by depth — which a colour
 photograph does not record. Of the nineteen models in [MODELS.md](MODELS.md), only
@@ -121,7 +180,7 @@ photograph does not record. Of the nineteen models in [MODELS.md](MODELS.md), on
 no cup-to-disc ratio, and it is a capability gap rather than an oversight. See
 [cup-to-disc ratio](biomarkers/cup-to-disc-ratio.md).
 
-## 3. How to read this table
+## 4. How to read this table
 
 - **Variants** — how many competing definitions share this name. A value computed with one variant
   is not interchangeable with a value computed with another; each detail page says whether they can
@@ -140,7 +199,7 @@ no cup-to-disc ratio, and it is a capability gap rather than an oversight. See
 - **Known defects** are not in this table. Every detail page carries a section 9 recording bugs that
   change the number. `None recorded` there means no finding, not a clean bill of health.
 
-## 4. Adding a biomarker
+## 5. Adding a biomarker
 
 Biomarker pages follow a fixed structure so they can be read against each other. Load the
 `document-biomarker` skill, which defines that structure and this table's columns, before adding or
