@@ -14,10 +14,9 @@ different questions.
 | [OCULARNet](projects/ocularnet.md) | Segmentations plus junction, crossing and major-vessel zone masks; biomarkers via PVBM | OCULARNet and OCULARNet-nano, four classes including vessel crossings (introduced here); disc segmenter borrowed | Yes | Yes, on Hugging Face | None stated — no LICENSE file | 2026-08 | 2026-09-10 |
 | [VascX](projects/vascx.md) | Central retinal equivalents, calibers, AVR, density, bifurcation and temporal angles, tortuosity, sparsity, quality metrics | VascX ensembles: vessels, artery/vein, disc, fovea, quality (all introduced here) | Yes | Yes, on Hugging Face | Not stated — no LICENSE file; weights are AGPL-3.0 | 2026-08 | 2026-09-10 |
 | [AutoMorphClass](projects/automorphclass.md) | AutoMorph's vascular features, returned as a PyTorch tensor or named dict | AutoMorph's vessel, artery/vein and disc models (all borrowed) | No | Yes, committed in the repository | Unclear — MIT declared in the README and `pyproject.toml`, but no LICENSE file | 2026-05 | 2026-09-10 |
-| [AutoMorphalyzer](projects/automorphalyzer.md) | Corrected AutoMorph measurements: tortuosity, calibre, density, fractal dimension, CRAE/CRVE/AVR (Knudtson only), quality probability | BF-Net vessels and artery/vein, lwnet disc/cup (both borrowed via AutoMorph), QuickQual quality (borrowed) | No | Yes, from this repository's releases | Apache-2.0 | 2026-03 | 2026-09-10 |
+| [AutoMorphalyzer](projects/automorphalyzer.md) | Corrected AutoMorph measurements: tortuosity, calibre, density, fractal dimension, CRAE/CRVE/AVR (Knudtson only), quality probability | SEGAN vessels, BF-Net artery/vein and the lwnet-derived disc/cup model (all borrowed via AutoMorph), QuickQual quality (borrowed) | No | Yes, from this repository's releases | Apache-2.0 | 2026-03 | 2026-09-10 |
 | [PVBM](projects/pvbm.md) | 15 biomarkers per artery and vein mask: areas, lengths, tortuosity, branching angles, fractal dimensions, CRAE/CRVE | Optic disc only (borrowed from LUNet); artery/vein masks must come from elsewhere | No | Yes, downloaded at first use | MIT | 2026-01 | 2026-09-10 |
 | [AutoMorph](projects/automorph.md) | Vessel width, tortuosity, fractal dimension, CRAE/CRVE/AVR, cup-to-disc ratio | Four separate borrowed models: EyeQ quality, SEGAN-style vessel segmenter, BF-Net artery/vein, lwnet disc/cup | No — borrowed architectures, retrained weights | Yes, committed in the repository | Apache-2.0 (two borrowed components are GPL-3.0 at source) | 2025-06 | 2026-09-10 |
-| [LWNet](projects/lwnet.md) | Segmentation masks only — no biomarkers; supplies disc/cup segmentation to three other projects | W-Net vessels, Big W-Net artery/vein (both introduced here) | Yes | Yes, committed in the repository | MIT | 2024-01 | 2026-09-10 |
 | [retipy](projects/retipy.md) | Tortuosity measures, bifurcation detection | retipy vessel segmentation (classical image processing) | Yes — algorithmic | Not applicable | GPL-3.0 or later | 2019-05 | 2026-09-10 |
 | [ARIA](projects/aria.md) | Vessel diameter | Wavelet vessel detection (not a trained model) | Yes — algorithmic | Not applicable | BSD 2-clause, stated in `Copyright.m` not a LICENSE file | 2016-05 | 2026-09-10 |
 
@@ -48,10 +47,9 @@ reason, so nobody repeats the search:
 - **QUARTZ** (Quantitative Analysis of Retinal vessel Topology and siZe) — published and widely
   cited, but no public code repository was found. An annotation tool and a branching-angle benchmark
   set from the same group are public; the pipeline itself is not.
-- **Individual models** — LUNet, BF-Net (Learning-AVSegmentation), QuickQual and EyeQ are single
-  models, not pipelines. They belong in the segmentation-model catalogue, and are named on the pages
-  of the projects that use them. LWNet is the exception: it is listed above, with a scope note,
-  because three other projects depend on it and readers look for it by name.
+- **Individual models** — LWNet, LUNet, BF-Net (Learning-AVSegmentation), QuickQual and EyeQ are
+  single models, not pipelines. They are catalogued in [MODELS.md](MODELS.md), and are named on the
+  pages of the projects that use them.
 - **retinalysis-fundusprep** — preprocessing only (image bounds, cropping, contrast). It is a
   component of VascX, recorded on that page.
 - **BEAL and ISFA** — optic disc and cup segmentation across cameras by domain adaptation. Both
