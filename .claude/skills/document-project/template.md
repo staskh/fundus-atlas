@@ -48,7 +48,14 @@ built for. Attribute any claim about performance to the authors.
 
 - `<path in the project's repo>` — <what it demonstrates, and why start here>
 
-## 8. Notes
+## 8. Known defects
+
+<One subsection or bullet per defect: what is wrong, which outputs it affects, the upstream issue or
+commit documenting it, and its status (open / fixed in <version> / fixed by this project, unverified).
+If nothing is known, write `None recorded as of <YYYY-MM-DD>.` — an absence of findings, not a clean
+bill of health.>
+
+## 9. Notes
 
 Anything a reader needs in order not to be misled: known limitations the authors state, image types
 it expects, preprocessing it assumes.

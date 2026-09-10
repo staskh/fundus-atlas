@@ -75,7 +75,12 @@ provide.
 - `ARIA_run_tests.m` — reproduces the results and timings reported in the paper. It requires the
   DRIVE and REVIEW datasets, which must be obtained from their own sources first.
 
-## 8. Notes
+## 8. Known defects
+
+None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health. Nothing in this
+project's issue tracker or code was found to change the numbers a user would report.
+
+## 9. Notes
 
 - Requires a MATLAB license, unlike every other entry in this catalogue.
 - Dormant since 2016. The author's stated intent was that others fork and extend it, so derivative

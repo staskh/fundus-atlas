@@ -85,7 +85,12 @@ sizes without a resolution conversion of the user's own.
   It walks through disc segmentation, region-of-interest extraction, and the geometrical and fractal
   biomarkers on a sample image, which is also the clearest statement of the expected input format.
 
-## 8. Notes
+## 8. Known defects
+
+None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health. Nothing in this
+project's issue tracker or code was found to change the numbers a user would report.
+
+## 9. Notes
 
 - **Scope caveat.** By this atlas's definition PVBM sits at the boundary of a project: it combines
   one segmentation model (the disc) with many biomarker calculations, but it is not an end-to-end

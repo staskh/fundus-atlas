@@ -156,7 +156,12 @@ Unknown.
   `4_plot_feature_set` follow the pipeline in order; `4_plot_feature_set` draws a feature set's
   regions on an image, which is the fastest way to understand what a region name means.
 
-## 8. Notes
+## 8. Known defects
+
+None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health. Nothing in this
+project's issue tracker or code was found to change the numbers a user would report.
+
+## 9. Notes
 
 - **Output naming.** Columns follow `[AGGREGATION]_[BIOMARKER]_[PARAMETERS]_[REGION]_[LAYER]`, where
   layer distinguishes arteries, veins and all vessels. A JSON name-mapping file is written next to
