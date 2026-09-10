@@ -47,6 +47,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [VascX disc](models/vascx-disc.md) | Optic disc (no cup) | U-Net ensemble | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
 | [AutoMorph disc-and-cup](models/automorph-disc-cup.md) | Optic disc **and cup** | W-Net retrained for this task, ensemble of 8 | REFUGE (800), GAMMA (100) | Yes | No — architecture's training code is in lwnet | Apache-2.0 (host); MIT architecture | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
+| [SegFormer disc/cup (pamixsun)](models/segformer-disc-cup.md) | Optic disc and cup | SegFormer transformer, single model | REFUGE | Yes, on Hugging Face | No | Apache-2.0 | — | 2023-09 | 2026-09-10 |
 | [ISFA](models/isfa.md) | Optic disc and cup | DeepLabv3+ with edge attention, image synthesis and feature alignment | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | **No** | Partly — the image-synthesis stage was never released | None stated | — | 2021-08 | 2026-09-10 |
 | [BEAL](models/beal.md) | Optic disc and cup | DeepLabv3+ with MobileNetV2 backbone, boundary and entropy discriminators | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | Yes | Yes, in the repository | MIT | — | 2021-05 | 2026-09-10 |
 | [LUNet v2 disc (`lunetv2_odc`)](models/lunetv2-odc.md) | Optic disc | Unknown | **Unknown** | Yes, from an unversioned Google Drive file | No | None stated; ancestor is CC BY-NC 4.0 | [PVBM](projects/pvbm.md), [OCULARNet](projects/ocularnet.md) | Not applicable | 2026-09-10 |
@@ -83,20 +84,120 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 
 ## 3. Considered and not included
 
+**What decides inclusion here:** a public fundus model whose provenance a reader can establish —
+published weights or training code, plus enough documentation to say what the model is: its
+architecture, its training data, its licence, and how to run it. Any one of a publication, a stated
+evaluation, use by a catalogued pipeline, or evident adoption with a working interface is enough to
+justify a page. Being used by a pipeline is not required; several entries above have none, because
+the comparison tables need baselines and readers arrive looking for models by name.
+
+Two entries show the edges. [ISFA](models/isfa.md) publishes no weights, but its method is published
+and cited, and its page records what is missing. [SegFormer disc/cup](models/segformer-disc-cup.md)
+publishes no metrics and no paper, but states its architecture, training set and licence and runs
+from four lines of code — an unmeasured model with clear provenance is precisely what an independent
+comparison is for. What stays out is the undocumented upload: weights with no stated training data,
+no licence, or a model card left as "[More Information Needed]". A model nobody can establish
+anything about teaches a reader nothing, however genuine it may be.
+
+Everything below was looked at and left out, with the reason, so nobody repeats the search.
+
+### 3.1 Not trained models
+
 - **Classical, untrained methods** — retipy's OpenCV vessel segmentation and ARIA's wavelet-based
   vessel detection are algorithms, not trained models, so there is nothing to record about training
   data or weights. They are described on their project pages,
   [retipy](projects/retipy.md) and [ARIA](projects/aria.md).
-- **MCF-Net** (the model published with the EyeQ dataset) — its authors state the original weights
-  are no longer usable after library version changes and recommend retraining, and no catalogued
-  pipeline uses it. It is named on the
+- **[MCF-Net](https://github.com/HzFu/EyeQ)** (the model published with the EyeQ dataset) — its
+  authors state the original weights are no longer usable after library version changes and
+  recommend retraining, and no catalogued pipeline uses it. It is named on the
   [AutoMorph quality grader](models/automorph-quality-grader.md) page, which learns from EyeQ's
   labels rather than from this model.
-**What decides inclusion here:** a public model with published weights or published training code
-that someone might reasonably run or benchmark. Being used by a catalogued pipeline is not required
-— several entries above have none — because the comparison tables need baselines, and readers arrive
-looking for models by name. [ISFA](models/isfa.md) is included despite publishing no weights,
-because its method is published and cited; the page records what is missing.
+
+### 3.2 Kaggle's model hub
+
+Searched for fundus, retinal, vessel, optic disc, artery/vein and segmentation terms. It holds two
+retinal vessel U-Nets, neither with a publication or a stated evaluation, so neither is assessable:
+
+- [adityabhongade/unet-for-retinal-blood-vessel-segmentation](https://www.kaggle.com/models/adityabhongade/unet-for-retinal-blood-vessel-segmentation)
+  — trained on DRIVE, expecting a preprocessed green channel, with a model card left half-templated.
+- [prashantdixit07/retina_blood-vessel-segmentation](https://www.kaggle.com/models/prashantdixit07/retina_blood-vessel-segmentation)
+  — no description at all.
+
+The rest of the fundus material there is disease classification or general-purpose models, which is
+a different task from vascular segmentation and out of this catalogue's scope:
+[R-FAMNet](https://www.kaggle.com/models/kunalsinghh25/r-famnet-retinal-disease-classification),
+[MaxGRNet](https://www.kaggle.com/models/fuyadhasanbhoyan/maxgrnet),
+[a RETFound copy](https://www.kaggle.com/models/tantai31124/retfound-mae-fundus) and
+[Qwen-VL fine-tunes](https://www.kaggle.com/models/durgeshrao9993/qwen-2-5-vl-7b-finetuned).
+
+### 3.3 Hugging Face
+
+Searched for fundus, retina, vessel, optic disc, artery/vein, cup and glaucoma segmentation terms.
+One model was catalogued from it: [SegFormer disc/cup](models/segformer-disc-cup.md). The rest
+divides into three groups.
+
+**Out of scope by task.** Diabetic-retinopathy grading classifiers — the
+[ClementP/FundusDRGrading-*](https://huggingface.co/models?search=ClementP/FundusDRGrading) family,
+about twenty severity classifiers, one per backbone, MIT-licensed, each carrying per-dataset
+quadratic-kappa scores on APTOS, EYEPACS, IDRID and DDR in its model card (for example
+[efficientnet_b0](https://huggingface.co/ClementP/FundusDRGrading-efficientnet_b0)). Whole-image
+disease grading is a different task from vascular measurement, so those models do not belong here,
+but **the project's stated purpose is the same as this atlas's** — "the reported performance metrics
+are not always consistent in the literature. Our goal is to provide a fair comparison between
+different models using the same datasets and evaluation protocol" — which makes it a precedent worth
+reading before designing our own comparison tables, and a model of how to put metrics in a card.
+Also out of scope by task: foundation and vision-language models, including
+[RETFound](https://huggingface.co/YukunZhou/RETFound_mae_natureCFP) (by AutoMorph's first author) and
+its [copies](https://huggingface.co/bitfount/RETFound_MAE),
+[Fundus-R1](https://huggingface.co/Kimokcheon/Fundus-R1-7B) and
+[RetinaVLM](https://huggingface.co/manifestasi/RetinaVLM-300M); and
+[face-detection models](https://huggingface.co/py-feat/retinaface) that merely share the "retina"
+name.
+
+**Out of scope by biomarker family**, but a candidate if the atlas ever extends to lesions:
+[ClementP/fundus-lesions-segmentation-unet_seresnext50_32x4d](https://huggingface.co/ClementP/fundus-lesions-segmentation-unet_seresnext50_32x4d)
+— MIT, with per-dataset metrics for microaneurysms, exudates, haemorrhages and cotton-wool spots on
+IDRID, FGADR, DDR, MESSIDOR and RETLES.
+
+**Excluded as undocumented:**
+
+- [ClementP/fundus-odmac-segmentation-unet-maxvit_small_tf_512](https://huggingface.co/ClementP/fundus-odmac-segmentation-unet-maxvit_small_tf_512)
+  — optic disc and macula, no licence and an auto-generated card.
+- [MHasanUnical/multiscale-input-vessel-segmentation-model](https://huggingface.co/MHasanUnical/multiscale-input-vessel-segmentation-model)
+  — MIT, but an empty card.
+- [izzudd/retina-segmentation-chase](https://huggingface.co/izzudd/retina-segmentation-chase) — a
+  UNet++ whose card leaves dataset and metrics as "[More Information Needed]".
+
+No usable artery/vein model was found on Hugging Face beyond the already-catalogued
+[VascX](models/vascx-artery-vein.md) weights, whose repository name the search terms do not match.
+Two near-misses by the same author are worth naming so nobody chases them:
+[ClementP/AVSeg](https://huggingface.co/ClementP/AVSeg) announces artery/vein segmentation but
+contains no weights at all, only a licence file, and
+[ClementP/FundusSegmenter](https://huggingface.co/ClementP/FundusSegmenter) holds an
+`ensemble_segmenter.onnx` with no model card, no licence and no statement of what it segments. That
+[author's account](https://huggingface.co/ClementP) is worth watching regardless: it also holds
+choroid segmentation and OCT models, several of which would be in scope if this atlas widens.
+
+### 3.4 SegFormer elsewhere
+
+The architecture itself ([Xie et al., 2021](https://arxiv.org/abs/2105.15203)) is general-purpose,
+not a fundus model. Kaggle's SegFormer entries are the
+[official Keras port](https://www.kaggle.com/models/keras/segformer) and uploads for unrelated tasks.
+It reaches this atlas in three ways: the Hugging Face disc-and-cup model catalogued above; as a
+training option in OCULAR's model factory, recorded on [OCULARNet](models/ocularnet.md); and in
+small GitHub repositories fine-tuning it for retinal vessels:
+
+- [Acederys/SegFormer-Fundus-AVSeg](https://github.com/Acederys/SegFormer-Fundus-AVSeg) —
+  artery/vein, weights apparently committed but no documentation.
+- [523vishwanath/retinal-vessel-segmentation](https://github.com/523vishwanath/retinal-vessel-segmentation)
+  — claims 78.0% mIoU, no licence.
+- [Yves-Byiringiro/retinal-vessel-segmentation](https://github.com/Yves-Byiringiro/retinal-vessel-segmentation)
+  and [dusengemedia/Retinal_Vessel_Segmentation_segformer](https://github.com/dusengemedia/Retinal_Vessel_Segmentation_segformer)
+  — a duplicated pair from one group evaluating SegFormer across eight public datasets.
+
+None of those four is catalogued: no publication was found and none has more than zero stars.
+**The eight-dataset evaluation is worth revisiting for the comparison tables** as prior work, if a
+paper appears.
 
 ## 4. Adding a model
 
