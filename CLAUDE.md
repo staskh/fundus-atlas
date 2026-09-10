@@ -82,7 +82,19 @@ Before adding or changing an entry of any kind, load the matching skill and foll
 does not exist yet, stop and agree the convention with Stas, then write the skill — do not invent a
 one-off format inline.
 
-## 6. Layout and commands
+## 6. Branching and merging
+
+- **6.1** Never commit to `main` directly, and never merge into it locally. `main` is protected on
+  GitHub: it rejects direct pushes, and it rejects them for repository administrators too.
+- **6.2** Work on a branch, push it, and merge through a pull request — `gh pr create`, then
+  `gh pr merge`. A pull request is required even for a one-line documentation fix and even when you
+  are the only person working in the repository; it is what leaves a reviewable record of a change
+  to a public reference.
+- **6.3** If a push to `main` is rejected, that is the protection working as intended. Open a pull
+  request instead of looking for a way around it, and do not disable the protection to land a
+  change.
+
+## 7. Layout and commands
 
 Not yet established — at the time of writing the repository contains only `LICENSE` and
 `.gitignore`. Python is the intended language (per `.gitignore`); run Python through `uv`.
