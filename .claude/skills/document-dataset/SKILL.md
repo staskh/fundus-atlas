@@ -142,11 +142,16 @@ columns are:
 | Disease | ✅ and the grading, where eyes are graded for disease |
 | Other labels | Anything else of use — fovea, lesions, demographics, published biomarker values, junctions |
 | Licence | As stated, or `not stated` |
-| Last checked | Date from the detail page |
 
 Use `—` for an annotation a dataset does not carry, and add a reader count in the cell where more
 than one person annotated (`✅ ×5 experts`) — a dataset with several readers is the only kind that
-can measure human agreement rather than assume it.
+can measure human agreement rather than assume it. There is **no last-checked column**: that date
+belongs at the foot of the detail page, beside the facts it dates.
+
+**Keep the Dataset cell short enough that the name itself does not wrap.** It carries the linked name
+plus, at most, one compact marker: `← <dataset>` where the photographs come from another collection,
+and `(SLO)`, `(IR)`, `+UWF`, `+OCT` or `(dual-modal)` where the images are wholly or partly not
+standard colour fundus photography. Anything longer belongs in another column or on the page.
 
 The camera, field of view, microns per pixel, access route, describing paper and inheritance are
 **not** table columns: they are per-subcollection or per-layer facts that a single cell would
