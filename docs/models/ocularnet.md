@@ -51,6 +51,12 @@ before relying on this model.
 - **Parameters:** Unknown; `b3` is the larger of the two backbones the authors release.
 - **Single model or ensemble:** a single model. The smaller five-fold variant is a separate model —
   see [ocularnet-nano.md](ocularnet-nano.md).
+- **Other architectures are available for retraining.** The repository's model factory
+  (`utils/model_factory_seg.py`) can build U-Net, FPN, **SegFormer** (`segf_<encoder>`) and PSPNet
+  through `segmentation_models_pytorch`, with RepVGG and other encoders. Those are training options,
+  not released models: the published weights are the U-Net configurations named above. Anyone
+  reporting a SegFormer result from this repository has trained it themselves, and it is a different
+  model from the one this page documents.
 
 ## 6. Training data
 
