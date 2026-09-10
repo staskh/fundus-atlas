@@ -58,7 +58,7 @@ relying on it.
   ENRICH, [FIVES-AV](../datasets/fives.md), [Fundus-AVSeg](../datasets/fundus-avseg.md), [GAVE](../datasets/gave.md), [GRAPE](../datasets/grape.md), [HRF](../datasets/hrf.md), [INSPIRE](../datasets/inspire-avr.md), [LES-AV](../datasets/les-av.md), [Leuven-Haifa](../datasets/leuven-haifa.md), MAGREBHIA,
   [MESSIDOR-AV](../datasets/messidor.md) and [PAPILA](../datasets/papila.md). Evaluation is split deliberately into in-distribution test sets
   ([DualModal](../datasets/dualmodal2019.md), [UNAF](../datasets/unaf.md)) and out-of-distribution ones, further divided into near-OoD (TREND-AV,
-  [IOSTAR-AV](../datasets/iostar.md), [MBRSET](../datasets/mbrset.md)) and far-OoD (AV-WIDE, [RAVIR](../datasets/ravir.md)). The README tabulates each dataset's image count,
+  [IOSTAR-AV](../datasets/iostar.md), [MBRSET](../datasets/mbrset.md)) and far-OoD ([AV-WIDE](../datasets/wide.md), [RAVIR](../datasets/ravir.md)). The README tabulates each dataset's image count,
   field of view, resolution, country and pathologies, which makes it the most explicit statement of
   training-data diversity of any entry in this catalogue.
 

@@ -37,7 +37,7 @@ provenance is on those pages. Of the remaining four, one has an original publica
 
 | | |
 | --- | --- |
-| Layer | **AV-WIDE**, 26 photographs |
+| Layer | **AV-WIDE**, 26 photographs — the original release is catalogued at [WIDE](wide.md) |
 | Home | The authors' own release, linked from the paper below; inside REYIA it arrives as part of the compilation |
 | Download | **direct** from the authors for the original WIDE data; not separable from REYIA's archive |
 | Citation | Estrada R, Allingham MJ, Mettu PS, Cousins SW, Tomasi C, Farsiu S. *Retinal artery-vein classification via topology estimation.* IEEE Transactions on Medical Imaging 2015;34(12):2518–2534. DOI: [10.1109/TMI.2015.2443117](https://doi.org/10.1109/TMI.2015.2443117) · [PMC4685460](https://pmc.ncbi.nlm.nih.gov/articles/PMC4685460/) |
@@ -75,7 +75,7 @@ which redistributes these subsets under these names.
 | MAGREBHIA | 69 | 1444×1444 | 30° | North Africa | glaucoma | None established (section 2.2) |
 | MESSIDOR-AV | 66 | 1444×1444 | 45° | France | diabetic retinopathy | [MESSIDOR](messidor.md) |
 | TREND-AV | 48 | 1444×1444 | 45° | Not stated | healthy | None established (section 2.2) |
-| **AV-WIDE** | 26 | 829×1531 | **200°** | United States | AMD | Estrada et al. 2015 (section 2.1) |
+| **AV-WIDE** | 26 | 829×1531 | **200°** | United States | AMD | [WIDE](wide.md), resized from 3900×3072 |
 | mBRSET and GRAPE subsets | the remainder | per source | per source | Brazil, China | mixed | [mBRSET](mbrset.md), [GRAPE](grape.md) |
 
 Two things stand out. Most subsets arrive at **1444×1444** whatever their source camera produced, so
@@ -89,7 +89,6 @@ photographs mixes fields of view by a factor of four or more.
 | Microns per pixel | Unknown for every subcollection |
 | Modality | Colour fundus photography, with AV-WIDE's ultra-wide-field images a separate case |
 
-Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 
 ## 4. Annotations
 
@@ -101,13 +100,14 @@ Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 ## 5. Inheritance
 
 - **Reuses images from:** **[FIVES](fives.md) (75), [PAPILA](papila.md) (78),
-  [MESSIDOR](messidor.md), MAGREBHIA, [mBRSET](mbrset.md), [GRAPE](grape.md), TREND-AV and a
-  re-annotated AV-WIDE** — 478 of its 589 photographs come from elsewhere; only the 111-image ENRICH
-  set is new. MAGREBHIA, TREND-AV, AV-WIDE and ENRICH have no pages of their own — they are documented as
-  subcollections in sections 2.1, 2.2 and 3. No resizing was
-  established, but each source arrives at its own native size. Note that
-  [RITE](rite.md)/[DRIVE](drive.md) photographs also reach it through the MESSIDOR-era A/V
-  collections it draws on.
+  [MESSIDOR](messidor.md), MAGREBHIA (69), [mBRSET](mbrset.md), [GRAPE](grape.md), TREND-AV (48) and
+  a re-annotated [AV-WIDE](wide.md) (26)** — 478 of its 589 photographs come from elsewhere; only the
+  111-image ENRICH set is new.
+  **And most of them are resized**: as section 3 shows, subset after subset arrives at 1444×1444
+  whatever its source camera produced, and AV-WIDE is reduced from [WIDE](wide.md)'s 3900×3072 to
+  829×1531. These are renditions of other people's photographs, not the photographs themselves.
+  MAGREBHIA, TREND-AV and ENRICH have no pages of their own and are documented as subcollections in
+  sections 2.2 and 3.
 - **Its images are reused by:** None established.
 
 ## 6. Use as a benchmark

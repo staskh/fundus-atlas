@@ -70,7 +70,7 @@ publication".
 | [AVRDB](../datasets/avrdb.md), [DRIVE](../datasets/drive.md) (its artery/vein labels are [RITE](../datasets/rite.md)'s), ENRICH, [FIVES-AV](../datasets/fives.md), [Fundus-AVSeg](../datasets/fundus-avseg.md), [GAVE](../datasets/gave.md), [GRAPE](../datasets/grape.md), [HRF](../datasets/hrf.md), [INSPIRE](../datasets/inspire-avr.md), [LES-AV](../datasets/les-av.md), [Leuven-Haifa](../datasets/leuven-haifa.md), MAGREBHIA, [MESSIDOR-AV](../datasets/messidor.md), [PAPILA](../datasets/papila.md) | Training | Their own authors, plus harmonised field-of-view and disc annotations from the OCULAR release | Yes — five folds, with template split CSVs in the repository |
 | [DualModal](../datasets/dualmodal2019.md), [UNAF](../datasets/unaf.md) | In-distribution test | Their own authors | Yes |
 | TREND-AV, [IOSTAR-AV](../datasets/iostar.md), [MBRSET](../datasets/mbrset.md) | Near out-of-distribution test | Their own authors | Yes |
-| AV-WIDE, [RAVIR](../datasets/ravir.md) | Far out-of-distribution test | Their own authors | Yes |
+| [AV-WIDE](../datasets/wide.md), [RAVIR](../datasets/ravir.md) | Far out-of-distribution test | Their own authors | Yes |
 
 The same fourteen training datasets are therefore unavailable for a fair benchmark of this model as
 for OCULARNet.
