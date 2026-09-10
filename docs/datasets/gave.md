@@ -12,26 +12,18 @@ that no model here can have trained on.
 - **Purpose:** the development set for the GAVE 2025 challenge — Generalized Analysis of Vessels in
   Eye — organised by Fang H, Xu Y, Yang W, Bogunović H and Fu H.
 
-## 2. Original publication
+## 2. Provenance
 
-Unknown as a dataset paper. The Zenodo deposit holds the **challenge proposal document** rather than
-a describing publication, so cite the challenge and the Zenodo record until a paper appears.
+| | |
+| --- | --- |
+| Home | Zenodo, DOI [10.5281/zenodo.15081506](https://doi.org/10.5281/zenodo.15081506) |
+| Download | **unclear — check before planning work around it.** The Zenodo record resolves and downloads, but what it contains is the challenge's registration document; the image archive is distributed through the challenge platform, and whether the photographs are served from a URL or only to participants was not established |
+| Citation | **No describing publication established.** The deposit holds the GAVE 2025 challenge proposal rather than a dataset paper; cite the challenge and the Zenodo record until one appears. Organisers: Fang H, Xu Y, Yang W, Bogunović H, Fu H |
+| Licence | **CC BY 4.0** as recorded on the deposit — attribution only, commercial use permitted |
+| Content | 50 images at 1536×1024 |
+| Annotations | Vessel and artery/vein labels; reader counts not stated |
 
-## 3. Access
-
-- **Home:** Zenodo, DOI [10.5281/zenodo.15081506](https://doi.org/10.5281/zenodo.15081506)
-- **Direct download:** **Unclear, and worth checking before planning work around it.** The Zenodo
-  record resolves and is downloadable, but what it contains is the challenge's registration
-  document; the image archive is distributed through the challenge platform. Whether the photographs
-  are served from a URL or only to registered participants was not established.
-- **Arrives as:** Unknown, for the reason above.
-
-## 4. Licence
-
-- **Images and annotations:** **CC BY 4.0** as recorded on the Zenodo deposit — attribution only,
-  commercial use permitted.
-
-## 5. The images
+## 3. The images
 
 | | |
 | --- | --- |
@@ -42,7 +34,7 @@ a describing publication, so cite the challenge and the Zenodo record until a pa
 | Centring | Macula-centred |
 | Modality | Colour fundus photography |
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -51,12 +43,12 @@ a describing publication, so cite the challenge and the Zenodo record until a pa
 
 Reader counts are not stated on the record.
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** No shared images established.
 - **Its images are reused by:** None established.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
   [OCULARNet-nano](../models/ocularnet-nano.md) list GAVE in their training data. It is held out of
@@ -65,12 +57,12 @@ Reader counts are not stated on the record.
 - **What it can answer:** held-out artery/vein accuracy on a Chinese cohort under a permissive
   licence — for the AutoMorph family and VascX, though not for OCULARNet, which trained on it.
 
-## 9. Known defects
+## 7. Known defects
 
-- The access route is unresolved (section 3). A dataset that cannot be obtained reliably cannot be
+- The access route is unresolved (section 2). A dataset that cannot be obtained reliably cannot be
   part of a reproducible comparison, however good its licence.
 
-## 10. Notes
+## 8. Notes
 
 - 50 images is a challenge development set, not a cohort. Its licence and its date are what make it
   worth tracking; its size means a score on it will be noisy.

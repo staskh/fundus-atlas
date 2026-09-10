@@ -15,31 +15,23 @@ quality rather than assumed independent of it.
 - **Purpose:** a purpose-built vessel-segmentation dataset, annotated by crowdsourcing among medical
   experts with a standardised protocol and a per-image quality assessment.
 
-## 2. Original publication
+## 2. Provenance
 
-- Jin K, Huang X, Zhou J, Li Y, Yan Y, Sun Y, Zhang Q, Wang Y, Ye J. *FIVES: A Fundus Image Dataset
-  for Artificial Intelligence based Vessel Segmentation.* Scientific Data 2022;9:475. DOI:
-  [10.1038/s41597-022-01564-3](https://doi.org/10.1038/s41597-022-01564-3)
+| | |
+| --- | --- |
+| Home | figshare, DOI [10.6084/m9.figshare.19688169](https://doi.org/10.6084/m9.figshare.19688169) |
+| Download | **direct, no registration** — one RAR5 archive, about 1.8 GB |
+| Citation | Jin K, Huang X, Zhou J, Li Y, Yan Y, Sun Y, Zhang Q, Wang Y, Ye J. *FIVES: A Fundus Image Dataset for Artificial Intelligence based Vessel Segmentation.* Scientific Data 2022;9:475. DOI: [10.1038/s41597-022-01564-3](https://doi.org/10.1038/s41597-022-01564-3) |
+| Licence | **CC BY 4.0** — attribution only, commercial use permitted |
+| Content | 800 images at 2048×2048, PNG |
+| Annotations | Consensus vessel masks, per-image quality assessment, disease class |
 
-## 3. Access
+The archive holds `train/` and `test/` with `Original/` and `Ground truth/` subfolders plus
+`Quality Assessment.xlsx`. RAR5 needs `bsdtar` or another libarchive tool — the Python standard
+library cannot read it. A Kaggle mirror exists; the figshare release is the citable copy and the only
+one carrying the quality spreadsheet.
 
-- **Home:** figshare, DOI [10.6084/m9.figshare.19688169](https://doi.org/10.6084/m9.figshare.19688169)
-- **Direct download:** **Yes** — unattended, no registration.
-- **Arrives as:** a single RAR5 archive of about 1.8 GB, `FIVES A Fundus Image Dataset for AI-based
-  Vessel Segmentation.rar`, holding `train/` and `test/` with `Original/` and `Ground truth/`
-  subfolders plus a `Quality Assessment.xlsx`. RAR5 needs `bsdtar` or another libarchive tool; the
-  Python standard library cannot read it.
-- A Kaggle mirror exists; the figshare release is the citable one and is the only copy carrying the
-  quality spreadsheet.
-
-## 4. Licence
-
-- **Images:** **CC BY 4.0.**
-- **Annotations:** same.
-- **Restrictions worth knowing:** none beyond attribution — one of the few genuinely permissive
-  vessel datasets, and the reason it is a sensible default for public work.
-
-## 5. The images
+## 3. The images
 
 | | |
 | --- | --- |
@@ -50,7 +42,7 @@ quality rather than assumed independent of it.
 | Centring | Macula-centred |
 | Modality | Colour fundus photography |
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -58,13 +50,13 @@ quality rather than assumed independent of it.
 | Quality | Graded per photograph | — | Illumination, blur and low-contrast components in `Quality Assessment.xlsx`, per split |
 | Disease | One label per eye | — | Four classes, encoded in the filename letter: `A` AMD, `D` DR, `G` glaucoma, `N` normal |
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** No shared images established — FIVES is an original collection.
 - **Its images are reused by:** [REYIA](reyia.md), a compilation that draws artery/vein labels on
   photographs taken from several sources including this one.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** None established. FIVES appears in
   [OCULARNet](../models/ocularnet.md)'s training list as **FIVES-AV** — a separate artery/vein
@@ -76,14 +68,14 @@ quality rather than assumed independent of it.
 - **What it can answer:** how vessel segmentation accuracy varies with image quality and with
   disease, on a permissively licensed set large enough to stratify.
 
-## 9. Known defects
+## 7. Known defects
 
 - A stray `Thumbs.db` sits in the training image folder and must be skipped by any loader that
   enumerates files by extension.
 - Two of the 800 photographs are commonly reported as unusable by downstream users; the archive
   itself contains 800.
 
-## 10. Notes
+## 8. Notes
 
 - The four-class disease balance is by design, so a model's error rate can be read per disease — a
   property almost nothing else here has at this size.

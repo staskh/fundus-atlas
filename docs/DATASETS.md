@@ -80,7 +80,7 @@ collections look like fundus datasets in a file browser and cannot be pooled wit
   of those is a per-subcollection or per-annotation-layer fact that one cell would misrepresent —
   a dataset annotated by three institutions has three papers, three downloads and possibly three
   licences.
-- **Known defects** are not in this table either. Every detail page carries a section 9 for errors
+- **Known defects** are not in this table either. Every detail page carries a section 7 for errors
   in the distribution itself — mislabelled files, counts that disagree with the paper, annotations
   that do not match their own description.
 

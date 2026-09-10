@@ -16,29 +16,20 @@ cup but no A/V, FIVES has binary vessels but no A/V — plus a new 111-image set
   set appearing here first.
 - **Purpose:** training data for a generative approach to vessel-segmentation generalisation.
 
-## 2. Original publication
+## 2. Provenance
 
-- Fhima J, et al. *Enhancing Retinal Vessel Segmentation Generalization via Layout-Aware Generative
-  Modelling.* [arXiv:2503.01190](https://arxiv.org/abs/2503.01190)
+| | |
+| --- | --- |
+| Home | Kaggle, shared by link rather than published openly; the canonical slug is `fhimjo15/reyia-dataset` |
+| Download | **no.** The dataset is private and link-shared: the Kaggle API answers 403 for an account without access, and the web endpoint wants a browser session rather than an API key. The archive has to be fetched by hand once |
+| Citation | Fhima J, et al. *Enhancing Retinal Vessel Segmentation Generalization via Layout-Aware Generative Modelling.* [arXiv:2503.01190](https://arxiv.org/abs/2503.01190) |
+| Licence | **MIT on the compilation**, as stated on the Kaggle record — but **each source keeps its own terms, and they are stricter**: mBRSET is PhysioNet-credentialed, MESSIDOR is research-only, [PAPILA](papila.md) is GPL-3.0. Anything redistributed from REYIA inherits the strictest of the nine |
+| Content | 589 image-and-annotation sets (the paper reports 586), at nine sources' native sizes |
+| Annotations | Artery/vein maps, and a source-dataset attribution per photograph |
 
-## 3. Access
+Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 
-- **Home:** Kaggle, shared by link rather than published openly; the canonical slug is
-  `fhimjo15/reyia-dataset`.
-- **Direct download:** **No.** The dataset is private and link-shared: the Kaggle API answers 403
-  for an account that has not been granted access, and the web endpoint wants a browser session
-  rather than an API key. The archive has to be fetched by hand once.
-- **Arrives as:** a zip with the images, A/V annotations and a per-row source attribution.
-
-## 4. Licence
-
-- **The compilation:** **MIT**, as stated on the Kaggle record.
-- **The images:** **each source keeps its own terms, and they are stricter.** mBRSET is
-  PhysioNet-credentialed, MESSIDOR is research-only, PAPILA is GPL-3.0. Anything redistributed from
-  REYIA inherits the strictest of the nine, not REYIA's own MIT — a mirror cannot grant rights its
-  depositor never had.
-
-## 5. The images
+## 3. The images
 
 Mixed by construction — nine sources, nine cameras, nine resolutions. The per-source detail belongs
 to those datasets' own pages; what matters here is that no single row of camera, field or resolution
@@ -55,21 +46,21 @@ describes REYIA.
 
 Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
 | Artery/vein | One standard | Per-source native size | The dataset's contribution |
 | Other labels | — | — | A source-dataset attribution per photograph, which is what makes the overlap traceable |
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** **FIVES (75), PAPILA (78), MESSIDOR, Magrabia, mBRSET, GRAPE, TREND and
   AV-WIDE** — 478 of its 589 photographs come from elsewhere; only the 111-image ENRICH set is new.
   No resizing was established, but each source arrives at its own native size.
 - **Its images are reused by:** None established.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** None established directly. But because its
   photographs come from datasets that *are* training data for several models here, a REYIA score is
@@ -79,14 +70,14 @@ Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 - **What it can answer:** artery/vein accuracy across nine cameras at once, provided the overlapping
   153 photographs are excluded when its sources are also scored.
 
-## 9. Known defects
+## 7. Known defects
 
-- **Not downloadable programmatically** (section 3), which makes reproducible use awkward.
+- **Not downloadable programmatically** (section 2), which makes reproducible use awkward.
 - The paper's count (586) and the archive's (589) disagree.
 - 153 photographs duplicate other datasets in this catalogue; pooling without exclusion
   double-counts them.
 
-## 10. Notes
+## 8. Notes
 
 - A compilation is not a camera. REYIA's value is breadth of appearance in one place, and its risk is
   that breadth looking like independence.

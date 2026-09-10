@@ -9,46 +9,46 @@ annotated, and what the collection is typically used for.
 - **Collected at:** <institution, country, study name>
 - **Purpose:** <why it was made — a challenge, a clinical study, a teaching set>
 
-## 2. Original publication
+## 2. Provenance
 
-- <Full citation.> DOI: <link>
+| | |
+| --- | --- |
+| Home | <URL> |
+| Download | <direct, no registration / registration / request, then agreement / no> — <URL where one exists> |
+| Citation | <Full citation.> DOI: <link> |
+| Licence | <exactly as stated, or `not stated`> |
+| Content | <image count and resolution, one line> |
+| Annotations | <what this provenance supplies, one line> |
 
-<If no describing publication exists, say so explicitly: "No describing publication — distributed as
-a download only.">
+<Prose under the table for anything that does not fit a row: restrictions worth knowing, a licence
+conflict between two sources, a deposit titled differently from the dataset.>
 
-<Where the annotations come from several groups, split sections 2, 3 and 4 into one subsection per
-layer, named after the layer, like this:>
+<Where the annotations were added by different groups over time, repeat the whole table once per
+provenance:>
 
-### 2.1 <Base dataset — images and the original annotations>
+### 2.1 <Base dataset — images and original annotations>
 
-- <Full citation.> DOI: <link>
-- **Supplies:** <which annotations>
+| | |
+| --- | --- |
+| Home | <URL> |
+| Download | <route> — <URL> |
+| Citation | <citation + DOI> |
+| Licence | <as stated> |
+| Content | <images> |
+| Annotations | Supplies <which annotations> |
 
 ### 2.2 <Add-on layer name>
 
-- <Full citation.> DOI: <link>
-- **Supplies:** <which annotations, on the same images>
+| | |
+| --- | --- |
+| Home | <URL> |
+| Download | <route> — <URL> |
+| Citation | <citation + DOI> |
+| Licence | <as stated, or `not stated` — layers frequently differ from the images> |
+| Content | <same images> |
+| Annotations | Supplies <which annotations> |
 
-## 3. Access
-
-- **Home:** <URL>
-- **Direct download:** <Yes — unattended / Registration required / Request by email / No>
-- **URL:** <direct link where one exists>
-- **Arrives as:** <archive format and layout, in one line>
-
-<Repeat as 3.1, 3.2, … per layer where the layers are distributed separately — each has its own home
-and its own download route.>
-
-## 4. Licence
-
-- **Images:** <licence exactly as stated, or `Not stated`>
-- **Annotations:** <licence, where it differs; otherwise `Same as images`>
-- **Restrictions worth knowing:** <challenge-only use, non-commercial, no redistribution, …>
-
-<Repeat as 4.1, 4.2, … per layer. A layer added by another institution frequently carries different
-terms from the images it annotates, and a page that states one licence for all of it is wrong.>
-
-## 5. The images
+## 3. The images
 
 | | |
 | --- | --- |
@@ -62,37 +62,33 @@ terms from the images it annotates, and a page that states one licence for all o
 <Where the dataset has well-defined subcollections — different cameras, sites, challenge releases, or
 an ultra-wide split — repeat this section once per subcollection, with its own count:>
 
-### 5.1 <Subcollection name> — <n> images
+### 3.1 <Subcollection name> — <n> images
 
 <the same table>
 
-### 5.2 <Subcollection name> — <n> images
-
-<the same table>
-
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
 | <vessels / artery-vein / disc / cup / quality / disease> | <n, separate or merged> | <resolution, if different from the images> | <…> |
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** <dataset, how many, and whether resized — or `No shared images established`>
 - **Its images are reused by:** <datasets, or `None established`>
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** <links to model pages, or `None established`>
 - **Below a model's measuring grid:** <Yes, at <resolution> / No>
 - **What it can answer:** <one or two lines>
 
-## 9. Known defects
+## 7. Known defects
 
 <One bullet per defect in the distribution itself, with evidence and status. If nothing is known,
 write `None recorded as of <YYYY-MM-DD>.` — an absence of findings, not a clean bill of health.>
 
-## 10. Notes
+## 8. Notes
 
 Anything a reader needs in order not to be misled.
 

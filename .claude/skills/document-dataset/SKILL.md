@@ -28,7 +28,7 @@ Every dataset produces exactly two things:
 One page per published dataset. An add-on that annotates another dataset's photographs without
 adding images of its own — an artery/vein reference standard drawn on someone else's images, say —
 goes **on that dataset's page** as an annotation layer, not on a page of its own, with the
-inheritance recorded per section 2.5.
+inheritance recorded per section 5.
 
 ## 2. Required sections of the detail page
 
@@ -36,31 +36,34 @@ Use `template.md` verbatim and keep its section numbering.
 
 1. **What it is** — in plain language: how many photographs, of whom, why the collection was made,
    and what it is used for. A clinician should be able to read this section alone.
-2. **Original publication** — the paper that describes the dataset, with a full citation and a DOI or
-   other stable link. **This is required for every entry**: a dataset without a describing
-   publication is a download, and the page must say so explicitly rather than leave the field blank.
+2. **Provenance** — a table, not prose, so that the same facts sit in the same place on every page
+   and can be read across them at a glance. The rows are:
 
-   **Where a dataset's annotations come from several groups, give sections 2, 3 and 4 one subsection
-   per layer** — 2.1, 2.2, 2.3 and so on — because a layer added by another institution has its own
-   paper, its own download and, often, its own licence. HRF is the worked example: one set of 45
-   photographs, with the vessel gold standard and disc centres from the original authors, an
-   artery/vein standard from a second group and disc-and-cup contours from a third. Presenting that
-   as one citation, one link and one licence would be wrong three times over. Name the layer in each
-   subsection heading, state which annotations it supplies, and say plainly when a layer's licence
-   is unknown or differs from the images'.
-3. **Access** — the home page; whether the data can be downloaded **directly** or requires
-   registration, a signed agreement, or an email request; the direct URL when one exists; and the
-   form it arrives in. The summary table carries a direct-link column, so this determination must be
-   made for every entry, not skipped.
-4. **Licence** — as stated by the distributor, quoted or named exactly. **Always attempt to
-   establish it**, and where it cannot be established say so in those words rather than implying
-   permissiveness. Record separately when the **images** and the **annotations** carry different
-   terms, which is common where a second group annotated someone else's photographs, and when a
-   challenge's terms restrict use to the challenge.
-5. **The images** — the physical facts about the pixels. **Where a dataset has well-defined
+   | Row | Content |
+   | --- | --- |
+   | Home | The distributor's page |
+   | Download | `direct, no registration` / `registration` / `request, then agreement` / `no` — and the direct URL where one exists |
+   | Citation | The full citation of the describing publication, with a DOI or stable link. **Required**: a dataset with no describing paper must say so in this row, not leave it blank |
+   | Licence | Exactly as stated by the distributor, or `not stated`. **Always attempt to establish it**, and where it cannot be established say so in those words rather than implying permissiveness |
+   | Content | Image count and resolution, in one line |
+   | Annotations | What this provenance supplies, in one line |
+
+   **Repeat the whole table, as 2.1, 2.2, 2.3, once per provenance**, where a dataset's annotations
+   were added by different groups over time. Each layer has its own paper, its own download and
+   often its own licence, so one table cannot hold them. [HRF](../../docs/datasets/hrf.md) is the
+   worked example: 45 photographs, with the vessel gold standard and disc centres from the original
+   authors, an artery/vein standard from a second group, and disc-and-cup contours from a third —
+   three tables, and one of the three licences is unknown. Name the layer in each subsection
+   heading, and put a `Supplies` line in its Annotations row so a reader can tell which annotation
+   came from where.
+
+   Prose belongs under the table, not in it: restrictions worth knowing, a licence conflict between
+   two sources, a deposit whose title does not match the dataset's name.
+
+3. **The images** — the physical facts about the pixels. **Where a dataset has well-defined
    subcollections — different cameras, different acquisition sites, a challenge's separate training
    and test releases, or an ultra-wide split alongside a standard one — repeat this section once per
-   subcollection** (5.1, 5.2, …), naming each and giving its image count. Do not flatten them into
+   subcollection** (3.1, 3.2, …), naming each and giving its image count. Do not flatten them into
    a single row of ranges: a reader needs to know which camera produced which photographs, and a
    mixed-resolution dataset averaged into one line cannot be matched against a model's grid. The
    facts to record, per subcollection:
@@ -77,10 +80,10 @@ Use `template.md` verbatim and keep its section numbering.
    - **Modality**, where it is not colour fundus photography: scanning laser ophthalmoscopy,
      infrared reflectance and ultra-wide-field images look like fundus photographs in a file
      browser and are not interchangeable with them. Say so prominently.
-6. **Annotations** — what is labelled, by how many readers, and whether readers are kept separate or
+4. **Annotations** — what is labelled, by how many readers, and whether readers are kept separate or
    merged. Record **the resolution the labels were drawn at** when it differs from the images'
    own — a mask drawn on a downsized rendition does not carry the detail its dimensions suggest.
-7. **Inheritance** — required, and in both directions:
+5. **Inheritance** — required, and in both directions:
    - **Images this dataset reuses** from another, naming the source dataset and how many, and
      **whether they were resized** — a resized copy is a different set of pixels, and a model
      evaluated on the copy has not been evaluated on the original.
@@ -88,11 +91,11 @@ Use `template.md` verbatim and keep its section numbering.
    - Where neither applies, state `No shared images established` rather than leaving it empty.
    The reason this section exists: two datasets built on the same photographs are not two cameras'
    worth of evidence, and scoring both looks like independent confirmation when it is not.
-8. **Use as a benchmark** — which catalogued models trained on these images, linking to their pages,
+6. **Use as a benchmark** — which catalogued models trained on these images, linking to their pages,
    so a reader can tell at a glance whether a score on this dataset is in-sample. Note also where a
    dataset's own native resolution is **below the grid** a model measures on, since a score there is
    not comparable with a score on a larger dataset.
-9. **Known defects** — errors and traps in the distribution itself: mislabelled files, archives whose
+7. **Known defects** — errors and traps in the distribution itself: mislabelled files, archives whose
    contents do not match their documentation, counts that differ from the paper, annotations that
    disagree with their own description. Same rules as the other skills: record it where it lives,
    attribute a claimed fix, and write `None recorded` with the date when nothing is known.
@@ -111,7 +114,7 @@ never softened into a maybe.
   commercially.
 - **3.3 Separate claim from observation.** Counts and properties as published are the authors'
   statements; where this repository has checked an archive and found something different, label that
-  as our finding and put it in section 9.
+  as our finding and put it in section 7.
 - **3.4 Write for a non-engineer.** Section 1 must not require knowing what a mask is.
 - **3.5 Number every heading**, as the template does.
 - **3.6 Date what you checked** at the bottom of the page — licences and download routes change more

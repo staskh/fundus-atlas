@@ -13,34 +13,22 @@ per image — the check for [calibre biomarkers](../biomarkers/avr.md) that
 - **Purpose:** hypertensive-retinopathy assessment, where the artery-to-vein ratio is the measurement
   of clinical interest.
 
-## 2. Original publication
+## 2. Provenance
 
-- Akram MU, Akbar S, Hassan T, Khawaja SG, Yasin U, Basit I. *Data on fundus images for vessels
-  segmentation, detection of hypertensive retinopathy, diabetic retinopathy and papilledema.* Data in
-  Brief 2020;29:105282. DOI:
-  [10.1016/j.dib.2020.105282](https://doi.org/10.1016/j.dib.2020.105282)
+| | |
+| --- | --- |
+| Home | Mendeley Data, DOI [10.17632/3csr652p9y.2](https://doi.org/10.17632/3csr652p9y.2) — [record](https://data.mendeley.com/datasets/3csr652p9y/2). Historically distributed through the [BIOMISA](http://biomisa.org/index.php/dataset-for-hypertensive-retinopathy/) page, which is where most citations still point and which has been unreliable |
+| Download | **direct, no registration** — one archive of about 201 MB, served over Mendeley's public API with no account and no request form |
+| Citation | Akram MU, Akbar S, Hassan T, Khawaja SG, Yasin U, Basit I. *Data on fundus images for vessels segmentation, detection of hypertensive retinopathy, diabetic retinopathy and papilledema.* Data in Brief 2020;29:105282. DOI: [10.1016/j.dib.2020.105282](https://doi.org/10.1016/j.dib.2020.105282) |
+| Licence | **CC BY 4.0** on the Mendeley deposit — attribution only, commercial use permitted. The older BIOMISA page offered only "for the research community", which grants nothing |
+| Content | 100 images at 1504×1000 |
+| Annotations | Vessel network, artery/vein network, optic nerve head, **a published arteriovenous ratio per image**, hard exudates, cotton-wool spots, hypertensive retinopathy and papilloedema labels |
 
-## 3. Access
+**Searching for "AVRDB" will not find it.** The deposit is titled after the paper — *Data on Fundus
+Images for Vessels Segmentation, Detection of Hypertensive Retinopathy, Diabetic Retinopathy and
+Papilledema* — and its description names the AFIO source, the four ophthalmologists and the AVR.
 
-- **Home:** Mendeley Data, DOI
-  [10.17632/3csr652p9y.2](https://doi.org/10.17632/3csr652p9y.2) —
-  [record](https://data.mendeley.com/datasets/3csr652p9y/2). Historically distributed through the
-  BIOMISA page, which is where most citations still point and which has been unreliable.
-- **Direct download:** **Yes** — public, no account and no request form; one archive of about
-  201 MB, served over Mendeley's public API.
-- **Arrives as:** a single zip named for the artery/vein folder rather than for the dataset.
-- **Searching for "AVRDB" will not find it.** The deposit is titled after the paper — *Data on Fundus
-  Images for Vessels Segmentation, Detection of Hypertensive Retinopathy, Diabetic Retinopathy and
-  Papilledema* — and its description names the AFIO source, the four ophthalmologists and the AVR.
-
-## 4. Licence
-
-- **Images and annotations:** **CC BY 4.0** on the Mendeley deposit — attribution only, commercial
-  use permitted.
-- **Worth knowing:** the older BIOMISA page offered only "for the research community", which grants
-  nothing. The Mendeley deposit is the licensed copy and the one to cite.
-
-## 5. The images
+## 3. The images
 
 | | |
 | --- | --- |
@@ -51,7 +39,7 @@ per image — the check for [calibre biomarkers](../biomarkers/avr.md) that
 | Centring | Mixed |
 | Modality | Colour fundus photography |
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -61,12 +49,12 @@ per image — the check for [calibre biomarkers](../biomarkers/avr.md) that
 | Disease | One label per image | — | Hypertensive retinopathy and papilloedema |
 | Other labels | — | — | **A published arteriovenous ratio per image**, plus hard exudates and cotton-wool spots |
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** No shared images established.
 - **Its images are reused by:** None established.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
   [OCULARNet-nano](../models/ocularnet-nano.md) list AVRDB in their training data. Held out of the
@@ -76,14 +64,14 @@ per image — the check for [calibre biomarkers](../biomarkers/avr.md) that
   [AVR](../biomarkers/avr.md) agrees with a clinician's published AVR on the same eye, on
   hypertensive retinopathy, under a permissive licence.
 
-## 9. Known defects
+## 7. Known defects
 
 - **Reader structure unknown.** Four ophthalmologists annotated the set, but whether their marks ship
   separately or as one consensus was not established from the record, so it cannot yet be said
   whether a human agreement ceiling is available.
 - The widely cited BIOMISA link is unreliable; use the Mendeley DOI.
 
-## 10. Notes
+## 8. Notes
 
 - Of everything in this catalogue, this is the dataset most directly useful for checking a
   *biomarker* rather than a mask. A published AVR is a number a human committed to, and calibre

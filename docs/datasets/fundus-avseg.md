@@ -14,29 +14,26 @@ annotation does.
   protocol.
 - **Purpose:** an artery/vein segmentation dataset spanning several diseases and two cameras.
 
-## 2. Original publication
+## 2. Provenance
 
-- *A Fundus Image Dataset for AI-based Artery-Vein Vessel Segmentation.* Scientific Data, 2025. DOI:
-  [10.1038/s41597-025-05381-2](https://doi.org/10.1038/s41597-025-05381-2)
+| | |
+| --- | --- |
+| Home | figshare, <https://figshare.com/articles/dataset/Fundus-AVSeg/27938034> |
+| Download | **direct, no registration** — about 213 MB |
+| Citation | *A Fundus Image Dataset for AI-based Artery-Vein Vessel Segmentation.* Scientific Data, 2025. DOI: [10.1038/s41597-025-05381-2](https://doi.org/10.1038/s41597-025-05381-2) |
+| Licence | **CC BY 4.0** — with [GAVE](gave.md), one of the two most permissive artery/vein datasets in this catalogue |
+| Content | 100 images — 21 at 2656×1992 and 79 at 1280×1280 |
+| Annotations | Pixel-level artery/vein standard, per-image quality label, disease class, eye side |
 
-## 3. Access
+The archive holds `image/` and `annotation/` folders, the A/V standard as RGB PNGs sharing each
+image's filename stem.
 
-- **Home:** figshare, <https://figshare.com/articles/dataset/Fundus-AVSeg/27938034>
-- **Direct download:** **Yes** — unattended, no registration; about 213 MB.
-- **Arrives as:** one archive with `image/` and `annotation/` folders, the A/V standard as RGB PNGs
-  sharing each image's filename stem.
-
-## 4. Licence
-
-- **Images and annotations:** **CC BY 4.0** — with [GAVE](gave.md), one of the two most permissive
-  artery/vein datasets in this catalogue.
-
-## 5. The images
+## 3. The images
 
 Two subcollections, by sensor. The archive does not say which camera took which photograph, and
 states **no field angle for either**, so the sensor size is the only separator available.
 
-### 5.1 The large set — 21 images
+### 3.1 The large set — 21 images
 
 | | |
 | --- | --- |
@@ -47,7 +44,7 @@ states **no field angle for either**, so the sensor size is the only separator a
 | Centring | Mixed |
 | Modality | Colour fundus photography |
 
-### 5.2 The square set — 79 images
+### 3.2 The square set — 79 images
 
 | | |
 | --- | --- |
@@ -58,7 +55,7 @@ states **no field angle for either**, so the sensor size is the only separator a
 | Centring | Mixed |
 | Modality | Colour fundus photography |
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -67,12 +64,12 @@ states **no field angle for either**, so the sensor size is the only separator a
 | Disease | One label per eye | — | Four classes |
 | Other labels | — | — | Eye side |
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** No shared images established.
 - **Its images are reused by:** None established.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** **None established.** Published after the AutoMorph
   family's artery/vein model, and absent from [OCULARNet](../models/ocularnet.md)'s and
@@ -84,14 +81,14 @@ states **no field angle for either**, so the sensor size is the only separator a
 - **What it can answer:** held-out artery/vein accuracy, stratified by disease and — unusually — by
   image quality, on a permissive licence.
 
-## 9. Known defects
+## 7. Known defects
 
 - Neither camera nor field angle is attributed per image, so the two subcollections can be separated
   by size but not by device.
 - The derived vessel mask is not an independent annotation; a paper reporting both vessel and A/V
   agreement on this dataset is reporting one measurement twice.
 
-## 10. Notes
+## 8. Notes
 
 - Small, but permissively licensed, quality-labelled and genuinely held out — a rare combination,
   and the reason to prefer it over [RITE](rite.md) or [HRF](hrf.md) for an artery/vein evaluation.

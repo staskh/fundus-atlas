@@ -14,67 +14,48 @@ which is why sections 2 to 4 below are split per layer.
 - **Purpose:** a high-resolution vessel-segmentation benchmark, published with a robust vessel
   segmentation method.
 
-## 2. Original publications
+## 2. Provenance
+
+Three provenances over one set of 45 photographs — the clearest case in this catalogue of why this
+section repeats.
 
 ### 2.1 HRF — images, vessel gold standard, disc centres
 
-- Budai A, Bock R, Maier A, Hornegger J, Michelson G. *Robust Vessel Segmentation in Fundus Images.*
-  International Journal of Biomedical Imaging 2013;2013:154860. DOI:
-  [10.1155/2013/154860](https://doi.org/10.1155/2013/154860)
-- **Supplies:** the photographs, a manual vessel segmentation, field-of-view masks, and **two
-  independent experts' optic disc centres and diameters**.
+| | |
+| --- | --- |
+| Home | <https://www5.cs.fau.de/research/data/fundus-images/> |
+| Download | **direct, no registration** — `all.zip`, about 76 MB. The two experts' disc centres are a **separate 14 KB spreadsheet** listed well below the archives on the same page, in a legacy `.xls` format that modern spreadsheet libraries cannot read |
+| Citation | Budai A, Bock R, Maier A, Hornegger J, Michelson G. *Robust Vessel Segmentation in Fundus Images.* International Journal of Biomedical Imaging 2013;2013:154860. DOI: [10.1155/2013/154860](https://doi.org/10.1155/2013/154860) |
+| Licence | **CC BY 4.0** |
+| Content | 45 images at 3504×2336 |
+| Annotations | Supplies the photographs, a manual vessel gold standard, field-of-view masks, and **two independent experts' optic disc centres and diameters** |
 
 ### 2.2 HRF-AV — artery/vein reference standard
 
-- Hemelings R, Elen B, Stalmans I, Van Keer K, De Boever P, Blaschko MB. *Artery-vein segmentation in
-  fundus images using a fully convolutional network.* Computerized Medical Imaging and Graphics
-  2019;76:101636. DOI:
-  [10.1016/j.compmedimag.2019.101636](https://doi.org/10.1016/j.compmedimag.2019.101636)
-- **Supplies:** arteries and veins distinguished, on the same 45 photographs. This is the layer the
-  artery/vein models in this catalogue train on.
+| | |
+| --- | --- |
+| Home | <https://github.com/rubenhx/av-segmentation> — the labels are in `HRF_AV_GT/`, about 7.6 MB |
+| Download | **direct, no registration** — 45 PNGs from that repository |
+| Citation | Hemelings R, Elen B, Stalmans I, Van Keer K, De Boever P, Blaschko MB. *Artery-vein segmentation in fundus images using a fully convolutional network.* Computerized Medical Imaging and Graphics 2019;76:101636. DOI: [10.1016/j.compmedimag.2019.101636](https://doi.org/10.1016/j.compmedimag.2019.101636) |
+| Licence | **Not stated.** The repository carries no licence file. It is publicly downloadable and widely used, which is not the same as licensed — ask the authors before redistributing |
+| Content | The same 45 photographs |
+| Annotations | Supplies arteries and veins as separate classes. **This is the layer the artery/vein models in this catalogue train on** |
 
 ### 2.3 HRF-Seg+ — optic disc and cup contours
 
-- *HRF-Seg+: A Multi-Structure Annotated Fundus Image Dataset with Optic Disc, Cup, Vessels, Alpha
-  and Beta Zones.* Zenodo, 2025. [Record 16744782](https://zenodo.org/records/16744782)
-- **Supplies:** optic **disc and cup contours** — HRF itself gives only a disc centre — plus alpha
-  and beta zone annotations, on 40 of the 45 photographs.
+| | |
+| --- | --- |
+| Home | <https://zenodo.org/records/16744782> — DOI [10.5281/zenodo.16744782](https://doi.org/10.5281/zenodo.16744782) |
+| Download | **direct, no registration** — `HRF-Seg+.zip`, about 3.4 MB |
+| Citation | *HRF-Seg+: A Multi-Structure Annotated Fundus Image Dataset with Optic Disc, Cup, Vessels, Alpha and Beta Zones.* Zenodo, 2025. DOI: [10.5281/zenodo.16744782](https://doi.org/10.5281/zenodo.16744782) |
+| Licence | As stated on the Zenodo record — check it there before reuse |
+| Content | 40 of the same 45 photographs, plus a crop of each |
+| Annotations | Supplies optic **disc and cup contours** — HRF itself gives only a disc centre — and alpha and beta zone annotations |
 
-## 3. Access
+**One annotator, provenance unstated** for HRF-Seg+: the release ships no inter-observer data and does
+not say who drew the contours.
 
-### 3.1 HRF
-
-- **Home:** <https://www5.cs.fau.de/research/data/fundus-images/>
-- **Direct download:** **Yes** — unattended, no registration.
-- **Arrives as:** `all.zip` (about 76 MB) with images, vessel masks and field-of-view masks. The two
-  experts' disc centres are a **separate 14 KB spreadsheet** listed well below the archives on the
-  same page, in legacy `.xls` format that modern spreadsheet libraries cannot read.
-
-### 3.2 HRF-AV
-
-- **Direct download:** **Yes** — 45 PNGs, published on GitHub by the authors.
-
-### 3.3 HRF-Seg+
-
-- **Direct download:** **Yes** — from Zenodo, about 3.4 MB.
-
-## 4. Licence
-
-### 4.1 HRF
-
-- **Images and original annotations:** **CC BY 4.0.**
-
-### 4.2 HRF-AV
-
-- **Annotations:** Unknown — no licence statement was established for the artery/vein layer. It is
-  publicly downloadable and widely used, which is not the same as licensed; ask the authors before
-  redistributing.
-
-### 4.3 HRF-Seg+
-
-- **Annotations:** as stated on its Zenodo record. Check the record before reuse.
-
-## 5. The images
+## 3. The images
 
 | | |
 | --- | --- |
@@ -85,7 +66,7 @@ which is why sections 2 to 4 below are split per layer.
 | Centring | Mixed |
 | Modality | Colour fundus photography |
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -100,14 +81,14 @@ The two experts' disc centres are the useful rarity here: they sit a median of a
 on a disc roughly 379 pixels across — under 3% of a disc diameter — which gives a human agreement
 figure to read automated disc results against, rather than assuming one.
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** No shared images established — HRF is an original collection.
 - **Its images are reused by:** HRF-AV and HRF-Seg+ annotate these same 45 photographs and are
   documented here as layers rather than as separate datasets. Both are widely cited under their own
   names, so a paper listing "HRF and HRF-AV" as two training sets has one camera's worth of images.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [SEGAN vessel segmenter](../models/segan-vessel.md)
   (as part of `ALL-SIX`), [BF-Net](../models/bf-net.md) and [Big W-Net](../models/big-wnet.md) (via
@@ -120,14 +101,14 @@ figure to read automated disc results against, rather than assuming one.
 - **What it can answer:** what human disagreement on the optic disc looks like; how a model behaves
   at high resolution. It cannot answer generalisation for any of the models above.
 
-## 9. Known defects
+## 7. Known defects
 
 - The disc-centre spreadsheet is easy to miss on the download page and is in a format that requires
   a legacy reader.
 - The disc **centre** from the original release and the disc **contour** from HRF-Seg+ do not always
   agree; anyone using both should measure the offset rather than assume they coincide.
 
-## 10. Notes
+## 8. Notes
 
 - One set of 45 photographs annotated by three groups is the clearest example in this catalogue of
   why the inheritance question matters: HRF, HRF-AV and HRF-Seg+ are three citations, three

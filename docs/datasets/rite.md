@@ -14,31 +14,35 @@ question is asked at all: score DRIVE and RITE and you have measured one set of 
 - **Purpose:** to provide an artery/vein reference standard, published with a method for separating
   overlapping vascular trees.
 
-## 2. Original publication
+## 2. Provenance
 
-- Hu Q, Abràmoff MD, Garvin MK. *Automated separation of binary overlapping trees in low-contrast
-  color retinal images.* MICCAI 2013, LNCS 8150:436–443. DOI:
-  [10.1007/978-3-642-40763-5_54](https://doi.org/10.1007/978-3-642-40763-5_54)
-- The photographs' own publication is [DRIVE](drive.md)'s, Staal et al. 2004 — cite both.
+Two provenances: the photographs are [DRIVE](drive.md)'s, the artery/vein standard is Iowa's.
 
-## 3. Access
+### 2.1 DRIVE — the photographs
 
-- **Home:** <https://eye.medicine.uiowa.edu/rite-dataset>
-- **Direct download:** **Request** — the Iowa page asks for a download request form, after which it
-  points at `AV_groundTruth.zip`. That link is known to fail in some browsers while working with
-  `wget` or `curl`.
-- **Arrives as:** `AV_groundTruth.zip`, about 30 MB — 40 TIFF images plus 80 PNG label files and two
-  text files.
+| | |
+| --- | --- |
+| Home | <https://drive.grand-challenge.org/> |
+| Download | **registration** |
+| Citation | Staal J, Abràmoff MD, Niemeijer M, Viergever MA, van Ginneken B. *Ridge-based vessel segmentation in color images of the retina.* IEEE TMI 2004;23(4):501–509. DOI: [10.1109/TMI.2004.825627](https://doi.org/10.1109/TMI.2004.825627) |
+| Licence | Research use under DRIVE's registration terms |
+| Content | 40 images at 565×584 |
+| Annotations | Supplies the images themselves |
 
-## 4. Licence
+### 2.2 RITE — the artery/vein reference standard
 
-- **Images:** DRIVE's terms apply to the photographs themselves — research use under DRIVE's
-  registration.
-- **Annotations:** research use; the authors require the citation in section 2.
-- **Restrictions worth knowing:** two sets of terms govern one archive, since the images and the
-  labels come from different groups.
+| | |
+| --- | --- |
+| Home | <https://eye.medicine.uiowa.edu/rite-dataset> |
+| Download | **request** — a form, after which the page points at `AV_groundTruth.zip` (about 30 MB). That link is known to fail in some browsers while working with `wget` or `curl` |
+| Citation | Hu Q, Abràmoff MD, Garvin MK. *Automated separation of binary overlapping trees in low-contrast color retinal images.* MICCAI 2013, LNCS 8150:436–443. DOI: [10.1007/978-3-642-40763-5_54](https://doi.org/10.1007/978-3-642-40763-5_54) |
+| Licence | Research use; the authors require the citation above |
+| Content | The same 40 photographs, unresized |
+| Annotations | Supplies artery, vein, overlap and uncertain classes, plus its own vessel labels |
 
-## 5. The images
+Two sets of terms govern one archive, because the images and the labels come from different groups.
+
+## 3. The images
 
 | | |
 | --- | --- |
@@ -49,7 +53,7 @@ question is asked at all: score DRIVE and RITE and you have measured one set of 
 | Centring | Mixed |
 | Modality | Colour fundus photography |
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -59,13 +63,13 @@ question is asked at all: score DRIVE and RITE and you have measured one set of 
 That last row is the subtlety worth carrying: the images are identical to DRIVE's, the vessel
 annotations are not, so a Dice against RITE is not a Dice against DRIVE.
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** **[DRIVE](drive.md) — all 40, unresized.**
 - **Its images are reused by:** the same 40 photographs also appear in [REYIA](reyia.md)'s
   compilation.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [BF-Net](../models/bf-net.md) and
   [Big W-Net](../models/big-wnet.md) train on it as DRIVE-AV;
@@ -76,12 +80,12 @@ annotations are not, so a Dice against RITE is not a Dice against DRIVE.
 - **What it can answer:** comparability with the artery/vein literature, which is almost entirely
   reported on this dataset. Not generalisation.
 
-## 9. Known defects
+## 7. Known defects
 
 - The download link from the request form does not work in some browsers; fetching it with a
   command-line tool succeeds.
 
-## 10. Notes
+## 8. Notes
 
 - Because "DRIVE-AV" and "RITE" name the same thing, a training-data list containing both looks
   broader than it is. This catalogue records it once, here, and cross-references from DRIVE.

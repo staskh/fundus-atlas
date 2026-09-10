@@ -13,29 +13,18 @@ published number rather than only against itself.
   than a screening prevalence.
 - **Purpose:** an online database for glaucoma analysis, published with grader-recorded measurements.
 
-## 2. Original publication
+## 2. Provenance
 
-- Zhang Z, Yin FS, Liu J, Wong WK, Tan NM, Lee BH, Cheng J, Wong TY. *ORIGA-light: An online retinal
-  fundus image database for glaucoma analysis and research.* IEEE EMBC 2010:3065–3068. DOI:
-  [10.1109/IEMBS.2010.5626137](https://doi.org/10.1109/IEMBS.2010.5626137)
+| | |
+| --- | --- |
+| Home | Historically distributed on request through the study; no reliable open host was established |
+| Download | **no** from the authors. In practice it arrives inside the third-party Kaggle bundle [`arnavjain1/glaucoma-datasets`](https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets), which also carries [G1020](g1020.md) and REFUGE |
+| Citation | Zhang Z, Yin FS, Liu J, Wong WK, Tan NM, Lee BH, Cheng J, Wong TY. *ORIGA-light: An online retinal fundus image database for glaucoma analysis and research.* IEEE EMBC 2010:3065–3068. DOI: [10.1109/IEMBS.2010.5626137](https://doi.org/10.1109/IEMBS.2010.5626137) |
+| Licence | **Research use**, historically request-based. No Creative Commons grant was established, and the Kaggle bundle's licence field is the **uploader's**, not the study's |
+| Content | 650 images, 2048 tall and 2426–2616 wide |
+| Annotations | Optic disc and cup masks, **`ExpCDR`** (the graders' vertical cup-to-disc ratio), glaucoma label, eye side, an A/B subset split |
 
-## 3. Access
-
-- **Home:** historically distributed on request through the study; no reliable open host was
-  established.
-- **Direct download:** **No** from the authors. In practice it arrives inside the third-party Kaggle
-  bundle [`arnavjain1/glaucoma-datasets`](https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets),
-  which also carries [G1020](g1020.md) and REFUGE.
-- **Arrives as:** images with disc and cup masks plus `OrigaList.csv`, the authors' own label table.
-
-## 4. Licence
-
-- **Images and annotations:** **research use.** Historically request-based; no Creative Commons
-  grant was established.
-- **Restrictions worth knowing:** the Kaggle bundle's licence field is the **uploader's**, not the
-  study's, and confers nothing. Treat ORIGA as research-only.
-
-## 5. The images
+## 3. The images
 
 | | |
 | --- | --- |
@@ -46,7 +35,7 @@ published number rather than only against itself.
 | Centring | Disc-visible posterior pole |
 | Modality | Colour fundus photography |
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -61,13 +50,13 @@ masks and the published ratio are consistent, and that a pipeline's own
 [cup-to-disc ratio](../biomarkers/cup-to-disc-ratio.md) can be compared against a human-recorded
 value rather than against another algorithm's mask.
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** No shared images established.
 - **Its images are reused by:** None established. Its usual distribution bundles it with G1020 and
   REFUGE, which is packaging, not shared photographs.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** None established — ORIGA is **held out** of every
   model in this catalogue.
@@ -75,11 +64,11 @@ value rather than against another algorithm's mask.
 - **What it can answer:** whether a computed cup-to-disc ratio agrees with a clinician's recorded
   one, on a population cohort. Nothing else here supports that check.
 
-## 9. Known defects
+## 7. Known defects
 
 None recorded as of 2026-09-11 — an absence of findings, not a clean bill of health.
 
-## 10. Notes
+## 8. Notes
 
 - The published ratio is the asset. A disc/cup model can be evaluated against masks anywhere; being
   able to evaluate the *biomarker* against a human's number is what makes this dataset worth the

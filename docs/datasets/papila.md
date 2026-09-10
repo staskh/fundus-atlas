@@ -13,26 +13,18 @@ read against.
 - **Purpose:** glaucoma assessment with both eyes and the clinical record of the same patient, so
   that image findings can be read alongside the ophthalmologist's own data.
 
-## 2. Original publication
+## 2. Provenance
 
-- Kovalyk O, Morales-Sánchez J, Verdú-Monedero R, Sellés-Navarro I, Palazón-Cabanes A,
-  Sancho-Gómez J-L. *PAPILA: Dataset with fundus images and clinical data of both eyes of the same
-  patient for glaucoma assessment.* Scientific Data 2022;9:291. DOI:
-  [10.1038/s41597-022-01388-1](https://doi.org/10.1038/s41597-022-01388-1)
+| | |
+| --- | --- |
+| Home | figshare, DOI [10.6084/m9.figshare.14798004](https://doi.org/10.6084/m9.figshare.14798004) |
+| Download | **direct, no registration** — about 591 MB |
+| Citation | Kovalyk O, Morales-Sánchez J, Verdú-Monedero R, Sellés-Navarro I, Palazón-Cabanes A, Sancho-Gómez J-L. *PAPILA: Dataset with fundus images and clinical data of both eyes of the same patient for glaucoma assessment.* Scientific Data 2022;9:291. DOI: [10.1038/s41597-022-01388-1](https://doi.org/10.1038/s41597-022-01388-1) |
+| Licence | **GPL 3.0 or later**, as recorded on figshare — a software licence applied to a data release, but what the distributor states, and it carries share-alike obligations a CC BY dataset does not |
+| Content | 488 images at 2576×1934, JPEG |
+| Annotations | Optic disc and cup contours from **two independent experts**, glaucoma assessment, full clinical record per eye |
 
-## 3. Access
-
-- **Home:** figshare, DOI [10.6084/m9.figshare.14798004](https://doi.org/10.6084/m9.figshare.14798004)
-- **Direct download:** **Yes** — unattended, no registration; about 591 MB.
-- **Arrives as:** one archive with the images, per-expert contour files and the clinical spreadsheet.
-
-## 4. Licence
-
-- **Images and annotations:** **GPL 3.0 or later**, as recorded on figshare. As with LES-AV, this is
-  a software licence applied to a data release; it is nonetheless what the distributor states, and it
-  carries share-alike obligations that a CC BY dataset does not.
-
-## 5. The images
+## 3. The images
 
 | | |
 | --- | --- |
@@ -46,7 +38,7 @@ read against.
 This is one of very few datasets in this catalogue where both the camera and its field angle are
 stated by the authors rather than inferred.
 
-## 6. Annotations
+## 4. Annotations
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
@@ -55,13 +47,13 @@ stated by the authors rather than inferred.
 | Disease | Three assessments per eye | — | Healthy / suspect / glaucoma |
 | Clinical record | — | — | Age, sex, refraction, intraocular pressure, visual-field indices, pachymetry and more |
 
-## 7. Inheritance
+## 5. Inheritance
 
 - **Reuses images from:** No shared images established.
 - **Its images are reused by:** [REYIA](reyia.md), whose compilation includes PAPILA photographs —
   so scoring both counts some of these images twice.
 
-## 8. Use as a benchmark
+## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
   [OCULARNet-nano](../models/ocularnet-nano.md) list PAPILA in their training data. It is **held out**
@@ -72,13 +64,13 @@ stated by the authors rather than inferred.
   the human agreement ceiling those models should be read against. Of everything here it is the best
   candidate for a cup-to-disc ratio comparison.
 
-## 9. Known defects
+## 7. Known defects
 
 - The published contour coordinates are floating point; rounding them to pixels costs at most half a
   pixel on a 2576-pixel image, far below the distance between the two experts. Worth knowing, not
   worth worrying about.
 
-## 10. Notes
+## 8. Notes
 
 - Disc-centred at 30° means the disc fills much more of the frame than in a 45° macula-centred
   photograph. A disc model trained on wider fields will see a differently-scaled disc here even
