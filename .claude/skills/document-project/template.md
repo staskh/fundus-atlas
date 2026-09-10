@@ -9,6 +9,7 @@ built for. Attribute any claim about performance to the authors.
 - **Version described here:** <commit / tag / release>
 - **Most recent commit:** <YYYY-MM>
 - **Language and how it runs:** <e.g. Python, command line; Docker image provided>
+- **Training code included:** <Yes / No — inference only / Partly; where the training code lives>
 
 ## 2. License
 
@@ -31,7 +32,8 @@ built for. Attribute any claim about performance to the authors.
 
 - **Training data:** <datasets, and split if stated>
 - **Weights publicly available:** <Yes / No / Unknown>
-- **Where to get them:** <link to the authors' original host>
+- **Download URL:** <full URL to the file, folder, or model page at the authors' original host>
+- **Training code:** <Yes, in this repository / Yes, in <other repository> / Not published>
 
 <Repeat 5.x per new model. If the project introduced no new models, replace this section with
 `Not applicable — all models are borrowed; see section 4.`>

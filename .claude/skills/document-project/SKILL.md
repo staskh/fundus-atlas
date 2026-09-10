@@ -29,7 +29,10 @@ Use `template.md` verbatim as the starting point and keep its section numbering.
    release the rest of the page describes. Pin a version; "latest main" ages badly. Record the date
    of the project's most recent commit as year and month (`2024-11`); it tells a reader at a glance
    whether the pipeline is still maintained. Keep it distinct from the last-checked date in §3.6:
-   one is the authors' activity, the other is ours.
+   one is the authors' activity, the other is ours. Also state whether the repository contains code
+   to **train** the models or only to run them: many pipelines ship inference scripts and trained
+   weights while the training code lives in a different repository, or nowhere public. A reader who
+   wants to retrain on their own images needs to know this before cloning.
 2. **License** — the license of the code, stated as the project itself states it. If the code and
    the model weights carry different licenses, record both separately; they often differ.
 3. **Major publications by the authors** — the paper to cite for the project, plus any follow-ups
@@ -40,8 +43,14 @@ Use `template.md` verbatim as the starting point and keep its section numbering.
    model from being credited to three different pipelines.
 5. **Models introduced here** — one subsection per new model, each recording:
    - **Training data** — which datasets it was trained on, and which split, if stated.
-   - **Weights** — whether trained weights are publicly available and, if so, exactly where to get
-     them. Link to the original host. Do not copy weights into this repository.
+   - **Weights** — whether trained weights are publicly available and, if so, the full download
+     URL, not a description of where to look: the direct link to the file, folder, or model page at
+     the authors' original host (a Hugging Face model page, a Google Drive folder, a release asset,
+     or the path inside the project's own repository when weights are committed there). One entry
+     per model where several are distributed separately. If a script fetches the weights, read the
+     URL out of that script and record it. Do not copy weights into this repository.
+   - **Training code** — whether code to train this model is published, and where. Name the
+     repository if it is a different one from the pipeline's.
 6. **Biomarkers computed** — every biomarker the pipeline outputs, with the original publication
    that defined it and the original implementation if one exists. Say whether this project
    reimplemented the calculation or reused the original code, and note any deviation from the
@@ -71,7 +80,9 @@ section whose answer you could not establish is marked `Unknown` — never fille
 
 ## 4. The summary table
 
-`docs/PROJECTS.md` holds one row per project, sorted alphabetically, with these columns:
+`docs/PROJECTS.md` holds one row per project, sorted by last commit with the most recently
+committed project first, so a reader sees active work before dormant work. Projects whose most
+recent commit falls in the same month are ordered alphabetically. The columns are:
 
 | Column | Content |
 | --- | --- |
@@ -85,4 +96,5 @@ section whose answer you could not establish is marked `Unknown` — never fille
 | Last checked | Date from the detail page |
 
 Keep every cell short enough to read across — detail belongs on the page, not in the table. When a
-detail page changes, update its row in the same commit.
+detail page changes, update its row in the same commit, and move the row if its last-commit date
+changed the ordering.
