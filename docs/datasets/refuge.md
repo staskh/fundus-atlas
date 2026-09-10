@@ -37,7 +37,7 @@ Two editions, and the second contains the first.
 | | |
 | --- | --- |
 | Home | <https://refuge.grand-challenge.org/>, also on [IEEE DataPort](https://ieee-dataport.org/documents/refuge2-challenge-treasure-trove-multi-dimension-analysis-and-evaluation-glaucoma) |
-| Download | **registration** on either route. A third-party Kaggle mirror is the easiest (about 1.4 GB compressed, 4.2 GB unpacked) and its licence field reads `Unknown` |
+| Download | **registration** on either route. A third-party Kaggle mirror at <https://www.kaggle.com/datasets/victorlemosml/refuge2> is the easiest (about 1.4 GB compressed, 4.2 GB unpacked) and its licence field reads `Unknown` |
 | Citation | Fang H, Li F, Fu H, Sun X, Cao X, Lin F, et al. *REFUGE2 Challenge: A Treasure Trove for Multi-Dimension Analysis and Evaluation in Glaucoma Screening.* [arXiv:2202.08994](https://arxiv.org/abs/2202.08994) |
 | Licence | Challenge terms, as above |
 | Content | 2,000 images — the 1,200 above plus 800 on further devices |

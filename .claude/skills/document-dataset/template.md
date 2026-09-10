@@ -14,7 +14,7 @@ annotated, and what the collection is typically used for.
 | | |
 | --- | --- |
 | Home | <URL> |
-| Download | <direct, no registration / registration / request, then agreement / no> — <URL where one exists> |
+| Download | <direct, no registration / registration / request, then agreement / no> — <full URL where one exists; for Kaggle and Hugging Face always the full URL, never a bare owner/slug> |
 | Citation | <Full citation.> DOI: <link> |
 | Licence | <exactly as stated, or `not stated`> |
 | Content | <image count and resolution, one line> |

@@ -28,7 +28,10 @@ quality rather than assumed independent of it.
 
 The archive holds `train/` and `test/` with `Original/` and `Ground truth/` subfolders plus
 `Quality Assessment.xlsx`. RAR5 needs `bsdtar` or another libarchive tool — the Python standard
-library cannot read it. A Kaggle mirror exists; the figshare release is the citable copy and the only
+library cannot read it. Third-party Kaggle re-uploads exist — for example
+<https://www.kaggle.com/datasets/nikitamanaenkov/fundus-image-dataset-for-vessel-segmentation> and
+<https://www.kaggle.com/datasets/sushanthreddypotu/fives-dataset> — with the usual caveat that a
+re-upload's licence field is the uploader's. The figshare release is the citable copy and the only
 one carrying the quality spreadsheet.
 
 ## 3. The images

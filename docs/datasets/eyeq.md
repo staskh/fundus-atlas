@@ -25,7 +25,7 @@ Two provenances: the photographs are EyePACS's, the quality grades are EyeQ's.
 | | |
 | --- | --- |
 | Home | <https://www.kaggle.com/c/diabetic-retinopathy-detection> |
-| Download | **registration** — a Kaggle account and acceptance of the competition rules |
+| Download | **registration** — a Kaggle account and acceptance of the competition rules, at <https://www.kaggle.com/c/diabetic-retinopathy-detection/data> |
 | Citation | The Kaggle Diabetic Retinopathy Detection competition, 2015, sponsored by the California Healthcare Foundation with data from EyePACS |
 | Licence | **Competition terms** — research use; not a Creative Commons grant, and redistribution is not offered |
 | Content | About 88,000 photographs in total, of which EyeQ annotates 28,792 |

@@ -20,7 +20,7 @@ cup but no A/V, FIVES has binary vessels but no A/V — plus a new 111-image set
 
 | | |
 | --- | --- |
-| Home | Kaggle, shared by link rather than published openly; the canonical slug is `fhimjo15/reyia-dataset` |
+| Home | Kaggle, shared by link rather than published openly. The link-share URL is <https://www.kaggle.com/datasets/ba1b909c12dbe6c08df00b3ee6fc22d2fef632870359f91384b9001a870f67bf>, which is how a link-shared dataset is addressed; the canonical slug embedded in that page, <https://www.kaggle.com/datasets/fhimjo15/reyia-dataset>, returns 404 for an account that has not been granted access |
 | Download | **no.** The dataset is private and link-shared: the Kaggle API answers 403 for an account without access, and the web endpoint wants a browser session rather than an API key. The archive has to be fetched by hand once |
 | Citation | Fhima J, et al. *Enhancing Retinal Vessel Segmentation Generalization via Layout-Aware Generative Modelling.* [arXiv:2503.01190](https://arxiv.org/abs/2503.01190) |
 | Licence | **MIT on the compilation**, as stated on the Kaggle record — but **each source keeps its own terms, and they are stricter**: mBRSET is PhysioNet-credentialed, MESSIDOR is research-only, [PAPILA](papila.md) is GPL-3.0. Anything redistributed from REYIA inherits the strictest of the nine |

@@ -25,8 +25,9 @@ model in this catalogue, and it is smaller than the grid any of them measure on.
 | Content | 40 images at 565×584, split 20 train / 20 test |
 | Annotations | One vessel segmentation per image, a **second observer** on the test split, field-of-view masks |
 
-Third-party mirrors exist on Kaggle and elsewhere. They are convenient and they are not the authors'
-distribution; the registration terms are what govern use.
+Third-party mirrors exist, for example <https://www.kaggle.com/datasets/andrewmvd/drive-digital-retinal-images-for-vessel-extraction>.
+They are convenient and they are not the authors' distribution; the registration terms are what
+govern use.
 
 ## 3. The images
 

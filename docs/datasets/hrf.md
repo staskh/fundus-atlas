@@ -36,7 +36,7 @@ section repeats.
 | --- | --- |
 | Home | <https://github.com/rubenhx/av-segmentation> — the labels are in `HRF_AV_GT/`, about 7.6 MB |
 | Download | **direct, no registration** — 45 PNGs from that repository |
-| Citation | Hemelings R, Elen B, Stalmans I, Van Keer K, De Boever P, Blaschko MB. *Artery-vein segmentation in fundus images using a fully convolutional network.* Computerized Medical Imaging and Graphics 2019;76:101636. DOI: [10.1016/j.compmedimag.2019.101636](https://doi.org/10.1016/j.compmedimag.2019.101636) |
+| Citation | Hemelings R, Elen B, Stalmans I, Van Keer K, De Boever P, Blaschko MB. *Artery-vein segmentation in fundus images using a fully convolutional network.* Computerized Medical Imaging and Graphics 2019;76:101636. DOI: [10.1016/j.compmedimag.2019.05.004](https://doi.org/10.1016/j.compmedimag.2019.05.004) |
 | Licence | **Not stated.** The repository carries no licence file. It is publicly downloadable and widely used, which is not the same as licensed — ask the authors before redistributing |
 | Content | The same 45 photographs |
 | Annotations | Supplies arteries and veins as separate classes. **This is the layer the artery/vein models in this catalogue train on** |

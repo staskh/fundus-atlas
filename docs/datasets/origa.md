@@ -20,7 +20,7 @@ published number rather than only against itself.
 | Home | Historically distributed on request through the study; no reliable open host was established |
 | Download | **no** from the authors. In practice it arrives inside the third-party Kaggle bundle [`arnavjain1/glaucoma-datasets`](https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets), which also carries [G1020](g1020.md) and REFUGE |
 | Citation | Zhang Z, Yin FS, Liu J, Wong WK, Tan NM, Lee BH, Cheng J, Wong TY. *ORIGA-light: An online retinal fundus image database for glaucoma analysis and research.* IEEE EMBC 2010:3065–3068. DOI: [10.1109/IEMBS.2010.5626137](https://doi.org/10.1109/IEMBS.2010.5626137) |
-| Licence | **Research use**, historically request-based. No Creative Commons grant was established, and the Kaggle bundle's licence field is the **uploader's**, not the study's |
+| Licence | **Research use**, historically request-based. No Creative Commons grant was established, and the licence field on the Kaggle bundle at <https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets> is the **uploader's**, not the study's |
 | Content | 650 images, 2048 tall and 2426–2616 wide |
 | Annotations | Optic disc and cup masks, **`ExpCDR`** (the graders' vertical cup-to-disc ratio), glaucoma label, eye side, an A/B subset split |
 

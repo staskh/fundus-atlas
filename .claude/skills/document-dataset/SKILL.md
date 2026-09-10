@@ -42,7 +42,7 @@ Use `template.md` verbatim and keep its section numbering.
    | Row | Content |
    | --- | --- |
    | Home | The distributor's page |
-   | Download | `direct, no registration` / `registration` / `request, then agreement` / `no` — and the direct URL where one exists |
+   | Download | `direct, no registration` / `registration` / `request, then agreement` / `no` — and the direct URL where one exists. **For Kaggle and Hugging Face, give the full URL, never the bare `owner/slug`**: a slug is not clickable, and on Kaggle a link-shared dataset is addressed by a hash URL whose canonical slug 404s for anyone without access, so the two are not interchangeable. Mark a third-party re-upload as such — its licence field is the uploader's, not the depositor's |
    | Citation | The full citation of the describing publication, with a DOI or stable link. **Required**: a dataset with no describing paper must say so in this row, not leave it blank |
    | Licence | Exactly as stated by the distributor, or `not stated`. **Always attempt to establish it**, and where it cannot be established say so in those words rather than implying permissiveness |
    | Content | Image count and resolution, in one line |
