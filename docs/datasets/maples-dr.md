@@ -68,9 +68,10 @@ exists to prevent.
 
 - **Reuses images from:** **[MESSIDOR](messidor.md)** — 198 photographs, at native size in the
   archive but annotated at a 1500×1500 rendition.
-- **Its images are reused by:** None established. Note that [RIGA](riga.md) annotates a different
-  460 MESSIDOR photographs, and [REYIA](reyia.md) a further selection — three annotation projects on
-  one collection.
+- **Its images are reused by:** None established.
+
+[RIGA](riga.md) annotates a *different* 460 MESSIDOR photographs and [REYIA](reyia.md) a further
+selection, so the three are siblings over one collection rather than derivatives of each other.
 
 ## 6. Use as a benchmark
 

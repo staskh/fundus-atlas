@@ -35,7 +35,7 @@ and then fusing that binary result into the multi-class decision — hence "bina
   vessel. The published inference writes artery, vein and combined-vessel maps separately.
 - **Input grid:** 720×720 when run with `--uniform=True`, which is how both this repository's own
   scripts and AutoMorph invoke it. Without that flag the grid is per-dataset and non-square:
-  HRF-AV 880×592, DRIVE-AV 592×592, LES-AV 800×720. Note this is a **different grid from the vessel
+  [HRF-AV](../datasets/hrf.md) 880×592, [DRIVE-AV](../datasets/rite.md) 592×592, [LES-AV](../datasets/les-av.md) 800×720. Note this is a **different grid from the vessel
   model that runs beside it in AutoMorph** ([SEGAN](segan-vessel.md), 912×912).
 - **Output grid:** artery, vein and combined masks at the input grid, resampled back to the original
   photograph's dimensions with nearest-neighbour interpolation before saving.
@@ -60,11 +60,11 @@ and then fusing that binary result into the multi-class decision — hence "bina
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| DRIVE-AV | Training and test | The dataset's own authors | Yes: train, validation and test CSVs generated per dataset |
-| LES-AV | Training and test | The dataset's own authors | Yes |
-| HRF-AV | Training and test | The dataset's own authors | Yes |
+| [DRIVE-AV](../datasets/rite.md) | Training and test | The dataset's own authors | Yes: train, validation and test CSVs generated per dataset |
+| [LES-AV](../datasets/les-av.md) | Training and test | The dataset's own authors | Yes |
+| [HRF-AV](../datasets/hrf.md) | Training and test | The dataset's own authors | Yes |
 
-A fair benchmark of these weights therefore cannot use DRIVE, LES-AV or HRF. Note that AutoMorph
+A fair benchmark of these weights therefore cannot use [DRIVE](../datasets/drive.md), LES-AV or [HRF](../datasets/hrf.md). Note that AutoMorph
 retrained the same architecture on a combined set it calls `ALL-AV` (DRIVE-AV, HRF-AV and LES-AV),
 so the same caution applies to the weights AutoMorph ships.
 

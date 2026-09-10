@@ -45,7 +45,7 @@ same network, a point easily missed because both descend from the same group's w
 
 | Module | Model | Segments | Origin |
 | --- | --- | --- | --- |
-| `M1_Retinal_Image_quality_EyePACS` | [AutoMorph quality grader](../models/automorph-quality-grader.md) — an EfficientNet classifier, ensemble of eight | Image quality grade, not anatomy | Introduced here. The grading *labels* come from the [EyeQ](https://github.com/HzFu/EyeQ) dataset, but the model is AutoMorph's own, trained on them — it is not EyeQ's published MCF-Net |
+| `M1_Retinal_Image_quality_EyePACS` | [AutoMorph quality grader](../models/automorph-quality-grader.md) — an EfficientNet classifier, ensemble of eight | Image quality grade, not anatomy | Introduced here. The grading *labels* come from the [EyeQ](https://github.com/HzFu/EyeQ) dataset, but the model is AutoMorph's own, trained on them — it is not [EyeQ](../datasets/eyeq.md)'s published MCF-Net |
 | `M2_Vessel_seg` | [SEGAN vessel segmenter](../models/segan-vessel.md) — an adversarial segmenter — a generator (`Segmenter`) trained against a `Discriminator`; the module's own script is headed "This is sh file for SEGAN" and its weight files are named `G_best_F1_epoch.pth` for the generator | Blood vessels only, as one class | Borrowed. The GAN backbone is the SEGAN method of [A Refined Equilibrium Generative Adversarial Network for Retinal Vessel Segmentation](https://arxiv.org/abs/1909.11936) (Neurocomputing 2021); [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) states its backbone is a revision of that method |
 | `M2_Artery_vein` | [BF-Net](../models/bf-net.md) — a binary-to-multi fusion network: `Generator_main` fused with a `Generator_branch`, plus a discriminator | Arteries against veins (multi-class) | Borrowed from [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) (GPL-3.0), the MICCAI 2021 paper [Learning to Address Intra-segment Misclassification in Retinal Imaging](https://doi.org/10.1007/978-3-030-87193-2_46); the module's script is headed "This is SH file for LearningAIM" |
 | `M2_lwnet_disc_cup` | [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) — the [lwnet](../models/lwnet.md) architecture retrained for this task | Optic disc and cup | Borrowed from [lwnet](https://github.com/agaldran/lwnet) (MIT) |
@@ -67,10 +67,10 @@ architectures, as ensembles over several random seeds, so those weights are docu
 
 - **Training data** (as reported in the paper of section 3):
   - Image-quality grading: EyePACS-Q training split, 12,543 images.
-  - Blood-vessel segmentation: DRIVE, STARE, CHASE-DB1, HRF, IOSTAR and LES-AV combined (the
+  - Blood-vessel segmentation: [DRIVE](../datasets/drive.md), [STARE](../datasets/stare.md), [CHASE-DB1](../datasets/chase-db1.md), HRF, [IOSTAR](../datasets/iostar.md) and [LES-AV](../datasets/les-av.md) combined (the
     repository names this combination `ALL-SIX`).
-  - Artery/vein segmentation: DRIVE-AV, HRF-AV and LES-AV combined (`ALL-AV` in the repository).
-  - Optic disc and cup: REFUGE (800 images) and GAMMA (100 images).
+  - Artery/vein segmentation: [DRIVE-AV](../datasets/rite.md), [HRF-AV](../datasets/hrf.md) and LES-AV combined (`ALL-AV` in the repository).
+  - Optic disc and cup: [REFUGE](../datasets/refuge.md) (800 images) and [GAMMA](../datasets/gamma.md) (100 images).
 - **Weights publicly available:** Yes — committed inside the repository, so cloning it downloads
   them and nothing else needs fetching.
 - **Download URLs** (one per module, each holding one folder per random seed):
@@ -121,7 +121,7 @@ rather than as silently wrong numbers.
   tortuosity density. Calibre, density, fractal dimension and the disc measurements do not depend on
   segment ordering.
 - **Evidence:** [rmaphoh/AutoMorph#19](https://github.com/rmaphoh/AutoMorph/issues/19), filed
-  2026-08-11, with a per-feature before-and-after benchmark against FIVES expert annotations.
+  2026-08-11, with a per-feature before-and-after benchmark against [FIVES](../datasets/fives.md) expert annotations.
 - **Status:** open and unfixed in this project as of 2026-09-10. Two forks fixed it independently
   and separately from each other — see [automorphalyzer.md](automorphalyzer.md) and
   [automorphclass.md](automorphclass.md) — so tortuosity values from AutoMorph and from either fork

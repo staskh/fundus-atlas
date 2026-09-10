@@ -70,9 +70,9 @@ and **no trained weights are published**. The repository as it stands cannot rep
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| REFUGE | Source domain, labelled training | The challenge organisers | Yes, the REFUGE training set |
-| Drishti-GS | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
-| RIM-ONE-r3 | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
+| [REFUGE](../datasets/refuge.md) | Source domain, labelled training | The challenge organisers | Yes, the [REFUGE](../datasets/refuge.md) training set |
+| [Drishti-GS](../datasets/drishti-gs.md) | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
+| [RIM-ONE-r3](../datasets/rim-one-dl.md) | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
 
 As with BEAL, the test images take part in training without their labels, so neither target dataset
 is a blind benchmark. The authors also discuss the method's robustness when the target dataset is

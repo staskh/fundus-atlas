@@ -92,7 +92,7 @@ and it lives here, in `retipy/retina.py`.
   (differentiating with `np.gradient`) and `tortuosity_density` (splitting the curve at inflection
   points found by index). All tortuosity outputs are therefore affected.
 - **Evidence:** [rmaphoh/AutoMorph#19](https://github.com/rmaphoh/AutoMorph/issues/19), which
-  diagnoses the ordering bug in this code and reports a before-and-after benchmark against FIVES
+  diagnoses the ordering bug in this code and reports a before-and-after benchmark against [FIVES](../datasets/fives.md)
   expert vessel annotations.
 - **Status:** open. This project has had no commits since 2019, so it should be assumed unfixed
   here. Anything reusing retipy's tortuosity code inherits it — see

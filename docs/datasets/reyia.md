@@ -12,8 +12,8 @@ cup but no A/V, FIVES has binary vessels but no A/V — plus a new 111-image set
 
 - **Images:** 589 complete image-and-annotation sets (the paper reports 586).
 - **Assembled from:** nine sources — [FIVES](fives.md) (75 photographs), [PAPILA](papila.md) (78),
-  MESSIDOR, Magrabia, mBRSET, GRAPE, TREND, a re-annotated AV-WIDE, and **ENRICH**, a new 111-image
-  set appearing here first.
+  [MESSIDOR](messidor.md), Magrabia, [mBRSET](mbrset.md), [GRAPE](grape.md), TREND, a re-annotated
+  AV-WIDE, and **ENRICH**, a new 111-image set appearing here first.
 - **Purpose:** training data for a generative approach to vessel-segmentation generalisation.
 
 ## 2. Provenance
@@ -55,9 +55,13 @@ Annotation was done with the same tool used for [Leuven-Haifa](leuven-haifa.md).
 
 ## 5. Inheritance
 
-- **Reuses images from:** **FIVES (75), PAPILA (78), MESSIDOR, Magrabia, mBRSET, GRAPE, TREND and
-  AV-WIDE** — 478 of its 589 photographs come from elsewhere; only the 111-image ENRICH set is new.
-  No resizing was established, but each source arrives at its own native size.
+- **Reuses images from:** **[FIVES](fives.md) (75), [PAPILA](papila.md) (78),
+  [MESSIDOR](messidor.md), Magrabia, [mBRSET](mbrset.md), [GRAPE](grape.md), TREND and a
+  re-annotated AV-WIDE** — 478 of its 589 photographs come from elsewhere; only the 111-image ENRICH
+  set is new. Magrabia, TREND, AV-WIDE and ENRICH have no pages of their own here. No resizing was
+  established, but each source arrives at its own native size. Note that
+  [RITE](rite.md)/[DRIVE](drive.md) photographs also reach it through the MESSIDOR-era A/V
+  collections it draws on.
 - **Its images are reused by:** None established.
 
 ## 6. Use as a benchmark

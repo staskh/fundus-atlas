@@ -64,10 +64,10 @@ never evaluated in it.
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| REFUGE, 800 images | Training | The challenge organisers | Reported in the AutoMorph paper; the split is not restated in the repository |
-| GAMMA, 100 images | Training | The challenge organisers | As above |
+| [REFUGE](../datasets/refuge.md), 800 images | Training | The challenge organisers | Reported in the AutoMorph paper; the split is not restated in the repository |
+| [GAMMA](../datasets/gamma.md), 100 images | Training | The challenge organisers | As above |
 
-REFUGE and GAMMA cannot be used to benchmark these weights. Note how small this training set is —
+[REFUGE](../datasets/refuge.md) and [GAMMA](../datasets/gamma.md) cannot be used to benchmark these weights. Note how small this training set is —
 900 images in total, against the thousands behind the vessel models — which is worth keeping in mind
 when a cup-to-disc ratio disagrees with a clinician's reading.
 

@@ -78,7 +78,7 @@ why an independent evaluation is hard to construct.
 
 ## 8. Performance as reported by the authors
 
-Reported in the VascX Models paper. Numbers are in that paper and are not restated here. For context on the task, the authors of [QuickQual](quickqual.md) and of MCF-Net report accuracies around 0.88 on the EyeQ test set — a different test set and different models, listed only to place the task.
+Reported in the VascX Models paper. Numbers are in that paper and are not restated here. For context on the task, the authors of [QuickQual](quickqual.md) and of MCF-Net report accuracies around 0.88 on the [EyeQ](../datasets/eyeq.md) test set — a different test set and different models, listed only to place the task.
 
 ## 9. Used by
 

@@ -48,8 +48,10 @@ Helper code: <https://github.com/luisnakayama/BRSET>.
 
 - **Reuses images from:** No shared images established.
 - **Its images are reused by:** [FunPiQ](funpiq.md) samples some of these photographs for
-  pixel-level quality annotation. [mBRSET](mbrset.md) is the handheld companion collection, **not** a
-  subset of this one.
+  pixel-level quality annotation.
+
+[mBRSET](mbrset.md) is a **companion** collection, not a reuser: different cameras, different
+patients, no shared photographs.
 
 ## 6. Use as a benchmark
 

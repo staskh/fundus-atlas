@@ -1,7 +1,7 @@
 # RIGA
 
 750 photographs with the optic disc and cup outlined by **six ophthalmologists each** — the deepest
-multi-reader annotation in this catalogue, three times PAPILA's two experts and the only realistic
+multi-reader annotation in this catalogue, three times [PAPILA](papila.md)'s two experts and the only realistic
 way to measure what human disagreement on a cup boundary actually is. Its images come from three
 sources, and 460 of them are [MESSIDOR](messidor.md) photographs.
 
@@ -78,8 +78,10 @@ Three subcollections, one per source.
 ## 5. Inheritance
 
 - **Reuses images from:** **[MESSIDOR](messidor.md)** — 460 of its 750 photographs, unresized.
-- **Its images are reused by:** None established. Note that
-  [MAPLES-DR](maples-dr.md) annotates a different 198 MESSIDOR photographs.
+- **Its images are reused by:** None established.
+
+[MAPLES-DR](maples-dr.md) annotates a *different* 198 MESSIDOR photographs — a sibling over the same
+collection, not a derivative of this one.
 
 ## 6. Use as a benchmark
 

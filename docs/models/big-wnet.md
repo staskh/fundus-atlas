@@ -33,14 +33,14 @@ than inside a vessel-segmentation entry.
 
 - **Purpose:** `artery/vein`
 - **Output classes:** multi-class — artery against vein.
-- **Input grid:** depends on which published configuration you load — **512×512** for the DRIVE-AV
-  weights, **1024×1024** for the HRF-AV weights. Two grids means two models in practice, and the
+- **Input grid:** depends on which published configuration you load — **512×512** for the [DRIVE-AV](../datasets/rite.md)
+  weights, **1024×1024** for the [HRF-AV](../datasets/hrf.md) weights. Two grids means two models in practice, and the
   1024 configuration costs four times the pixels.
 - **Output grid:** the artery/vein mask at the input grid, resampled back to the original
   photograph's dimensions as in the vessel path.
 - **Grid set in:** `"im_size"` in `experiments/big_wnet_drive_av/config.cfg` (512) and
   `experiments/big_wnet_hrf_av_1024/config.cfg` (1024).
-- **Input expected:** a colour-fundus photograph. Two configurations are published, one for DRIVE
+- **Input expected:** a colour-fundus photograph. Two configurations are published, one for [DRIVE](../datasets/drive.md)
   and one for HRF at 1024 pixels, so the expected resolution depends on which weights are used.
 - **Preprocessing in the published code:** per-dataset preparation by `get_public_data.py`, which
   for DRIVE also produces the Zone B masks used to score artery-vein performance in the region
@@ -57,11 +57,11 @@ than inside a vessel-segmentation entry.
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| DRIVE (artery/vein labels) | Training | The dataset's own authors | Yes, `train_av`/`val_av`/`test_av` CSVs |
-| HRF (artery/vein labels) | Training, 1024 px configuration | The dataset's own authors | Yes |
+| [DRIVE](../datasets/drive.md) (artery/vein labels — these are [RITE](../datasets/rite.md)'s, published by a different group) | Training | RITE's authors at Iowa | Yes, `train_av`/`val_av`/`test_av` CSVs |
+| [HRF](../datasets/hrf.md) (artery/vein labels) | Training, 1024 px configuration | The dataset's own authors | Yes |
 
 DRIVE and HRF cannot be used to benchmark these weights — a limitation shared with
-[BF-Net](bf-net.md), which trained on the same two datasets plus LES-AV, so those two models cannot
+[BF-Net](bf-net.md), which trained on the same two datasets plus [LES-AV](../datasets/les-av.md), so those two models cannot
 be compared on either dataset in a way that favours neither.
 
 ## 7. Weights

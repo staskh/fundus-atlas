@@ -103,7 +103,7 @@ Three subcollections, by camera. The split is the domain shift, not an accident 
 ## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:**
-  [AutoMorph's disc-and-cup model](../models/automorph-disc-cup.md) (REFUGE's 800, with GAMMA), the
+  [AutoMorph's disc-and-cup model](../models/automorph-disc-cup.md) (REFUGE's 800, with [GAMMA](gamma.md)), the
   [Hugging Face SegFormer](../models/segformer-disc-cup.md) (fine-tuned on REFUGE), and
   [BEAL](../models/beal.md) and [ISFA](../models/isfa.md), both of which use REFUGE as their
   **labelled source domain** for domain adaptation. **REFUGE cannot fairly evaluate any of those

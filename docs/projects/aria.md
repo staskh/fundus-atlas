@@ -51,7 +51,7 @@ retraining.
 
 ### 5.1 Wavelet vessel detection and edge location refinement
 
-- **Training data:** Not applicable — the method is not trained. The paper evaluates it on the DRIVE
+- **Training data:** Not applicable — the method is not trained. The paper evaluates it on the [DRIVE](../datasets/drive.md)
   and REVIEW datasets.
 - **Weights publicly available:** Not applicable.
 - **Download URL:** Not applicable.

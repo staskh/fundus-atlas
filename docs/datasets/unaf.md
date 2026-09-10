@@ -17,7 +17,7 @@ Europe, China, North America or India.
 | | |
 | --- | --- |
 | Home | Published alongside the paper at [Physiological Measurement, DOI 10.1088/1361-6579/ad3d28](https://iopscience.iop.org/article/10.1088/1361-6579/ad3d28) |
-| Download | **through the paper rather than a data repository.** In practice the images circulate through [PVBM](../projects/pvbm.md)'s dataset downloader, which fetches UNAF along with Crop_HRF and INSPIRE. Locate the authors' own archive before relying on it |
+| Download | **through the paper rather than a data repository.** In practice the images circulate through [PVBM](../projects/pvbm.md)'s dataset downloader, which fetches UNAF along with a cropped [HRF](hrf.md) and [INSPIRE-AVR](inspire-avr.md). Locate the authors' own archive before relying on it |
 | Citation | Fhima J, Van Eijgen J, Billen Moulin-Romsée M-I, Brackenier H, Kulenovic H, Debeuf V, Vangilbergen M, Freiman M, Stalmans I, Behar JA. *LUNet: deep learning for the segmentation of arterioles and venules in high resolution fundus images.* Physiological Measurement 2024. DOI: [10.1088/1361-6579/ad3d28](https://doi.org/10.1088/1361-6579/ad3d28) |
 | Licence | **Not established** — it depends where the authoritative archive lives, which was not resolved |
 | Content | 15 images at 1444×1444 as redistributed |

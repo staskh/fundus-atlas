@@ -150,8 +150,8 @@ Unknown.
 ## 7. Examples and notebooks
 
 - The two-command run on the repository's own `samples/fundus/original/` folder, given in the
-  README — start here. It produces segmentations and then a biomarker CSV from a handful of DRIVE,
-  CHASE-DB1 and HRF images, so a new user can confirm the install end to end.
+  README — start here. It produces segmentations and then a biomarker CSV from a handful of [DRIVE](../datasets/drive.md),
+  [CHASE-DB1](../datasets/chase-db1.md) and [HRF](../datasets/hrf.md) images, so a new user can confirm the install end to end.
 - `notebooks/2_feature_extraction.ipynb` — the biomarker stage on its own, and the clearest place to
   see how a feature object, a grid and an aggregator combine into one output column. The numbered
   notebooks `0_preprocess`, `1_segment_preprocessed`, `2_feature_extraction`, `3_post_process` and
