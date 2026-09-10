@@ -89,12 +89,12 @@ AutoMorph diverge most.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| Fractal dimension, vessel density, global vessel calibre | Prior literature, as in AutoMorph | [retipy](retipy.md) via AutoMorph | Unchanged, but computed for the whole image only — not for zones B and C |
-| Tortuosity (distance, and density) | Prior literature | retipy via AutoMorph | **Corrected.** The authors state AutoMorph extracted some vessel segments incorrectly, exaggerating tortuosity; segment extraction was rewritten with Numba and a depth-first search. Computed across all zones |
+| [Fractal dimension](../biomarkers/fractal-dimension.md), [vessel density](../biomarkers/vascular-density.md), [global vessel calibre](../biomarkers/vessel-calibre.md) | Prior literature, as in AutoMorph | [retipy](retipy.md) via AutoMorph | Unchanged, but computed for the whole image only — not for zones B and C |
+| [Tortuosity](../biomarkers/tortuosity.md) (distance, and density) | Prior literature | retipy via AutoMorph | **Corrected.** The authors state AutoMorph extracted some vessel segments incorrectly, exaggerating tortuosity; segment extraction was rewritten with Numba and a depth-first search. Computed across all zones |
 | Tortuosity (squared curvature) | Prior literature | retipy via AutoMorph | **Removed** as redundant with the other tortuosity measures |
-| Local calibre | Prior literature | retipy via AutoMorph | Corrected and made faster |
-| CRAE, CRVE | Knudtson formula only | retipy via AutoMorph | **Hubbard formula removed.** Measured in zones B and C only |
-| Arteriovenous ratio (AVR) | Ratio of the above | — | Added, in zones B and C |
+| [Local calibre](../biomarkers/vessel-calibre.md) | Prior literature | retipy via AutoMorph | Corrected and made faster |
+| [CRAE, CRVE](../biomarkers/central-retinal-equivalents.md) | Knudtson formula only | retipy via AutoMorph | **Hubbard formula removed.** Measured in zones B and C only |
+| [Arteriovenous ratio (AVR)](../biomarkers/avr.md) | Ratio of the above | — | Added, in zones B and C |
 | Quality (probability of rejection) | QuickQual | [QuickQual](https://github.com/justinengelmann/QuickQual) | Reused, and written into the collated results file |
 
 All measurements are in pixels at a fixed working size of 912×912, because the pipeline assumes no

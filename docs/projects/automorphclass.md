@@ -95,7 +95,7 @@ these as AutoMorph-derived features, not as AutoMorph's numbers.
 
 ## 7. Examples and notebooks
 
-- [`example.ipynb`](https://github.com/kikatuso/AutoMorphClass/blob/main/example.ipynb) — start
+- [`example.ipynb`](https://github.com/kikatuso/AutoMorphClass/blob/master/example.ipynb) — start
   here. It loads an image from `example_images/`, runs the module and shows how to read the
   extracted features.
 - `example.py` — the same flow as a plain script, for use outside a notebook.
