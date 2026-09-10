@@ -46,9 +46,9 @@ relying on it.
 
 | Model | Segments | Origin |
 | --- | --- | --- |
-| OCULARNet (`base_unet_repvgg_b3`) | Four classes: background, artery, vein, crossings | Introduced here |
-| OCULARNet-nano (`base_unet_repvgg_a0`), a five-fold ensemble | The same four classes, from a smaller backbone | Introduced here |
-| Optic disc segmenter (`utils/DiscSegmenter.py`) | Optic disc | Borrowed — the same disc segmenter used by [PVBM](pvbm.md) |
+| [OCULARNet](../models/ocularnet.md) (`base_unet_repvgg_b3`) | Four classes: background, artery, vein, crossings | Introduced here |
+| [OCULARNet-nano](../models/ocularnet.md) (`base_unet_repvgg_a0`), a five-fold ensemble | The same four classes, from a smaller backbone | Introduced here |
+| [LUNet v2 disc segmenter](../models/lunetv2-odc.md) (`utils/DiscSegmenter.py`) | Optic disc | Borrowed — the same segmenter [PVBM](pvbm.md) uses, derived from [LUNet](../models/lunet.md) and carrying its non-commercial license |
 
 ## 5. Models introduced here
 

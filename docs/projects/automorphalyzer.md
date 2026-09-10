@@ -53,9 +53,10 @@ its output against AutoMorph's. Read any result from it with that caveat attache
 
 | Model | Segments | Origin |
 | --- | --- | --- |
-| BF-Net | Blood vessels; separately, arteries against veins | Borrowed from [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) (GPL-3.0), via AutoMorph |
-| lwnet (little W-Net) | Optic disc and cup | Borrowed from [lwnet](https://github.com/agaldran/lwnet) (MIT), via AutoMorph — catalogued separately as [LWNet](lwnet.md) |
-| QuickQual | Image quality, as a probability of rejection | Borrowed from [QuickQual](https://github.com/justinengelmann/QuickQual) |
+| [SEGAN vessel segmenter](../models/segan-vessel.md) | Blood vessels, one class | Borrowed via AutoMorph, which trained the weights |
+| [BF-Net](../models/bf-net.md) | Arteries against veins | Borrowed from [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) (GPL-3.0), via AutoMorph |
+| [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) | Optic disc and cup | Borrowed via AutoMorph, which retrained the [lwnet](../models/lwnet.md) architecture (MIT) for this task |
+| [QuickQual](../models/quickqual.md) | Image quality, as a probability of rejection | Borrowed from [QuickQual](https://github.com/justinengelmann/QuickQual), which states no license |
 
 The quality stage is the visible difference. AutoMorph's EyeQ-based module graded images and could
 reject them; here every image goes through the pipeline and receives a QuickQual rejection

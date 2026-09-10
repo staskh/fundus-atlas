@@ -49,9 +49,9 @@ work:
 
 | Model | Segments | Origin |
 | --- | --- | --- |
-| Vessel segmenter (run at 912 px) | Blood vessels | Borrowed from AutoMorph, whose weights are copied into this repository |
-| Artery/vein segmenter (720 px) | Arteries against veins | Borrowed from AutoMorph |
-| Optic disc and cup segmenter (512 px) | Optic disc and cup | Borrowed from AutoMorph, which took it from [lwnet](lwnet.md) |
+| [SEGAN vessel segmenter](../models/segan-vessel.md) (run at 912 px) | Blood vessels | Borrowed from AutoMorph, whose weights are copied into this repository |
+| [BF-Net](../models/bf-net.md) (720 px) | Arteries against veins | Borrowed from AutoMorph |
+| [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) (512 px) | Optic disc and cup | Borrowed from AutoMorph, which retrained the [lwnet](../models/lwnet.md) architecture for this task |
 | Skeletonisation | Vessel skeleton, a processing step rather than anatomy | Included in the package |
 
 The pipeline is AutoMorph's, reimplemented as PyTorch classes

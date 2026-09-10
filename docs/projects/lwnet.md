@@ -89,10 +89,9 @@ project's issue tracker or code was found to change the numbers a user would rep
 ## 9. Notes
 
 - **Scope note.** LWNet is a segmentation model, not a pipeline that returns numbers about an eye,
-  so it does not meet this atlas's definition of a project. It is catalogued here because three
-  other projects depend on it and because a reader tracing where their disc segmentation came from
-  will look for it by name. When the segmentation-model catalogue exists, this page's technical
-  detail belongs there.
+  so it does not meet this atlas's definition of a project. It is now catalogued in the
+  segmentation-model catalogue as well, at [models/lwnet.md](../models/lwnet.md), which is where its
+  technical detail belongs; this page duplicates it and should be retired once nothing links here.
 - **Small is the point.** At roughly 70k parameters it trains and runs on modest hardware, including
   CPU, which is unusual among the models in this catalogue and makes it a sensible baseline to beat
   before reaching for anything larger.
