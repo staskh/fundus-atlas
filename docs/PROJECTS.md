@@ -54,19 +54,9 @@ reason, so nobody repeats the search:
   because three other projects depend on it and readers look for it by name.
 - **retinalysis-fundusprep** — preprocessing only (image bounds, cropping, contrast). It is a
   component of VascX, recorded on that page.
-- **BEAL** ([emma-sjwang/BEAL](https://github.com/emma-sjwang/BEAL), MIT, last commit 2021-05) —
-  optic disc and cup segmentation across cameras by adversarial domain adaptation, from a MICCAI
-  2019 paper. A single model with no biomarker step, and nothing in this catalogue depends on it, so
-  the LWNet exception does not apply. A good candidate for the segmentation-model catalogue: disc
-  and cup masks feed the cup-to-disc ratio, and camera-to-camera domain shift is exactly what the
-  checks are for.
-- **ISFA** ([thinkobj/ISFA](https://github.com/thinkobj/ISFA), no license stated, last commit
-  2021-08) — the same task and the same reason for exclusion, from IEEE JBHI 2021
-  ([10.1109/JBHI.2021.3085770](https://doi.org/10.1109/JBHI.2021.3085770)). Two further cautions for
-  whoever revisits it: the image-synthesis step central to the method is described in the README as
-  "will release soon" and has not appeared, so the published code cannot reproduce the paper; and it
-  states that part of its code is revised from BEAL, which is MIT-licensed, while carrying no
-  license itself.
+- **BEAL and ISFA** — optic disc and cup segmentation across cameras by domain adaptation. Both
+  compute no biomarkers, so neither is a pipeline; both are catalogued as models instead, at
+  [models/beal.md](models/beal.md) and [models/isfa.md](models/isfa.md).
 
 ### 3.1 Kaggle (searched 2026-09-10)
 

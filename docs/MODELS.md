@@ -47,6 +47,8 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [VascX disc](models/vascx-disc.md) | Optic disc (no cup) | U-Net ensemble | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
 | [AutoMorph disc-and-cup](models/automorph-disc-cup.md) | Optic disc **and cup** | W-Net retrained for this task, ensemble of 8 | REFUGE (800), GAMMA (100) | Yes | No — architecture's training code is in lwnet | Apache-2.0 (host); MIT architecture | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
+| [ISFA](models/isfa.md) | Optic disc and cup | DeepLabv3+ with edge attention, image synthesis and feature alignment | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | **No** | Partly — the image-synthesis stage was never released | None stated | — | 2021-08 | 2026-09-10 |
+| [BEAL](models/beal.md) | Optic disc and cup | DeepLabv3+ with MobileNetV2 backbone, boundary and entropy discriminators | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | Yes | Yes, in the repository | MIT | — | 2021-05 | 2026-09-10 |
 | [LUNet v2 disc (`lunetv2_odc`)](models/lunetv2-odc.md) | Optic disc | Unknown | **Unknown** | Yes, from an unversioned Google Drive file | No | None stated; ancestor is CC BY-NC 4.0 | [PVBM](projects/pvbm.md), [OCULARNet](projects/ocularnet.md) | Not applicable | 2026-09-10 |
 
 ### 1.5 Other — landmarks and everything else
@@ -90,9 +92,11 @@ Grouped by purpose. Within each group the most recently committed model comes fi
   pipeline uses it. It is named on the
   [AutoMorph quality grader](models/automorph-quality-grader.md) page, which learns from EyeQ's
   labels rather than from this model.
-- **BEAL and ISFA** — optic disc and cup segmentation by domain adaptation. No catalogued pipeline
-  uses either, so they are recorded in [PROJECTS.md](PROJECTS.md) section 3 for now; both are
-  reasonable future entries here.
+**What decides inclusion here:** a public model with published weights or published training code
+that someone might reasonably run or benchmark. Being used by a catalogued pipeline is not required
+— several entries above have none — because the comparison tables need baselines, and readers arrive
+looking for models by name. [ISFA](models/isfa.md) is included despite publishing no weights,
+because its method is published and cited; the page records what is missing.
 
 ## 4. Adding a model
 
