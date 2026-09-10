@@ -45,6 +45,16 @@ Absent a paper, cite the model repository and its revision.
 - **Output classes:** three, as declared in `config.json` — `Background`, `Optic disc`, `Optic cup`.
   Both structures come from one model in one pass, which is what allows a cup-to-disc ratio to be
   computed.
+- **Input grid:** 512×512, square, applied automatically by the bundled image processor.
+- **Output grid:** the model returns logits at **128×128** — one quarter of the input on each side,
+  as SegFormer's all-MLP decode head does — and the card's example upsamples them bilinearly to the
+  original photograph's dimensions before taking the class argmax. That upsampling is in *user*
+  code, not in the model: skip it and the mask is a quarter-scale approximation, and its boundary
+  precision never exceeds one 128-grid pixel however far it is upscaled — about 4 source pixels for
+  a 512-wide photograph, more for a larger one.
+- **Grid set in:** `{"do_resize": true, "size": 512}` in `preprocessor_config.json`; the upsample is
+  the `nn.functional.interpolate(logits, size=image.shape[:2], mode="bilinear")` call in the model
+  card's example.
 - **Input expected:** a colour-fundus photograph in RGB. The card's example reads an image with
   OpenCV and converts colour space; the author states plainly that only fundus images should be fed
   to it. Whether the image should be cropped around the disc is not stated — REFUGE images are

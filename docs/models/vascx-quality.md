@@ -38,6 +38,13 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 
 - **Purpose:** `quality`
 - **Output classes:** an image-quality assessment. VascX also computes classical image-quality metrics without a model — edge strength, sharpness and variance of the Laplacian — which are separate from this model's output.
+- **Input grid:** 1024×1024. Preprocessing crops to the detected fundus bounds and resamples so the
+  fundus diameter fills a 1024-pixel square, so every VascX model sees the retina at the same scale
+  regardless of the camera's native resolution — which is what makes VascX biomarkers comparable
+  across cameras without a per-image scale factor.
+- **Output grid:** not a mask — a quality assessment. The 1024 grid still matters, because quality is judged on the resampled image rather than the original.
+- **Grid set in:** `square_size=1024` in `rtnls_fundusprep/preprocessor.py` (the default passed by
+  its batch entry point), with `rescale(image, resolution=1024)` in the same package's `utils.py`.
 - **Input expected:** a colour-fundus photograph, in standard image formats or DICOM. Preprocessing
   is not optional: the pipeline crops to the field of view and enhances contrast first.
 - **Preprocessing in the published code:** performed by

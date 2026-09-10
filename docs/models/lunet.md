@@ -38,6 +38,12 @@ atlas distribute weights derived from it, and that restriction travels with them
 
 - **Purpose:** `artery/vein`
 - **Output classes:** artery and vein masks, produced as separate outputs.
+- **Input grid:** 1472×1472 — the largest grid of any model in this catalogue, which is the point
+  of the model: arterioles and venules only survive resampling at high resolution. Note it does not
+  match the 1444×1444 native size of its training images, so even UZLF photographs are resampled.
+- **Output grid:** artery and vein masks at 1472×1472.
+- **Grid set in:** `final_shape = 1472` in `main.py`, commented "Shape on which the images will be
+  processed by the model", and used to build the Keras input layer.
 - **Input expected:** high-resolution fundus photographs. The training data is the UZLF
   (Leuven-Haifa) dataset at 1444×1444; behaviour on smaller or lower-resolution images is not
   characterised here.

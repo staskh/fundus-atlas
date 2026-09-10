@@ -38,6 +38,13 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 
 - **Purpose:** `vessels`
 - **Output classes:** one class — blood vessel against background.
+- **Input grid:** 1024×1024. Preprocessing crops to the detected fundus bounds and resamples so the
+  fundus diameter fills a 1024-pixel square, so every VascX model sees the retina at the same scale
+  regardless of the camera's native resolution — which is what makes VascX biomarkers comparable
+  across cameras without a per-image scale factor.
+- **Output grid:** the vessel mask at 1024×1024, the grid every downstream biomarker is measured on.
+- **Grid set in:** `square_size=1024` in `rtnls_fundusprep/preprocessor.py` (the default passed by
+  its batch entry point), with `rescale(image, resolution=1024)` in the same package's `utils.py`.
 - **Input expected:** a colour-fundus photograph, in standard image formats or DICOM. Preprocessing
   is not optional: the pipeline crops to the field of view and enhances contrast first.
 - **Preprocessing in the published code:** performed by

@@ -64,10 +64,29 @@ Use `template.md` verbatim and keep its section numbering. The sections are:
 
    A model that does two of these is two models and therefore two pages (see the boundaries above).
    Then record the output classes exactly as the model emits them (for example "background, artery,
-   vein, crossings"), and the input it expects: resolution, whether the image must be cropped to the
-   field of view, whether it assumes a disc-centred or macula-centred photograph, and any
-   preprocessing baked into the published inference code. Mismatched expectations are the most
-   common cause of a model behaving worse than its paper reports.
+   vein, crossings"), and the input it expects: whether the image must be cropped to the field of
+   view, whether it assumes a disc-centred or macula-centred photograph, and any preprocessing baked
+   into the published inference code. Mismatched expectations are the most common cause of a model
+   behaving worse than its paper reports.
+
+   **The input and output grid is required, not optional.** The grid is the pixel raster the model
+   actually works on: the width and height the image is resampled to before inference, and the
+   raster the mask comes back on. Record three things:
+
+   - **Input grid** — the exact size in pixels, and how the image gets there: resized with aspect
+     ratio ignored, resized with padding, centre-cropped, tiled into patches.
+   - **Output grid** — the size of the mask the code returns, and whether it is resampled back to
+     the original photograph's dimensions or left at model resolution.
+   - **Where it is set** — the file and constant, so a reader can verify it (for example
+     `resize=912` in the caller, or `image_size` in a config file).
+
+   This is the single most consequential fact for comparing models, because every biomarker measured
+   in pixels is measured on this grid: a vessel width of 4 pixels means different things at 512 and
+   at 1444, two models' masks cannot be compared pixel-for-pixel across different grids, and a model
+   run at a grid other than its training grid degrades in ways no metric on its own reveals. It is
+   also the fact most often absent from model cards and papers, which is why the instruction is to
+   **read the preprocessing and inference code** rather than the documentation. If the code cannot
+   be read (weights published with no inference code), record `Unknown` and say where you looked.
 5. **Architecture** — the family (U-Net, W-Net, GAN-based, an encoder backbone), parameter count if
    stated, and whether the published weights are a single model or an ensemble. An ensemble is not
    interchangeable with one of its members: say how many, and how they are combined.
@@ -125,6 +144,7 @@ whose most recent commit falls in the same month are ordered alphabetically. The
 | Model | Name, linked to `models/<slug>.md` |
 | Produces | The output classes, in a few words |
 | Architecture | The family, and `ensemble of N` where it applies |
+| Grid (in → out) | Input grid in pixels → output grid, e.g. `912² → back to original`; note when it is not enforced by default |
 | Trained on | Dataset names, short |
 | Weights | Yes / No / Unknown |
 | Training code | Yes / No — and where, if elsewhere |

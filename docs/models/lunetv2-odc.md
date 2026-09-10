@@ -49,6 +49,14 @@ performance.
 - **Output classes:** the optic disc. The filename's `odc` suggests disc *and cup*, but PVBM uses
   only the disc, taking the largest contour and fitting a centre and radius; whether a cup channel
   exists in the file was not established.
+- **Input grid:** 512×512, square, resized with aspect ratio ignored — so a non-square photograph
+  is distorted before the disc is found, and the disc comes back elliptical in proportion to that
+  distortion.
+- **Output grid:** the disc mask at 512×512, resampled back to the original image size with
+  nearest-neighbour interpolation before the centre and radius are fitted.
+- **Grid set in:** `self.img_size = 512` in PVBM's `PVBM/DiscSegmenter.py`, with the round trip at
+  `img_orig.resize((self.img_size, self.img_size))` and
+  `.resize(original_size, PIL.Image.Resampling.NEAREST)`.
 - **Input expected:** a colour-fundus photograph, resized to 512 pixels by the caller.
 - **Preprocessing in the published code:** resizing and normalisation inside PVBM's
   `DiscSegmenter`, then contour selection and post-processing into zones A, B and C around the disc.
