@@ -112,5 +112,7 @@ per the skills in section 5.
 
 Code lives under `src/`. Dataset fetchers are `src/datasets/<slug>.py`, one per catalogued dataset,
 and everything they share is in `src/datasets/utils/` — a helper two fetchers need belongs there, so
-that two datasets cannot disagree about a crop rule, a palette or a resize. Tests are in
+that two datasets cannot disagree about a crop rule, a palette or a resize. Images found to be
+unusable are recorded in `src/datasets/exclusions/<slug>.json`, in the repository rather than in
+the downloaded store, so a finding survives deleting and rebuilding the store. Tests are in
 `tests/datasets/`, run against synthetic fixtures rather than downloads.

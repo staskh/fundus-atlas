@@ -13,5 +13,11 @@ uv run python -m datasets.<slug> --archive ~/<file>.zip   # an archive obtained 
 - **Builds:** <the maps, at `native/` plus each requested size>.
 - **Needs a human:** <the account, form or agreement, and what to pass to `--archive`. Omit this
   bullet only for a dataset whose Down column is ✅>.
+- **Extra columns:** <each dataset-specific manifest column and what it holds, one line each —
+  `age`, `sex`, `iop_mmhg`. Omit this bullet where the fetcher adds none>.
+- **Quality:** <whether `quality` is the dataset's own grade or derived from component ratings, and
+  which components those are. Omit where the dataset grades nothing>.
+- **Grouping:** <whether `patient` and `visit` are filled and how they were established, so a reader
+  knows whether a by-person split is possible. Omit where the dataset publishes no identity>.
 - **Peculiarities:** <archive format needing an external tool, a legacy spreadsheet, a palette, files
   to skip, anything a person running it will hit>.
