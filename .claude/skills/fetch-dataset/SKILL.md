@@ -45,7 +45,7 @@ is a cache, rebuildable from the sources named in `build.json`.
 <root>/<slug>/
   build.json            what this build is: sources, sizes, completeness — section 4
   manifest.csv          one row per image — section 5
-  raw/                  the untouched download, kept only with --keep-raw
+  raw/                  the untouched download — deleted after the build unless --keep-raw
   native/               field-of-view crop at full resolution, PNG
     images/<key>.png
     vessels/<key>.png   only the maps this dataset actually publishes
@@ -70,8 +70,17 @@ Rules that make the store uniform:
   "belongs at 512": the grid belongs to the *model* being evaluated, not to the dataset, and the
   atlas evaluates models with grids from 256 to 1472 (see `docs/MODELS.md`). A fetcher that builds
   one size forces every consumer to resample, which is the thing the store exists to prevent.
-- **`native/` is always built.** It is the reference the resampled sizes are derived from, and the
-  only copy whose pixel count matches what the authors published.
+- **`native/` is always built, and is not optional.** It is the reference every resampled size is
+  derived from, and the only copy whose pixel count matches what the authors published. There is no
+  flag to skip it: a store without it cannot answer what a measurement would have been at full
+  resolution, and rebuilding it means downloading the dataset again. It costs disk — IDRiD's 516
+  images at 4288×2848 are the worst case here — and that is the right trade against a download that
+  may need a form, an account or a signed agreement.
+
+- **`raw/` is deleted after a successful build**, unless `--keep-raw` is passed. It is the archive as
+  downloaded, reconstructible from the URL and checksum in `build.json`, and it is the largest thing
+  in the store. Keep it while developing a fetcher, when the download needs a human step you would
+  rather not repeat, or when you suspect the extraction itself is wrong.
 - **A dataset's own subcollections stay distinguishable** through the `subset` column, never through
   separate directories — one dataset is one store.
 
@@ -86,7 +95,7 @@ options, with these meanings, so that a person who has used one fetcher has used
 | `--archive PATH` | Use an archive already on disk instead of downloading. **Required for every dataset whose Down column is not ✅** |
 | `--raw PATH` | Use an already-extracted tree, skipping download and extraction |
 | `--data-root PATH` | Override the store root |
-| `--keep-raw` | Keep `raw/` after building; default is to delete it |
+| `--keep-raw` | Keep the downloaded archive in `raw/` after building. **Default is to delete it** — it is reconstructible from `build.json`, and it is the bulk of the store. `native/` is never affected by this flag and is always kept |
 | `--force` | Rebuild even if the store looks complete |
 | `--limit N` | Build only the first N images — for development, and it must mark the build as partial in `build.json` |
 | `--no-verify` | Skip checksum verification. Prints a warning; never the default |
