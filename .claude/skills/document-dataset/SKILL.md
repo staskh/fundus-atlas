@@ -142,11 +142,17 @@ columns are:
 | Disease | ✅ and the grading, where eyes are graded for disease |
 | Other labels | Anything else of use — fovea, lesions, demographics, published biomarker values, junctions |
 | Licence | As stated, or `not stated` |
+| Down | How hard the data is to obtain: `✅` direct and unattended, `🟡` a public repository with a trivial account or click-through, `⛔` a request, credentialing or a signed agreement, `❓` unresolved. Where images and annotations arrive by different routes, show the **harder** of the two |
 
 Use `—` for an annotation a dataset does not carry, and add a reader count in the cell where more
 than one person annotated (`✅ ×5 experts`) — a dataset with several readers is the only kind that
 can measure human agreement rather than assume it. There is **no last-checked column**: that date
 belongs at the foot of the detail page, beside the facts it dates.
+
+Keep the Down column honest in one particular way: it measures **effort to obtain**, not permission
+to use. A directly downloadable dataset may still be research-use-only or forbid redistribution, and
+a dataset behind an agreement may carry a more permissive licence than one behind none. The two
+columns answer different questions and must not be collapsed.
 
 **Keep the Dataset cell short enough that the name itself does not wrap.** It carries the linked name
 plus, at most, one compact marker: `← <dataset>` where the photographs come from another collection,
