@@ -83,6 +83,9 @@ Skills that exist today:
   and the columns of the `docs/BIOMARKERS.md` summary table.
 - **5.6** `document-dataset` — cataloguing a dataset: the page structure in `docs/datasets/` and the
   columns of the `docs/DATASETS.md` summary table.
+- **5.7** `fetch-dataset` — building a dataset fetcher: the command-line contract, the store layout,
+  the manifest schema, how resolution is inferred when a dataset publishes none, and the `How to
+  fetch` subsection every fetcher adds to its dataset page.
 
 Before adding or changing an entry of any kind, load the matching skill and follow it. Where a skill
 does not exist yet, stop and agree the convention with Stas, then write the skill — do not invent a
@@ -103,5 +106,11 @@ one-off format inline.
 ## 7. Layout
 
 Catalogues live under `docs/`: `PROJECTS.md` and `projects/` for pipelines, `MODELS.md` and
-`models/` for models. Each summary table and its detail pages are maintained together, per the
-skills in section 5.
+`models/` for models, `BIOMARKERS.md` and `biomarkers/` for measurements, `DATASETS.md` and
+`datasets/` for image collections. Each summary table and its detail pages are maintained together,
+per the skills in section 5.
+
+Code lives under `src/`. Dataset fetchers are `src/datasets/<slug>.py`, one per catalogued dataset,
+and everything they share is in `src/datasets/utils/` — a helper two fetchers need belongs there, so
+that two datasets cannot disagree about a crop rule, a palette or a resize. Tests are in
+`tests/datasets/`, run against synthetic fixtures rather than downloads.
