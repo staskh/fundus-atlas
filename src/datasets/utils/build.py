@@ -12,21 +12,40 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from datasets.utils import archives, crop, fov, manifest, paths, quality, resample, resolution
+from datasets.utils import (
+    archives,
+    contours,
+    crop,
+    fov,
+    manifest,
+    paths,
+    quality,
+    resample,
+    resolution,
+)
 
 #: Bumped when the crop, resample or grading rules change. A store built under an older number was
 #: built to different rules, and a consumer can refuse to mix the two.
 BUILDER_VERSION = 4
 
-#: The maps a store can hold, in the order they appear in the `maps` column.
+#: The maps a store can hold, in the order they appear in the `maps` column. `disc` and `cup` mean
+#: polygons in `contours/<key>.csv`, never a raster.
 LAYERS = ("vessels", "av", "fov", "disc", "cup")
+
+#: An outline whose trace reproduces its own mask less faithfully than this is worth a note in the
+#: row: the shape was not a single clean blob. About 0.98 is as good as the convention allows.
+POOR_TRACE = 0.95
 
 
 @dataclass
 class SourceRecord:
     """One image as the dataset published it, before anything has been done to it.
 
-    :param maps: layer name to the file holding it, for the layers this dataset publishes.
+    :param maps: layer name to the file holding it, for the layers this dataset publishes. A file
+        is a path, or an `archives.Member` for one left inside its archive.
+    :param outlines: (structure, reader) to either a mask to trace or an array of published
+        coordinates. Structures are `disc` and `cup`; readers are the dataset's own ids.
+    :param readers: annotators who contributed something other than an outline — a grade, say.
     :param extras: this dataset's own manifest columns.
     :param readings: every reader's opinion, where the dataset names its readers.
     """
@@ -40,7 +59,9 @@ class SourceRecord:
     eye: str = ""
     disease: str = ""
     notes: str = ""
-    maps: dict[str, Path] = field(default_factory=dict)
+    maps: dict[str, object] = field(default_factory=dict)
+    outlines: dict[tuple[str, str], object] = field(default_factory=dict)
+    readers: list[str] = field(default_factory=list)
     extras: dict[str, str] = field(default_factory=dict)
     readings: list[manifest.Reading] = field(default_factory=list)
 
@@ -182,6 +203,10 @@ def _obtain(sources: list, store: Path, args) -> tuple[Path, list[dict[str, str]
             raise
         trees.append(tree)
         provenance.append(record)
+    if not trees:
+        raise ValueError(
+            "nothing to build from: this fetcher declares no source, so it needs --raw"
+        )
     return trees[0], provenance
 
 
@@ -196,11 +221,12 @@ def _build_one(
     force: bool = False,
 ) -> dict[str, str]:
     """Crop one image to its field of view, write every size of it, and describe it."""
-    image = np.asarray(Image.open(record.image).convert("RGB"))
+    photograph = _handle(record.image, raw)
+    image = _read(photograph, "RGB")
     height, width = image.shape[:2]
 
     if fov_strategy == fov.FROM_MASK and "fov" in record.maps:
-        published = np.asarray(Image.open(record.maps["fov"]).convert("L"))
+        published = _read(_handle(record.maps["fov"], raw), "L")
         circle = fov.detect(np.dstack([published] * 3))
         footprint = np.where(published > 0, 255, 0).astype(np.uint8)
     else:
@@ -209,10 +235,10 @@ def _build_one(
 
     square = crop.square_around(circle)
     frames = {"images": crop.apply(image, square), "fov": crop.apply(footprint, square)}
-    for name, path in record.maps.items():
+    for name, source in record.maps.items():
         if name == "fov":
             continue
-        frames[name] = crop.apply(np.asarray(Image.open(path).convert("L")), square)
+        frames[name] = crop.apply(_read(_handle(source, raw), "L"), square)
 
     for size in [paths.NATIVE, *sizes]:
         for name, frame in frames.items():
@@ -224,6 +250,14 @@ def _build_one(
             frame_at = frame if size == paths.NATIVE else _resize(name, frame, size)
             Image.fromarray(frame_at).save(written)
 
+    drawn, notes = _outlines(record, raw, square)
+    for size in [paths.NATIVE, *sizes]:
+        if drawn:
+            scale = 1.0 if size == paths.NATIVE else size / square.side
+            contours.write(paths.layer(store, size, "contours") / f"{record.key}.csv", drawn, scale)
+
+    structures = {structure for structure, _ in drawn}
+    readers = sorted({reader for _, reader in drawn} | set(record.readers))
     row = {
         "key": record.key,
         "subset": record.subset,
@@ -240,20 +274,59 @@ def _build_one(
         "pad_fraction": f"{crop.pad_fraction(square, height, width):.4f}",
         "um_per_px": "" if resolution_of.um_per_px is None else f"{resolution_of.um_per_px:g}",
         "resolution_source": resolution_of.source,
-        "maps": ";".join(name for name in LAYERS if name in frames),
+        "maps": ";".join(name for name in LAYERS if name in frames or name in structures),
+        "readers": ";".join(readers),
         "patient": record.patient,
         "visit": record.visit,
         "eye": record.eye,
         "disease": record.disease,
-        "source_image": _inside(record.image, raw),
-        "sha256": archives.sha256_of(record.image),
-        "notes": record.notes,
+        "source_image": photograph.label,
+        "sha256": archives.sha256_of(photograph),
+        "notes": "; ".join(filter(None, [record.notes, *notes])),
         **record.extras,
     }
     graded, source = quality.grade_of(quality_rule, row)
     if graded or source:
         row["quality"], row["quality_source"] = graded, source
     return row
+
+
+def _handle(source, raw: Path) -> archives.Handle:
+    """Whatever a fetcher gave for a file, as something that can be opened and can name itself."""
+    if isinstance(source, (archives.File, archives.Member)):
+        return source
+    return archives.File(Path(source), root=raw if raw.is_dir() else None)
+
+
+def _read(handle: archives.Handle, mode: str) -> np.ndarray:
+    """One image, wherever it lives."""
+    with handle.open() as f:
+        return np.asarray(Image.open(f).convert(mode))
+
+
+def _outlines(
+    record: SourceRecord, raw: Path, square: crop.Square
+) -> tuple[dict[tuple[str, str], np.ndarray], list[str]]:
+    """Every disc and cup outline this image has, in the native frame.
+
+    Traced or transformed exactly once, here: each size is scaled from these nodes, so a size
+    added years later is identical to the same size built today.
+    """
+    drawn, notes = {}, []
+    for (structure, reader), source in sorted(record.outlines.items()):
+        if isinstance(source, np.ndarray):
+            drawn[(structure, reader)] = source - np.array([square.x0, square.y0])
+            continue
+        mask = crop.apply(_read(_handle(source, raw), "L"), square)
+        nodes = contours.trace(mask)
+        if len(nodes) == 0:
+            notes.append(f"{reader} drew no {structure}")
+            continue
+        faithful = contours.fidelity(mask, nodes)
+        if faithful < POOR_TRACE:
+            notes.append(f"{structure} by {reader} traces at IoU {faithful:.2f}")
+        drawn[(structure, reader)] = nodes
+    return drawn, notes
 
 
 def _inside(image: Path, raw: Path) -> str:

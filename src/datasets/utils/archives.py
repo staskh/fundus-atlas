@@ -9,6 +9,82 @@ import urllib.request
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import BinaryIO
+
+#: Files a Mac leaves inside an archive that are not part of the dataset.
+MAC_RUBBISH = ("__MACOSX/", "._", ".DS_Store")
+
+
+@dataclass(frozen=True)
+class File:
+    """A dataset file on disk.
+
+    :param root: the extracted tree, so the file can name itself by where it sits inside it.
+    """
+
+    path: Path
+    root: Path | None = None
+
+    @property
+    def label(self) -> str:
+        if self.root is None:
+            return str(self.path)
+        try:
+            return str(self.path.resolve().relative_to(self.root.resolve()))
+        except ValueError:
+            return str(self.path)
+
+    def open(self) -> BinaryIO:
+        return open(self.path, "rb")
+
+
+@dataclass(frozen=True)
+class Member:
+    """A dataset file inside a zip, read where it lies.
+
+    Some archives are far larger unpacked than packed, and unpacking them is work done twice:
+    Chakshu's per-expert masks are uncompressed TIFFs, 70 GB extracted against 11 GB in the
+    archive, and every one of them is read once and turned into a polygon. Reading members
+    directly keeps the archive as the only copy.
+    """
+
+    archive: Path
+    name: str
+
+    @property
+    def label(self) -> str:
+        return f"{self.archive.name}!{self.name}"
+
+    def open(self) -> BinaryIO:
+        return _opened(self.archive).open(self.name)
+
+
+Handle = File | Member
+
+
+def members(archive: Path, under: str = "") -> list[Member]:
+    """Every real file in a zip, in archive order.
+
+    :param under: keep only members beneath this path inside the archive.
+    """
+    return [
+        Member(archive, name)
+        for name in _opened(archive).namelist()
+        if name.startswith(under)
+        and not name.endswith("/")
+        and not any(part in name for part in MAC_RUBBISH)
+    ]
+
+
+def _opened(archive: Path) -> zipfile.ZipFile:
+    """One open handle per archive, since a build reads thousands of members from each."""
+    key = str(archive)
+    if key not in _OPEN:
+        _OPEN[key] = zipfile.ZipFile(archive)
+    return _OPEN[key]
+
+
+_OPEN: dict[str, zipfile.ZipFile] = {}
 
 
 @dataclass(frozen=True)
@@ -100,16 +176,23 @@ def extract(archive: Path, into: Path) -> Path:
 
 
 def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
     with open(path, "rb") as f:
-        for block in iter(lambda: f.read(1 << 20), b""):
-            digest.update(block)
+        return _digest(f)
+
+
+def _digest(stream: BinaryIO) -> str:
+    digest = hashlib.sha256()
+    for block in iter(lambda: stream.read(1 << 20), b""):
+        digest.update(block)
     return digest.hexdigest()
 
 
-def sha256_of(path: Path) -> str:
+def sha256_of(source: "Handle | Path") -> str:
     """The checksum of one file, recorded per image so a row can be traced to its bytes."""
-    return _sha256(path)
+    if isinstance(source, (File, Member)):
+        with source.open() as f:
+            return _digest(f)
+    return _sha256(Path(source))
 
 
 def _git(argv: list[str]) -> str:

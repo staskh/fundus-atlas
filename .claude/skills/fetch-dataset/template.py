@@ -19,6 +19,8 @@ from datasets.utils import archives, build, cli, contours, fov, manifest, qualit
 SLUG = "<slug>"
 
 #: Source downloads. A `⛔` dataset declares its route instead of a URL and sets `manual=True`.
+#: An archive that is far larger unpacked than packed sets `extract=False` and is read in place,
+#: with `archives.members(...)` naming the files a record points at.
 SOURCES = [
     archives.Source(
         layer="<slug>",

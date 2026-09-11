@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from datasets.utils import build, cli, fov, manifest, quality, resolution
+from datasets.utils import build, cli, contours, fov, manifest, quality, resolution
 
 
 def a_dataset(tmp_path):
@@ -168,3 +168,105 @@ def test_a_rerun_after_the_manifest_is_lost_does_not_rewrite_the_images(tmp_path
     build_it(tmp_path, "--raw", str(raw))
     assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
     assert len(list(manifest.read(store))) == 2
+
+
+def outlined(raw):
+    """One image whose disc and cup were drawn by two experts, as masks to trace."""
+    yy, xx = np.mgrid[0:300, 0:300]
+    for name, r in (("disc_e1", 40), ("disc_e2", 44), ("cup_e1", 20), ("cup_e2", 18)):
+        mask = np.where((xx - 150) ** 2 + (yy - 150) ** 2 <= r**2, 255, 0).astype(np.uint8)
+        Image.fromarray(mask).save(raw / f"a_{name}.png")
+    return [
+        build.SourceRecord(
+            key="a",
+            image=raw / "a.png",
+            outlines={
+                ("disc", "expert1"): raw / "a_disc_e1.png",
+                ("disc", "expert2"): raw / "a_disc_e2.png",
+                ("cup", "expert1"): raw / "a_cup_e1.png",
+                ("cup", "expert2"): raw / "a_cup_e2.png",
+            },
+        )
+    ]
+
+
+def build_outlined(tmp_path):
+    raw = a_dataset(tmp_path)
+    args = cli.parse(
+        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
+    )
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=outlined,
+        resolution_of=resolution.Declared(5.0, "published", "stated in the paper"),
+        args=args,
+    )
+    return tmp_path / "store" / "synthetic", raw
+
+
+def test_disc_and_cup_are_contours_rather_than_rasters(tmp_path):
+    store, _ = build_outlined(tmp_path)
+    assert (store / "native" / "contours" / "a.csv").exists()
+    assert not (store / "native" / "disc").exists()
+    row = next(iter(manifest.read(store)))
+    assert row["maps"] == "fov;disc;cup"
+    assert row["readers"] == "expert1;expert2"
+
+
+def test_every_reader_of_every_structure_is_in_one_file(tmp_path):
+    store, _ = build_outlined(tmp_path)
+    drawn = contours.read(store / "native" / "contours" / "a.csv")
+    assert set(drawn) == {
+        ("disc", "expert1"),
+        ("disc", "expert2"),
+        ("cup", "expert1"),
+        ("cup", "expert2"),
+    }
+
+
+def test_a_sized_contour_is_the_native_one_scaled(tmp_path):
+    store, _ = build_outlined(tmp_path)
+    native = contours.read(store / "native" / "contours" / "a.csv")[("disc", "expert1")]
+    sized = contours.read(store / "64" / "contours" / "a.csv")[("disc", "expert1")]
+    row = next(iter(manifest.read(store)))
+    scale = 64 / int(row["crop_side"])
+    assert len(sized) == len(native)
+    assert sized[0][0] == pytest.approx(native[0][0] * scale, abs=1)
+
+
+def test_an_outline_is_placed_by_the_crop_and_not_by_the_frame(tmp_path):
+    store, _ = build_outlined(tmp_path)
+    row = next(iter(manifest.read(store)))
+    drawn = contours.read(store / "native" / "contours" / "a.csv")[("disc", "expert1")]
+    # The disc sits at (150, 150) in the source; in the native frame it is that, less the crop.
+    assert drawn[:, 0].mean() == pytest.approx(150 - int(row["crop_x0"]), abs=3)
+
+
+def test_published_coordinates_are_translated_not_traced(tmp_path):
+    raw = a_dataset(tmp_path)
+
+    def discover_coords(root):
+        return [
+            build.SourceRecord(
+                key="a",
+                image=root / "a.png",
+                outlines={("disc", "consensus"): np.array([[150.0, 150.0], [160.0, 150.0]])},
+            )
+        ]
+
+    args = cli.parse(
+        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
+    )
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover_coords,
+        resolution_of=resolution.Declared(5.0, "published", "stated"),
+        args=args,
+    )
+    store = tmp_path / "store" / "synthetic"
+    row = next(iter(manifest.read(store)))
+    drawn = contours.read(store / "native" / "contours" / "a.csv")[("disc", "consensus")]
+    assert drawn[0][0] == pytest.approx(150 - int(row["crop_x0"]))
+    assert len(drawn) == 2
