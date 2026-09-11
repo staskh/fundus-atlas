@@ -51,6 +51,9 @@ uv run python -m datasets.deepdrid --sizes 512,720,1024     # any sizes a model 
   6, 8, 10 by how much of the frame is covered), `clarity` (1–10), `field_definition` (1–10),
   `patient_dr_level` (the grade from both eyes together), `view` (which photograph of this eye) and
   `screening_project` (`Nicheng`, `Shanghai`, `Nation`, or empty for the evaluation split).
+- **Empty cells mean unknown:** eleven training photographs have no DR grade (section 7), so
+  `disease` is empty for them rather than zero, and the whole dataset has no published resolution,
+  so `um_per_px` is empty in every row and `resolution_source` is `unknown`.
 - **Grouping:** `patient` is the dataset's own id and is unique across all three splits, so a
   by-person split is possible. `eye` is read from the filename suffix the authors document
   (`_l` left, `_r` right). `visit` is empty: the dataset photographs each patient once.
@@ -111,10 +114,12 @@ uv run python -m datasets.deepdrid --sizes 512,720,1024     # any sizes a model 
   number of regular fundus photographs is over-counting by 256: the repository holds exactly 2,000
   regular images and 256 ultra-wide-field ones. Verified by counting the archive at commit
   `56d8af71`.
-- **Eight photographs are not numbered as a pair.** The dual-view design holds for 998 of the 1,000
-  eyes; in the training split, patients 56, 77, 164 and 167 have views numbered 3 and 4. Patient 164
-  breaks it outright — one photograph of the left eye and three of the right. Code that assumes
-  `_l1`/`_l2` exist for every eye will miss images or raise.
+- **Eleven photographs are extra views, and none of them is graded.** The dual-view design holds
+  for 998 of the 1,000 eyes, but in the training split patients 56, 77, 164 and 167 have views
+  numbered 3 and 4 — eleven images across eight eyes — and **every one has an empty
+  diabetic-retinopathy level**. Patient 164 breaks the pairing outright: one photograph of the left
+  eye and three of the right. Code that assumes `_l1` and `_l2` exist for every eye will miss
+  images or raise, and code that assumes every image is graded will read an empty cell as a zero.
 - **Share-alike is easy to overlook.** Anything published that qualifies as a derivative of this
   dataset inherits CC BY-SA — a real constraint if it is mixed into a corpus meant to be released
   under something else.

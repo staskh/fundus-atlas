@@ -95,3 +95,23 @@ def test_a_very_dark_photograph_keeps_its_whole_field():
 def test_the_line_between_surround_and_retina_follows_the_exposure():
     assert fov.dark_level(disc(400, 500, 250, 200, 150, value=200)) == pytest.approx(10, abs=1)
     assert fov.dark_level(disc(400, 500, 250, 200, 150, value=20)) == fov.MIN_DARK
+
+
+def test_an_unlit_sector_does_not_shrink_the_circle():
+    # A photograph can be so underexposed on one side that the rim there falls below any sane
+    # threshold. The mask then has a bite taken out of it, and edge points along that bite lie
+    # well inside the true field: fitting to them would crop away retina that is present.
+    image = disc(400, 500, cx=250, cy=200, r=150)
+    yy, xx = np.mgrid[0:400, 0:500]
+    bite = (xx > 330) & (yy > 120) & (yy < 280)
+    image[bite] = 0
+    assert fov.detect(image).r == pytest.approx(150, abs=3)
+
+
+def test_a_ragged_rim_does_not_shrink_the_circle():
+    image = disc(400, 500, cx=250, cy=200, r=150)
+    for start in range(0, 400, 20):
+        image[start : start + 8, 250:] = np.where(
+            image[start : start + 8, 250:] > 0, 0, image[start : start + 8, 250:]
+        )
+    assert fov.detect(image).r == pytest.approx(150, abs=4)

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import numpy as np
 from scipy import ndimage
+from scipy.spatial import ConvexHull
 
 #: Where the surround ends and the retina begins, as a fraction of the photograph's own 99th
 #: percentile. Relative rather than fixed because exposure varies by more than an order of
@@ -57,10 +58,16 @@ def mask_of(image: np.ndarray, dark: float | None = None) -> np.ndarray:
 def detect(image: np.ndarray, dark: float | None = None) -> Circle:
     """Find the field of view, fitting a circle to the edge the camera actually left behind.
 
-    The fit deliberately ignores every boundary pixel lying on the frame edge: where the circle
-    runs off the sensor — which is the usual case, and why so many fundus photographs are taller
-    than they are wide — the cut edge is the sensor's, not the camera's, and including it would
-    shrink the circle to the crop somebody else already made.
+    Two things the fit deliberately ignores, each for the same reason — a point that is not on the
+    camera's circle must not be allowed to pull the circle towards it:
+
+    - **Boundary pixels on the frame edge.** Where the circle runs off the sensor — the usual case,
+      and why so many fundus photographs are taller than they are wide — the cut edge is the
+      sensor's, not the camera's, and fitting to it would shrink the field to the crop somebody
+      else already made.
+    - **Everything but the outline's convex hull.** A dim sector, a ragged rim or a shadow at the
+      edge takes a bite out of the mask, and the edge pixels along that bite sit well inside the
+      true field. The hull spans such a bite instead of following it in.
 
     :param image: an ``(h, w, 3)`` array.
     :return: the circle, with ``source`` recording how it was arrived at.
@@ -72,12 +79,11 @@ def detect(image: np.ndarray, dark: float | None = None) -> Circle:
 
     field = _largest_component(ndimage.binary_fill_holes(footprint))
     edge = field & ~ndimage.binary_erosion(field)
-    edge[0, :] = edge[-1, :] = False
-    edge[:, 0] = edge[:, -1] = False
     ys, xs = np.nonzero(edge)
-    if len(xs) < 3:
+    rim = _on_the_cameras_circle(np.column_stack([xs, ys]).astype(float), height, width)
+    if len(rim) < 3:
         return Circle(width / 2, height / 2, max(width, height) / 2, "assumed_full_frame")
-    return _fit_circle(xs.astype(float), ys.astype(float))
+    return _fit_circle(rim[:, 0], rim[:, 1])
 
 
 def _largest_component(mask: np.ndarray) -> np.ndarray:
@@ -87,6 +93,20 @@ def _largest_component(mask: np.ndarray) -> np.ndarray:
         return mask
     sizes = ndimage.sum_labels(mask, labels, index=range(1, count + 1))
     return labels == (int(np.argmax(sizes)) + 1)
+
+
+def _on_the_cameras_circle(points: np.ndarray, height: int, width: int) -> np.ndarray:
+    """The outline points that can be trusted to lie on the camera's circle.
+
+    The convex hull of the footprint, less the corners where the circle leaves the sensor.
+    """
+    if len(points) < 3:
+        return points
+    hull = points[ConvexHull(points).vertices]
+    inside_frame = (
+        (hull[:, 0] > 0) & (hull[:, 0] < width - 1) & (hull[:, 1] > 0) & (hull[:, 1] < height - 1)
+    )
+    return hull[inside_frame]
 
 
 def _fit_circle(xs: np.ndarray, ys: np.ndarray) -> Circle:
