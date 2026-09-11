@@ -7,17 +7,25 @@ import numpy as np
 from scipy import ndimage
 from scipy.spatial import ConvexHull
 
-#: Where the surround ends and the retina begins, as a fraction of the photograph's own 99th
-#: percentile. Relative rather than fixed because exposure varies by more than an order of
-#: magnitude across a screening dataset: a fixed line that suits a bright photograph cuts into a
-#: dark one, cropping away retina that is there and shrinking the field to what happened to be
-#: well lit.
-RELATIVE_DARK = 0.05
+#: Width of the ring, in pixels, sampled to learn what this photograph's surround looks like.
+BORDER = 5
 
-#: A floor for the line, so JPEG noise in a near-black surround is not read as retina.
-MIN_DARK = 4
+#: How far a pixel may sit from the surround's own colour, per channel, and still be surround.
+#: Taken as a fraction of the photograph's 99th percentile, because exposure varies by more than an
+#: order of magnitude across a screening dataset and a fixed tolerance that suits a bright
+#: photograph eats into the rim of a dark one.
+RELATIVE_TOLERANCE = 0.05
 
-#: A frame this full of retina has no surround to find, so there is no circle to fit.
+#: Bounds on that tolerance: loose enough for the ringing a JPEG leaves along the rim, tight enough
+#: that dim retina is not mistaken for a black surround.
+MIN_TOLERANCE = 4
+MAX_TOLERANCE = 20
+
+#: How much of the border ring must be one colour for there to be a surround at all. Below this,
+#: retina reaches the frame's edge all the way round and there is no circle to find.
+MIN_RING_SHARE = 0.4
+
+#: A frame this full of retina has no surround worth speaking of.
 FULL_FRAME = 0.98
 
 #: What a fetcher declares when the dataset ships its own field-of-view masks.
@@ -36,26 +44,56 @@ class Circle:
     source: str
 
 
-def dark_level(image: np.ndarray) -> float:
-    """The intensity below which this particular photograph is surround rather than retina."""
-    return max(MIN_DARK, RELATIVE_DARK * float(np.percentile(image.max(axis=2), 99)))
+def tolerance(image: np.ndarray) -> float:
+    """How close to the surround's colour a pixel must be to count as surround."""
+    scale = RELATIVE_TOLERANCE * float(np.percentile(image, 99))
+    return float(np.clip(scale, MIN_TOLERANCE, MAX_TOLERANCE))
 
 
-def mask_of(image: np.ndarray, dark: float | None = None) -> np.ndarray:
-    """The photograph's own footprint: which pixels hold retina rather than surround.
+def surround_colour(image: np.ndarray) -> np.ndarray | None:
+    """The colour this camera painted outside the field, or `None` if it painted nothing.
 
-    Holes are left in. A dead patch inside the field is a fact about the photograph, and a mask
-    that fills it in would claim the crop transported something it did not.
+    Cameras and exporters disagree about it: most write black, some write white, some a flat grey.
+    What every surround has in common is that it is **one colour and it reaches the edge of the
+    frame** — so that, rather than darkness, is what is looked for. A brightness test hands back
+    the whole frame as field of view on a photograph whose surround happens to be white.
+    """
+    ring = np.concatenate(
+        [
+            image[:BORDER].reshape(-1, 3),
+            image[-BORDER:].reshape(-1, 3),
+            image[:, :BORDER].reshape(-1, 3),
+            image[:, -BORDER:].reshape(-1, 3),
+        ]
+    ).astype(float)
+    candidate = np.median(ring, axis=0)
+    share = float((np.abs(ring - candidate).max(axis=1) <= tolerance(image)).mean())
+    return candidate if share >= MIN_RING_SHARE else None
+
+
+def mask_of(image: np.ndarray) -> np.ndarray:
+    """The camera's field of view: everything but the surround.
+
+    The field is one connected region: a burnt-in timestamp or a lens flare sitting out in the
+    surround is not part of what the camera was looking at, whatever colour it is.
+
+    A dead patch in the middle of the retina stays *inside* the mask. The mask says where the
+    camera was looking, not where the photograph came out well, and a patch of no signal is still
+    within the field — which is why the surround is found by reaching in from the frame's edge
+    rather than by collecting every pixel that resembles it.
 
     :param image: an ``(h, w, 3)`` array.
-    :param dark: the line to use, or `None` to take it from the photograph itself.
     :return: ``(h, w)`` of 0 or 255.
     """
-    level = dark_level(image) if dark is None else dark
-    return np.where(image.max(axis=2) > level, 255, 0).astype(np.uint8)
+    colour = surround_colour(image)
+    if colour is None:
+        return np.full(image.shape[:2], 255, dtype=np.uint8)
+    resembles = np.abs(image.astype(float) - colour).max(axis=2) <= tolerance(image)
+    field = _largest_component(~_reaching_the_frame(resembles))
+    return np.where(field, 255, 0).astype(np.uint8)
 
 
-def detect(image: np.ndarray, dark: float | None = None) -> Circle:
+def detect(image: np.ndarray) -> Circle:
     """Find the field of view, fitting a circle to the edge the camera actually left behind.
 
     Two things the fit deliberately ignores, each for the same reason — a point that is not on the
@@ -73,17 +111,32 @@ def detect(image: np.ndarray, dark: float | None = None) -> Circle:
     :return: the circle, with ``source`` recording how it was arrived at.
     """
     height, width = image.shape[:2]
-    footprint = mask_of(image, dark) > 0
-    if footprint.mean() >= FULL_FRAME:
-        return Circle(width / 2, height / 2, max(width, height) / 2, "assumed_full_frame")
+    whole_frame = Circle(width / 2, height / 2, max(width, height) / 2, "assumed_full_frame")
 
-    field = _largest_component(ndimage.binary_fill_holes(footprint))
+    field = mask_of(image) > 0
+    if field.mean() >= FULL_FRAME:
+        return whole_frame
+
+    field = _largest_component(ndimage.binary_fill_holes(field))
     edge = field & ~ndimage.binary_erosion(field)
     ys, xs = np.nonzero(edge)
     rim = _on_the_cameras_circle(np.column_stack([xs, ys]).astype(float), height, width)
     if len(rim) < 3:
-        return Circle(width / 2, height / 2, max(width, height) / 2, "assumed_full_frame")
+        return whole_frame
     return _fit_circle(rim[:, 0], rim[:, 1])
+
+
+def _reaching_the_frame(resembles: np.ndarray) -> np.ndarray:
+    """The parts of a surround-coloured region that touch the frame's edge.
+
+    Connectivity is what separates surround from a patch inside the retina: the two can be the
+    same colour, but only one of them runs off the edge of the photograph.
+    """
+    labels, count = ndimage.label(resembles)
+    if count == 0:
+        return resembles
+    border = np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]])
+    return np.isin(labels, np.unique(border[border > 0]))
 
 
 def _largest_component(mask: np.ndarray) -> np.ndarray:

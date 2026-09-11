@@ -7,9 +7,10 @@ import pytest
 from datasets.utils import crop, fov
 
 
-def disc(height, width, cx, cy, r, value=200):
+def disc(height, width, cx, cy, r, value=200, background=0):
+    """A filled circle on a uniform surround, which is what a fundus photograph is."""
     yy, xx = np.mgrid[0:height, 0:width]
-    image = np.zeros((height, width, 3), dtype=np.uint8)
+    image = np.full((height, width, 3), background, dtype=np.uint8)
     image[(xx - cx) ** 2 + (yy - cy) ** 2 <= r**2] = value
     return image
 
@@ -20,6 +21,25 @@ def test_detects_a_circle_that_fits_inside_the_frame():
     assert found.cy == pytest.approx(200, abs=2)
     assert found.r == pytest.approx(150, abs=2)
     assert found.source == "detected"
+
+
+def test_a_white_surround_is_a_surround_too():
+    # Some cameras write the area outside the field white rather than black. Nothing about it is
+    # retina, and a brightness test would call the entire frame field of view.
+    found = fov.detect(disc(400, 500, cx=250, cy=200, r=150, value=90, background=255))
+    assert found.r == pytest.approx(150, abs=2)
+    assert found.source == "detected"
+
+
+def test_a_grey_surround_is_a_surround_too():
+    found = fov.detect(disc(400, 500, cx=250, cy=200, r=150, value=200, background=128))
+    assert found.r == pytest.approx(150, abs=2)
+
+
+def test_a_white_surround_is_outside_the_mask():
+    mask = fov.mask_of(disc(400, 500, cx=250, cy=200, r=150, value=90, background=255))
+    assert mask[200, 250] == 255
+    assert mask[5, 5] == 0
 
 
 def test_recovers_the_radius_of_a_circle_cut_off_left_and_right():
@@ -37,7 +57,7 @@ def test_ignores_a_bright_speck_outside_the_field():
     assert found.r == pytest.approx(150, abs=3)
 
 
-def test_a_frame_with_no_dark_border_is_the_whole_frame():
+def test_a_frame_with_no_surround_at_all_is_the_whole_frame():
     image = np.full((300, 400, 3), 180, dtype=np.uint8)
     found = fov.detect(image)
     assert found.source == "assumed_full_frame"
@@ -45,12 +65,34 @@ def test_a_frame_with_no_dark_border_is_the_whole_frame():
     assert found.r == pytest.approx(200, abs=1)
 
 
-def test_the_mask_is_the_pixels_that_are_there_not_a_redrawn_circle():
+def test_a_dead_patch_inside_the_field_is_still_inside_the_field():
+    # The mask says where the camera's field was, not where the photograph came out well. A patch
+    # of no signal in the middle of the retina is still within the field of view; only the
+    # surround — uniform and reaching the frame's edge — is outside it.
     image = disc(400, 500, cx=250, cy=200, r=150)
-    image[195:205, 245:255] = 0  # a dead patch inside the field
+    image[195:205, 245:255] = 0
     mask = fov.mask_of(image)
-    assert mask[200, 250] == 0
+    assert mask[200, 250] == 255
     assert mask[200, 150] == 255
+    assert mask[5, 5] == 0
+
+
+def test_a_very_dark_photograph_keeps_its_whole_field():
+    # Exposure varies by more than an order of magnitude across a screening dataset. A field that
+    # is dim everywhere is still a field, and must not be cropped to the part that was well lit.
+    bright = disc(400, 500, cx=250, cy=200, r=150, value=200)
+    dim = disc(400, 500, cx=250, cy=200, r=150, value=14)
+    assert fov.detect(dim).r == pytest.approx(fov.detect(bright).r, abs=2)
+
+
+def test_an_unlit_sector_does_not_shrink_the_circle():
+    # A photograph can be so underexposed on one side that the rim there is indistinguishable from
+    # the surround. The mask then has a bite taken out of it, and edge points along that bite lie
+    # well inside the true field: fitting to them would crop away retina that is present.
+    image = disc(400, 500, cx=250, cy=200, r=150)
+    yy, xx = np.mgrid[0:400, 0:500]
+    image[(xx > 330) & (yy > 120) & (yy < 280)] = 0
+    assert fov.detect(image).r == pytest.approx(150, abs=3)
 
 
 def test_the_square_is_the_circle_bounding_box():
@@ -84,34 +126,12 @@ def test_nothing_is_padded_when_the_square_fits():
     assert crop.pad_fraction(square, height=400, width=500) == 0.0
 
 
-def test_a_very_dark_photograph_keeps_its_whole_field():
-    # Exposure varies by more than an order of magnitude across a screening dataset. A field that
-    # is dim everywhere is still a field, and must not be cropped to the part that was well lit.
-    bright = disc(400, 500, cx=250, cy=200, r=150, value=200)
-    dim = disc(400, 500, cx=250, cy=200, r=150, value=14)
-    assert fov.detect(dim).r == pytest.approx(fov.detect(bright).r, abs=2)
-
-
-def test_the_line_between_surround_and_retina_follows_the_exposure():
-    assert fov.dark_level(disc(400, 500, 250, 200, 150, value=200)) == pytest.approx(10, abs=1)
-    assert fov.dark_level(disc(400, 500, 250, 200, 150, value=20)) == fov.MIN_DARK
-
-
-def test_an_unlit_sector_does_not_shrink_the_circle():
-    # A photograph can be so underexposed on one side that the rim there falls below any sane
-    # threshold. The mask then has a bite taken out of it, and edge points along that bite lie
-    # well inside the true field: fitting to them would crop away retina that is present.
-    image = disc(400, 500, cx=250, cy=200, r=150)
-    yy, xx = np.mgrid[0:400, 0:500]
-    bite = (xx > 330) & (yy > 120) & (yy < 280)
-    image[bite] = 0
-    assert fov.detect(image).r == pytest.approx(150, abs=3)
-
-
-def test_a_ragged_rim_does_not_shrink_the_circle():
-    image = disc(400, 500, cx=250, cy=200, r=150)
-    for start in range(0, 400, 20):
-        image[start : start + 8, 250:] = np.where(
-            image[start : start + 8, 250:] > 0, 0, image[start : start + 8, 250:]
-        )
-    assert fov.detect(image).r == pytest.approx(150, abs=4)
+def test_a_burnt_in_label_out_in_the_surround_is_not_part_of_the_field():
+    # Several cameras stamp an index or a timestamp in the corner. It is not surround-coloured, so
+    # a colour test keeps it; it is also not the field, and a consumer masking with it would carry
+    # a patch of text into an analysis.
+    image = disc(400, 500, cx=250, cy=200, r=150, value=90, background=255)
+    image[8:14, 8:30] = 40
+    mask = fov.mask_of(image)
+    assert mask[10, 20] == 0
+    assert mask[200, 250] == 255

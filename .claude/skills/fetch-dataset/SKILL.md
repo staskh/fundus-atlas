@@ -507,6 +507,24 @@ the crop. `utils/resolution.py` exposes exactly this as a function; no consumer 
 
 ## 9. Field of view: a true crop and paste, not a redrawn circle
 
+**What counts as surround.** Not "the dark part" — cameras and exporters disagree, and the same
+dataset can hold both conventions: twenty of DeepDRiD's photographs write the area outside the
+field **white**, the rest write it black, and others in this catalogue write a flat grey. What every
+surround has in common is that it is **one colour and it reaches the edge of the frame**, so that is
+the test `utils/fov.py` applies: learn the colour from the border ring, then take the
+surround-coloured region *connected to* the border. Two consequences worth stating, because both
+are easy to get wrong in the other direction:
+
+- **A patch inside the retina is not surround, even in the surround's own colour.** It fails the
+  connectivity test, stays inside the mask, and the mask keeps meaning *where the camera was
+  looking* rather than *where the photograph came out well*.
+- **A burnt-in index or timestamp out in the surround is not field.** It is not surround-coloured,
+  so only taking the field's largest connected region excludes it.
+
+A photograph with no uniform border at all — retina reaching the frame's edge the whole way round —
+has no circle to find, and is recorded as `assumed_full_frame` rather than guessed at.
+
+
 The field-of-view mask is **the authority on which pixels are real**, and it is produced by putting
 a real mask through exactly the transformation the photograph goes through — never by drawing a
 circle from the stored centre and radius.

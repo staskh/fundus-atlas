@@ -70,7 +70,7 @@ uv run python -m datasets.deepdrid --sizes 512,720,1024     # any sizes a model 
 
 | | |
 | --- | --- |
-| Resolution (pixels) | Six sizes: 1736×1824 (1,294 images), 1976×1984 (660), 1734×1821 (18), 2230×1725 (10), 2232×1727 (10), 1592×1728 (8). Every one is near-square, the circular field already cropped close |
+| Resolution (pixels) | Six sizes: 1736×1824 (1,294 images), 1976×1984 (660), 1734×1821 (18), 2230×1725 (10), 2232×1727 (10), 1592×1728 (8). Mostly near-square with the circular field cropped close; the two landscape sizes are the twenty white-surround images noted in section 7 |
 | Microns per pixel | Unknown |
 | Camera | Not stated uniformly |
 | Field of view | Not stated |
@@ -158,6 +158,12 @@ ophthalmologists on hundreds of images they passed as diagnosable.
   diabetic-retinopathy level**. Patient 164 breaks the pairing outright: one photograph of the left
   eye and three of the right. Code that assumes `_l1` and `_l2` exist for every eye will miss
   images or raise, and code that assumes every image is graded will read an empty cell as a zero.
+- **Twenty photographs write the surround white instead of black.** All twenty are the landscape
+  2230×1725 and 2232×1727 images, from five training patients (27, 96, 120, 130, 330), and they
+  also carry a burnt-in index in the top-left corner. Any code that finds the field of view by
+  looking for darkness will treat the whole frame as retina on these, then crop and measure a
+  square that is 30% surround. The fetcher looks for a uniform border-connected colour instead, so
+  they come out as ordinary circles.
 - **Share-alike is easy to overlook.** Anything published that qualifies as a derivative of this
   dataset inherits CC BY-SA — a real constraint if it is mixed into a corpus meant to be released
   under something else.
