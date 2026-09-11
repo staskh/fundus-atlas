@@ -49,7 +49,7 @@ training.
   file is named `quickqual_dn121_512.pkl` after it.
 - **Input expected:** a fundus photograph resized to 512 pixels and normalised with mean and
   standard deviation 0.5 per channel, per the README's example. The authors' evaluation uses
-  EyePACS images preprocessed by their `image_preprocessing.py`.
+  [EyePACS](../datasets/eyeq.md) images preprocessed by their `image_preprocessing.py`.
 - **Preprocessing in the published code:** resize to 512, normalise; no cropping is performed for
   you.
 
@@ -64,7 +64,7 @@ training.
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| EyeQ — quality-graded EyePACS images | Fitting the support vector machine, and evaluation | The EyeQ authors | Yes: EyeQ's train and test splits; results are reported on the test split |
+| [EyeQ](../datasets/eyeq.md) — quality-graded [EyePACS](../datasets/eyeq.md) images | Fitting the support vector machine, and evaluation | The EyeQ authors | Yes: EyeQ's train and test splits; results are reported on the test split |
 | ImageNet | Pretraining of the frozen feature extractor | ImageNet's annotators | Not applicable — the network is used as published |
 
 EyeQ cannot be used to benchmark this classifier. It shares that limitation with the

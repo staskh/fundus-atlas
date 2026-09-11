@@ -67,19 +67,19 @@ labelling disc and cup boundaries takes an expert.
 - **Parameters:** Unknown; MobileNetV2 is a deliberately small backbone, and the README notes other
   backbones can be substituted.
 - **Single model or ensemble:** a single model, trained per target domain — the published weights
-  include a Drishti-GS variant, so the target domain is part of the model's identity.
+  include a [Drishti-GS](../datasets/drishti-gs.md) variant, so the target domain is part of the model's identity.
 
 ## 6. Training data
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| REFUGE | Source domain, labelled training | The challenge organisers | Yes, the REFUGE training set |
-| Drishti-GS | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
-| RIM-ONE-r3 | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
+| [REFUGE](../datasets/refuge.md) | Source domain, labelled training | The challenge organisers | Yes, the [REFUGE](../datasets/refuge.md) training set |
+| [Drishti-GS](../datasets/drishti-gs.md) | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
+| [RIM-ONE-r3](../datasets/rim-one-dl.md) | Target domain, unlabelled during training; then test | The dataset's own authors | Yes |
 
 This is the unusual case where the *test* images were used in training — without their labels. That
 is legitimate for unsupervised domain adaptation and is the method's whole premise, but it means
-neither Drishti-GS nor RIM-ONE-r3 is a blind benchmark for these weights: the model has seen those
+neither Drishti-GS nor [RIM-ONE-r3](../datasets/rim-one-dl.md) is a blind benchmark for these weights: the model has seen those
 images, just not their annotations. A genuinely independent evaluation needs a third dataset.
 
 ## 7. Weights

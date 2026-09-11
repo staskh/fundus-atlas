@@ -69,16 +69,16 @@ about whether a given vessel exists.
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| DRIVE | Training | The dataset's own authors | Combined set named `ALL-SIX`; per-dataset split not restated in the repository |
-| STARE | Training | The dataset's own authors | As above |
-| CHASE-DB1 | Training | The dataset's own authors | As above |
-| HRF | Training | The dataset's own authors | As above |
-| IOSTAR | Training | The dataset's own authors | As above |
-| LES-AV | Training | The dataset's own authors | As above |
+| [DRIVE](../datasets/drive.md) | Training | The dataset's own authors | Combined set named `ALL-SIX`; per-dataset split not restated in the repository |
+| [STARE](../datasets/stare.md) | Training | The dataset's own authors | As above |
+| [CHASE-DB1](../datasets/chase-db1.md) | Training | The dataset's own authors | As above |
+| [HRF](../datasets/hrf.md) | Training | The dataset's own authors | As above |
+| [IOSTAR](../datasets/iostar.md) | Training | The dataset's own authors | As above |
+| [LES-AV](../datasets/les-av.md) | Training | The dataset's own authors | As above |
 
 All six are therefore unavailable for a fair benchmark of these weights — which rules out most of
 the public vessel-segmentation benchmarks in common use. An independent evaluation needs a dataset
-outside that list, such as FIVES.
+outside that list, such as [FIVES](../datasets/fives.md).
 
 ## 7. Weights
 

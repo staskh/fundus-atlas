@@ -101,7 +101,7 @@ project's issue tracker or code was found to change the numbers a user would rep
   one segmentation model (the disc) with many biomarker calculations, but it is not an end-to-end
   pipeline, since artery/vein masks come from elsewhere. It is catalogued here because in practice
   it is used as the biomarker half of a pipeline, most often paired with LUNet.
-- The package can download the external test sets used in the LUNet paper (Crop_HRF, INSPIRE, UNAF)
+- The package can download the external test sets used in the LUNet paper ([Crop_HRF](../datasets/hrf.md), [INSPIRE](../datasets/inspire-avr.md), [UNAF](../datasets/unaf.md))
   through its `PVBMDataDownloader`. Those datasets keep their own licenses, which are not restated
   by the downloader — check each one before using the images in a publication.
 

@@ -6,7 +6,7 @@ decides which photographs get measured at all.
 
 It is easily miscredited. The grading *labels* come from the EyeQ dataset, and EyeQ published its
 own model (MCF-Net); this is neither. It is an EfficientNet classifier that AutoMorph's authors
-trained themselves on EyeQ's labelled EyePACS images, and it is distributed only inside AutoMorph.
+trained themselves on EyeQ's labelled [EyePACS](../datasets/eyeq.md) images, and it is distributed only inside AutoMorph.
 
 ## 1. Code reference
 
@@ -62,7 +62,7 @@ trained themselves on EyeQ's labelled EyePACS images, and it is distributed only
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| EyeQ training split — 12,543 EyePACS images | Training | Re-annotated for quality by the EyeQ authors | Yes: EyeQ's own train/test division, itself inherited from EyePACS |
+| [EyeQ](../datasets/eyeq.md) training split — 12,543 [EyePACS](../datasets/eyeq.md) images | Training | Re-annotated for quality by the EyeQ authors | Yes: EyeQ's own train/test division, itself inherited from EyePACS |
 
 EyeQ's test split (16,249 images) is the natural benchmark and was not used for training, but note
 that the whole of EyeQ is a re-annotation of EyePACS, so any EyePACS-derived quality benchmark

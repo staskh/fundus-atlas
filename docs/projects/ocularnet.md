@@ -54,13 +54,20 @@ relying on it.
 
 ### 5.1 OCULARNet and OCULARNet-nano
 
-- **Training data:** the OCULAR training collection — fourteen public datasets: AVRDB, DRIVE,
-  ENRICH, FIVES-AV, Fundus-AVSeg, GAVE, GRAPE, HRF, INSPIRE, LES-AV, Leuven-Haifa, MAGREBHIA,
-  MESSIDOR-AV and PAPILA. Evaluation is split deliberately into in-distribution test sets
-  (DualModal, UNAF) and out-of-distribution ones, further divided into near-OoD (TREND-AV,
-  IOSTAR-AV, MBRSET) and far-OoD (AV-WIDE, RAVIR). The README tabulates each dataset's image count,
+- **Training data:** the OCULAR training collection — fourteen public datasets: [AVRDB](../datasets/avrdb.md), [DRIVE](../datasets/drive.md),
+  ENRICH, [FIVES-AV](../datasets/fives.md), [Fundus-AVSeg](../datasets/fundus-avseg.md), [GAVE](../datasets/gave.md), [GRAPE](../datasets/grape.md), [HRF](../datasets/hrf.md), [INSPIRE](../datasets/inspire-avr.md), [LES-AV](../datasets/les-av.md), [Leuven-Haifa](../datasets/leuven-haifa.md), MAGREBHIA,
+  [MESSIDOR-AV](../datasets/messidor.md) and [PAPILA](../datasets/papila.md). Evaluation is split deliberately into in-distribution test sets
+  ([DualModal](../datasets/dualmodal2019.md), [UNAF](../datasets/unaf.md)) and out-of-distribution ones, further divided into near-OoD (TREND-AV,
+  [IOSTAR-AV](../datasets/iostar.md), [MBRSET](../datasets/mbrset.md)) and far-OoD ([AV-WIDE](../datasets/wide.md), [RAVIR](../datasets/ravir.md)). The README tabulates each dataset's image count,
   field of view, resolution, country and pathologies, which makes it the most explicit statement of
   training-data diversity of any entry in this catalogue.
+
+  **But six of those fourteen entries are one download.** ENRICH, FIVES-AV, MAGREBHIA, MESSIDOR-AV,
+  AV-WIDE and TREND-AV are all served from the same Kaggle URL — [REYIA](../datasets/reyia.md)'s
+  link-shared archive — so the list counts one compilation's subsets six times, and two of those
+  subsets are annotations of [FIVES](../datasets/fives.md) and [MESSIDOR](../datasets/messidor.md)
+  photographs that the list does not otherwise name. A count of datasets is not a count of
+  independent evidence.
 - **Weights publicly available:** Yes.
 - **Download URLs:**
   - OCULARNet: https://huggingface.co/Anon-User-Retina/OCULARNet/resolve/main/OCULARNet.pth

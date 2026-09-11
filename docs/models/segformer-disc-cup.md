@@ -1,6 +1,6 @@
 # SegFormer for optic disc and cup (pamixsun)
 
-A SegFormer transformer fine-tuned on the REFUGE challenge dataset to outline the optic disc and the
+A SegFormer transformer fine-tuned on the [REFUGE](../datasets/refuge.md) challenge dataset to outline the optic disc and the
 optic cup. It is the most convenient disc-and-cup model in this catalogue: it lives on Hugging Face
 in the standard `transformers` format, so four lines of Python download it and segment an image, with
 no repository to clone, no environment to reconstruct and no weights to hunt for.
@@ -78,12 +78,12 @@ Absent a paper, cite the model repository and its revision.
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| REFUGE challenge | Fine-tuning | The challenge organisers | No — the card says only that it was fine-tuned on REFUGE |
+| [REFUGE](../datasets/refuge.md) challenge | Fine-tuning | The challenge organisers | No — the card says only that it was fine-tuned on REFUGE |
 
 REFUGE cannot be used to benchmark this model. Note that [AutoMorph's disc-and-cup
 model](automorph-disc-cup.md) was also trained on REFUGE, and [BEAL](beal.md) and
 [ISFA](isfa.md) use it as their labelled source domain — so REFUGE is unusable for comparing any of
-these four against each other. Drishti-GS and RIM-ONE-r3 are unusable for BEAL and ISFA but remain
+these four against each other. [Drishti-GS](../datasets/drishti-gs.md) and [RIM-ONE-r3](../datasets/rim-one-dl.md) are unusable for BEAL and ISFA but remain
 available for this model, which makes them the practical common ground for a disc-and-cup
 comparison.
 

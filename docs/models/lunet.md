@@ -45,7 +45,7 @@ atlas distribute weights derived from it, and that restriction travels with them
 - **Grid set in:** `final_shape = 1472` in `main.py`, commented "Shape on which the images will be
   processed by the model", and used to build the Keras input layer.
 - **Input expected:** high-resolution fundus photographs. The training data is the UZLF
-  (Leuven-Haifa) dataset at 1444×1444; behaviour on smaller or lower-resolution images is not
+  ([Leuven-Haifa](../datasets/leuven-haifa.md)) dataset at 1444×1444; behaviour on smaller or lower-resolution images is not
   characterised here.
 - **Preprocessing in the published code:** dataset preparation expects `images`, `artery` and
   `veins` folders per split, following the UZLF layout.
@@ -61,8 +61,8 @@ atlas distribute weights derived from it, and that restriction travels with them
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| UZLF (Leuven-Haifa), 1444×1444 | Training, validation and test | The dataset's authors at Leuven | Yes — `UZLF_TRAIN`, `UZLF_VAL`, `UZLF_TEST` |
-| Crop_HRF, INSPIRE, UNAF | External test only, fetched through PVBM | Their own authors | Yes, test only |
+| [UZLF](../datasets/leuven-haifa.md) ([Leuven-Haifa](../datasets/leuven-haifa.md)), 1444×1444 | Training, validation and test | The dataset's authors at Leuven | Yes — `UZLF_TRAIN`, `UZLF_VAL`, `UZLF_TEST` |
+| [Crop_HRF](../datasets/hrf.md), [INSPIRE](../datasets/inspire-avr.md), [UNAF](../datasets/unaf.md) | External test only, fetched through PVBM | Their own authors | Yes, test only |
 
 UZLF cannot be used to benchmark these weights. The three external sets were used by the authors as
 held-out tests, which makes them a reasonable basis for comparison but no longer a blind one.
