@@ -70,6 +70,8 @@ Rules that make the store uniform:
   "belongs at 512": the grid belongs to the *model* being evaluated, not to the dataset, and the
   atlas evaluates models with grids from 256 to 1472 (see `docs/MODELS.md`). A fetcher that builds
   one size forces every consumer to resample, which is the thing the store exists to prevent.
+- **`native/` is the derivation reference, and must be sufficient to build any future size on its
+  own** — no network, no archive. Everything else in the store is a function of it.
 - **`native/` is always built, and is not optional.** It is the reference every resampled size is
   derived from, and the only copy whose pixel count matches what the authors published. There is no
   flag to skip it: a store without it cannot answer what a measurement would have been at full
@@ -91,7 +93,7 @@ options, with these meanings, so that a person who has used one fetcher has used
 
 | Option | Meaning |
 | --- | --- |
-| `--sizes 512,1024` | Sizes to build besides `native/`. Default `512,1024`. Any positive integers; the atlas's models span 256 to 1472, so intermediate sizes are ordinary, not exceptional |
+| `--sizes 512,1024` | The sizes that should **exist** besides `native/`, not the sizes to rebuild. Default `512,1024`. Any positive integers; the atlas's models span 256 to 1472, so intermediate sizes are ordinary. On an existing store this adds the missing ones from `native/` without downloading anything — section 10 |
 | `--archive PATH` | Use an archive already on disk instead of downloading. **Required for every dataset whose Down column is not ✅** |
 | `--raw PATH` | Use an already-extracted tree, skipping download and extraction |
 | `--data-root PATH` | Override the store root |
@@ -103,7 +105,9 @@ options, with these meanings, so that a person who has used one fetcher has used
 And these behaviours:
 
 - **Idempotent.** Running twice does nothing the second time. An existing archive is not
-  re-downloaded, an existing store is not rebuilt without `--force`.
+  re-downloaded, an existing store is not rebuilt without `--force`, and a size that already exists
+  is not recomputed. Asking for a size that does not exist yet builds only that size, from
+  `native/` — section 10.
 - **Resumable.** A build interrupted halfway continues rather than restarting: an image whose
   outputs all exist and whose manifest row is present is skipped.
 - **Verifying.** A download is checked against a recorded sha256 before extraction. A mismatch is an
@@ -308,27 +312,70 @@ Three reasons this beats a raster:
   predicts on, an evaluation is arithmetic rather than a coordinate transform, which is what keeps
   scoring hundreds of images cheap.
 
-**How to recompute per size**, and the two cases differ:
+**A contour is traced or transformed exactly once, into the native frame. Every size is then scaled
+from that.**
 
-- **The dataset publishes coordinates** (PAPILA, GRAPE, RIGA): transform the *published* coordinates
-  into each frame. This is exact, and the native frame stays the annotation of record.
-- **The dataset publishes rasters** (REFUGE, G1020, HRF-Seg+): resample the mask to that size and
-  **trace it there**, rather than scaling the native polygon. The polygon then matches the boundary a
-  model sees at that size, which is the thing being compared. Trace the largest external component
-  only, with Douglas-Peucker simplification at a tolerance of **0.001 of the contour's own
-  perimeter** — a fraction rather than a pixel count, so different sizes yield comparable node
-  counts, and about 45 nodes for an optic disc, which is the range a hand-drawn outline occupies.
-- Either way, **round to integers**. On a 2576-pixel photograph that costs at most half a pixel, and
-  far less once resampled — orders of magnitude below the distance between two experts on the same
-  structure.
-- Where a dataset ships rasters, record the fidelity of the tracing (an IoU against the mask it came
-  from) in the row's `notes` rather than assuming it was faithful.
+- **Native carries float coordinates.** `native/contours/<key>.csv` is the annotation of record and
+  stores `x` and `y` as floats, because it is the thing every other size is computed from and
+  rounding it would round every size with it.
+- **Getting into the native frame** depends on what the dataset published:
+  - **Coordinates** (PAPILA, GRAPE, RIGA): transform the published coordinates through the same crop
+    and paste as the photograph. Exact.
+  - **Rasters** (REFUGE, G1020, HRF-Seg+): trace the native-resolution mask once — largest external
+    component, Douglas-Peucker at **0.001 of the contour's own perimeter**, which gives about 45
+    nodes for an optic disc, the range a hand-drawn outline occupies. Record the tracing's fidelity
+    (an IoU against the mask it came from) in the row's `notes` rather than assuming it was faithful.
+- **Every sized contour is `native × size / crop_side`, rounded to integers.** One multiplication, no
+  re-tracing, no second code path. On a 2576-pixel photograph the rounding costs at most half a pixel
+  and far less once resampled — orders of magnitude below the distance between two experts on the
+  same structure.
+
+Scaling rather than re-tracing at each size is deliberate, and it is what makes section 10 possible:
+a size added a year later, from `native/` alone, is **bit-identical** to the same size built on the
+first run. Re-tracing would need the original raster — which is in `raw/`, which is deleted by
+default — so the two routes would silently produce different polygons.
 
 **Coordinates that fall outside the frame are kept, not clipped.** A disc near the edge can have nodes
 in the padding; clipping them silently changes the shape. A consumer that needs a clipped polygon can
 clip it.
 
-## 10. Resampling
+## 10. Adding a size to an existing store
+
+Sizes are not decided once. A new model enters the catalogue with a grid nothing was built at, a
+comparison needs an intermediate size to separate resampling effects from model effects, or a run at
+2048 is wanted to check what the downsizing cost. **None of that may require the download again** —
+several of these datasets are behind a form, an account or a signed agreement, and some of those
+routes will not exist in five years.
+
+```bash
+uv run python -m datasets.hrf --sizes 512,1024        # first build
+uv run python -m datasets.hrf --sizes 512,1024,2048   # later: builds 2048 only, from native/
+```
+
+The rule that makes this work:
+
+- **`native/` must be sufficient to build any future size**, on its own, with no network and no
+  archive. That is the reason it is never optional (section 2) and the reason a contour is traced
+  once into the native frame and scaled thereafter (section 9). A fetcher that needs `raw/` to add a
+  size has a bug.
+- **Missing sizes are built; existing sizes are left alone.** `--sizes` names the sizes that should
+  exist, not the sizes to rebuild. A size already present and complete is skipped, so the command is
+  safe to repeat and cheap to extend.
+- **No download, no archive, no checksum check** on this path — there is nothing to verify, and a
+  fetcher must not reach for the network when `native/` can answer.
+- **`build.json` is updated, not replaced:** `sizes` gains the new entry, `built_at` is refreshed,
+  and `sources` and `partial` keep their existing values, because nothing about where the data came
+  from has changed.
+- **A `builder_version` mismatch blocks it.** When the crop, paste or resample rules have changed
+  since `native/` was built, deriving a new size from it would mix two conventions in one store.
+  Refuse, and say that a `--force` rebuild from the archive is needed.
+- **`--force` is the other path entirely**: it re-downloads and rebuilds everything, including
+  `native/`. Use it when the rules changed or the store is suspect — not to add a size.
+
+Removing a size is a directory deletion plus an edit to `build.json`; no fetcher option does it,
+because nothing is at risk of being got wrong.
+
+## 11. Resampling
 
 Resampling is shared by every fetcher and therefore lives in `utils`, not in fetchers. Square frames
 throughout, because every model in `docs/MODELS.md` resamples to a square grid, and doing it once
@@ -341,21 +388,25 @@ here means a consumer never resamples twice.
   `notes` entry on the row and a warning in `build.json`: a Dice measured on an upsampled image is
   not comparable with one measured on a downsampled image, as `docs/datasets/drive.md` explains.
 
-## 11. Rules that apply to every fetcher
+## 12. Rules that apply to every fetcher
 
-- **11.1 Reference, never redistribute.** The store is a local cache. Nothing built here is published,
+- **12.1 Reference, never redistribute.** The store is a local cache. Nothing built here is published,
   mirrored or committed — that includes fixtures: tests use synthetic images, never real ones.
-- **11.2 Honour the access route.** `⛔` datasets require `--archive`. Never embed credentials, never
+- **12.2 Honour the access route.** `⛔` datasets require `--archive`. Never embed credentials, never
   scrape a form, never mirror a credentialed archive.
-- **11.3 Record provenance, not just data.** Anything a consumer would need in order to trust a number
+- **12.3 Record provenance, not just data.** Anything a consumer would need in order to trust a number
   goes in the manifest, or — when it is a property of the build rather than of an image — in
   `build.json`. Put each fact in exactly one of them: a value kept in both will eventually disagree
   with itself.
-- **11.4 Fail loudly, build partially only on request.** A missing required layer aborts. `--limit`
+- **12.4 Never make `raw/` a dependency of anything but the first build.** If adding a size, fixing
+  a manifest column or rebuilding a contour needs the archive, the store is missing something it
+  should have kept — several of these datasets cannot be downloaded again without a form, an account
+  or an agreement, and one of them may not be obtainable at all in a few years.
+- **12.5 Fail loudly, build partially only on request.** A missing required layer aborts. `--limit`
   marks the build partial. A store must never look complete when it is not.
-- **11.5 Keep the catalogue and the code in step.** A fetcher whose behaviour contradicts its dataset
+- **12.6 Keep the catalogue and the code in step.** A fetcher whose behaviour contradicts its dataset
   page is a bug in one of them; fix both in the same commit. If building the dataset teaches you
   something the page does not say — a count that differs, a mask that disagrees with its
   documentation — that is a finding for the page's section 7, `Known defects`.
-- **11.6 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
+- **12.7 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
   functions carry the docstring style of the surrounding code.
