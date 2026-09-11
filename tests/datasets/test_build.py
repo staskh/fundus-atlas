@@ -2,6 +2,7 @@
 # ABOUTME: Real files, real PNGs, real manifest — the only thing not real is the retina.
 
 import json
+import shutil
 
 import numpy as np
 import pytest
@@ -104,3 +105,49 @@ def test_a_raw_tree_the_caller_supplied_is_never_deleted(tmp_path):
     raw = a_dataset(tmp_path)
     build_it(tmp_path, "--raw", str(raw))
     assert (raw / "a.png").exists()
+
+
+def test_a_second_run_rebuilds_nothing(tmp_path):
+    raw = a_dataset(tmp_path)
+    store = build_it(tmp_path, "--raw", str(raw))
+    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    build_it(tmp_path, "--raw", str(raw))
+    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+
+
+def test_force_rebuilds_anyway(tmp_path):
+    raw = a_dataset(tmp_path)
+    store = build_it(tmp_path, "--raw", str(raw))
+    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    build_it(tmp_path, "--raw", str(raw), "--force")
+    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns != before
+
+
+def test_a_new_size_is_built_from_native_with_no_archive_in_reach(tmp_path):
+    raw = a_dataset(tmp_path)
+    store = build_it(tmp_path, "--raw", str(raw))
+    shutil.rmtree(raw)  # the archive is gone; native must be enough
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "32,64"])
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover,
+        resolution_of=resolution.Declared(5.0, "published", "stated in the paper"),
+        args=args,
+    )
+    assert Image.open(store / "32" / "images" / "a.png").size == (32, 32)
+    assert Image.open(store / "32" / "vessels" / "a.png").size == (32, 32)
+    assert json.loads((store / "build.json").read_text())["sizes"] == [32, 64]
+
+
+def test_an_interrupted_build_continues_rather_than_starting_over(tmp_path):
+    raw = a_dataset(tmp_path)
+    store = build_it(tmp_path, "--raw", str(raw), "--limit", "1")
+    assert json.loads((store / "build.json").read_text())["partial"] is True
+    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+
+    build_it(tmp_path, "--raw", str(raw))
+    record = json.loads((store / "build.json").read_text())
+    assert record["images"] == 2
+    assert record["partial"] is False
+    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before

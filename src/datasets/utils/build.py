@@ -69,15 +69,22 @@ def run(
     for warning in warnings:
         print(f"warning: {warning}", file=sys.stderr)
 
+    done = _previous_build(store)
+    if done and not args.force and not done["partial"]:
+        return _add_sizes(slug, store, args, done)
+
     raw, provenance = _obtain(sources, store, args)
     records = discover(raw)
     if args.limit:
         records = records[: args.limit]
 
+    built = {} if args.force else {row["key"]: row for row in _previous_rows(store)}
     rows, readings = [], []
     for n, record in enumerate(records, 1):
         rows.append(
-            _build_one(record, store, args.sizes, resolution_of, fov_strategy, quality_rule)
+            built[record.key]
+            if _is_built(record.key, store, args.sizes, built)
+            else _build_one(record, store, args.sizes, resolution_of, fov_strategy, quality_rule)
         )
         readings.extend(record.readings)
         if n % 50 == 0 or n == len(records):
@@ -91,6 +98,59 @@ def run(
     # person who passed it, and may well be somewhere else entirely.
     if not args.keep_raw and not args.raw:
         shutil.rmtree(store / "raw", ignore_errors=True)
+    return 0
+
+
+def _previous_build(store: Path) -> dict | None:
+    """What an earlier run left here, or `None` for a store that does not exist yet."""
+    record = store / "build.json"
+    return json.loads(record.read_text()) if record.exists() else None
+
+
+def _previous_rows(store: Path) -> list[dict[str, str]]:
+    """The rows an earlier run wrote, so an interrupted build keeps its finished work."""
+    return list(manifest.read(store)) if (store / manifest.MANIFEST).exists() else []
+
+
+def _is_built(key: str, store: Path, sizes: list[int], built: dict[str, dict[str, str]]) -> bool:
+    """Whether this image is finished: described in the manifest and present at every size."""
+    row = built.get(key)
+    if row is None:
+        return False
+    layers = ["images", *(name for name in row.get("maps", "").split(";") if name)]
+    return all(
+        paths.layer(store, size, layer).joinpath(f"{key}.png").exists()
+        for size in [paths.NATIVE, *sizes]
+        for layer in layers
+    )
+
+
+def _add_sizes(slug: str, store: Path, args, done: dict) -> int:
+    """Build the sizes that do not exist yet, from `native/` alone.
+
+    No download, no archive, no re-tracing: a size added a year after the first build is identical
+    to the same size built on day one, which is the whole reason `native/` is never optional.
+    """
+    missing = [size for size in args.sizes if not paths.frame(store, size).exists()]
+    if not missing:
+        print(f"{slug}: up to date at {done['sizes']}", file=sys.stderr)
+        return 0
+
+    keys = [row["key"] for row in manifest.read(store)]
+    print(f"{slug}: adding {missing} from native/", file=sys.stderr)
+    for n, key in enumerate(keys, 1):
+        for layer in sorted(paths.frame(store, paths.NATIVE).iterdir()):
+            frame = np.asarray(Image.open(layer / f"{key}.png"))
+            for size in missing:
+                out = paths.layer(store, size, layer.name)
+                out.mkdir(parents=True, exist_ok=True)
+                Image.fromarray(_resize(layer.name, frame, size)).save(out / f"{key}.png")
+        if n % 50 == 0 or n == len(keys):
+            print(f"\r{slug}: {n}/{len(keys)} images", end="", file=sys.stderr, flush=True)
+    print(file=sys.stderr)
+
+    done["sizes"] = sorted(set(done["sizes"]) | set(missing))
+    (store / "build.json").write_text(json.dumps(done, indent=2) + "\n")
     return 0
 
 
