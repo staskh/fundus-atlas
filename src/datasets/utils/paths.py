@@ -8,8 +8,9 @@ from pathlib import Path
 #: Overrides the store root for every dataset at once.
 ENV_VAR = "FUNDUS_ATLAS_DATA"
 
-#: The default root: beside the repository, and git-ignored. Stores are caches, not sources.
-DEFAULT_ROOT = Path(__file__).resolve().parents[3] / "data"
+#: The default root: inside the repository, hidden and git-ignored. Stores are caches, not
+#: sources, and the dot keeps them out of the way of anything the repository itself publishes.
+DEFAULT_ROOT = Path(__file__).resolve().parents[3] / ".atlas_data"
 
 #: The frame every size is built from, and the one that must never be deleted.
 NATIVE = "native"

@@ -16,7 +16,7 @@ from datasets.utils import archives, crop, fov, manifest, paths, quality, resamp
 
 #: Bumped when the crop, resample or grading rules change. A store built under an older number was
 #: built to different rules, and a consumer can refuse to mix the two.
-BUILDER_VERSION = 1
+BUILDER_VERSION = 2
 
 #: The maps a store can hold, in the order they appear in the `maps` column.
 LAYERS = ("vessels", "av", "fov", "disc", "cup")
@@ -84,7 +84,16 @@ def run(
         rows.append(
             built[record.key]
             if _is_built(record.key, store, args.sizes, built)
-            else _build_one(record, store, args.sizes, resolution_of, fov_strategy, quality_rule)
+            else _build_one(
+                record,
+                store,
+                raw,
+                args.sizes,
+                resolution_of,
+                fov_strategy,
+                quality_rule,
+                args.force,
+            )
         )
         readings.extend(record.readings)
         if n % 50 == 0 or n == len(records):
@@ -179,10 +188,12 @@ def _obtain(sources: list, store: Path, args) -> tuple[Path, list[dict[str, str]
 def _build_one(
     record: SourceRecord,
     store: Path,
+    raw: Path,
     sizes: list[int],
     resolution_of: resolution.Declared,
     fov_strategy: str,
     quality_rule: quality.Rule | None,
+    force: bool = False,
 ) -> dict[str, str]:
     """Crop one image to its field of view, write every size of it, and describe it."""
     image = np.asarray(Image.open(record.image).convert("RGB"))
@@ -207,8 +218,11 @@ def _build_one(
         for name, frame in frames.items():
             out = paths.layer(store, size, name)
             out.mkdir(parents=True, exist_ok=True)
-            written = frame if size == paths.NATIVE else _resize(name, frame, size)
-            Image.fromarray(written).save(out / f"{record.key}.png")
+            written = out / f"{record.key}.png"
+            if written.exists() and not force:
+                continue
+            frame_at = frame if size == paths.NATIVE else _resize(name, frame, size)
+            Image.fromarray(frame_at).save(written)
 
     row = {
         "key": record.key,
@@ -231,7 +245,7 @@ def _build_one(
         "visit": record.visit,
         "eye": record.eye,
         "disease": record.disease,
-        "source_image": str(record.image),
+        "source_image": _inside(record.image, raw),
         "sha256": archives.sha256_of(record.image),
         "notes": record.notes,
         **record.extras,
@@ -240,6 +254,18 @@ def _build_one(
     if graded or source:
         row["quality"], row["quality_source"] = graded, source
     return row
+
+
+def _inside(image: Path, raw: Path) -> str:
+    """Where the source file sits inside the archive.
+
+    Relative, not absolute: the store is portable, and a path naming somebody's home directory
+    stops tracing a row back the moment the store is moved or copied.
+    """
+    try:
+        return str(image.resolve().relative_to(raw.resolve()))
+    except ValueError:
+        return str(image)
 
 
 def _resize(layer: str, frame: np.ndarray, size: int) -> np.ndarray:

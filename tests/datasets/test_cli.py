@@ -38,10 +38,10 @@ def test_the_store_root_can_be_moved(tmp_path):
     assert paths.store(args) == tmp_path / "hrf"
 
 
-def test_the_store_root_defaults_to_the_repository_data_directory():
+def test_the_store_root_defaults_to_a_hidden_directory_in_the_repository():
     args = cli.parse("hrf", [])
     assert paths.store(args).name == "hrf"
-    assert paths.store(args).parent.name == "data"
+    assert paths.store(args).parent.name == ".atlas_data"
 
 
 def test_an_environment_variable_moves_every_store(tmp_path, monkeypatch):

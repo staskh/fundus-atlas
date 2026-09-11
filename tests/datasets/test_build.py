@@ -151,3 +151,20 @@ def test_an_interrupted_build_continues_rather_than_starting_over(tmp_path):
     assert record["images"] == 2
     assert record["partial"] is False
     assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+
+
+def test_the_source_path_is_recorded_inside_the_archive_not_on_this_machine(tmp_path):
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
+    row = next(iter(manifest.read(store)))
+    assert row["source_image"] == "a.png"
+
+
+def test_a_rerun_after_the_manifest_is_lost_does_not_rewrite_the_images(tmp_path):
+    raw = a_dataset(tmp_path)
+    store = build_it(tmp_path, "--raw", str(raw))
+    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    (store / "manifest.csv").unlink()
+    (store / "build.json").unlink()
+    build_it(tmp_path, "--raw", str(raw))
+    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+    assert len(list(manifest.read(store))) == 2

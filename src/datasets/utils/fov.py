@@ -6,9 +6,15 @@ from dataclasses import dataclass
 import numpy as np
 from scipy import ndimage
 
-#: Below this, a pixel is the dark surround rather than retina. Fundus surrounds are near-black;
-#: JPEG noise lifts them a little, so the line sits above zero rather than on it.
-DARK = 20
+#: Where the surround ends and the retina begins, as a fraction of the photograph's own 99th
+#: percentile. Relative rather than fixed because exposure varies by more than an order of
+#: magnitude across a screening dataset: a fixed line that suits a bright photograph cuts into a
+#: dark one, cropping away retina that is there and shrinking the field to what happened to be
+#: well lit.
+RELATIVE_DARK = 0.05
+
+#: A floor for the line, so JPEG noise in a near-black surround is not read as retina.
+MIN_DARK = 4
 
 #: A frame this full of retina has no surround to find, so there is no circle to fit.
 FULL_FRAME = 0.98
@@ -29,19 +35,26 @@ class Circle:
     source: str
 
 
-def mask_of(image: np.ndarray, dark: int = DARK) -> np.ndarray:
+def dark_level(image: np.ndarray) -> float:
+    """The intensity below which this particular photograph is surround rather than retina."""
+    return max(MIN_DARK, RELATIVE_DARK * float(np.percentile(image.max(axis=2), 99)))
+
+
+def mask_of(image: np.ndarray, dark: float | None = None) -> np.ndarray:
     """The photograph's own footprint: which pixels hold retina rather than surround.
 
     Holes are left in. A dead patch inside the field is a fact about the photograph, and a mask
     that fills it in would claim the crop transported something it did not.
 
     :param image: an ``(h, w, 3)`` array.
+    :param dark: the line to use, or `None` to take it from the photograph itself.
     :return: ``(h, w)`` of 0 or 255.
     """
-    return np.where(image.max(axis=2) > dark, 255, 0).astype(np.uint8)
+    level = dark_level(image) if dark is None else dark
+    return np.where(image.max(axis=2) > level, 255, 0).astype(np.uint8)
 
 
-def detect(image: np.ndarray, dark: int = DARK) -> Circle:
+def detect(image: np.ndarray, dark: float | None = None) -> Circle:
     """Find the field of view, fitting a circle to the edge the camera actually left behind.
 
     The fit deliberately ignores every boundary pixel lying on the frame edge: where the circle

@@ -97,7 +97,7 @@ options, with these meanings, so that a person who has used one fetcher has used
 | `--sizes 512,1024` | The sizes that should **exist** besides `native/`, not the sizes to rebuild. Default `512,1024`. Any positive integers; the atlas's models span 256 to 1472, so intermediate sizes are ordinary. On an existing store this adds the missing ones from `native/` without downloading anything — section 11 |
 | `--archive PATH` | Use an archive already on disk instead of downloading. **Required for every dataset whose Down column is not ✅** |
 | `--raw PATH` | Use an already-extracted tree, skipping download and extraction |
-| `--data-root PATH` | Override the store root |
+| `--data-root PATH` | Override the store root. The default is `.atlas_data/` in the repository, git-ignored; `FUNDUS_ATLAS_DATA` moves every store at once |
 | `--keep-raw` | Keep the downloaded archive in `raw/` after building. **Default is to delete it** — it is reconstructible from `build.json`, and it is the bulk of the store. `native/` is never affected by this flag and is always kept |
 | `--force` | Rebuild even if the store looks complete |
 | `--limit N` | Build only the first N images — for development, and it must mark the build as partial in `build.json` |

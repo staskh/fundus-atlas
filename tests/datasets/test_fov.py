@@ -82,3 +82,16 @@ def test_pad_fraction_counts_the_canvas_that_has_no_photograph_behind_it():
 def test_nothing_is_padded_when_the_square_fits():
     square = crop.square_around(fov.Circle(cx=250, cy=200, r=150, source="detected"))
     assert crop.pad_fraction(square, height=400, width=500) == 0.0
+
+
+def test_a_very_dark_photograph_keeps_its_whole_field():
+    # Exposure varies by more than an order of magnitude across a screening dataset. A field that
+    # is dim everywhere is still a field, and must not be cropped to the part that was well lit.
+    bright = disc(400, 500, cx=250, cy=200, r=150, value=200)
+    dim = disc(400, 500, cx=250, cy=200, r=150, value=14)
+    assert fov.detect(dim).r == pytest.approx(fov.detect(bright).r, abs=2)
+
+
+def test_the_line_between_surround_and_retina_follows_the_exposure():
+    assert fov.dark_level(disc(400, 500, 250, 200, 150, value=200)) == pytest.approx(10, abs=1)
+    assert fov.dark_level(disc(400, 500, 250, 200, 150, value=20)) == fov.MIN_DARK
