@@ -13,7 +13,7 @@ Layers
 
 from pathlib import Path
 
-from datasets.utils import archives, build, cli, fov, manifest, resolution
+from datasets.utils import archives, build, cli, contours, fov, manifest, resolution
 
 #: Slug, matching docs/datasets/<slug>.md and this module's filename.
 SLUG = "<slug>"
@@ -55,6 +55,9 @@ def main(argv: list[str] | None = None) -> int:
         discover=discover,
         resolution=RESOLUTION,
         fov_strategy=fov.FROM_MASK,   # or fov.DETECT, or fov.FULL_FRAME
+        # How disc/cup reach the store: COORDINATES transforms what the authors published,
+        # RASTER resamples the mask at each size and traces it there. See the skill, section 9.
+        contour_source=contours.COORDINATES,
         args=args,
     )
 

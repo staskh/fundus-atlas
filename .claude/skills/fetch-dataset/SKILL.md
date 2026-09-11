@@ -46,14 +46,13 @@ is a cache, rebuildable from the sources named in `build.json`.
   build.json            what this build is: sources, sizes, completeness — section 4
   manifest.csv          one row per image — section 5
   raw/                  the untouched download — deleted after the build unless --keep-raw
-  native/               field-of-view crop at full resolution, PNG
+  native/               field-of-view crop at full resolution
     images/<key>.png
     vessels/<key>.png   only the maps this dataset actually publishes
     av/<key>.png
-    disc/<key>.png
-    cup/<key>.png
-    fov/<key>.png
-  512/                  the same tree, resampled — one directory per requested size
+    fov/<key>.png       the transported field-of-view mask — section 8
+    contours/<key>.csv  optic disc and cup as polygons, not rasters — section 9
+  512/                  the same tree, recomputed — one directory per requested size
     images/<key>.png
     ...
   1024/
@@ -66,7 +65,8 @@ Rules that make the store uniform:
   an enumeration index — a key must survive a partial rebuild and mean the same thing next year.
   Lowercase, `[a-z0-9_]`, with the published split in it where the dataset has one:
   `training_21`, `test_04`, `image13`.
-- **Every map a dataset publishes is built at every requested size.** Do not decide that a disc mask
+- **Every map a dataset publishes is built at every requested size**, contours included — they are
+  recomputed per size, not scaled from one frame (section 9). Do not decide that a disc mask
   "belongs at 512": the grid belongs to the *model* being evaluated, not to the dataset, and the
   atlas evaluates models with grids from 256 to 1472 (see `docs/MODELS.md`). A fetcher that builds
   one size forces every consumer to resample, which is the thing the store exists to prevent.
@@ -173,10 +173,11 @@ consumer can then read any store without special-casing. Missing values are empt
 | `native_height` | int | Source image height |
 | `fov_cx`, `fov_cy`, `fov_r` | float | Field-of-view circle in native pixels: centre and radius |
 | `fov_source` | str | `mask` (the dataset ships one), `detected`, or `assumed_full_frame` |
-| `crop_x0`, `crop_y0`, `crop_side` | int | The square crop taken from the native image, in native pixels |
+| `crop_x0`, `crop_y0`, `crop_side` | int | The square crop, in native pixels. `crop_x0`/`crop_y0` may be **negative** and the square may extend past the image: the source is pasted into a square canvas rather than sliced from it — section 8 |
+| `pad_fraction` | float | Fraction of the square canvas with no source behind it. `0.0` when the crop fitted inside the image; a large value means much of the frame is invented |
 | `mm_per_px` | float | Native resolution, empty when unknown — section 7 |
 | `resolution_source` | str | `published`, `field_angle`, `disc_anchored`, `inherited`, or `unknown` |
-| `maps` | str | Semicolon-separated list of the maps present for this row: `vessels;fov` |
+| `maps` | str | Semicolon-separated list of what this row has: `vessels`, `av`, `fov`, `disc`, `cup` — the last two meaning contours in `contours/<key>.csv`, not a raster. Example: `vessels;fov;disc;cup` |
 | `readers` | str | Semicolon-separated reader ids where a dataset keeps annotators separate: `expert1;expert2`. Empty for a single consensus |
 | `eye` | str | `od`, `os`, or empty |
 | `disease` | str | The dataset's own label, verbatim, not remapped to a common vocabulary |
@@ -251,39 +252,110 @@ um_per_px(size) = mm_per_px * crop_side / size * 1000
 `crop_side` varies per image, so this is per row, not per dataset — which is why the manifest records
 the crop. `utils/resolution.py` exposes exactly this as a function; no consumer recomputes it.
 
-## 8. Field of view, crop and resampling
+## 8. Field of view: a true crop and paste, not a redrawn circle
 
-These three decisions are shared by every fetcher and therefore live in `utils`, not in fetchers.
+The field-of-view mask is **the authority on which pixels are real**, and it is produced by putting
+a real mask through exactly the transformation the photograph goes through — never by drawing a
+circle from the stored centre and radius.
 
-- **Field of view.** Use the dataset's own mask when it ships one (`fov_source: mask`). Otherwise
-  detect the illuminated circle (`detected`). Only when neither is possible does a fetcher assume the
-  whole frame (`assumed_full_frame`), and that assumption is recorded per row because it changes
-  every area-based measurement.
-- **Crop.** A square centred on the field-of-view circle, side equal to its diameter, clipped to the
-  image. Square, because every model in `docs/MODELS.md` resamples to a square grid, and doing it
-  once here means a consumer never resamples twice.
-- **Resampling.** Images with area-averaging when downsizing and Lanczos when upsizing; masks with
+- **Where the mask comes from.** The dataset's own mask when it ships one (`fov_source: mask`),
+  otherwise the illuminated region detected from the photograph (`detected`), and only when neither
+  is possible the whole frame (`assumed_full_frame`). The last case is recorded per row because it
+  changes every area-based measurement.
+- **Crop and paste.** The crop is a square centred on the field-of-view circle with side equal to its
+  diameter — and that square frequently **extends past the edge of the source image**, because a
+  fundus is often cut off at top and bottom. The source is therefore *pasted* into a square canvas
+  rather than sliced out of it, and the region with no source behind it is padding.
+- **The mask travels with the image, pixel for pixel.** The same crop, the same paste, the same
+  canvas, resampled with nearest-neighbour. Padding is `0` in the field-of-view mask, so a consumer
+  can tell invented pixels from photographed ones without knowing anything about the crop geometry.
+- **Why not redraw the circle.** A redrawn circle is a different shape from the mask it replaces: it
+  loses the flat edges where the fundus was cut off, the notches some cameras leave, and the
+  distinction between padding and dark-but-real retina. Measurements taken over a redrawn circle
+  count padding as retina, which inflates every density and every area.
+- `fov_cx`, `fov_cy` and `fov_r` stay in the manifest as the **geometry that produced the crop**.
+  They describe the circle that was fitted; they are not a substitute for the mask.
+
+## 9. Optic disc and cup: contours, not rasters
+
+Disc and cup are stored as **polygon nodes in a CSV per image**, one file holding every structure and
+every reader, and **recomputed for every size** alongside the other maps.
+
+```
+<size>/contours/<key>.csv:   structure,reader,node,x,y
+                             disc,expert1,0,412,388
+                             disc,expert1,1,418,376
+                             cup,expert2,0,455,402
+```
+
+| Column | Meaning |
+| --- | --- |
+| `structure` | `disc` or `cup` |
+| `reader` | The annotator's id where a dataset keeps them separate — `expert1`, `expert2` — or `consensus` |
+| `node` | Node index within that structure and reader, in traced order |
+| `x`, `y` | Integer pixel coordinates **in this directory's frame** |
+
+Three reasons this beats a raster:
+
+- **Multi-reader annotation is the normal case here, not the exception.** RIGA publishes six
+  ophthalmologists per image and Chákṣu five; as rasters that is six PNGs per structure per image per
+  size, and as polygons it is a few dozen rows. The catalogue's most valuable disc/cup property —
+  that human disagreement can be measured — stops being expensive to store.
+- **A polygon is what the expert actually drew.** Most of these datasets publish coordinates, and
+  rasterising them to store them, then re-tracing them to use them, loses precision in both
+  directions for no gain.
+- **Comparing against a model is a subtraction.** With the nodes already in the frame the model
+  predicts on, an evaluation is arithmetic rather than a coordinate transform, which is what keeps
+  scoring hundreds of images cheap.
+
+**How to recompute per size**, and the two cases differ:
+
+- **The dataset publishes coordinates** (PAPILA, GRAPE, RIGA): transform the *published* coordinates
+  into each frame. This is exact, and the native frame stays the annotation of record.
+- **The dataset publishes rasters** (REFUGE, G1020, HRF-Seg+): resample the mask to that size and
+  **trace it there**, rather than scaling the native polygon. The polygon then matches the boundary a
+  model sees at that size, which is the thing being compared. Trace the largest external component
+  only, with Douglas-Peucker simplification at a tolerance of **0.001 of the contour's own
+  perimeter** — a fraction rather than a pixel count, so different sizes yield comparable node
+  counts, and about 45 nodes for an optic disc, which is the range a hand-drawn outline occupies.
+- Either way, **round to integers**. On a 2576-pixel photograph that costs at most half a pixel, and
+  far less once resampled — orders of magnitude below the distance between two experts on the same
+  structure.
+- Where a dataset ships rasters, record the fidelity of the tracing (an IoU against the mask it came
+  from) in the row's `notes` rather than assuming it was faithful.
+
+**Coordinates that fall outside the frame are kept, not clipped.** A disc near the edge can have nodes
+in the padding; clipping them silently changes the shape. A consumer that needs a clipped polygon can
+clip it.
+
+## 10. Resampling
+
+Resampling is shared by every fetcher and therefore lives in `utils`, not in fetchers. Square frames
+throughout, because every model in `docs/MODELS.md` resamples to a square grid, and doing it once
+here means a consumer never resamples twice.
+
+- **Images** with area-averaging when downsizing and Lanczos when upsizing; **masks** with
   **nearest-neighbour only** — a mask interpolated with anything else invents classes that were never
   annotated. A multi-class artery/vein map is resampled per class, never as an RGB image.
 - **Never upsample silently.** When a requested size exceeds the crop, build it, but record a
   `notes` entry on the row and a warning in `build.json`: a Dice measured on an upsampled image is
   not comparable with one measured on a downsampled image, as `docs/datasets/drive.md` explains.
 
-## 9. Rules that apply to every fetcher
+## 11. Rules that apply to every fetcher
 
-- **9.1 Reference, never redistribute.** The store is a local cache. Nothing built here is published,
+- **11.1 Reference, never redistribute.** The store is a local cache. Nothing built here is published,
   mirrored or committed — that includes fixtures: tests use synthetic images, never real ones.
-- **9.2 Honour the access route.** `⛔` datasets require `--archive`. Never embed credentials, never
+- **11.2 Honour the access route.** `⛔` datasets require `--archive`. Never embed credentials, never
   scrape a form, never mirror a credentialed archive.
-- **9.3 Record provenance, not just data.** Anything a consumer would need in order to trust a number
+- **11.3 Record provenance, not just data.** Anything a consumer would need in order to trust a number
   goes in the manifest, or — when it is a property of the build rather than of an image — in
   `build.json`. Put each fact in exactly one of them: a value kept in both will eventually disagree
   with itself.
-- **9.4 Fail loudly, build partially only on request.** A missing required layer aborts. `--limit`
+- **11.4 Fail loudly, build partially only on request.** A missing required layer aborts. `--limit`
   marks the build partial. A store must never look complete when it is not.
-- **9.5 Keep the catalogue and the code in step.** A fetcher whose behaviour contradicts its dataset
+- **11.5 Keep the catalogue and the code in step.** A fetcher whose behaviour contradicts its dataset
   page is a bug in one of them; fix both in the same commit. If building the dataset teaches you
   something the page does not say — a count that differs, a mask that disagrees with its
   documentation — that is a finding for the page's section 7, `Known defects`.
-- **9.6 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
+- **11.6 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
   functions carry the docstring style of the surrounding code.
