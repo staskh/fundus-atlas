@@ -1,0 +1,72 @@
+# ABOUTME: Tests for obtaining a dataset: a real local git repository, a real zip, no mocks.
+# ABOUTME: Also the rule that a licence needing a human is never automated around.
+
+import subprocess
+import zipfile
+
+import pytest
+
+from datasets.utils import archives
+
+
+def a_repository(tmp_path):
+    repo = tmp_path / "upstream"
+    (repo / "images").mkdir(parents=True)
+    (repo / "images" / "a.txt").write_text("a")
+    (repo / "elsewhere").mkdir()
+    (repo / "elsewhere" / "b.txt").write_text("b")
+    run = lambda *a: subprocess.run(["git", "-C", str(repo), *a], check=True, capture_output=True)
+    run("init", "-q")
+    run("add", "-A")
+    run("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "data")
+    head = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, capture_output=True, text=True
+    ).stdout.strip()
+    return repo, head
+
+
+def test_a_repository_is_checked_out_at_the_pinned_commit(tmp_path):
+    repo, head = a_repository(tmp_path)
+    source = archives.GitSource(layer="d", repo=str(repo), commit=head)
+    tree, record = source.obtain(tmp_path / "raw")
+    assert (tree / "images" / "a.txt").read_text() == "a"
+    assert record["commit"] == head
+
+
+def test_only_the_subtrees_asked_for_are_checked_out(tmp_path):
+    repo, head = a_repository(tmp_path)
+    source = archives.GitSource(layer="d", repo=str(repo), commit=head, paths=["images"])
+    tree, _ = source.obtain(tmp_path / "raw")
+    assert (tree / "images" / "a.txt").exists()
+    assert not (tree / "elsewhere").exists()
+
+
+def test_a_commit_that_is_not_the_pinned_one_is_an_error(tmp_path):
+    repo, head = a_repository(tmp_path)
+    archives.GitSource(layer="d", repo=str(repo), commit=head).obtain(tmp_path / "raw")
+    wrong = archives.GitSource(layer="d", repo=str(repo), commit="0" * 40)
+    with pytest.raises(ValueError, match="pinned"):
+        wrong.obtain(tmp_path / "raw")
+
+
+def test_a_source_needing_a_human_is_never_downloaded(tmp_path):
+    source = archives.Source(layer="d", url="https://example.invalid/x.zip", manual=True)
+    with pytest.raises(PermissionError, match="--archive"):
+        source.obtain(tmp_path)
+
+
+def test_a_checksum_that_does_not_match_stops_the_build(tmp_path):
+    payload = tmp_path / "x.zip"
+    with zipfile.ZipFile(payload, "w") as zf:
+        zf.writestr("a.txt", "a")
+    source = archives.Source(layer="d", url=payload.as_uri(), sha256="0" * 64)
+    with pytest.raises(ValueError, match="not the archive"):
+        source.obtain(tmp_path / "raw")
+
+
+def test_a_zip_is_unpacked(tmp_path):
+    payload = tmp_path / "x.zip"
+    with zipfile.ZipFile(payload, "w") as zf:
+        zf.writestr("a.txt", "a")
+    tree = archives.extract(payload, tmp_path / "out")
+    assert (tree / "a.txt").read_text() == "a"

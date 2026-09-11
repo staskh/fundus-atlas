@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Dataset stores: downloaded images and everything built from them.
+/data/

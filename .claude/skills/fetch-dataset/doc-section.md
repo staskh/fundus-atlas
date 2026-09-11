@@ -15,6 +15,8 @@ uv run python -m datasets.<slug> --archive ~/<file>.zip   # an archive obtained 
   bullet only for a dataset whose Down column is ✅>.
 - **Extra columns:** <each dataset-specific manifest column and what it holds, one line each —
   `age`, `sex`, `iop_mmhg`. Omit this bullet where the fetcher adds none>.
+- **Not built:** <any subcollection the fetcher leaves in the archive and why — an ultra-wide-field
+  split, per rule 13.7. Omit where it builds everything>.
 - **Quality:** <whether `quality` is the dataset's own grade or derived from component ratings, and
   which components those are. Omit where the dataset grades nothing>.
 - **Grouping:** <whether `patient` and `visit` are filled and how they were established, so a reader

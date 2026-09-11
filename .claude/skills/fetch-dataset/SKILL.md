@@ -184,15 +184,15 @@ consumer can then read any store without special-casing. Missing values are empt
 | `resolution_source` | str | `published`, `field_angle`, `disc_anchored`, `inherited`, or `unknown` |
 | `maps` | str | Semicolon-separated list of what this row has: `vessels`, `av`, `fov`, `disc`, `cup` — the last two meaning contours in `contours/<key>.csv`, not a raster. Example: `vessels;fov;disc;cup` |
 | `readers` | str | Semicolon-separated ids of every annotator who contributed anything to this image — a contour, a grade, or both: `expert1;expert2`. Empty where the dataset publishes one opinion and does not name who held it |
+| `multi_reader` | str | Semicolon-separated names of the fields for which `labels.csv` holds more than one opinion: `quality;disease`. Empty for the common case — section 5.1 |
 | `patient` | str | The dataset's own subject id, verbatim — the same value on every image of the same person. Empty where the dataset publishes none — section 5.3 |
 | `visit` | str | The dataset's own session id or date where a person was photographed more than once. Empty otherwise — section 5.3 |
 | `eye` | str | `od` (right), `os` (left), or empty |
 | `disease` | str | The dataset's own label, verbatim, not remapped to a common vocabulary. One value: the published consensus, or the only reader's, or empty — section 5.1 |
-| `quality` | str | The dataset's overall grade verbatim where it publishes one; otherwise `good`, `usable` or `bad` derived from its component ratings — section 5.4. One value, on the same rule as `disease` |
+| `quality` | str | Always `good`, `usable`, `bad` or empty — the dataset's own grade mapped, or derived from its component ratings — section 5.4. One value, on the same rule as `disease` |
 | `quality_source` | str | `published` or `derived`, so the two are never pooled by accident. Empty where there is no grade at all |
 | `source_image` | str | Path of the source file inside the archive, so a row can be traced back |
 | `sha256` | str | Checksum of the source image file |
-| `multi_reader` | str | Semicolon-separated names of the fields for which `labels.csv` holds more than one opinion: `quality;disease`. Empty for the common case — section 5.1 |
 | `notes` | str | Per-image caveats: a stray file, an odd field angle, a mask that disagrees with its description |
 
 Two deliberate absences. **No per-size columns**: the µm/px at any size is computed from `um_per_px`,
@@ -309,10 +309,19 @@ So both are stored:
 - **Every component rating is its own column**, on section 5.2's rules: verbatim, in the dataset's own
   scale, named as the authors named it. Where the ratings are per-grader they go in `labels.csv`
   (section 5.1) with `field` set to the component's column name.
-- **`quality` then holds a three-value grade** — `good`, `usable`, `bad` — and **`quality_source`
-  records how it got there**.
+- **`quality` then holds a three-value grade**, and **`quality_source` records how it got there**.
 
-**The derivation, applied only where a dataset publishes no overall grade of its own:**
+**`quality` holds one of three words in every dataset** — `good`, `usable`, `bad` — or is empty
+where the dataset grades nothing. A column whose vocabulary changes per dataset cannot be filtered
+across datasets, which is the only reason to have the column at all.
+
+**Where the dataset publishes its own overall grade, that grade is mapped, not recomputed.** The
+fetcher declares the mapping — `quality.Published({"1": "good", "0": "bad"})` — and **the authors'
+own token is kept verbatim in a dataset-specific column**, so the mapping is auditable and
+reversible. A two-level dataset simply has no `usable`; inventing a middle level it never graded
+would be worse than lacking one.
+
+**Where the dataset publishes only component ratings, the grade is derived:**
 
 | Components | `quality` |
 | --- | --- |
@@ -320,17 +329,22 @@ So both are stored:
 | Exactly one short of best | `usable` |
 | Anything else — two or more short, or a component not rated at all | `bad` |
 
-Because "best" differs per dataset and per component, the fetcher declares it rather than the helper
-guessing: `quality.FromComponents({"focus": "2", "illumination": "2", ...})`, each entry naming the
-value that counts as full marks. A component the dataset left blank counts as short of best, which is
+Because "best" differs per dataset and per component — and is not always the highest number, since a
+rating of *artefacts* is best at zero — the fetcher declares it rather than the helper guessing:
+`quality.FromComponents({"artifact": "0", "clarity": "10", ...})`, each entry naming the value that
+counts as full marks. A component the dataset left blank counts as short of best, which is
 deliberately pessimistic: an unrated aspect is not evidence of a good one.
 
 The rules around it:
 
-- **A published grade always wins.** Where the dataset states an overall verdict, `quality` is that
-  verdict verbatim and `quality_source` is `published`, even when component ratings are also present.
-  Recomputing it would overwrite the authors' judgement with ours, which section 4.4 of `CLAUDE.md`
-  forbids — their claim and our observation stay distinguishable.
+- **A published grade wins over a derived one.** Where the dataset states an overall verdict, that
+  verdict — mapped — is what `quality` holds, even when component ratings are also present, and
+  `quality_source` is `published`. Deriving one instead would overwrite the authors' judgement with
+  ours, which section 4.4 of `CLAUDE.md` forbids. The difference is not academic: in
+  [DeepDRiD](../../docs/datasets/deepdrid.md), which publishes both, the all-at-best rule calls 295
+  of the 576 photographs its ophthalmologists judged good enough for diagnosis `bad`, because a
+  perfect field-definition score there means the disc and macula both sit within one disc diameter
+  of the centre — excellent framing, not a precondition for reading the image.
 - **`quality_source` exists so the two are never pooled silently.** A study filtering on
   `quality == "good"` across several datasets is mixing authors' grades with ours unless it checks
   this column, and that mixture is invisible without it.
@@ -632,5 +646,18 @@ here means a consumer never resamples twice.
   page is a bug in one of them; fix both in the same commit. If building the dataset teaches you
   something the page does not say — a count that differs, a mask that disagrees with its
   documentation — that is a finding for the page's section 7, `Known defects`.
-- **13.7 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
+- **13.7 Standard colour fundus photographs only, for now.** Several datasets ship an
+  **ultra-wide-field** subcollection alongside their ordinary photographs — DeepDRiD's third
+  sub-challenge, REYIA's AV-WIDE subset, [MSHF](../../docs/datasets/mshf.md)'s 500 Optos mosaics —
+  and one, [WIDE](../../docs/datasets/wide.md), is ultra-wide-field throughout. A fetcher **skips
+  those subcollections** and builds the standard photographs. They are a different
+  instrument: a 200° frame beside a 45° one makes every measurement in the store mean two things at
+  once, and the crop and resolution rules in sections 8 and 9 were written for the narrow field. This
+  is a deferral, not a judgement — when the atlas has somewhere honest to put them, they get built.
+  Until then a fetcher that skips one **says so**: a warning on the console, the same warning in
+  `build.json`, and a line in the page's *How to fetch* naming what was left in the archive. A
+  silently smaller store is how someone concludes a dataset is smaller than it is. A dataset that is
+  ultra-wide-field **throughout** has no fetcher at all yet, rather than one that builds nothing.
+
+- **13.8 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
   functions carry the docstring style of the surrounding code.
