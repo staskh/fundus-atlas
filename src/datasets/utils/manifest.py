@@ -74,6 +74,28 @@ class Reading:
     value: str
 
 
+def spell_out(code: str, legend: dict[str, str], field: str) -> str:
+    """The dataset's own words for one of its own codes.
+
+    A bare integer in a manifest is not self-describing: nobody reading `disease` as `3` knows
+    whether that is worse than `1`, and `0` is one typo away from being read as "no value". Where
+    the dataset publishes a legend, the legend's wording is what the cell holds. This is not a
+    remapping to a common vocabulary — the words stay the dataset's own — it is the difference
+    between storing a label and storing a footnote marker.
+
+    :param code: the published code, or empty where the dataset graded nothing.
+    :param legend: the dataset's own code-to-meaning table, as its documentation gives it.
+    :param field: the column, named so an unexplained code says where it came from.
+    :raises ValueError: for a code the legend does not explain, rather than passing it through. A
+        dataset that has grown a new grade since the fetcher was written must be looked at.
+    """
+    if code == "":
+        return ""
+    if code not in legend:
+        raise ValueError(f"{field} is {code!r}, which the dataset's own legend does not explain")
+    return legend[code]
+
+
 def write(
     store: Path,
     rows: Iterable[dict[str, str]],

@@ -41,10 +41,27 @@ SOURCES = [
 #: What is deliberately left in the repository.
 SKIPPED = ["the ultra-widefield sub-challenge (sub-challenge 3), a different instrument"]
 
+#: The diabetic-retinopathy scale, in the authors' own words from the release's Readme. Level 5
+#: occurs in no published split, but is kept so that its appearance would not be an error.
+DR_LEVELS = {
+    "0": "no apparent retinopathy",
+    "1": "mild npdr",
+    "2": "moderate npdr",
+    "3": "severe npdr",
+    "4": "pdr",
+    "5": "ungradable",
+}
+
+#: The authors' overall verdict on a photograph, in their words.
+OVERALL_QUALITY = {
+    "0": "not good enough for diagnosis",
+    "1": "good enough for diagnosis",
+}
+
 #: Columns only this dataset has. The quality subscores are the reason it is worth having.
 EXTRA_COLUMNS = [
-    manifest.Column("overall_quality", "The authors' own grade: 0 not diagnosable, 1 diagnosable"),
-    manifest.Column("artifact", "0 none, then 1, 4, 6, 8, 10 by how much of the frame is covered"),
+    manifest.Column("overall_quality", "The authors' own verdict, in their words"),
+    manifest.Column("artifact", "0 none to 10 covering the posterior pole; lower is better"),
     manifest.Column(
         "clarity", "1 to 10, how deep a vascular arch and how many lesions are legible"
     ),
@@ -57,8 +74,10 @@ EXTRA_COLUMNS = [
 ]
 
 #: The authors publish their own verdict, so it is mapped rather than derived from the subscores.
-#: Their words: 0 is "quality is not good enough for the diagnosis of retinal diseases".
-QUALITY = quality.Published({"1": "good", "0": "bad"}, column="overall_quality")
+QUALITY = quality.Published(
+    {OVERALL_QUALITY["1"]: "good", OVERALL_QUALITY["0"]: "bad"},
+    column="overall_quality",
+)
 
 #: No field angle, no scale and no disc annotation to anchor on, so no resolution is claimed.
 RESOLUTION = resolution.Declared(
@@ -102,13 +121,17 @@ def _record(directory, split, image_id, patient, view, label) -> build.SourceRec
         split=split,
         patient=patient,
         eye=eye,
-        disease=label["dr_level"],
+        disease=manifest.spell_out(label["dr_level"], DR_LEVELS, "disease"),
         extras={
-            "overall_quality": label["overall_quality"],
+            "overall_quality": manifest.spell_out(
+                label["overall_quality"], OVERALL_QUALITY, "overall_quality"
+            ),
             "artifact": label["artifact"],
             "clarity": label["clarity"],
             "field_definition": label["field_definition"],
-            "patient_dr_level": label["patient_dr_level"],
+            "patient_dr_level": manifest.spell_out(
+                label["patient_dr_level"], DR_LEVELS, "patient_dr_level"
+            ),
             "view": view[1:],
             "screening_project": label["screening_project"],
         },

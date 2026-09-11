@@ -109,3 +109,17 @@ def test_the_fetcher_may_not_set_a_cell_that_readings_also_decide(tmp_path):
     readings = [manifest.Reading("training_21", "quality", "grader1", "good")]
     with pytest.raises(ValueError, match="quality"):
         manifest.write(tmp_path, [a_row(quality="bad")], extra_columns=[], readings=readings)
+
+
+def test_a_code_is_stored_as_the_dataset_s_own_words_for_it():
+    legend = {"0": "no apparent retinopathy", "3": "severe npdr"}
+    assert manifest.spell_out("3", legend, "disease") == "severe npdr"
+
+
+def test_an_ungraded_image_stays_empty_rather_than_becoming_a_word():
+    assert manifest.spell_out("", {"0": "none"}, "disease") == ""
+
+
+def test_a_code_the_legend_does_not_explain_is_an_error():
+    with pytest.raises(ValueError, match="disease is '7'"):
+        manifest.spell_out("7", {"0": "none"}, "disease")

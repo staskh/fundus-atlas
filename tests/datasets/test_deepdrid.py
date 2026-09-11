@@ -67,8 +67,8 @@ def test_the_key_carries_the_split_the_authors_published(tmp_path):
 
 def test_the_grade_taken_is_the_one_for_this_eye(tmp_path):
     found = records(tmp_path)
-    assert (found["train_1_l1"].eye, found["train_1_l1"].disease) == ("os", "3")
-    assert (found["train_1_r1"].eye, found["train_1_r1"].disease) == ("od", "2")
+    assert (found["train_1_l1"].eye, found["train_1_l1"].disease) == ("os", "severe npdr")
+    assert (found["train_1_r1"].eye, found["train_1_r1"].disease) == ("od", "moderate npdr")
 
 
 def test_the_view_number_is_kept_because_two_views_are_one_eye(tmp_path):
@@ -83,7 +83,7 @@ def test_the_quality_subscores_are_carried_verbatim(tmp_path):
     assert extras["artifact"] == "4"
     assert extras["clarity"] == "6"
     assert extras["field_definition"] == "8"
-    assert extras["overall_quality"] == "0"
+    assert extras["overall_quality"] == "not good enough for diagnosis"
 
 
 def test_the_evaluation_split_has_no_screening_project_or_patient_grade(tmp_path):
@@ -98,6 +98,14 @@ def test_the_published_grade_decides_quality_not_the_subscores(tmp_path):
     # for diagnosis, and their verdict is the one that counts.
     assert deepdrid.QUALITY.grade(found["train_1_l1"].extras) == ("good", "published")
     assert deepdrid.QUALITY.grade(found["train_1_r1"].extras) == ("bad", "published")
+
+
+def test_a_grade_is_stored_as_the_word_the_authors_gave_it(tmp_path):
+    # A bare 3 in a manifest tells a reader nothing, and 0 is one misreading away from "no value".
+    # The release's Readme says what each level means, so that wording is what the cell holds.
+    found = records(tmp_path)
+    assert found["train_1_l1"].extras["patient_dr_level"] == "severe npdr"
+    assert found["test_347_l2"].disease == "pdr"
 
 
 def test_every_declared_column_is_filled_by_every_record(tmp_path):
@@ -118,4 +126,4 @@ def test_no_resolution_is_claimed_because_none_is_published():
 def test_the_quality_mapping_covers_every_grade_the_dataset_uses():
     assert isinstance(deepdrid.QUALITY, quality.Published)
     with pytest.raises(ValueError):
-        deepdrid.QUALITY.grade({"overall_quality": "2"})
+        deepdrid.QUALITY.grade({"overall_quality": "something else entirely"})

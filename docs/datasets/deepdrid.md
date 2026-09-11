@@ -47,10 +47,12 @@ uv run python -m datasets.deepdrid --sizes 512,720,1024     # any sizes a model 
   their `1` ("good enough for the diagnosis of retinal diseases") becomes `good` and their `0`
   becomes `bad`, with `quality_source` recording that it is theirs rather than ours. The three
   subscores are kept as columns of their own, unmapped.
-- **Extra columns:** `overall_quality` (the authors' 0/1, verbatim), `artifact` (0 none, then 1, 4,
-  6, 8, 10 by how much of the frame is covered), `clarity` (1–10), `field_definition` (1–10),
-  `patient_dr_level` (the grade from both eyes together), `view` (which photograph of this eye) and
-  `screening_project` (`Nicheng`, `Shanghai`, `Nation`, or empty for the evaluation split).
+- **Extra columns:** `overall_quality` (the authors' verdict in their words), `artifact` (0–10,
+  **lower is better**), `clarity` (1–10, higher is better), `field_definition` (1–10, higher is
+  better), `patient_dr_level` (the grade from both eyes together), `view` (which photograph of this
+  eye) and `screening_project` (`Nicheng`, `Shanghai`, `Nation`, or empty for the evaluation split).
+- **Coded labels are stored as words.** `disease` holds `severe npdr`, not `3`; the graded 0–10
+  scores keep their numbers, since there the number *is* the scale. Section 4.1 has every legend.
 - **Empty cells mean unknown:** eleven training photographs have no DR grade (section 7), so
   `disease` is empty for them rather than zero, and the whole dataset has no published resolution,
   so `um_per_px` is empty in every row and `resolution_source` is `unknown`.
@@ -93,6 +95,42 @@ uv run python -m datasets.deepdrid --sizes 512,720,1024     # any sizes a model 
 | Quality | **Two ophthalmologists, confirmed or revised by a senior third** | — | Overall grade plus artefact, clarity and field-definition subscores. Only the arbitrated result is published, so the readers cannot be compared against each other |
 | Disease | As above | — | DR grades, per image and per patient |
 | Other labels | — | — | The dual-view pairing, which allows within-eye agreement to be measured |
+
+### 4.1 What the grades and scores mean
+
+The release's `Readme.docx` defines every code. The fetcher stores the wording rather than the
+number for the named categories, and keeps the number for the graded scales.
+
+| Diabetic retinopathy | Meaning |
+| --- | --- |
+| 0 | No apparent retinopathy |
+| 1 | Mild non-proliferative |
+| 2 | Moderate non-proliferative |
+| 3 | Severe non-proliferative |
+| 4 | Proliferative |
+| 5 | Image quality too low to grade — **occurs in no published split** |
+
+Applied per eye and, separately, per patient: the patient's grade follows the worse eye, so the two
+differ on 357 of the 1,600 labelled photographs.
+
+| Overall quality | Meaning |
+| --- | --- |
+| 0 | Not good enough for the diagnosis of retinal diseases |
+| 1 | Good enough for the diagnosis of retinal diseases |
+
+| Score | Artefact — **0 is best** | Clarity — **10 is best** | Field definition — **10 is best** |
+| --- | --- | --- | --- |
+| 0 | No artefacts | — | — |
+| 1 | Outside the aortic arch, under 1/4 of the image | Only a level 1 vascular arch identifiable | Includes neither optic disc nor macula |
+| 4 | Not affecting the macular area, under 1/4 | Level 2 arch and a few lesions | Contains either the disc or the macula |
+| 6 | Covers between 1/4 and 1/2 | Level 3 arch and some lesions | Contains both disc and macula |
+| 8 | Covers over 1/2, not the whole posterior pole | Level 3 arch and most lesions | Disc and macula within 2 disc diameters of centre |
+| 10 | Covers the entire posterior pole | Level 3 arch and all lesions | Disc and macula within 1 disc diameter of centre |
+
+Note what a perfect field-definition score demands: the disc *and* the macula both within one disc
+diameter of the frame's centre. It marks excellent framing, not a precondition for reading the
+photograph — which is why deriving an overall grade from these scores would disagree with the
+ophthalmologists on hundreds of images they passed as diagnosable.
 
 ## 5. Inheritance
 

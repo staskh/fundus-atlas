@@ -356,6 +356,28 @@ The rules around it:
   into the row. If the rule ever changes, every store built under the old one is stale, which is what
   `builder_version` in `build.json` is for.
 
+### 5.5 Codes the dataset itself explains
+
+Datasets label in integers and explain them in a Readme: DeepDRiD's `3` means severe non-proliferative
+diabetic retinopathy, its `0` means no apparent retinopathy. **Store the explanation, not the code.**
+
+- `disease` holds `severe npdr`, not `3`. A reader of the manifest should not need the dataset's
+  documentation open to know whether one row is worse than another, and `0` is one misreading away
+  from being taken for "no value" — which, in a column where empty genuinely means *ungraded*, is a
+  mistake that changes results rather than just confusing someone.
+- **This is not a common vocabulary.** The words stay the dataset's own, lowercased and otherwise
+  untouched; nothing is mapped onto another dataset's terms. It is the difference between storing a
+  label and storing a footnote marker.
+- **A code the legend does not explain is an error**, never passed through. A dataset that has grown
+  a grade since its fetcher was written is a thing to look at, not to record as `7`.
+- **Ordinal scores stay numeric.** Where the dataset publishes a graded scale rather than named
+  categories — DeepDRiD's artefact, clarity and field-definition scores run 0 to 10, each step a
+  sentence long — the number is the label, and the sentence belongs in the column's description and
+  on the dataset page. Say which direction is better there: a score whose best value is zero is
+  otherwise read backwards.
+
+`utils.manifest.spell_out` does this, given the legend the fetcher declares.
+
 ## 6. Exclusions — images that turned out to be unusable
 
 Occasionally an image in a published dataset is wrong: a mask belonging to a different photograph, a
