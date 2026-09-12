@@ -51,7 +51,18 @@ uv run python -m datasets.chaksu --sizes 512,720,1024     # any sizes a model ne
 - **Grouping:** none. The dataset publishes no patient identity or laterality, so `patient`,
   `visit` and `eye` are empty.
 - **Peculiarities:** the archive's folder capitalisation varies between experts, so the masks are
-  indexed from what is in the archive rather than addressed by a composed path.
+  indexed from what is in the archive rather than addressed by a composed path; the column holding
+  the agreed verdict is headed differently in the two archives, so it is found by shape rather than
+  by name (section 7).
+- **Trace quality:** each outline is scored against the mask it came from, and a score below 0.95
+  is recorded in the row's `notes`. Three of the 13,450 masks fall below it — all of them broken in
+  the archive, not in the tracing (section 7). A faithful trace scores about 0.98.
+
+The contours were checked against the dataset's own arithmetic rather than by eye. Chákṣu publishes
+each expert's cup-to-disc ratios alongside their outlines, so the vertical ratio recomputed from the
+stored polygons can be compared with the number the authors report for the same expert and the same
+photograph. Over **6,721 expert-image pairs** the median difference is **+0.0003**, with 93% inside
+0.01 and 98.8% inside 0.05. The handful outside that are the broken masks in section 7.
 
 ## 3. The images
 
@@ -129,6 +140,16 @@ landscape photographs may crop the wrong axis silently.
 - **The decision files name each photograph twice over**, as `Image101.jpg-Image101-1.jpg`, and the
   Remidio files use a `.tif` extension for photographs stored as `.JPG`. Match on the name before
   the first hyphen, without its extension.
+- **The column holding the agreed verdict is not always called the same thing.** In `Train.zip` it
+  is `Majority Decision`; in `Test.zip` the Forus and Remidio files head it `Glaucoma Decision`.
+  Code that looks for the word *majority* silently loses the consensus for 109 photographs — a
+  third of the test half — and leaves them looking ungraded.
+- **One published cup-to-disc measurement is `NaN`** among the 7,450 in the per-expert files.
+- **A few expert masks are outlines rather than filled regions, and broken ones at that.** Expert 2's
+  disc for `Image145` (Bosch, train) is 38 disconnected fragments whose largest piece is 777 pixels,
+  against about 39,000 for the same disc drawn by the other experts. Two more are flagged in the
+  built store's `notes`: expert 3's disc on `Image162` (train) and on `p28_image1` (test). Anything
+  taking the largest connected component of those masks gets a shape that is not the optic disc.
 
 ## 8. Notes
 
