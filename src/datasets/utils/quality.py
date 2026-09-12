@@ -28,13 +28,21 @@ class Published:
         if unknown:
             raise ValueError(f"quality mapping produces {unknown}, not one of {VOCABULARY}")
 
-    def grade(self, row: dict[str, str]) -> tuple[str, str]:
-        value = row[self.column]
+    def word(self, value: str) -> str:
+        """One published grade in the common vocabulary.
+
+        Used directly where a dataset publishes each grader's verdict as well as the agreed one:
+        the readers' grades go through the same declared mapping as the cell, so the manifest and
+        `labels.csv` cannot come to disagree about what a code meant.
+        """
         if value == "":
-            return "", "published"
+            return ""
         if value not in self.mapping:
             raise ValueError(f"{self.column} is {value!r}, which the mapping does not cover")
-        return self.mapping[value], "published"
+        return self.mapping[value]
+
+    def grade(self, row: dict[str, str]) -> tuple[str, str]:
+        return self.word(row[self.column]), "published"
 
 
 @dataclass(frozen=True)

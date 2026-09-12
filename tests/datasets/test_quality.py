@@ -64,3 +64,10 @@ def test_a_missing_component_column_is_an_error_not_a_silent_bad():
 
 def test_no_rule_means_no_grade_and_no_source():
     assert quality.grade_of(None, {"anything": "1"}) == ("", "")
+
+
+def test_one_grade_can_be_mapped_on_its_own():
+    # Where a dataset publishes each grader's verdict as well as the agreed one, every verdict
+    # goes through the same declared mapping rather than a second copy of it.
+    rule = quality.Published({"0": "good", "1": "usable", "2": "bad"})
+    assert [rule.word(code) for code in ("0", "1", "2", "")] == ["good", "usable", "bad", ""]

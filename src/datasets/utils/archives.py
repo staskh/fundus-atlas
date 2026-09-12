@@ -5,11 +5,86 @@ import hashlib
 import shutil
 import subprocess
 import tarfile
+import time
 import urllib.request
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import BinaryIO
+
+#: How much to ask for at a time. Large archives are fetched in ranged pieces rather than one
+#: long connection: figshare and its S3 backend will accept a connection for a ten-gigabyte file,
+#: deliver a few gigabytes and then go quiet indefinitely, while ranged requests to the same file
+#: run at full speed. Small enough to lose little on a retry, large enough not to be chatty.
+CHUNK = 64 << 20
+
+#: How many times a chunk is retried before the download is called off.
+ATTEMPTS = 6
+
+#: Seconds between attempts.
+PAUSE = 3
+
+
+def download(
+    url: str,
+    path: Path,
+    fetch=None,
+    size_of=None,
+    chunk: int = CHUNK,
+    attempts: int = ATTEMPTS,
+    pause: float = PAUSE,
+) -> None:
+    """Fetch a URL to a file, in chunks, resuming whatever is already there.
+
+    :param fetch: how to get one range, for tests; by default an HTTP range request.
+    :param size_of: how to learn the total size, for tests.
+    :raises OSError: if the server stops sending before the file is complete, rather than waiting
+        on it for ever.
+    """
+    fetch = fetch or _range
+    size_of = size_of or _size
+    total = size_of(url)
+    have = path.stat().st_size if path.exists() else 0
+    if have >= total:
+        return
+
+    with open(path, "ab") as f:
+        while have < total:
+            end = min(have + chunk, total) - 1
+            piece = _with_retries(fetch, url, have, end, attempts, pause)
+            if not piece:
+                raise OSError(f"{url} stopped sending at {have} of {total} bytes")
+            f.write(piece)
+            f.flush()
+            have += len(piece)
+
+
+def _with_retries(fetch, url: str, start: int, end: int, attempts: int, pause: float) -> bytes:
+    for attempt in range(attempts):
+        try:
+            return fetch(url, start, end)
+        except OSError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(pause)
+    return b""
+
+
+def _range(url: str, start: int, end: int) -> bytes:
+    request = urllib.request.Request(url, headers={"Range": f"bytes={start}-{end}"})
+    with urllib.request.urlopen(request, timeout=120) as response:
+        return response.read()
+
+
+def _size(url: str) -> int:
+    with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=60) as r:
+        length = r.headers.get("Content-Length")
+    if length:
+        return int(length)
+    request = urllib.request.Request(url, headers={"Range": "bytes=0-0"})
+    with urllib.request.urlopen(request, timeout=60) as r:
+        return int(r.headers["Content-Range"].split("/")[-1])
+
 
 #: Files a Mac leaves inside an archive that are not part of the dataset.
 MAC_RUBBISH = ("__MACOSX/", "._", ".DS_Store")
@@ -104,23 +179,30 @@ class Source:
     licence: str = ""
     optional: bool = False
     manual: bool = False
+    filename: str = ""
+    extract_it: bool = True
 
     def obtain(self, into: Path, verify: bool = True) -> tuple[Path, dict[str, str]]:
-        """Download and extract, returning the extracted tree and what to record about it."""
+        """Download, and unpack unless this archive is meant to be read in place.
+
+        :return: the extracted tree — or the archive itself, for a source declaring
+            ``extract_it=False`` — and what to record about where it came from.
+        """
         if self.manual or not self.url:
             raise PermissionError(
                 f"{self.layer} must be obtained by hand and passed with --archive; "
                 f"see the dataset page for the route"
             )
         into.mkdir(parents=True, exist_ok=True)
-        archive = into / Path(self.url).name
-        if not archive.exists():
-            urllib.request.urlretrieve(self.url, archive)
+        archive = into / (self.filename or Path(self.url).name)
+        download(self.url, archive)
         digest = _sha256(archive)
         if self.sha256 and verify and digest != self.sha256:
             raise ValueError(f"{archive.name} is not the archive recorded for {self.layer}")
-        tree = extract(archive, into / self.layer)
-        return tree, {"layer": self.layer, "url": self.url, "sha256": digest}
+        record = {"layer": self.layer, "url": self.url, "sha256": digest}
+        if not self.extract_it:
+            return archive, record
+        return extract(archive, into / self.layer), record
 
 
 @dataclass(frozen=True)

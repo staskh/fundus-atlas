@@ -70,3 +70,24 @@ def test_a_zip_is_unpacked(tmp_path):
         zf.writestr("a.txt", "a")
     tree = archives.extract(payload, tmp_path / "out")
     assert (tree / "a.txt").read_text() == "a"
+
+
+def test_an_archive_can_be_kept_packed_and_read_in_place(tmp_path):
+    payload = tmp_path / "big.zip"
+    with zipfile.ZipFile(payload, "w") as zf:
+        zf.writestr("Train/a.tif", b"mask")
+    source = archives.Source(layer="d", url=payload.as_uri(), extract_it=False)
+    where, record = source.obtain(tmp_path / "raw")
+    assert where.suffix == ".zip"
+    assert not (tmp_path / "raw" / "d").exists()
+    assert record["sha256"]
+
+
+def test_a_download_can_be_named_where_the_url_does_not_name_it(tmp_path):
+    payload = tmp_path / "x.zip"
+    with zipfile.ZipFile(payload, "w") as zf:
+        zf.writestr("a.txt", b"a")
+    # Figshare and friends serve files from a numeric id with no filename in the path.
+    source = archives.Source(layer="d", url=payload.as_uri(), filename="Named.zip")
+    source.obtain(tmp_path / "raw")
+    assert (tmp_path / "raw" / "Named.zip").exists()

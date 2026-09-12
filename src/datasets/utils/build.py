@@ -59,6 +59,7 @@ class SourceRecord:
     eye: str = ""
     disease: str = ""
     notes: str = ""
+    quality_source: str = ""
     maps: dict[str, object] = field(default_factory=dict)
     outlines: dict[tuple[str, str], object] = field(default_factory=dict)
     readers: list[str] = field(default_factory=list)
@@ -285,9 +286,14 @@ def _build_one(
         "notes": "; ".join(filter(None, [record.notes, *notes])),
         **record.extras,
     }
-    graded, source = quality.grade_of(quality_rule, row)
-    if graded or source:
-        row["quality"], row["quality_source"] = graded, source
+    if record.quality_source:
+        # The graders' own verdicts decide the cell, in manifest.write; this only records that the
+        # grade is theirs rather than ours.
+        row["quality_source"] = record.quality_source
+    else:
+        graded, source = quality.grade_of(quality_rule, row)
+        if graded or source:
+            row["quality"], row["quality_source"] = graded, source
     return row
 
 
