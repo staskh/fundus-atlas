@@ -39,7 +39,8 @@ uv run python -m datasets.fqs --sizes 512,720,1024     # any sizes a model needs
 - **Builds:** the photograph and its field-of-view mask, from `full_size_images/`, at `native/`
   plus each requested size. This dataset has no vessel, artery/vein or disc annotations.
 - **Not built:** `images/` — the same 2,246 photographs resized to 1024, which the store builds for
-  itself from the originals.
+  itself from the originals. One original is unreadable (section 7), so the store holds 2,245
+  photographs and `build.json` names the missing one.
 - **Quality:** `quality` is the published `qualityLevel` mapped to the atlas's vocabulary — `0`
   becomes `good`, `1` `usable`, `2` `bad` — with `quality_source` recording that the grade is the
   authors' rather than ours. Because three graders are kept apart, `multi_reader` names `quality`
@@ -112,6 +113,10 @@ against the score are not being asked the same question.
   `00232.jpeg`; the archive holds `00232.PNG`. Match on the name without its extension.
 - **No patient identity is published**, so a by-person split is impossible and two photographs of
   one eye — if there are any — cannot be told apart from two of different people.
+- **One original is truncated.** `full_size_images/00135.PNG` stops mid-image and cannot be
+  decoded; every other one of the 2,246 reads cleanly, and **the 1024-pixel copy of that same
+  photograph is intact**. Anything built from the originals therefore has 2,245 images, and the
+  missing one is available only at the smaller size.
 
 ## 8. Notes
 
