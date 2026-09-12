@@ -101,10 +101,15 @@ options, with these meanings, so that a person who has used one fetcher has used
 | `--keep-raw` | Keep the downloaded archive in `raw/` after building. **Default is to delete it** — it is reconstructible from `build.json`, and it is the bulk of the store. `native/` is never affected by this flag and is always kept |
 | `--force` | Rebuild even if the store looks complete |
 | `--limit N` | Build only the first N images — for development, and it must mark the build as partial in `build.json` |
+| `--jobs N` | How many images to build at once. Default is one per core; `1` builds in this process, which is what to use when a traceback matters more than the wall clock. Building an image is independent of every other image, so the store is identical either way — verified by building the same forty photographs on one core and on eight and comparing every byte |
 | `--no-verify` | Skip checksum verification. Prints a warning; never the default |
 
 And these behaviours:
 
+- **Parallel by default.** Images are built across as many processes as the machine has cores.
+  Nothing is shared between them but the disk: each reads its own bytes and writes its own files,
+  so the rows keep the order the fetcher discovered them in and the store does not depend on how
+  many cores built it.
 - **Idempotent.** Running twice does nothing the second time. An existing archive is not
   re-downloaded, an existing store is not rebuilt without `--force`, and a size that already exists
   is not recomputed. Asking for a size that does not exist yet builds only that size, from

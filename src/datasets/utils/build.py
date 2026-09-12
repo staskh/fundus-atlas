@@ -3,10 +3,12 @@
 
 import io
 import json
+import multiprocessing
 import shutil
 import sys
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
+from functools import partial
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -115,31 +117,35 @@ def run(
         records = records[: args.limit]
 
     built = {} if args.force else {row["key"]: row for row in _previous_rows(store)}
+    done, waiting = [], []
+    for record in records:
+        if _is_built(record.key, store, args.sizes, built):
+            done.append((record, _reusable(built[record.key], record), None))
+        else:
+            waiting.append(record)
+
+    work = partial(
+        _one,
+        store=store,
+        raw=raw,
+        sizes=args.sizes,
+        resolution_of=resolution_of,
+        fov_strategy=fov_strategy,
+        quality_rule=quality_rule,
+        force=args.force,
+    )
+    finished = done + list(_across(work, waiting, args.jobs, slug, len(records), len(done)))
+    by_key = {record.key: (row, failure) for record, row, failure in finished}
+
     rows, readings = [], []
-    for n, record in enumerate(records, 1):
-        try:
-            rows.append(
-                _reusable(built[record.key], record)
-                if _is_built(record.key, store, args.sizes, built)
-                else _build_one(
-                    record,
-                    store,
-                    raw,
-                    args.sizes,
-                    resolution_of,
-                    fov_strategy,
-                    quality_rule,
-                    args.force,
-                )
-            )
-        except Unreadable as broken:
-            warnings.append(f"not built: {record.key} — {broken}")
-            print(f"\nwarning: {warnings[-1]}", file=sys.stderr)
+    for record in records:
+        row, failure = by_key[record.key]
+        if failure:
+            warnings.append(f"not built: {record.key} — {failure}")
+            print(f"warning: {warnings[-1]}", file=sys.stderr)
             continue
+        rows.append(row)
         readings.extend(record.readings)
-        if n % 50 == 0 or n == len(records):
-            print(f"\r{slug}: {n}/{len(records)} images", end="", file=sys.stderr, flush=True)
-    print(file=sys.stderr)
 
     manifest.write(store, rows, extra_columns, readings)
     _write_build_json(store, args, provenance, len(rows), warnings)
@@ -163,6 +169,46 @@ def _reusable(row: dict[str, str], record: SourceRecord) -> dict[str, str]:
     if not decided:
         return row
     return {**row, **dict.fromkeys(decided, ""), "multi_reader": "", "readers": ""}
+
+
+def _one(record: SourceRecord, **how) -> tuple[SourceRecord, dict[str, str] | None, str | None]:
+    """Build one image, returning what went wrong rather than raising it.
+
+    A worker that raises takes the pool down with it, and one file a dataset published broken is
+    not a reason to lose the other two thousand.
+    """
+    try:
+        return record, _build_one(record, **how), None
+    except Unreadable as broken:
+        return record, None, str(broken)
+
+
+def _across(work, records: list[SourceRecord], jobs: int, slug: str, total: int, already: int):
+    """Run the work over as many processes as asked for, in the order the records came in.
+
+    Building an image is independent of every other image — its own bytes in, its own files out —
+    so the only thing the workers share is the disk. Chaksu's 1,345 photographs carry ten expert
+    masks apiece and took an hour and three quarters on one core.
+    """
+    if not records:
+        return
+    done = already
+    if jobs <= 1 or len(records) == 1:
+        results = map(work, records)
+    else:
+        pool = multiprocessing.get_context("spawn").Pool(min(jobs, len(records)))
+        results = pool.imap(work, records, chunksize=1)
+    try:
+        for result in results:
+            done += 1
+            if done % 50 == 0 or done == total:
+                print(f"\r{slug}: {done}/{total} images", end="", file=sys.stderr, flush=True)
+            yield result
+    finally:
+        if jobs > 1 and len(records) > 1:
+            pool.close()
+            pool.join()
+        print(file=sys.stderr)
 
 
 def _previous_build(store: Path) -> dict | None:

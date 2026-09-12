@@ -2,6 +2,7 @@
 # ABOUTME: Defined once so running a new fetcher needs no new instructions.
 
 import argparse
+import os
 from argparse import Namespace
 
 
@@ -30,6 +31,12 @@ def parse(slug: str, argv: list[str] | None = None) -> Namespace:
     )
     parser.add_argument("--force", action="store_true", help="rebuild even if the store looks done")
     parser.add_argument("--limit", type=int, help="build only the first N images, for development")
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=os.cpu_count() or 1,
+        help="how many images to build at once (default: one per core; 1 to build in this process)",
+    )
     parser.add_argument(
         "--no-verify",
         dest="verify",
