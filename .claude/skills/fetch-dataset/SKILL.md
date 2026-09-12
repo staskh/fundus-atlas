@@ -426,6 +426,7 @@ delete and rebuild; a finding that took an afternoon to establish must survive t
 | --- | --- |
 | `key` | The manifest key, so an exclusion survives a rebuild |
 | `maps` | `"*"` for the whole image, or a list naming only the broken maps — an image whose A/V map is wrong may still be a perfectly good vessel case |
+| `readers` | `"*"`, or a list naming only the annotators whose work is wrong. Chákṣu's `Image145` has five experts' discs and one of them is a broken mask; excluding `disc` for that image would throw away four good outlines to be rid of one bad one. A finding scoped to readers leaves the row and its `maps` alone — the image still has that structure, drawn by everyone else — and only `utils.exclusions.trusted_outlines` drops the condemned pair |
 | `reason` | One of a fixed vocabulary: `ground-truth-wrong`, `annotation-incomplete`, `image-corrupt`, `not-a-fundus`, `duplicate-within-dataset`, `mismatched-pair`, `wrong-modality` |
 | `detail` | What is actually wrong, in a sentence a stranger can act on |
 | `evidence` | Where the finding is written up: a section of the dataset page, an upstream issue, or how it was checked |
@@ -433,6 +434,10 @@ delete and rebuild; a finding that took an afternoon to establish must survive t
 
 Three rules decide how this behaves, and each is chosen against a specific way of getting it wrong:
 
+- **An image that cannot be built is not an exclusion.** A file the dataset published broken never
+  becomes a row, and there is nothing for a read-time filter to remove: `build.json` names it and
+  the dataset page explains it, which is the one place that fact lives. Exclusions are for images
+  that are in the store and should not be trusted.
 - **Exclusions are applied when the store is read, never when it is built.** The build writes every
   image the dataset published, including the broken ones. A store that quietly omits them cannot be
   used to re-examine the finding, and its image count stops matching the dataset page — which is how

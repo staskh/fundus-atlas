@@ -93,3 +93,59 @@ def test_findings_are_read_from_the_repository(tmp_path):
 
 def test_a_dataset_with_no_findings_file_has_no_findings(tmp_path):
     assert exclusions.load("hrf", directory=tmp_path) == []
+
+
+def test_one_readers_bad_outline_does_not_discard_the_others(tmp_path):
+    # Chaksu's Image145 has five experts' discs; one of them is a broken mask. Excluding "disc"
+    # for that image would throw away four good outlines to be rid of one bad one.
+    finding = exclusions.Exclusion(
+        "a",
+        ["disc"],
+        "annotation-incomplete",
+        "fragments",
+        "notes",
+        "2026-09-12",
+        readers=["expert2"],
+    )
+    drawn = {
+        ("disc", "expert1"): "good",
+        ("disc", "expert2"): "broken",
+        ("cup", "expert2"): "good",
+    }
+    kept = exclusions.trusted_outlines("a", drawn, findings=[finding])
+    assert set(kept) == {("disc", "expert1"), ("cup", "expert2")}
+
+
+def test_a_reader_scoped_finding_leaves_the_row_and_its_maps_alone(tmp_path):
+    store = write_store(tmp_path, [{"key": "a", "maps": "fov;disc;cup"}])
+    finding = exclusions.Exclusion(
+        "a",
+        ["disc"],
+        "annotation-incomplete",
+        "fragments",
+        "notes",
+        "2026-09-12",
+        readers=["expert2"],
+    )
+    row = next(iter(exclusions.usable_rows(store, findings=[finding])))
+    assert row["maps"] == "fov;disc;cup"
+
+
+def test_a_finding_naming_no_reader_covers_every_reader(tmp_path):
+    finding = exclusions.Exclusion(
+        "a", ["disc"], "ground-truth-wrong", "wrong eye", "notes", "2026-09-12"
+    )
+    drawn = {("disc", "expert1"): "x", ("cup", "expert1"): "y"}
+    assert set(exclusions.trusted_outlines("a", drawn, findings=[finding])) == {("cup", "expert1")}
+
+
+def test_outlines_of_an_image_nobody_flagged_are_untouched(tmp_path):
+    drawn = {("disc", "expert1"): "x"}
+    assert exclusions.trusted_outlines("b", drawn, findings=[]) == drawn
+
+
+def test_the_findings_recorded_for_chaksu_load_and_name_real_readers():
+    found = exclusions.load("chaksu")
+    assert len(found) >= 3
+    assert all(f.maps == ["disc"] for f in found)
+    assert all(f.readers != exclusions.EVERYTHING for f in found)

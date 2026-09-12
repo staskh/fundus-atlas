@@ -32,6 +32,11 @@ class Exclusion:
 
     :param maps: :data:`EVERYTHING`, or the maps that are wrong — an image whose artery/vein map is
         broken may still be a perfectly good vessel case.
+    :param readers: :data:`EVERYTHING`, or the annotators whose work is wrong. A dataset that keeps
+        its readers apart can have one bad outline among five good ones, and discarding the
+        structure to be rid of it would throw away the disagreement the dataset exists to record.
+        A finding scoped to readers leaves the row and its `maps` alone: the image still has that
+        structure, drawn by everyone else.
     """
 
     key: str
@@ -40,10 +45,21 @@ class Exclusion:
     detail: str
     evidence: str
     found: str
+    readers: str | list[str] = EVERYTHING
 
     def __post_init__(self) -> None:
         if self.reason not in REASONS:
             raise ValueError(f"{self.reason!r} is not one of {REASONS}")
+
+    @property
+    def whole_image(self) -> bool:
+        return self.maps == EVERYTHING and self.readers == EVERYTHING
+
+    def covers(self, structure: str, reader: str) -> bool:
+        """Whether this finding condemns one reader's drawing of one structure."""
+        return (self.maps == EVERYTHING or structure in self.maps) and (
+            self.readers == EVERYTHING or reader in self.readers
+        )
 
 
 def load(slug: str, directory: Path = DIRECTORY) -> list[Exclusion]:
@@ -76,7 +92,34 @@ def usable_rows(
         if finding is None or include_excluded:
             yield row
             continue
-        if finding.maps == EVERYTHING:
+        if finding.whole_image:
+            continue
+        if finding.readers != EVERYTHING:
+            # Someone else drew the same structure on this image, and their work stands.
+            yield row
             continue
         kept = [name for name in row.get("maps", "").split(";") if name not in finding.maps]
         yield {**row, "maps": ";".join(kept)}
+
+
+def trusted_outlines(
+    key: str,
+    drawn: dict[tuple[str, str], object],
+    findings: Iterable[Exclusion] | None = None,
+    slug: str | None = None,
+) -> dict[tuple[str, str], object]:
+    """One image's outlines, less any a finding condemns.
+
+    :param drawn: (structure, reader) to nodes, as `utils.contours.read` returns them.
+    :param findings: the exclusions to apply; by default those recorded for ``slug``.
+    """
+    if findings is None:
+        findings = load(slug) if slug else []
+    against = [finding for finding in findings if finding.key == key]
+    if not against:
+        return drawn
+    return {
+        (structure, reader): nodes
+        for (structure, reader), nodes in drawn.items()
+        if not any(finding.covers(structure, reader) for finding in against)
+    }

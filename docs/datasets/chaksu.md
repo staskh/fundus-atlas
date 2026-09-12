@@ -150,6 +150,8 @@ landscape photographs may crop the wrong axis silently.
   against about 39,000 for the same disc drawn by the other experts. Two more are flagged in the
   built store's `notes`: expert 3's disc on `Image162` (train) and on `p28_image1` (test). Anything
   taking the largest connected component of those masks gets a shape that is not the optic disc.
+  All three are recorded in `src/datasets/exclusions/chaksu.json`, scoped to the one expert
+  concerned: the other four experts' discs on those photographs are sound and stay usable.
 
 ## 8. Notes
 
