@@ -116,6 +116,15 @@ And these behaviours:
   other than what it says.
 - **Honest about what it could not do.** A missing optional annotation layer is a warning and a
   built store; a missing required one is an error. Either way it is recorded in `build.json`.
+- **Unmoved by a file the dataset published broken.** Datasets ship corrupt files — one of FQS's
+  2,246 originals is a PNG cut short mid-image — and that is a fact about the dataset, not a reason
+  to abandon the build. The image is skipped, named in `build.json`, warned about on the console
+  and recorded on the dataset page. It is never loaded with its readable part padded out, which
+  would put invented pixels in the store under the dataset's name.
+- **Resumable in its downloading, too.** Large archives are fetched in ranged pieces that resume
+  what is already on disk, because a single connection to a public host will accept a
+  ten-gigabyte request, deliver three gigabytes and then go quiet indefinitely. A partial file
+  larger than the archive it claims to be is an error, not something to resume from.
 - **Never fetches what the licence does not allow.** For a dataset behind credentialing, a request
   form or a signed agreement (`⛔` in `docs/DATASETS.md`), the fetcher must **not** attempt a
   download: it requires `--archive` and prints the page's own instructions. Automating around a human
@@ -699,5 +708,18 @@ here means a consumer never resamples twice.
   silently smaller store is how someone concludes a dataset is smaller than it is. A dataset that is
   ultra-wide-field **throughout** has no fetcher at all yet, rather than one that builds nothing.
 
-- **13.8 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
+- **13.8 Read an archive where it lies when unpacking it would cost more than it saves.** Chakshu's
+  per-expert masks are uncompressed TIFFs: 70 GB extracted against 11 GB in the archive, and every
+  one is read once and turned into a polygon. A source can declare that it stays packed, and the
+  fetcher addresses its members directly. The same goes for an archive holding a copy of its own
+  photographs, as FQS does at a second size.
+
+- **13.9 Index what the archive contains; never compose a path and trust it.** Chakshu's own
+  capitalisation varies between experts — one's folder is `Bosch/cup`, the next's `Bosch/Cup` — and
+  its decision files name photographs with an extension the photographs do not have. A fetcher that
+  builds the path it expects finds nothing for some readers and reports a dataset with fewer
+  annotators than it has, without erroring. List what is there, key it on something stable, and let
+  a missing entry be visible.
+
+- **13.10 Every file starts with the two-line `ABOUTME:` comment** the repository requires, and
   functions carry the docstring style of the surrounding code.
