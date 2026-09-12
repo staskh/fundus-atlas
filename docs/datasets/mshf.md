@@ -34,7 +34,9 @@ uv run python -m datasets.mshf --sizes 512,720,1024     # any sizes a model need
 - **Downloads:** `MSHF dataset 2.0.zip`, 1.1 GB, from figshare. No account, no form. It is read
   where it lies rather than unpacked.
 - **Builds:** the photograph and its field-of-view mask, at `native/` plus each requested size. The
-  store holds **802** images: the 500 colour-fundus and 302 portable-camera photographs.
+  store holds **802** images: the 500 colour-fundus and 302 portable-camera photographs. The
+  DR-XJU group's field is wider than tall (section 3.1), so its square crop is padded above and
+  below — a median of 5% of the canvas and up to 26% — rather than shaved at the sides.
 - **Not built:** the 500 ultra-wide-field mosaics, a 200° instrument beside 45–60° cameras; and the
   all-zero table described in section 7, which is never read as a score.
 - **Subsets:** `cfp` and `portable`, by device class. The publishing group — `DR-XJU`, `Local1` and
@@ -60,6 +62,11 @@ Four groups, and they are not the same size. **The 235 DR-XJU photographs are th
 them 412×310, the rest 496×470 to 555×419 — while DR-ZJU is 1924×1556 or 3216×2136 and the Glaucoma
 and Healthy groups are 1534×1534. A quality score on a 412-pixel image and one on a 3216-pixel image
 are not the same measurement, and this is a quality dataset.
+
+**The DR-XJU thumbnails are also cropped photographs**, not whole ones: the field of view runs off
+the left and right of the frame, along three quarters of each edge, so a good part of the retina is
+simply not there. Their field is wider than tall in frame, which means code that crops to a circle's
+bounding square takes another 0.9% off the sides of what did survive.
 
 | | |
 | --- | --- |
@@ -124,8 +131,9 @@ are not the same measurement, and this is a quality dataset.
   scores are complete and unaffected.
 - **DR-XJU-30 and DR-XJU-31 are odd twice over.** They are missing from the agreed-score sheet, and
   they appear in the `AI-use` split as `.png` where every original is `.jpg`.
-- **One group is published at thumbnail size** (section 3.1), which for a quality benchmark is a
-  difference in kind rather than degree.
+- **One group is published at thumbnail size and cropped** (section 3.1), which for a quality
+  benchmark is a difference in kind rather than degree: the field of view of those 235 photographs
+  is cut off at the frame's left and right edges.
 - The three device classes are a single archive; anyone treating MSHF as one dataset will mix a 45°
   photograph with a 200° mosaic.
 - Mapping its four binary components onto a three-way Good/Usable/Reject scheme is a decision, not a
