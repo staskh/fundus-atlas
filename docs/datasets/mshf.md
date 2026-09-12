@@ -22,7 +22,33 @@ quality score is available from three separate people.
 | Citation | Jin K, Gao Z, Jiang X, et al. *MSHF: A Multi-Source Heterogeneous Fundus (MSHF) Dataset for Image Quality Assessment.* Scientific Data 2023;10:286. DOI: [10.1038/s41597-023-02188-x](https://doi.org/10.1038/s41597-023-02188-x) |
 | Licence | **CC BY 4.0** |
 | Content | 1,302 images across three device classes |
-| Annotations | Illumination, clarity, contrast and overall quality, each 0/1 from **three readers**, with consensus *and* individual scores both shipped |
+| Annotations | Illumination, clarity, contrast and overall quality, each 0/1 from **three readers** in `Individual_scores.xlsx.xlsx`, plus an agreed score per group in `MSHF_quality_scores.xlsx` — which is missing for one group, see section 7 |
+
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.mshf                          # downloads and builds 512 and 1024
+uv run python -m datasets.mshf --sizes 512,720,1024     # any sizes a model needs
+```
+
+- **Downloads:** `MSHF dataset 2.0.zip`, 1.1 GB, from figshare. No account, no form. It is read
+  where it lies rather than unpacked.
+- **Builds:** the photograph and its field-of-view mask, at `native/` plus each requested size. The
+  store holds **802** images: the 500 colour-fundus and 302 portable-camera photographs.
+- **Not built:** the 500 ultra-wide-field mosaics, a 200° instrument beside 45–60° cameras; and the
+  all-zero table described in section 7, which is never read as a score.
+- **Subsets:** `cfp` and `portable`, by device class. The publishing group — `DR-XJU`, `Local1` and
+  so on — is kept in a column of its own, since the groups differ in size and in disease.
+- **Splits:** `train` and `test`, from the `AI-use` folders, matched without the file extension
+  because two photographs change extension between the two places (section 7).
+- **Per-reader values:** `labels.csv` holds all three readers' verdicts on all four components —
+  `illumination`, `clarity`, `contrast` and `quality` — with the agreed score as the `consensus`
+  reader where one is published. `multi_reader` names all four on every row.
+- **Quality:** binary throughout, mapped to the atlas's vocabulary as `good` and `bad`. Where a
+  group has no agreed score, the cell holds the readers' value if all three agree and is empty if
+  they do not — 19 DR-ZJU photographs come out empty that way, and every such row carries a note.
+- **Grouping:** none. The dataset publishes no patient identity, so `patient`, `visit` and `eye`
+  are empty.
 
 ## 3. The images
 
@@ -30,9 +56,14 @@ Three subcollections by device class, which is the dataset's whole point.
 
 ### 3.1 Colour fundus photographs — 500 images
 
+Four groups, and they are not the same size. **The 235 DR-XJU photographs are thumbnails** — 215 of
+them 412×310, the rest 496×470 to 555×419 — while DR-ZJU is 1924×1556 or 3216×2136 and the Glaucoma
+and Healthy groups are 1534×1534. A quality score on a 412-pixel image and one on a 3216-pixel image
+are not the same measurement, and this is a quality dataset.
+
 | | |
 | --- | --- |
-| Resolution (pixels) | Not stated uniformly |
+| Resolution (pixels) | DR-XJU 412×310 to 555×419; DR-ZJU 1924×1556 and 3216×2136; Glaucoma and Healthy 1534×1534 |
 | Microns per pixel | Unknown |
 | Camera | Kowa at 45° and Topcon TRC-NW8 at 50°, per the authors' device list |
 | Field of view | 45° and 50° |
@@ -43,7 +74,7 @@ Three subcollections by device class, which is the dataset's whole point.
 
 | | |
 | --- | --- |
-| Resolution (pixels) | Not stated uniformly |
+| Resolution (pixels) | 2560×1920, but for one photograph at 1705×1705 |
 | Microns per pixel | Unknown |
 | Camera | A handheld device (DEC200 class) at 60° |
 | Field of view | 60° |
@@ -85,6 +116,16 @@ Three subcollections by device class, which is the dataset's whole point.
 
 ## 7. Known defects
 
+- **The tab that should hold DR-ZJU's agreed scores holds an all-zero table instead.** In
+  `MSHF_quality_scores.xlsx` the tab named `DR-ZJU` is headed "gold standard" and carries a row for
+  every one of the 1,302 images — each of them `0, 0, 0, 0`. Read as scores it marks the entire
+  dataset unusable on every component. The consequence is that **DR-ZJU's 187 photographs have no
+  agreed score at all**: the other six tabs cover the remaining 1,115. The three readers' individual
+  scores are complete and unaffected.
+- **DR-XJU-30 and DR-XJU-31 are odd twice over.** They are missing from the agreed-score sheet, and
+  they appear in the `AI-use` split as `.png` where every original is `.jpg`.
+- **One group is published at thumbnail size** (section 3.1), which for a quality benchmark is a
+  difference in kind rather than degree.
 - The three device classes are a single archive; anyone treating MSHF as one dataset will mix a 45°
   photograph with a 200° mosaic.
 - Mapping its four binary components onto a three-way Good/Usable/Reject scheme is a decision, not a

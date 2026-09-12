@@ -248,22 +248,58 @@ class GitSource:
         return tree, {"layer": self.layer, "repo": self.repo, "commit": at}
 
 
+#: What a RAR file starts with. Two datasets here publish RAR5, which no Python standard library
+#: module reads; `bsdtar` does, and ships with macOS and most Linux distributions.
+RAR_MAGIC = b"Rar!\x1a\x07"
+
+
 def extract(archive: Path, into: Path) -> Path:
-    """Unpack a zip or tar, or return a directory that was passed instead of an archive."""
+    """Unpack an archive, or return a directory that was passed instead of one."""
     if archive.is_dir():
         return archive
     if into.exists():
         return into
     into.mkdir(parents=True)
-    if zipfile.is_zipfile(archive):
-        with zipfile.ZipFile(archive) as zf:
-            zf.extractall(into)
-    elif tarfile.is_tarfile(archive):
-        with tarfile.open(archive) as tf:
-            tf.extractall(into, filter="data")
-    else:
-        shutil.copy2(archive, into / archive.name)
+    try:
+        if zipfile.is_zipfile(archive):
+            with zipfile.ZipFile(archive) as zf:
+                zf.extractall(into)
+        elif tarfile.is_tarfile(archive):
+            with tarfile.open(archive) as tf:
+                tf.extractall(into, filter="data")
+        elif _is_rar(archive):
+            _unrar(archive, into)
+        else:
+            shutil.copy2(archive, into / archive.name)
+        if not any(into.rglob("*")):
+            raise RuntimeError(
+                f"{archive.name} produced no files; it is not an archive we can read"
+            )
+    except Exception:
+        # Half an archive, or none of it, in a directory named after the dataset looks like a
+        # dataset. Leave nothing behind that a later run would mistake for a finished extraction.
+        shutil.rmtree(into, ignore_errors=True)
+        raise
     return into
+
+
+def _is_rar(archive: Path) -> bool:
+    with open(archive, "rb") as f:
+        return f.read(len(RAR_MAGIC)) == RAR_MAGIC
+
+
+def _unrar(archive: Path, into: Path) -> None:
+    try:
+        subprocess.run(
+            ["bsdtar", "-xf", str(archive), "-C", str(into)], check=True, capture_output=True
+        )
+    except FileNotFoundError as missing:
+        raise RuntimeError(
+            f"{archive.name} is a RAR and needs bsdtar, which is not installed"
+        ) from missing
+    except subprocess.CalledProcessError as failed:
+        message = failed.stderr.decode(errors="replace").strip()
+        raise RuntimeError(f"bsdtar could not unpack {archive.name}: {message}") from failed
 
 
 def _sha256(path: Path) -> str:

@@ -91,3 +91,15 @@ def test_a_download_can_be_named_where_the_url_does_not_name_it(tmp_path):
     source = archives.Source(layer="d", url=payload.as_uri(), filename="Named.zip")
     source.obtain(tmp_path / "raw")
     assert (tmp_path / "raw" / "Named.zip").exists()
+
+
+def test_an_archive_that_yields_nothing_is_an_error(tmp_path):
+    # FIVES and GRAPE publish RAR5, which the Python standard library cannot read. bsdtar reads it
+    # — and, handed a broken one, exits successfully having produced no files at all. An empty
+    # directory named after the dataset looks like an extracted dataset, which is worse than a
+    # failure, so emptiness is the thing to check for whatever the format.
+    fake = tmp_path / "x.rar"
+    fake.write_bytes(b"Rar!\x1a\x07\x01\x00" + b"not really a rar")
+    with pytest.raises(RuntimeError, match="no files"):
+        archives.extract(fake, tmp_path / "out")
+    assert not (tmp_path / "out").exists()
