@@ -23,8 +23,35 @@ nothing else here does.
 | Download | **direct, no registration** |
 | Citation | Kumar JRH, Seelamantula CS, et al. *Chákṣu: A glaucoma specific fundus image database.* Scientific Data 2023;10:70. DOI: [10.1038/s41597-023-01943-4](https://doi.org/10.1038/s41597-023-01943-4) — note the published author correction |
 | Licence | **CC BY 4.0** |
-| Content | 1,345 images across three cameras — see section 3 |
-| Annotations | Optic disc and cup boundaries from **five experts**, and five independent glaucoma decisions, all kept separate |
+| Content | 1,345 images across three cameras — see section 3 — published as two archives, `Train.zip` and `Test.zip` |
+| Annotations | Optic disc and cup boundaries from **five experts**, and five independent glaucoma decisions, all kept separate. The archives also carry four fusions of the five outlines — mean, median, majority and STAPLE — and each expert's own cup-to-disc measurements |
+
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.chaksu                          # downloads and builds 512 and 1024
+uv run python -m datasets.chaksu --sizes 512,720,1024     # any sizes a model needs
+```
+
+- **Downloads:** `Train.zip` (8.6 GB) and `Test.zip` (2.7 GB) from figshare. No account, no form.
+  Both are read where they lie: the per-expert masks are uncompressed TIFFs that come to about
+  70 GB unpacked, and each is read once and turned into a polygon.
+- **Builds:** the photograph, its field-of-view mask, and **ten contours per image** — disc and cup
+  from each of the five experts — in one `contours/<key>.csv` per photograph, at `native/` plus
+  each requested size.
+- **Not built:** the four fused masks (mean, median, majority, STAPLE), because each is a function
+  of the five outlines the store keeps; the per-expert cup-to-disc measurements, for the same
+  reason; and the annotation overlays, which are the photographs with a boundary drawn on them.
+- **Subsets:** `bosch`, `forus` and `remidio`, one per camera, because they are not the same shape
+  and Remidio is portrait.
+- **Splits:** `train` and `test`, as the two archives divide them.
+- **Per-reader values:** `labels.csv` holds all five glaucoma decisions under the field `disease`,
+  with the published majority as the `consensus` reader; `multi_reader` names `disease` on every
+  row. The verdicts are lowercased and the misspelling in section 7 is read as the verdict it is.
+- **Grouping:** none. The dataset publishes no patient identity or laterality, so `patient`,
+  `visit` and `eye` are empty.
+- **Peculiarities:** the archive's folder capitalisation varies between experts, so the masks are
+  indexed from what is in the archive rather than addressed by a composed path.
 
 ## 3. The images
 
@@ -70,9 +97,9 @@ landscape photographs may crop the wrong axis silently.
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
-| Optic disc | **Five, kept separate** | Native | Per-expert boundaries |
-| Optic cup | **Five, kept separate** | Native | Per-expert boundaries |
-| Disease | **Five independent decisions per eye** | — | Glaucoma; the five may disagree, and that disagreement is preserved |
+| Optic disc | **Five, kept separate** | Native | Per-expert boundaries, published as binary masks at full resolution |
+| Optic cup | **Five, kept separate** | Native | As above |
+| Disease | **Five independent decisions per eye**, plus a published majority | — | Two verdicts only: `NORMAL` and `GLAUCOMA SUSPECT`. Not a severity grade |
 
 ## 5. Inheritance
 
@@ -92,6 +119,16 @@ landscape photographs may crop the wrong axis silently.
 - The paper carries a published author correction; cite the corrected version.
 - Mixing the three cameras without separating them mixes a portrait 2448×3264 photograph with a
   landscape 1920×1440 one.
+- **Two of the five experts misspell the verdict.** They write `GLAUCOMA  SUSUPECT` — a doubled
+  space and a transposition — where the other three write `GLAUCOMA SUSPECT`. Counting the raw
+  strings turns one verdict into two categories and makes those two experts look like they never
+  agree with the rest.
+- **The archive's own capitalisation is inconsistent.** One expert's folder is `Bosch/cup`,
+  another's `Bosch/Cup`. Code that composes the path rather than listing what is there finds
+  nothing for some of the five, and silently reports fewer readers than the dataset has.
+- **The decision files name each photograph twice over**, as `Image101.jpg-Image101-1.jpg`, and the
+  Remidio files use a `.tif` extension for photographs stored as `.JPG`. Match on the name before
+  the first hyphen, without its extension.
 
 ## 8. Notes
 

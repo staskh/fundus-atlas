@@ -76,3 +76,38 @@ def test_a_server_that_goes_quiet_is_given_up_on_rather_than_waited_for(tmp_path
             "u", tmp_path / "f.bin", fetch=server, size_of=server.size, chunk=256, pause=0
         )
     assert (tmp_path / "f.bin").stat().st_size == 512
+
+
+def test_a_file_larger_than_the_one_it_claims_to_be_is_refused(tmp_path):
+    # How this was found: a stray retry loop was appending to the same file as the downloader, and
+    # the archive grew a third of a gigabyte past its real size while both processes called it
+    # progress. A file that is too big is corrupt, and resuming from its end is meaningless.
+    server = Server(b"x" * 1000)
+    too_big = tmp_path / "f.bin"
+    too_big.write_bytes(b"x" * 1500)
+    with pytest.raises(ValueError, match="larger than"):
+        archives.download("u", too_big, fetch=server, size_of=server.size)
+
+
+def test_a_server_that_sends_more_than_it_was_asked_for_is_refused(tmp_path):
+    class Overrunning(Server):
+        def __call__(self, url, start, end):
+            return self.payload[start:] * 2
+
+    server = Overrunning(b"x" * 100)
+    with pytest.raises(ValueError, match="more than"):
+        archives.download(
+            "u", tmp_path / "f.bin", fetch=server, size_of=server.size, chunk=50, pause=0
+        )
+
+
+def test_a_short_piece_is_continued_from_rather_than_treated_as_the_end(tmp_path):
+    class Truncating(Server):
+        def __call__(self, url, start, end):
+            return self.payload[start : end + 1][:10]
+
+    server = Truncating(b"abcdefghij" * 10)
+    archives.download(
+        "u", tmp_path / "f.bin", fetch=server, size_of=server.size, chunk=50, pause=0
+    )
+    assert (tmp_path / "f.bin").read_bytes() == server.payload

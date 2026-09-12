@@ -45,10 +45,16 @@ def download(
     size_of = size_of or _size
     total = size_of(url)
     have = path.stat().st_size if path.exists() else 0
-    if have >= total:
+    if have > total:
+        raise ValueError(
+            f"{path} is {have} bytes, larger than the {total} the server reports: it is not a "
+            f"partial copy of this file. Delete it and start again."
+        )
+    if have == total:
         return
 
     with open(path, "ab") as f:
+        wrote = 0
         while have < total:
             end = min(have + chunk, total) - 1
             piece = _with_retries(fetch, url, have, end, attempts, pause)
@@ -57,6 +63,10 @@ def download(
             f.write(piece)
             f.flush()
             have += len(piece)
+            wrote += len(piece)
+            if wrote > total:
+                raise ValueError(f"{url} sent more than the {total} bytes it reported")
+
 
 
 def _with_retries(fetch, url: str, start: int, end: int, attempts: int, pause: float) -> bytes:
