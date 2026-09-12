@@ -7,6 +7,15 @@ import numpy as np
 
 from datasets.utils.fov import Circle
 
+#: How far past its fitted circle a footprint must reach before the square follows it, as a
+#: fraction of the field's own diameter. A round field overshoots its fit by a few pixels in two
+#: thousand — rasterisation and noise; Chaksu's Bosch handheld overshoots by fifty in thirteen
+#: hundred, because its field is an ellipse.
+ROUNDING = 0.005
+
+#: A floor for that, so a small photograph is not held to a sub-pixel standard.
+LEAST_ROUNDING = 2.0
+
 
 @dataclass(frozen=True)
 class Square:
@@ -17,9 +26,44 @@ class Square:
     side: int
 
 
-def square_around(circle: Circle) -> Square:
-    """The square bounding the field of view, whether or not the photograph contains all of it."""
-    return Square(round(circle.cx - circle.r), round(circle.cy - circle.r), round(2 * circle.r))
+def square_around(circle: Circle, field: np.ndarray | None = None) -> Square:
+    """The square holding the whole field of view, whether or not the photograph contains all of it.
+
+    It covers two things at once, and needs both. The **fitted circle**, because a field running
+    off the sensor is still a circle and the part that missed the sensor is still part of it. And
+    the **visible footprint**, because not every camera draws a circle: Chaksu's Bosch handheld
+    produces a field 1441 wide and 1221 tall, and a square sized from a circle fitted to it is
+    1337 across and shaves the retina off both sides.
+
+    :param field: the photograph's footprint, as a boolean mask. Omitted, only the circle is used.
+    """
+    around_circle = Square(
+        round(circle.cx - circle.r), round(circle.cy - circle.r), round(2 * circle.r)
+    )
+    if field is None or not field.any():
+        return around_circle
+
+    ys, xs = np.nonzero(field)
+    left, right = circle.cx - circle.r, circle.cx + circle.r
+    top, bottom = circle.cy - circle.r, circle.cy + circle.r
+    rounding = max(LEAST_ROUNDING, ROUNDING * 2 * circle.r)
+    # Only where the footprint genuinely reaches past the circle. A rasterised round field
+    # overshoots its own fitted circle by a fraction of a pixel, and following that would move
+    # every square in every store for no reason; a field that is not round overshoots by fifty.
+    reaches = [
+        left - float(xs.min()) > rounding,
+        float(xs.max()) - right > rounding,
+        top - float(ys.min()) > rounding,
+        float(ys.max()) - bottom > rounding,
+    ]
+    if not any(reaches):
+        return around_circle
+
+    left, right = min(left, float(xs.min())), max(right, float(xs.max()))
+    top, bottom = min(top, float(ys.min())), max(bottom, float(ys.max()))
+    side = round(max(right - left, bottom - top))
+    middle_x, middle_y = (left + right) / 2, (top + bottom) / 2
+    return Square(round(middle_x - side / 2), round(middle_y - side / 2), side)
 
 
 def apply(image: np.ndarray, square: Square, fill: int = 0) -> np.ndarray:

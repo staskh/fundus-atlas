@@ -460,3 +460,46 @@ def test_outlines_drawn_on_a_crop_are_placed_back_on_the_photograph(tmp_path):
     # The node is 10, 20 in the crop, so 100, 80 in the photograph, less the crop this build made.
     assert drawn[0][0] == pytest.approx(100 - int(row["crop_x0"]))
     assert drawn[0][1] == pytest.approx(80 - int(row["crop_y0"]))
+
+
+def test_a_check_on_the_finished_store_is_recorded_in_the_build(tmp_path):
+    seen = {}
+
+    def verify(store, layers, rows):
+        seen["store"] = store
+        seen["keys"] = [row["key"] for row in rows]
+        return {"checked": len(rows), "worst": 0.97}
+
+    raw = a_dataset(tmp_path)
+    args = cli.parse(
+        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
+    )
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover,
+        resolution_of=resolution.Declared(5.0, "published", "stated"),
+        args=args,
+        extra_columns=[manifest.Column("artifact", "0 is best")],
+        verify=verify,
+    )
+    store = tmp_path / "store" / "synthetic"
+    assert seen["keys"] == ["a", "b"]
+    assert seen["store"] == store
+    assert json.loads((store / "build.json").read_text())["verification"] == {
+        "checked": 2,
+        "worst": 0.97,
+    }
+
+
+def test_a_build_with_nothing_to_check_says_nothing(tmp_path):
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
+    assert "verification" not in json.loads((store / "build.json").read_text())
+
+
+def test_a_traced_outline_can_be_drawn_back_into_the_mask_it_came_from():
+    yy, xx = np.mgrid[0:200, 0:200]
+    mask = np.where((xx - 100) ** 2 + (yy - 100) ** 2 <= 55**2, 255, 0).astype(np.uint8)
+    redrawn = contours.rasterise(contours.trace(mask), mask.shape)
+    overlap = (redrawn & (mask > 0)).sum() / (redrawn | (mask > 0)).sum()
+    assert overlap > 0.98

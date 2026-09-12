@@ -174,3 +174,38 @@ def test_a_field_much_smaller_than_its_frame_is_still_a_field():
     found = fov.detect(disc(1000, 1000, cx=500, cy=500, r=260))
     assert found.source == "detected"
     assert found.r == pytest.approx(260, abs=3)
+
+
+def ellipse(height, width, cx, cy, rx, ry, value=200):
+    yy, xx = np.mgrid[0:height, 0:width]
+    image = np.zeros((height, width, 3), dtype=np.uint8)
+    image[((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2 <= 1] = value
+    return image
+
+
+def test_an_elliptical_field_is_not_cut_at_the_sides():
+    # The Bosch handheld camera in Chaksu produces a field 1441 wide and 1221 tall. A square sized
+    # from a fitted circle is 1337 across and shaves the left and right edges off the retina.
+    image = ellipse(400, 600, cx=300, cy=200, rx=250, ry=150)
+    field = fov.mask_of(image) > 0
+    square = crop.square_around(fov.detect(image), field)
+    kept = crop.apply(np.where(field, 255, 0).astype(np.uint8), square)
+    assert square.side >= 500
+    # Everything but the outermost row of pixel centres, which the pixel-centre convention costs.
+    assert field.sum() - (kept > 0).sum() < 0.001 * field.sum()
+
+
+def test_a_circular_field_is_cropped_exactly_as_before():
+    image = disc(400, 500, cx=250, cy=200, r=150)
+    circle = fov.detect(image)
+    assert crop.square_around(circle, fov.mask_of(image) > 0) == crop.square_around(circle)
+
+
+def test_a_field_running_off_the_sensor_still_keeps_the_camera_s_circle():
+    # The visible footprint is narrower than the field: the square must follow the circle, not the
+    # part of it that happened to fit on the sensor.
+    image = disc(400, 260, cx=130, cy=200, r=170)
+    circle = fov.detect(image)
+    square = crop.square_around(circle, fov.mask_of(image) > 0)
+    assert square.side == pytest.approx(340, abs=4)
+    assert square.x0 < 0

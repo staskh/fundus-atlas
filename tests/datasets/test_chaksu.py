@@ -150,3 +150,40 @@ def test_the_agreed_column_is_found_whatever_the_archive_calls_it(tmp_path):
     assert chaksu._reader("Glaucoma Decision") == manifest.CONSENSUS
     assert chaksu._reader("Expert.4") == "expert4"
     assert chaksu._reader("Expert 4") == "expert4"
+
+
+def test_the_bosch_filenames_that_name_a_patient_are_read(tmp_path):
+    # P11_image_1 and P11_image_2 are two photographs of one person; the rest of the dataset names
+    # nobody. Without this, a random split can put one patient on both sides of it.
+    found = {r.key: r for r in chaksu.discover({"train": an_archive(tmp_path, name="P11_image_1")})}
+    assert next(iter(found.values())).patient == "p11"
+
+
+def test_a_filename_that_names_nobody_leaves_the_patient_empty(tmp_path):
+    assert records(tmp_path)[0].patient == ""
+
+
+def test_the_two_photographs_of_one_patient_agree_on_who_that_is(tmp_path):
+    first = chaksu.discover({"train": an_archive(tmp_path / "a", name="P11_image_1")})
+    second = chaksu.discover({"train": an_archive(tmp_path / "b", name="P11_image_2")})
+    assert first[0].patient == second[0].patient == "p11"
+    assert first[0].key != second[0].key
+
+
+def test_the_check_samples_every_camera():
+    rows = [
+        {"key": f"train_{camera}_{n}", "subset": camera, "maps": "fov;disc;cup", "split": "train"}
+        for camera in ("bosch", "forus", "remidio")
+        for n in range(20)
+    ]
+    picked = chaksu._sample(rows)
+    assert {row["subset"] for row in picked} == {"bosch", "forus", "remidio"}
+    assert len(picked) == 3 * chaksu.SAMPLES
+
+
+def test_the_check_is_the_same_sample_every_run():
+    rows = [
+        {"key": f"train_bosch_{n}", "subset": "bosch", "maps": "fov;disc;cup", "split": "train"}
+        for n in range(40)
+    ]
+    assert [r["key"] for r in chaksu._sample(rows)] == [r["key"] for r in chaksu._sample(rows)]

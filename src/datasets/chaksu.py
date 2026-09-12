@@ -22,9 +22,14 @@ test: Test.zip — the same, for the test half. Required.
 
 import csv
 import io
+import random
+import re
 from pathlib import Path
 
-from datasets.utils import archives, build, cli, fov, manifest, resolution
+import numpy as np
+from PIL import Image
+
+from datasets.utils import archives, build, cli, contours, fov, manifest, resolution
 
 #: Slug, matching docs/datasets/chaksu.md and this module's filename.
 SLUG = "chaksu"
@@ -72,6 +77,16 @@ EXPERTS = ("Expert 1", "Expert 2", "Expert 3", "Expert 4", "Expert 5")
 #: The three cameras, which are the dataset's own subcollections.
 CAMERAS = ("Bosch", "Forus", "Remidio")
 
+#: Some Bosch photographs name the person they came from: `P11_image_1` and `P11_image_2` are two
+#: photographs of patient 11. Nothing else in the dataset identifies anyone.
+PATIENT = re.compile(r"(p\d+)[_-]", re.IGNORECASE)
+
+#: How many photographs the finished store is checked on, and how faithfully a redrawn contour
+#: must match the mask it came from. The check is a round trip — trace, store, redraw in the
+#: dataset's own coordinates — so it measures the crop and the scaling, not the tracing.
+SAMPLES = 10
+FAITHFUL = 0.95
+
 #: No scale is published for any of the three cameras, and the disc annotations are in pixels.
 RESOLUTION = resolution.Declared(
     um_per_px=None,
@@ -114,11 +129,13 @@ def _record(split, camera, stem, member, decisions, outlines) -> build.SourceRec
         for expert, verdict in said.items()
         if verdict
     ]
+    named = PATIENT.match(stem)
     return build.SourceRecord(
         key=key,
         image=member,
         subset=camera.lower(),
         split=split,
+        patient=named.group(1).lower() if named else "",
         readings=readings,
         outlines={
             (structure, _reader(expert)): mask
@@ -193,6 +210,88 @@ def _csv(archive: Path, name: str) -> list[dict[str, str]]:
     return list(csv.DictReader(io.StringIO(text)))
 
 
+def check(store: Path, layers: dict[str, Path], rows: list[dict[str, str]]) -> dict:
+    """Redraw stored contours in the dataset's own coordinates and compare with its own masks.
+
+    A round trip: the contour in `native/` is moved back by the crop it was made with, filled in at
+    the photograph's original size, and set against the binary mask the archive publishes for that
+    expert and that structure. It measures the crop and the placement rather than the tracing,
+    which is where a silent error would sit — a contour can be a perfect outline of the wrong part
+    of a photograph, and nothing in the store would say so.
+
+    Sampled across all three cameras and all five experts, since the cameras differ in shape and
+    the experts are separate files.
+
+    :return: what was checked and how well it matched, for `build.json`.
+    """
+    chosen = _sample(rows)
+    scores, failures = [], []
+    for split, archive in layers.items():
+        half = _half(archive)
+        masks = _outlines(archive, half)
+        for row in [r for r in chosen if r["split"] == split]:
+            stem = row["key"].split("_", 2)[2]
+            published = masks.get((row["subset"], stem), {})
+            stored = contours.read(store / "native" / "contours" / f"{row['key']}.csv")
+            back = np.array([int(row["crop_x0"]), int(row["crop_y0"])])
+            for (structure, expert), member in sorted(published.items()):
+                reader = _reader(expert)
+                nodes = stored.get((structure, reader))
+                if nodes is None:
+                    continue
+                with member.open() as f:
+                    mask = np.asarray(Image.open(io.BytesIO(f.read())).convert("L")) > 0
+                redrawn = contours.rasterise(nodes + back, mask.shape)
+                union = (redrawn | mask).sum()
+                score = float((redrawn & mask).sum() / union) if union else 0.0
+                scores.append((row["subset"], reader, score))
+                if score < FAITHFUL:
+                    failures.append(
+                        {
+                            "key": row["key"],
+                            "structure": structure,
+                            "reader": reader,
+                            "overlap": round(score, 4),
+                        }
+                    )
+    if not scores:
+        return {"checked": 0, "note": "no published mask could be read back"}
+
+    values = np.array([score for _, _, score in scores])
+    return {
+        "what": (
+            "each stored contour redrawn at the photograph's own size and compared with the binary "
+            "mask the archive publishes for that expert and that structure"
+        ),
+        "photographs": len(chosen),
+        "contours": len(scores),
+        "overlap_median": round(float(np.median(values)), 4),
+        "overlap_worst": round(float(values.min()), 4),
+        "overlap_by_camera": _medians(scores, 0),
+        "overlap_by_reader": _medians(scores, 1),
+        "below_threshold": failures,
+        "threshold": FAITHFUL,
+    }
+
+
+def _sample(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    """A few photographs from each camera, chosen the same way on every run."""
+    drawn = [row for row in rows if "disc" in row["maps"]]
+    picked = []
+    for camera in CAMERAS:
+        from_camera = [row for row in drawn if row["subset"] == camera.lower()]
+        picked += random.Random(0).sample(from_camera, min(SAMPLES, len(from_camera)))
+    return picked
+
+
+def _medians(scores, by: int) -> dict[str, float]:
+    """The median overlap for each camera, or for each expert."""
+    grouped: dict[str, list[float]] = {}
+    for row in scores:
+        grouped.setdefault(row[by], []).append(row[2])
+    return {name: round(float(np.median(values)), 4) for name, values in sorted(grouped.items())}
+
+
 def main(argv: list[str] | None = None) -> int:
     """Entry point: ``uv run python -m datasets.chaksu``."""
     args = cli.parse(SLUG, argv)
@@ -204,6 +303,7 @@ def main(argv: list[str] | None = None) -> int:
         args=args,
         fov_strategy=fov.DETECT,
         skipped=SKIPPED,
+        verify=check,
     )
 
 

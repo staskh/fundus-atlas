@@ -87,6 +87,18 @@ def trace(mask: np.ndarray) -> np.ndarray:
     return simplified[:, ::-1].astype(float)
 
 
+def rasterise(polygon: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
+    """Fill a polygon back into a mask of the given height and width.
+
+    The inverse of :func:`trace`, near enough to check one against the other: a store can be read
+    back, redrawn in the coordinates the dataset published, and compared with what it published.
+    """
+    drawn = Image.new("1", (shape[1], shape[0]))
+    if len(polygon) >= 3:
+        ImageDraw.Draw(drawn).polygon([(x, y) for x, y in polygon], fill=1)
+    return np.asarray(drawn)
+
+
 def fidelity(mask: np.ndarray, polygon: np.ndarray) -> float:
     """How faithfully a traced polygon reproduces the mask it came from, as an IoU.
 
@@ -99,9 +111,7 @@ def fidelity(mask: np.ndarray, polygon: np.ndarray) -> float:
     """
     if len(polygon) < 3:
         return 0.0
-    drawn = Image.new("1", (mask.shape[1], mask.shape[0]))
-    ImageDraw.Draw(drawn).polygon([(x, y) for x, y in polygon], fill=1)
-    filled, original = np.asarray(drawn), mask > 0
+    filled, original = rasterise(polygon, mask.shape[:2]), mask > 0
     union = (filled | original).sum()
     return float((filled & original).sum() / union) if union else 0.0
 

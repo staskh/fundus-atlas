@@ -100,10 +100,15 @@ def run(
     quality_rule: quality.Rule | None = None,
     extra_columns: list[manifest.Column] | None = None,
     skipped: Iterable[str] = (),
+    verify: Callable[[Path, dict[str, Path], list[dict[str, str]]], dict] | None = None,
 ) -> int:
     """Build the store for one dataset.
 
     :param discover: given each layer's tree or archive by name, what the dataset holds.
+    :param verify: a check to run on the finished store, given the store, the layers it was built
+        from and its rows. Whatever it returns is written into `build.json`, so that a store says
+        not only what it holds but whether anyone looked. It runs before `raw/` is deleted, since
+        the point of it is usually to compare the store against what the dataset published.
     :param skipped: subcollections deliberately not built — an ultra-wide-field split, per the
         skill's rule 13.7. Each is warned about here and recorded in `build.json`, because a store
         that is quietly smaller than its dataset is how someone comes to under-count it.
@@ -156,7 +161,11 @@ def run(
         readings.extend(record.readings)
 
     manifest.write(store, rows, extra_columns, readings)
-    _write_build_json(store, args, provenance, len(rows), warnings)
+    checked = None
+    if verify is not None:
+        print(f"{slug}: checking the store against what the dataset published", file=sys.stderr)
+        checked = verify(store, layers, rows)
+    _write_build_json(store, args, provenance, len(rows), warnings, checked)
 
     # Only what this build downloaded is ever deleted. A tree passed with --raw belongs to the
     # person who passed it, and may well be somewhere else entirely.
@@ -337,7 +346,7 @@ def _build_one(
         circle = fov.detect(image)
         footprint = fov.mask_of(image)
 
-    square = crop.square_around(circle)
+    square = crop.square_around(circle, footprint > 0)
     frames = {"images": crop.apply(image, square), "fov": crop.apply(footprint, square)}
     for name, source in record.maps.items():
         if name == "fov":
@@ -481,7 +490,7 @@ def _resize(layer: str, frame: np.ndarray, size: int) -> np.ndarray:
     return resample.photograph(frame, size) if layer == "images" else resample.mask(frame, size)
 
 
-def _write_build_json(store, args, provenance, images, warnings) -> None:
+def _write_build_json(store, args, provenance, images, warnings, checked=None) -> None:
     record = {
         "built_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "builder_version": BUILDER_VERSION,
@@ -491,4 +500,6 @@ def _write_build_json(store, args, provenance, images, warnings) -> None:
         "sources": provenance,
         "warnings": warnings,
     }
+    if checked is not None:
+        record["verification"] = checked
     (store / "build.json").write_text(json.dumps(record, indent=2) + "\n")
