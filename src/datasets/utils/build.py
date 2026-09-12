@@ -29,7 +29,7 @@ from datasets.utils import (
 
 #: Bumped when the crop, resample or grading rules change. A store built under an older number was
 #: built to different rules, and a consumer can refuse to mix the two.
-BUILDER_VERSION = 4
+BUILDER_VERSION = 5
 
 #: The maps a store can hold, in the order they appear in the `maps` column. `disc` and `cup` mean
 #: polygons in `contours/<key>.csv`, never a raster.

@@ -48,12 +48,21 @@ uv run python -m datasets.chaksu --sizes 512,720,1024     # any sizes a model ne
 - **Per-reader values:** `labels.csv` holds all five glaucoma decisions under the field `disease`,
   with the published majority as the `consensus` reader; `multi_reader` names `disease` on every
   row. The verdicts are lowercased and the misspelling in section 7 is read as the verdict it is.
-- **Grouping:** none. The dataset publishes no patient identity or laterality, so `patient`,
-  `visit` and `eye` are empty.
+- **Grouping:** partial. Sixty Bosch photographs name the person they came from — `P11_image_1`
+  and `P11_image_2` are two photographs of patient 11 — and those sixty fill `patient`: **31
+  people, 29 of them contributing two photographs each**. Nothing else in the dataset identifies
+  anyone, so `patient` is empty on the other 1,285 and no laterality is published at all.
 - **Peculiarities:** the archive's folder capitalisation varies between experts, so the masks are
   indexed from what is in the archive rather than addressed by a composed path; the column holding
   the agreed verdict is headed differently in the two archives, so it is found by shape rather than
   by name (section 7).
+- **The build checks itself.** After the store is written, thirty photographs — ten from each
+  camera — have their stored contours redrawn in the archive's own coordinates and compared with
+  the binary masks it publishes for the same expert and structure. The result goes in `build.json`:
+  **300 contours, median overlap 0.990, worst 0.972**, even across all three cameras
+  (0.988–0.993) and all five experts (0.9895–0.9904). The check measures the crop and the
+  placement rather than the tracing, which is where a silent error would sit; run against the three
+  masks section 7 records as broken, it returns 0.42, 0.41 and 0.56, so it does detect one.
 - **Trace quality:** each outline is scored against the mask it came from, and a score below 0.95
   is recorded in the row's `notes`. Three of the 13,450 masks fall below it — all of them broken in
   the archive, not in the tracing (section 7). A faithful trace scores about 0.98.
@@ -95,9 +104,14 @@ landscape photographs may crop the wrong axis silently.
 
 ### 3.3 Bosch handheld — 145 images
 
+**Its field of view is an ellipse, not a circle** — about 1441 pixels wide and 1221 tall in a
+1920×1440 frame. Code that assumes a round field and crops to a square the diameter of a fitted
+circle takes 2.2% of the retina off the left and right edges. Forus is mildly elliptical too, and
+loses 0.15% the same way; Remidio is round.
+
 | | |
 | --- | --- |
-| Resolution (pixels) | 1920×1440 |
+| Resolution (pixels) | 1920×1440, with an elliptical field about 1441×1221 |
 | Microns per pixel | Unknown |
 | Camera | Bosch handheld |
 | Field of view | Not stated |
@@ -130,6 +144,10 @@ landscape photographs may crop the wrong axis silently.
 - The paper carries a published author correction; cite the corrected version.
 - Mixing the three cameras without separating them mixes a portrait 2448×3264 photograph with a
   landscape 1920×1440 one.
+- **The Bosch field is elliptical** (section 3.3), which silently costs 2.2% of the retina to any
+  pipeline that crops to a circle's bounding square.
+- **Only sixty photographs say who they came from**, all of them Bosch (section 2.1). A random
+  split can therefore put one of those 31 people on both sides of itself.
 - **Two of the five experts misspell the verdict.** They write `GLAUCOMA  SUSUPECT` — a doubled
   space and a transposition — where the other three write `GLAUCOMA SUSPECT`. Counting the raw
   strings turns one verdict into two categories and makes those two experts look like they never
