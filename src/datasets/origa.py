@@ -39,8 +39,10 @@ SOURCES = [
 ]
 
 SKIPPED = [
-    "everything in the bundle that is not ORIGA: it also carries G1020 and REFUGE, each of which "
-    "has its own page and its own fetcher",
+    (
+        "everything in the bundle that is not ORIGA: it also carries G1020 and REFUGE, each of "
+        "which has its own page and its own fetcher"
+    ),
 ]
 
 #: What the published masks hold. The cup sits inside the disc, so the disc is both values.

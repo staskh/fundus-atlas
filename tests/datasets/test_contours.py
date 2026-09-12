@@ -80,7 +80,8 @@ def test_every_structure_and_reader_shares_one_file_per_image(tmp_path):
 def test_a_shared_mask_names_the_values_each_structure_is_made_of(tmp_path):
     # RIGA+ packs both structures into one file: the cup is 128 and the disc is the cup plus the
     # 255 ring around it. Tracing the file as a whole would give one shape where there are two.
-    from datasets.utils import archives, contours as c
+    from datasets.utils import archives
+    from datasets.utils import contours as c
 
     path = tmp_path / "m.tif"
     mask = circle_mask(300, 300, 150, 150, 80) // 255 * 255
