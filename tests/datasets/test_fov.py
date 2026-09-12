@@ -135,3 +135,42 @@ def test_a_burnt_in_label_out_in_the_surround_is_not_part_of_the_field():
     mask = fov.mask_of(image)
     assert mask[10, 20] == 0
     assert mask[200, 250] == 255
+
+
+def test_a_circle_that_cannot_be_this_photograph_s_field_is_refused():
+    # A photograph cropped so that only a straight-looking sliver of the field edge is in frame.
+    # Any radius fits a nearly straight arc, and RIGA+ produced circles 36 and 13,646 pixels across
+    # on 800-pixel images that way. A circle must at least be the size of the region it came from.
+    image = np.full((800, 800, 3), 150, dtype=np.uint8)
+    image[:, :24] = 0  # enough surround to look findable, too little to shape a circle
+    found = fov.detect(image)
+    assert found.source == "assumed_full_frame"
+    assert found.r == pytest.approx(400, abs=1)
+
+
+def test_a_photograph_with_no_field_to_find_can_be_taken_whole():
+    # RIGA+ publishes crops of photographs rather than photographs. There is no field of view in
+    # them to find, and a fetcher says so rather than having one invented.
+    image = np.full((300, 400, 3), 150, dtype=np.uint8)
+    found = fov.whole(image)
+    assert found.source == "assumed_full_frame"
+    assert (found.cx, found.cy) == (200.0, 150.0)
+
+
+def test_a_frame_that_is_all_retina_is_all_field():
+    # Every pixel resembles the border, because the border is retina too. Reading that as surround
+    # would hand back a mask saying the photograph contains no retina at all.
+    assert fov.mask_of(np.full((300, 400, 3), 150, dtype=np.uint8)).min() == 255
+
+
+def test_a_real_field_is_still_detected_at_the_same_size():
+    found = fov.detect(disc(400, 500, cx=250, cy=200, r=150))
+    assert found.source == "detected"
+    assert found.r == pytest.approx(150, abs=2)
+
+
+def test_a_field_much_smaller_than_its_frame_is_still_a_field():
+    # A photograph with wide margins is not the same thing as a failed fit.
+    found = fov.detect(disc(1000, 1000, cx=500, cy=500, r=260))
+    assert found.source == "detected"
+    assert found.r == pytest.approx(260, abs=3)

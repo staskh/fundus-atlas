@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from datasets.utils import build, cli, contours, fov, manifest, quality, resolution
+from datasets.utils import archives, build, cli, contours, fov, manifest, quality, resolution
 
 
 def a_dataset(tmp_path):
@@ -375,3 +375,88 @@ def test_a_reused_row_takes_this_run_s_readings(tmp_path):
     store = run("glaucoma suspect")
     assert next(iter(manifest.read(store)))["disease"] == "glaucoma suspect"
     assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+
+
+def test_two_structures_can_come_out_of_one_mask_file(tmp_path):
+    raw = a_dataset(tmp_path)
+    shared = raw / "a_both.png"
+    yy, xx = np.mgrid[0:300, 0:300]
+    packed = np.zeros((300, 300), dtype=np.uint8)
+    packed[(xx - 150) ** 2 + (yy - 150) ** 2 <= 60**2] = 255
+    packed[(xx - 150) ** 2 + (yy - 150) ** 2 <= 25**2] = 128
+    Image.fromarray(packed).save(shared)
+
+    def discover_packed(layers):
+        return [
+            build.SourceRecord(
+                key="a",
+                image=layers["local"] / "a.png",
+                outlines={
+                    ("disc", "expert1"): contours.Layer(archives.File(shared), (128, 255)),
+                    ("cup", "expert1"): contours.Layer(archives.File(shared), (128,)),
+                },
+            )
+        ]
+
+    args = cli.parse(
+        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
+    )
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover_packed,
+        resolution_of=resolution.Declared(5.0, "published", "stated"),
+        args=args,
+    )
+    store = tmp_path / "store" / "synthetic"
+    drawn = contours.read(store / "native" / "contours" / "a.csv")
+    disc = drawn[("disc", "expert1")]
+    cup = drawn[("cup", "expert1")]
+    assert (disc[:, 1].max() - disc[:, 1].min()) == pytest.approx(120, abs=4)
+    assert (cup[:, 1].max() - cup[:, 1].min()) == pytest.approx(50, abs=4)
+
+
+def test_outlines_drawn_on_a_crop_are_placed_back_on_the_photograph(tmp_path):
+    # GRAPE draws its disc and cup on a crop around the nerve head and publishes the coordinates in
+    # that crop's frame. Imported as though they were full-frame they would land somewhere else
+    # entirely, and every physical figure derived from them would be wrong but plausible.
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    rng = np.random.default_rng(0)
+    photograph = rng.integers(40, 200, size=(300, 300, 3), dtype=np.uint8)
+    Image.fromarray(photograph).save(raw / "a.png")
+    Image.fromarray(photograph[60:160, 90:190]).save(raw / "a_roi.png")
+
+    def discover_roi(layers):
+        return [
+            build.SourceRecord(
+                key="a",
+                image=layers["local"] / "a.png",
+                roi=layers["local"] / "a_roi.png",
+                outlines={("disc", "expert1"): np.array([[10.0, 20.0], [30.0, 40.0]])},
+            )
+        ]
+
+    args = cli.parse(
+        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
+    )
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover_roi,
+        resolution_of=resolution.Declared(5.0, "published", "stated"),
+        args=args,
+        extra_columns=[
+            manifest.Column("roi_x0", "where the crop sits"),
+            manifest.Column("roi_y0", "where the crop sits"),
+            manifest.Column("roi_match", "how well it was found"),
+        ],
+    )
+    store = tmp_path / "store" / "synthetic"
+    row = next(iter(manifest.read(store)))
+    assert (int(row["roi_x0"]), int(row["roi_y0"])) == (90, 60)
+    assert float(row["roi_match"]) > 0.99
+    drawn = contours.read(store / "native" / "contours" / "a.csv")[("disc", "expert1")]
+    # The node is 10, 20 in the crop, so 100, 80 in the photograph, less the crop this build made.
+    assert drawn[0][0] == pytest.approx(100 - int(row["crop_x0"]))
+    assert drawn[0][1] == pytest.approx(80 - int(row["crop_y0"]))

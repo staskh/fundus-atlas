@@ -2,12 +2,14 @@
 # ABOUTME: Polygons rather than rasters, so five experts per image cost rows and not files.
 
 import csv
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage
 from skimage import measure
+from skimage.feature import match_template
 
 #: What a fetcher declares when the dataset publishes the boundaries as coordinates. They are
 #: transformed through the crop and nothing is traced.
@@ -23,6 +25,45 @@ SIMPLIFY = 0.001
 
 #: The header of a contour file. One file per image holds every structure and every reader.
 COLUMNS = ("structure", "reader", "node", "x", "y")
+
+
+@dataclass(frozen=True)
+class Layer:
+    """One structure inside a mask that holds more than one.
+
+    RIGA+ writes the optic cup as 128 and the rim around it as 255, so the disc is both values
+    together and the cup is one of them. Tracing such a file whole would give one shape where the
+    dataset drew two.
+
+    :param source: the file, on disk or inside an archive.
+    :param values: the pixel values this structure is made of.
+    """
+
+    source: object
+    values: tuple[int, ...]
+
+    def mask_from(self, image: np.ndarray) -> np.ndarray:
+        """The structure's own mask, from the image the file holds."""
+        return np.where(np.isin(image, self.values), 255, 0).astype(np.uint8)
+
+
+def locate(crop: np.ndarray, inside: np.ndarray) -> tuple[int, int, float]:
+    """Find where a crop was taken from, and how sure that is.
+
+    Some datasets annotate a region of interest rather than the photograph, and publish the
+    coordinates in the crop's frame without saying where the crop came from. The crop itself is
+    published too, so the offset can be recovered rather than assumed — which is the difference
+    between contours that land on the optic nerve and contours that land somewhere plausible.
+
+    :param crop: the region of interest, at the photograph's own scale.
+    :param inside: the photograph.
+    :return: the crop's top-left corner in the photograph, and the correlation there. A value near
+        one means the crop was found; a low one means it was not, and the caller should not place
+        anything.
+    """
+    found = match_template(inside.astype(float), crop.astype(float))
+    y, x = np.unravel_index(int(np.argmax(found)), found.shape)
+    return int(x), int(y), float(found.max())
 
 
 def trace(mask: np.ndarray) -> np.ndarray:

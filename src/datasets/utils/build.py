@@ -38,6 +38,10 @@ LAYERS = ("vessels", "av", "fov", "disc", "cup")
 #: The layers that live in `contours/<key>.csv` as polygons rather than in a directory of rasters.
 OUTLINED = ("disc", "cup")
 
+#: A crop located in its photograph less convincingly than this has not really been found, and
+#: nothing may be placed by it.
+POOR_MATCH = 0.9
+
 #: An outline whose trace reproduces its own mask less faithfully than this is worth a note in the
 #: row: the shape was not a single clean blob. About 0.98 is as good as the convention allows.
 POOR_TRACE = 0.95
@@ -60,6 +64,9 @@ class SourceRecord:
         is a path, or an `archives.Member` for one left inside its archive.
     :param outlines: (structure, reader) to either a mask to trace or an array of published
         coordinates. Structures are `disc` and `cup`; readers are the dataset's own ids.
+    :param roi: the crop the published coordinates are in, where a dataset annotated a region of
+        interest rather than the photograph. It is located in the photograph and the coordinates
+        are moved by what that finds, rather than being taken for full-frame ones.
     :param readers: annotators who contributed something other than an outline — a grade, say.
     :param extras: this dataset's own manifest columns.
     :param readings: every reader's opinion, where the dataset names its readers.
@@ -75,6 +82,7 @@ class SourceRecord:
     disease: str = ""
     notes: str = ""
     quality_source: str = ""
+    roi: object | None = None
     maps: dict[str, object] = field(default_factory=dict)
     outlines: dict[tuple[str, str], object] = field(default_factory=dict)
     readers: list[str] = field(default_factory=list)
@@ -318,7 +326,10 @@ def _build_one(
     image = _read(photograph, "RGB")
     height, width = image.shape[:2]
 
-    if fov_strategy == fov.FROM_MASK and "fov" in record.maps:
+    if fov_strategy == fov.WHOLE:
+        circle = fov.whole(image)
+        footprint = np.full(image.shape[:2], 255, dtype=np.uint8)
+    elif fov_strategy == fov.FROM_MASK and "fov" in record.maps:
         published = _read(_handle(record.maps["fov"], raw), "L")
         circle = fov.detect(np.dstack([published] * 3))
         footprint = np.where(published > 0, 255, 0).astype(np.uint8)
@@ -343,7 +354,7 @@ def _build_one(
             frame_at = frame if size == paths.NATIVE else _resize(name, frame, size)
             Image.fromarray(frame_at).save(written)
 
-    drawn, notes = _outlines(record, raw, square)
+    drawn, notes, placed = _outlines(record, raw, square, image)
     for size in [paths.NATIVE, *sizes]:
         if drawn:
             scale = 1.0 if size == paths.NATIVE else size / square.side
@@ -376,6 +387,7 @@ def _build_one(
         "source_image": photograph.label,
         "sha256": archives.sha256_of(photograph),
         "notes": "; ".join(filter(None, [record.notes, *notes])),
+        **placed,
         **record.extras,
     }
     if record.quality_source:
@@ -410,23 +422,37 @@ def _read(handle: archives.Handle, mode: str) -> np.ndarray:
 
 
 def _outlines(
-    record: SourceRecord, raw: Path, square: crop.Square
-) -> tuple[dict[tuple[str, str], np.ndarray], list[str]]:
+    record: SourceRecord, raw: Path, square: crop.Square, image: np.ndarray
+) -> tuple[dict[tuple[str, str], np.ndarray], list[str], dict[str, str]]:
     """Every disc and cup outline this image has, in the native frame.
 
     Traced or transformed exactly once, here: each size is scaled from these nodes, so a size
     added years later is identical to the same size built today.
+
+    :return: the outlines, any notes about them, and where a region of interest was found when the
+        coordinates were published in one.
     """
     drawn, notes = {}, []
+    offset, placed = np.zeros(2), {}
+    if record.roi is not None:
+        patch = _read(_handle(record.roi, raw), "L")
+        x, y, match = contours.locate(patch, np.asarray(Image.fromarray(image).convert("L")))
+        placed = {"roi_x0": str(x), "roi_y0": str(y), "roi_match": f"{match:.4f}"}
+        if match < POOR_MATCH:
+            notes.append(f"the annotated crop was not found in the photograph (match {match:.2f})")
+            return {}, notes, placed
+        offset = np.array([x, y])
     for (structure, reader), source in sorted(record.outlines.items()):
         if isinstance(source, np.ndarray):
-            drawn[(structure, reader)] = source - np.array([square.x0, square.y0])
+            drawn[(structure, reader)] = source + offset - np.array([square.x0, square.y0])
             continue
+        layer = source if isinstance(source, contours.Layer) else None
         try:
-            mask = crop.apply(_read(_handle(source, raw), "L"), square)
+            published = _read(_handle(layer.source if layer else source, raw), "L")
         except Unreadable:
             notes.append(f"{structure} by {reader} could not be read")
             continue
+        mask = crop.apply(layer.mask_from(published) if layer else published, square)
         nodes = contours.trace(mask)
         if len(nodes) == 0:
             notes.append(f"{reader} drew no {structure}")
@@ -435,7 +461,7 @@ def _outlines(
         if faithful < POOR_TRACE:
             notes.append(f"{structure} by {reader} traces at IoU {faithful:.2f}")
         drawn[(structure, reader)] = nodes
-    return drawn, notes
+    return drawn, notes, placed
 
 
 def _inside(image: Path, raw: Path) -> str:

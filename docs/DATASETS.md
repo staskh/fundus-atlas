@@ -53,7 +53,7 @@ the data and being allowed to use it are separate questions, so read the Licence
 | [MESSIDOR](datasets/messidor.md) | 1,200 | 1440×960, 2240×1488, 2304×1536 | 2014 | — | — | — | — | — | ✅ DR 0–3 and macular-oedema risk 0–2 | — | research and educational use, ADCIS agreement | 🟡 |
 | [G1020](datasets/g1020.md) | 1,020 | mixed — **41 sizes**, 1944×2108 to 2426×3007 | 2020 | — | — | — | ✅ | ✅ (791 of 1,020) | ✅ glaucoma 296 / normal 724 | vertical CDR, ISNT rim widths, disc box | research only, no standard grant | 🟡 |
 | [FIVES](datasets/fives.md) | 800 | 2048×2048 | 2022 | ✅ illumination / blur / contrast | ✅ consensus | — | — | — | ✅ AMD / DR / glaucoma / normal | — | **CC BY 4.0** | ✅ |
-| [RIGA](datasets/riga.md) ← MESSIDOR | 750 | mixed — three sources | 2018 | — | — | — | ✅ **×6 ophthalmologists** | ✅ **×6 ophthalmologists** | — | each annotator's CDR; RIGA+ domain splits | **CC BY-NC 4.0** | ✅ |
+| [RIGA](datasets/riga.md) ← MESSIDOR | 750 | mixed — three sources | 2018 | — | — | — | ✅ **×6 ophthalmologists** | ✅ **×6 ophthalmologists** | — | each annotator's CDR; RIGA+ domain splits | **CC BY-NC 4.0** | 🟡 |
 | [ORIGA](datasets/origa.md) | 650 | 2048 tall, 2426–2616 wide | 2010 | — | — | — | ✅ | ✅ | ✅ glaucoma 168 / normal 482 | **published expert CDR**, eye side | research use, request-based | 🟡 |
 | [GRAPE](datasets/grape.md) | 631 | full frames; **contours on an ROI crop** | 2023 | — | — | — | ✅ | ✅ | ✅ glaucoma, **longitudinal** | visual fields, OCT, IOP, visit dates | **CC BY 4.0** | ✅ |
 | [REYIA](datasets/reyia.md) ← 9 sources | 589 | mixed, by source | 2025 | — | — | ✅ | — | — | mixed, by source | per-image source attribution | MIT on the compilation; **sources stricter** | ⛔ |

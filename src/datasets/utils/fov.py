@@ -32,6 +32,15 @@ FULL_FRAME = 0.98
 FROM_MASK = "mask"
 #: What a fetcher declares when the field has to be found in the photograph.
 DETECT = "detect"
+#: What a fetcher declares when there is no field to find — an archive of crops rather than
+#: photographs — and the frame is to be taken as it is.
+WHOLE = "whole"
+
+#: A fitted circle must be at least this much of the region it was fitted to, and at most this
+#: many times it. Outside that the fit has not found a field: a nearly straight arc admits any
+#: radius, and a crop that shows only a sliver of the field edge produces exactly that.
+SMALLEST_FIT = 0.5
+LARGEST_FIT = 3.0
 
 
 @dataclass(frozen=True)
@@ -42,6 +51,12 @@ class Circle:
     cy: float
     r: float
     source: str
+
+
+def whole(image: np.ndarray) -> Circle:
+    """The frame itself, for a photograph with no field of view in it to find."""
+    height, width = image.shape[:2]
+    return Circle(width / 2, height / 2, max(width, height) / 2, "assumed_full_frame")
 
 
 def tolerance(image: np.ndarray) -> float:
@@ -89,7 +104,11 @@ def mask_of(image: np.ndarray) -> np.ndarray:
     if colour is None:
         return np.full(image.shape[:2], 255, dtype=np.uint8)
     resembles = np.abs(image.astype(float) - colour).max(axis=2) <= tolerance(image)
-    field = _largest_component(~_reaching_the_frame(resembles))
+    surround = _reaching_the_frame(resembles)
+    if surround.mean() >= FULL_FRAME:
+        # Every pixel resembles the border because the border is retina: there is no surround.
+        return np.full(image.shape[:2], 255, dtype=np.uint8)
+    field = _largest_component(~surround)
     return np.where(field, 255, 0).astype(np.uint8)
 
 
@@ -123,7 +142,22 @@ def detect(image: np.ndarray) -> Circle:
     rim = _on_the_cameras_circle(np.column_stack([xs, ys]).astype(float), height, width)
     if len(rim) < 3:
         return whole_frame
-    return _fit_circle(rim[:, 0], rim[:, 1])
+    circle = _fit_circle(rim[:, 0], rim[:, 1])
+    return circle if _plausible(circle, field) else whole_frame
+
+
+def _plausible(circle: Circle, field: np.ndarray) -> bool:
+    """Whether a fitted circle could be the field the mask shows.
+
+    The check is against the region fitted to rather than against the frame, because a photograph
+    with wide margins has a small field and that is not an error. What is an error is a circle far
+    smaller or far larger than the thing it was fitted to.
+    """
+    ys, xs = np.nonzero(field)
+    if not len(xs):
+        return False
+    across = max(xs.max() - xs.min(), ys.max() - ys.min()) + 1
+    return SMALLEST_FIT * across <= 2 * circle.r <= LARGEST_FIT * across
 
 
 def _reaching_the_frame(resembles: np.ndarray) -> np.ndarray:

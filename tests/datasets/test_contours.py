@@ -3,6 +3,7 @@
 
 import numpy as np
 import pytest
+from PIL import Image
 
 from datasets.utils import contours
 
@@ -74,3 +75,23 @@ def test_every_structure_and_reader_shares_one_file_per_image(tmp_path):
     }
     contours.write(tmp_path / "k.csv", drawn)
     assert len((tmp_path / "k.csv").read_text().splitlines()) == 4
+
+
+def test_a_shared_mask_names_the_values_each_structure_is_made_of(tmp_path):
+    # RIGA+ packs both structures into one file: the cup is 128 and the disc is the cup plus the
+    # 255 ring around it. Tracing the file as a whole would give one shape where there are two.
+    from datasets.utils import archives, contours as c
+
+    path = tmp_path / "m.tif"
+    mask = circle_mask(300, 300, 150, 150, 80) // 255 * 255
+    mask[circle_mask(300, 300, 150, 150, 40) > 0] = 128
+    Image.fromarray(mask).save(path)
+
+    disc = c.Layer(archives.File(path), values=(128, 255))
+    cup = c.Layer(archives.File(path), values=(128,))
+
+    def width(nodes):
+        return nodes[:, 0].max() - nodes[:, 0].min()
+
+    assert width(c.trace(disc.mask_from(mask))) == pytest.approx(160, abs=3)
+    assert width(c.trace(cup.mask_from(mask))) == pytest.approx(80, abs=3)
