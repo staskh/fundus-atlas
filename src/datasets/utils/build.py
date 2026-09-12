@@ -1,6 +1,7 @@
 # ABOUTME: Turns a fetcher's list of source images into the standard store: native, each size,
 # ABOUTME: the manifest, and build.json recording what this build actually is.
 
+import io
 import json
 import shutil
 import sys
@@ -35,6 +36,15 @@ LAYERS = ("vessels", "av", "fov", "disc", "cup")
 #: An outline whose trace reproduces its own mask less faithfully than this is worth a note in the
 #: row: the shape was not a single clean blob. About 0.98 is as good as the convention allows.
 POOR_TRACE = 0.95
+
+
+class Unreadable(Exception):
+    """A file the dataset published that cannot be decoded.
+
+    Datasets do ship broken files — one of FQS's 2,246 originals is cut short mid-image — and that
+    is a fact about the dataset rather than a reason to abandon the build or, worse, to load the
+    readable part and pass the invented remainder off as retina.
+    """
 
 
 @dataclass
@@ -104,20 +114,25 @@ def run(
     built = {} if args.force else {row["key"]: row for row in _previous_rows(store)}
     rows, readings = [], []
     for n, record in enumerate(records, 1):
-        rows.append(
-            built[record.key]
-            if _is_built(record.key, store, args.sizes, built)
-            else _build_one(
-                record,
-                store,
-                raw,
-                args.sizes,
-                resolution_of,
-                fov_strategy,
-                quality_rule,
-                args.force,
+        try:
+            rows.append(
+                built[record.key]
+                if _is_built(record.key, store, args.sizes, built)
+                else _build_one(
+                    record,
+                    store,
+                    raw,
+                    args.sizes,
+                    resolution_of,
+                    fov_strategy,
+                    quality_rule,
+                    args.force,
+                )
             )
-        )
+        except Unreadable as broken:
+            warnings.append(f"not built: {record.key} — {broken}")
+            print(f"\nwarning: {warnings[-1]}", file=sys.stderr)
+            continue
         readings.extend(record.readings)
         if n % 50 == 0 or n == len(records):
             print(f"\r{slug}: {n}/{len(records)} images", end="", file=sys.stderr, flush=True)
@@ -311,9 +326,16 @@ def _handle(source, raw: Path) -> archives.Handle:
 
 
 def _read(handle: archives.Handle, mode: str) -> np.ndarray:
-    """One image, wherever it lives."""
-    with handle.open() as f:
-        return np.asarray(Image.open(f).convert(mode))
+    """One image, wherever it lives.
+
+    The bytes are read whole before decoding: a member of a zip is a stream that cannot be seeked
+    about cheaply, and an image decoder does exactly that.
+    """
+    try:
+        with handle.open() as f:
+            return np.asarray(Image.open(io.BytesIO(f.read())).convert(mode))
+    except (OSError, ValueError) as broken:
+        raise Unreadable(f"{handle.label} could not be read: {broken}") from broken
 
 
 def _outlines(
@@ -329,7 +351,11 @@ def _outlines(
         if isinstance(source, np.ndarray):
             drawn[(structure, reader)] = source - np.array([square.x0, square.y0])
             continue
-        mask = crop.apply(_read(_handle(source, raw), "L"), square)
+        try:
+            mask = crop.apply(_read(_handle(source, raw), "L"), square)
+        except Unreadable:
+            notes.append(f"{structure} by {reader} could not be read")
+            continue
         nodes = contours.trace(mask)
         if len(nodes) == 0:
             notes.append(f"{reader} drew no {structure}")

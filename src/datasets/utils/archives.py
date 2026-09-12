@@ -68,7 +68,6 @@ def download(
                 raise ValueError(f"{url} sent more than the {total} bytes it reported")
 
 
-
 def _with_retries(fetch, url: str, start: int, end: int, attempts: int, pause: float) -> bytes:
     for attempt in range(attempts):
         try:

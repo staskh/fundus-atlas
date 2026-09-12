@@ -32,6 +32,7 @@ SOURCES = [
         layer="fqs",
         url="https://ndownloader.figshare.com/files/51531041",
         filename="FIQSDataset.zip",
+        sha256="d8361efbd58e8c751b9055a186bd2116298d312d0fedf2aeebd458f9426bda88",
         licence="CC BY 4.0, as the figshare record states it",
         extract_it=False,
     ),

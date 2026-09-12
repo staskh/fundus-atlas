@@ -107,7 +107,5 @@ def test_a_short_piece_is_continued_from_rather_than_treated_as_the_end(tmp_path
             return self.payload[start : end + 1][:10]
 
     server = Truncating(b"abcdefghij" * 10)
-    archives.download(
-        "u", tmp_path / "f.bin", fetch=server, size_of=server.size, chunk=50, pause=0
-    )
+    archives.download("u", tmp_path / "f.bin", fetch=server, size_of=server.size, chunk=50, pause=0)
     assert (tmp_path / "f.bin").read_bytes() == server.payload

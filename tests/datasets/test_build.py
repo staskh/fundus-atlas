@@ -273,3 +273,51 @@ def test_published_coordinates_are_translated_not_traced(tmp_path):
     drawn = contours.read(store / "native" / "contours" / "a.csv")[("disc", "consensus")]
     assert drawn[0][0] == pytest.approx(150 - int(row["crop_x0"]))
     assert len(drawn) == 2
+
+
+def a_dataset_with_a_broken_file(tmp_path):
+    raw = a_dataset(tmp_path)
+    (raw / "b.png").write_bytes(b"\x89PNG\r\n\x1a\n" + b"truncated here")
+    return raw
+
+
+def test_an_unreadable_photograph_does_not_stop_the_build(tmp_path):
+    # FQS ships three PNGs that are cut short. A dataset's own corruption is a fact about the
+    # dataset, not a reason to abandon the other 2,243 photographs.
+    store = build_it(tmp_path, "--raw", str(a_dataset_with_a_broken_file(tmp_path)))
+    assert [row["key"] for row in manifest.read(store)] == ["a"]
+
+
+def test_an_unreadable_photograph_is_named_in_the_build_record(tmp_path):
+    store = build_it(tmp_path, "--raw", str(a_dataset_with_a_broken_file(tmp_path)))
+    record = json.loads((store / "build.json").read_text())
+    assert any("b.png" in warning for warning in record["warnings"])
+    assert record["images"] == 1
+
+
+def test_an_unreadable_outline_leaves_the_photograph_built(tmp_path):
+    raw = a_dataset(tmp_path)
+
+    def discover_broken(layers):
+        records = outlined(layers)
+        broken = raw / "a_disc_e2.png"
+        broken.write_bytes(b"\x89PNG\r\n\x1a\n" + b"cut short")
+        records[0].outlines[("disc", "expert2")] = broken
+        return records
+
+    args = cli.parse(
+        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
+    )
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover_broken,
+        resolution_of=resolution.Declared(5.0, "published", "stated"),
+        args=args,
+    )
+    store = tmp_path / "store" / "synthetic"
+    row = next(iter(manifest.read(store)))
+    drawn = contours.read(store / "native" / "contours" / "a.csv")
+    assert ("disc", "expert1") in drawn
+    assert ("disc", "expert2") not in drawn
+    assert "could not be read" in row["notes"]
