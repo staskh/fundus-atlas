@@ -58,7 +58,7 @@ def a_release(root):
 
 
 def records(tmp_path):
-    return {r.key: r for r in deepdrid.discover(a_release(tmp_path))}
+    return {r.key: r for r in deepdrid.discover({"deepdrid": a_release(tmp_path)})}
 
 
 def test_the_key_carries_the_split_the_authors_published(tmp_path):

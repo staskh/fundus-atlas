@@ -25,7 +25,8 @@ def a_dataset(tmp_path):
     return raw
 
 
-def discover(raw):
+def discover(layers):
+    raw = layers["local"]
     return [
         build.SourceRecord(
             key=key,
@@ -170,8 +171,9 @@ def test_a_rerun_after_the_manifest_is_lost_does_not_rewrite_the_images(tmp_path
     assert len(list(manifest.read(store))) == 2
 
 
-def outlined(raw):
+def outlined(layers):
     """One image whose disc and cup were drawn by two experts, as masks to trace."""
+    raw = layers["local"]
     yy, xx = np.mgrid[0:300, 0:300]
     for name, r in (("disc_e1", 40), ("disc_e2", 44), ("cup_e1", 20), ("cup_e2", 18)):
         mask = np.where((xx - 150) ** 2 + (yy - 150) ** 2 <= r**2, 255, 0).astype(np.uint8)
@@ -246,7 +248,8 @@ def test_an_outline_is_placed_by_the_crop_and_not_by_the_frame(tmp_path):
 def test_published_coordinates_are_translated_not_traced(tmp_path):
     raw = a_dataset(tmp_path)
 
-    def discover_coords(root):
+    def discover_coords(layers):
+        root = layers["local"]
         return [
             build.SourceRecord(
                 key="a",

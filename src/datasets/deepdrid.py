@@ -97,13 +97,13 @@ SPLITS = {
 EYES = {"l": "os", "r": "od"}
 
 
-def discover(raw_root: Path) -> list[build.SourceRecord]:
+def discover(layers: dict[str, Path]) -> list[build.SourceRecord]:
     """Enumerate the regular fundus photographs and the labels published for them.
 
-    :param raw_root: the checked-out repository.
+    :param layers: the checked-out repository, under this dataset's single layer name.
     :return: one record per photograph, in split then image order.
     """
-    root = raw_root / "regular_fundus_images"
+    root = layers[SLUG] / "regular_fundus_images"
     records = []
     for directory, split in SPLITS.items():
         labels = _labels(root / directory, split)

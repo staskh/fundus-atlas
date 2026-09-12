@@ -70,7 +70,7 @@ class SourceRecord:
 def run(
     slug: str,
     sources: list,
-    discover: Callable[[Path], list[SourceRecord]],
+    discover: Callable[[dict[str, Path]], list[SourceRecord]],
     resolution_of: resolution.Declared,
     args,
     fov_strategy: str = fov.DETECT,
@@ -80,7 +80,7 @@ def run(
 ) -> int:
     """Build the store for one dataset.
 
-    :param discover: given the extracted tree, what the dataset holds.
+    :param discover: given each layer's tree or archive by name, what the dataset holds.
     :param skipped: subcollections deliberately not built — an ultra-wide-field split, per the
         skill's rule 13.7. Each is warned about here and recorded in `build.json`, because a store
         that is quietly smaller than its dataset is how someone comes to under-count it.
@@ -95,8 +95,9 @@ def run(
     if done and not args.force and not done["partial"]:
         return _add_sizes(slug, store, args, done)
 
-    raw, provenance = _obtain(sources, store, args)
-    records = discover(raw)
+    layers, provenance = _obtain(sources, store, args)
+    raw = next(iter(layers.values()))
+    records = discover(layers)
     if args.limit:
         records = records[: args.limit]
 
@@ -185,30 +186,35 @@ def _add_sizes(slug: str, store: Path, args, done: dict) -> int:
     return 0
 
 
-def _obtain(sources: list, store: Path, args) -> tuple[Path, list[dict[str, str]]]:
-    """Get the dataset onto disk, however this run was asked to."""
-    if args.raw:
-        return Path(args.raw), [{"layer": "local", "path": args.raw}]
+def _obtain(sources: list, store: Path, args) -> tuple[dict[str, Path], list[dict[str, str]]]:
+    """Get the dataset onto disk, however this run was asked to.
+
+    :return: where each declared layer ended up, by name, and what to record about it. A tree
+        handed over with ``--raw`` or ``--archive`` stands in for every layer: someone supplying
+        one by hand is supplying the dataset.
+    """
     raw_dir = store / "raw"
-    if args.archive:
-        return archives.extract(Path(args.archive), raw_dir / "archive"), [
-            {"layer": "local", "path": args.archive}
-        ]
-    trees, provenance = [], []
+    given = args.raw or args.archive
+    if given:
+        where = Path(args.raw) if args.raw else archives.extract(Path(given), raw_dir / "archive")
+        layers = {source.layer: where for source in sources} or {"local": where}
+        return layers, [{"layer": "local", "path": str(given)}]
+
+    layers, provenance = {}, []
     for source in sources:
         try:
-            tree, record = source.obtain(raw_dir, verify=args.verify)
+            where, record = source.obtain(raw_dir, verify=args.verify)
         except PermissionError:
             if source.optional:
                 continue
             raise
-        trees.append(tree)
+        layers[source.layer] = where
         provenance.append(record)
-    if not trees:
+    if not layers:
         raise ValueError(
             "nothing to build from: this fetcher declares no source, so it needs --raw"
         )
-    return trees[0], provenance
+    return layers, provenance
 
 
 def _build_one(

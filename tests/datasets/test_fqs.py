@@ -59,7 +59,7 @@ def a_row(name="00000.PNG", scores=(60, 70, 55, 60, 62, 62), levels=(1, 2, 2), p
 
 
 def test_the_original_is_built_and_not_the_resized_copy(tmp_path):
-    records = fqs.discover(an_archive(tmp_path, [a_row()]))
+    records = fqs.discover({"fqs": an_archive(tmp_path, [a_row()])})
     assert records[0].image.name == "full_size_images/00000.PNG"
 
 
@@ -68,7 +68,7 @@ def test_the_resized_copy_is_declared_as_not_built():
 
 
 def test_every_doctor_and_grader_is_kept_apart(tmp_path):
-    readings = fqs.discover(an_archive(tmp_path, [a_row()]))[0].readings
+    readings = fqs.discover({"fqs": an_archive(tmp_path, [a_row()])})[0].readings
     graders = {r.reader for r in readings if r.field == "quality"}
     doctors = {r.reader for r in readings if r.field == "mos"}
     assert graders == {"level1", "level2", "level3", manifest.CONSENSUS}
@@ -76,7 +76,7 @@ def test_every_doctor_and_grader_is_kept_apart(tmp_path):
 
 
 def test_the_published_class_is_translated_but_not_recomputed(tmp_path):
-    readings = fqs.discover(an_archive(tmp_path, [a_row(levels=(1, 2, 2), published=2)]))[
+    readings = fqs.discover({"fqs": an_archive(tmp_path, [a_row(levels=(1, 2, 2), published=2)])})[
         0
     ].readings
     agreed = [r for r in readings if r.field == "quality" and r.reader == manifest.CONSENSUS]
@@ -84,7 +84,7 @@ def test_the_published_class_is_translated_but_not_recomputed(tmp_path):
 
 
 def test_zero_is_the_best_class_not_the_worst(tmp_path):
-    records = fqs.discover(an_archive(tmp_path, [a_row(levels=(0, 0, 0), published=0)]))
+    records = fqs.discover({"fqs": an_archive(tmp_path, [a_row(levels=(0, 0, 0), published=0)])})
     agreed = [
         r for r in records[0].readings if r.field == "quality" and r.reader == manifest.CONSENSUS
     ]
@@ -95,7 +95,7 @@ def test_the_graders_disagreement_survives_into_the_manifest(tmp_path):
     # Six photographs have three graders who each said something different. The published median
     # is what the cell holds, and multi_reader is what says the graders did not agree.
     archive = an_archive(tmp_path, [a_row(levels=(0, 2, 1), published=1)])
-    record = fqs.discover(archive)[0]
+    record = fqs.discover({"fqs": archive})[0]
     manifest.write(
         tmp_path / "store",
         [{"key": record.key, **record.extras}],
@@ -109,9 +109,9 @@ def test_the_graders_disagreement_survives_into_the_manifest(tmp_path):
 
 
 def test_the_mean_opinion_score_is_the_published_one(tmp_path):
-    readings = fqs.discover(an_archive(tmp_path, [a_row(scores=(60, 70, 55, 60, 62, 62))]))[
-        0
-    ].readings
+    readings = fqs.discover(
+        {"fqs": an_archive(tmp_path, [a_row(scores=(60, 70, 55, 60, 62, 62))])}
+    )[0].readings
     agreed = [r for r in readings if r.field == "mos" and r.reader == manifest.CONSENSUS]
     assert agreed[0].value == "61.5"
 
@@ -119,18 +119,18 @@ def test_the_mean_opinion_score_is_the_published_one(tmp_path):
 def test_a_fold_is_matched_by_name_because_the_extensions_disagree(tmp_path):
     # The fold spreadsheets name 00000.jpeg; the archive holds 00000.PNG.
     archive = an_archive(tmp_path, [a_row()], folds=(("00", "test", ["00000.jpeg"]),))
-    assert fqs.discover(archive)[0].extras["cv_00"] == "test"
+    assert fqs.discover({"fqs": archive})[0].extras["cv_00"] == "test"
 
 
 def test_a_photograph_missing_from_a_fold_file_is_empty_rather_than_guessed(tmp_path):
     archive = an_archive(tmp_path, [a_row()], folds=(("03", "val", ["09999.jpeg"]),))
-    assert fqs.discover(archive)[0].extras["cv_03"] == ""
+    assert fqs.discover({"fqs": archive})[0].extras["cv_03"] == ""
 
 
 def test_there_is_no_canonical_split_to_record(tmp_path):
     # The folds come from an unseeded shuffle in the archive's own script, so they are one draw
     # rather than a split the authors published as the split.
-    assert fqs.discover(an_archive(tmp_path, [a_row()]))[0].split == "unspecified"
+    assert fqs.discover({"fqs": an_archive(tmp_path, [a_row()])})[0].split == "unspecified"
 
 
 def test_no_resolution_is_claimed():

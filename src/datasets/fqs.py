@@ -74,12 +74,13 @@ META = "meta_data.xlsx"
 FOLDS = "divisions/"
 
 
-def discover(archive: Path) -> list[build.SourceRecord]:
+def discover(layers: dict[str, Path]) -> list[build.SourceRecord]:
     """Enumerate the photographs and everything published about them.
 
-    :param archive: the zip, unopened.
+    :param layers: the zip, unopened, under this dataset's single layer name.
     :return: one record per photograph, in the dataset's own numbering.
     """
+    archive = layers[SLUG]
     labels = _sheet(archive, META, key="file_name")
     folds = _folds(archive)
     photographs = {Path(m.name).stem: m for m in archives.members(archive, under=IMAGES)}
