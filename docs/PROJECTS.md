@@ -55,6 +55,18 @@ reason, so nobody repeats the search:
 - **BEAL and ISFA** — optic disc and cup segmentation across cameras by domain adaptation. Both
   compute no biomarkers, so neither is a pipeline; both are catalogued as models instead, at
   [models/beal.md](models/beal.md) and [models/isfa.md](models/isfa.md).
+- **Fundus Image Toolbox** ([berenslab/fundus_image_toolbox](https://github.com/berenslab/fundus_image_toolbox),
+  MIT, [JOSS 2025](https://doi.org/10.21105/joss.07101)) — a maintained Python package that grades
+  image quality, locates the fovea and optic disc, segments vessels, registers two photographs of
+  one eye, and crops to the field of view. **It stops at the mask and the landmark**: no vessel
+  width, no tortuosity, no cup-to-disc ratio, nothing measured. That makes it a library rather than
+  a pipeline under the definition at the top of this page — the same reason BEAL and ISFA are not
+  here. Its four models are catalogued individually:
+  [quality](models/fit-quality.md), [fovea and disc locator](models/fit-fovea-od.md),
+  [FR-UNet vessel ensemble](models/frunet-fives.md) and [SuperRetina](models/superretina.md).
+  It is worth knowing about for two things this catalogue is otherwise thin on: a quality grader
+  that never saw [EyeQ](datasets/eyeq.md), and the only published way to align two photographs of
+  the same eye.
 
 ### 3.1 Kaggle (searched 2026-09-10)
 
