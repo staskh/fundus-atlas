@@ -23,12 +23,49 @@ sources, and 460 of them are [MESSIDOR](messidor.md) photographs.
 | Content | 750 images from three sources |
 | Annotations | Disc and cup outlines from **six ophthalmologists per image**, plus their cup-to-disc ratios |
 
-**RIGA+** adds domain-split metadata as CSVs over the same photographs:
-[Zenodo record 6325549](https://zenodo.org/records/6325549).
+**RIGA+** ([Zenodo record 6325549](https://zenodo.org/records/6325549)) is a repackaging of the same
+annotations for domain-adaptation work, and it is the only copy a script can obtain — see section 2.1.
+**It does not contain the photographs.** Its images are 800×800 **crops around the optic nerve**,
+resized, with most of the field of view outside the frame; the ones where any field edge is visible
+show a sliver of it. Anything measured in pixels on RIGA+ is measured on a crop of a resize, and
+cannot be converted back. For vessel calibres, disc diameters in microns, fractal dimensions or any
+other physical quantity, **the full-size photographs from Deep Blue are required** — RIGA+ cannot
+substitute for them. What RIGA+ does support is disc and cup segmentation, which is what it was
+assembled for.
 
 The Deep Blue deposit **includes copies of the 460 MESSIDOR photographs**, which are also
 distributed by ADCIS under stricter terms — so the same pixels arrive here under CC BY-NC and there
 under a research-use agreement.
+
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.riga                          # builds RIGA+ — read the caveat first
+uv run python -m datasets.riga --sizes 512,720,1024     # any sizes a model needs
+```
+
+**Read this before using the store.** The original deposit at Deep Blue answers an automated
+request with a bot challenge, so a script cannot fetch it at all; a person with a browser can. The
+fetcher therefore builds **RIGA+ from Zenodo**, and RIGA+ ships crops rather than photographs
+(section 2). The store is usable for optic disc and cup work and **not** for anything in camera
+pixels.
+
+- **Downloads:** `RIGAPlus.zip`, 1.08 GB, from Zenodo. No account, no form. It is read where it
+  lies rather than unpacked.
+- **Builds:** 744 images with **twelve contours each** — disc and cup from all six ophthalmologists
+  — in one `contours/<key>.csv` per image. Each published mask holds both structures: the cup is
+  128 and the rim around it 255, so the disc is the two values together.
+- **No field of view is looked for.** These are crops, so the frame is taken as it is and
+  `fov_source` is `assumed_full_frame` on every row. Fitting a circle to the sliver of field edge
+  that is sometimes in frame produced circles 36 and 13,646 pixels across on 800-pixel images.
+- **Not built:** the unlabelled MESSIDOR photographs RIGA+ adds for domain adaptation, which carry
+  no RIGA annotation and belong to MESSIDOR; and the repackagers' own train and test CSVs, which
+  are their split rather than anything RIGA published.
+- **Subsets:** `binrushed`, `magrabia` and `messidor`, with the folder inside each — `BinRushed1`,
+  `MESSIDOR_Base2` — kept in a column of its own.
+- **Counts:** 195 BinRushed and 95 Magrabia as published, but **454 MESSIDOR against the deposit's
+  460** — RIGA+ carries six fewer, so the store holds 744 rather than 750.
+- **Grouping:** none. No patient identity or laterality is published.
 
 ## 3. The images
 
@@ -93,6 +130,15 @@ collection, not a derivative of this one.
   this catalogue comes close.
 
 ## 7. Known defects
+
+- **The original host cannot be fetched by a script.** Deep Blue answers an automated request with
+  a Cloudflare challenge, whatever user agent it carries. The photographs have to be downloaded by
+  hand in a browser.
+- **RIGA+ is not a substitute for the photographs.** Its images are crops around the nerve head,
+  800×800 and resized, so no pixel measurement on them relates to the eye. It carries six fewer
+  MESSIDOR images than the deposit, 454 against 460.
+- **RIGA+ states a more permissive licence than RIGA does** — CC BY 4.0 against CC BY-NC 4.0 — for
+  the same annotations. The owner's terms are the ones that hold.
 
 - The MESSIDOR overlap means a "RIGA and MESSIDOR" evaluation double-counts 460 photographs.
 - Per-source resolution and camera details are thinner in the deposit than the paper implies; the

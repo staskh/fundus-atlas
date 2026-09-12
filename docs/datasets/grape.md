@@ -19,9 +19,36 @@ than differing between people.
 | Home | figshare collection, DOI [10.6084/m9.figshare.c.6406319.v1](https://doi.org/10.6084/m9.figshare.c.6406319.v1) |
 | Download | **direct, no registration** — the collection holds an Excel sheet, four archives and a `draw.py` helper that redraws the contours |
 | Citation | Huang X, Kong X, Shen Z, et al. *GRAPE: A multi-modal dataset of longitudinal follow-up visual field and fundus images for glaucoma management.* Scientific Data 2023;10:520. DOI: [10.1038/s41597-023-02424-4](https://doi.org/10.1038/s41597-023-02424-4) |
-| Licence | **CC BY 4.0** — both the paper and the collection |
+| Licence | **CC BY 4.0** per the paper; the figshare files themselves are marked **CC0**. The more permissive of the two is the depositor's own statement, and the paper's is the one this atlas records |
 | Content | 631 images at 50°, macula-centred |
 | Annotations | Optic disc and cup contours as JSON, **on a region-of-interest crop**; visual fields, OCT measurements, intraocular pressure, follow-up structure |
+
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.grape                          # downloads and builds 512 and 1024
+uv run python -m datasets.grape --sizes 512,720,1024     # any sizes a model needs
+```
+
+- **Downloads:** four files from the figshare collection — the photographs (116 MB), the crops
+  around the nerve head (20 MB), the contours as JSON (14 MB) and the clinical spreadsheet. No
+  account, no form. The three archives are RAR, which needs `bsdtar`; the Python standard library
+  cannot read them.
+- **Builds:** the photograph, its field-of-view mask, and the disc and cup contours for all 631
+  visits, at `native/` plus each requested size.
+- **The contours are placed, not assumed.** They are published in the crop's coordinate system and
+  the archive never says where the crop came from, so each crop is located in its own photograph by
+  correlation. The offset and the correlation go in every row as `roi_x0`, `roi_y0` and
+  `roi_match`. Across all 631 the worst match is **0.991** and the median **0.999**, so every crop
+  was found; a match below 0.9 would leave the contours unplaced with a note rather than guessed at.
+- **Grouping:** the point of this dataset. `patient`, `eye` and `visit` come from the filename —
+  **144 subjects, 263 eyes, 1 to 7 visits each** — so a by-person split is possible and an eye can
+  be followed through time.
+- **Extra columns:** `visit_interval_years`, `iop` and `device` per visit; `age`, `sex`, `cct`,
+  `total_visits` and `progression` per eye, from the baseline sheet.
+- **Not built:** the annotated images, which are the crops with the contours already drawn on them;
+  and the 52 visual-field point sensitivities per visit, which are not an image annotation. Both
+  stay in the archives.
 
 ## 3. The images
 
@@ -66,8 +93,13 @@ them. The mapping has to be carried, not assumed.
 ## 7. Known defects
 
 - The ROI coordinate system (section 4) is the trap; a full-frame import would be wrong in a way
-  that produces plausible-looking numbers.
+  that produces plausible-looking numbers. The crop can be recovered — it is published, and
+  correlating it against its photograph finds it to better than 0.99 on every one of the 631 — but
+  nothing in the archive states the offset.
 - One annotator, so no human ceiling.
+- The cohort is **not balanced across visits**: 67 eyes appear once and only two reach seven
+  visits, so a longitudinal analysis has far less data than the 631 photographs suggest.
+- The figshare files and the paper state different licences (section 2).
 
 ## 8. Notes
 

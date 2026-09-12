@@ -1,14 +1,17 @@
 # DeepDRiD
 
-Around 2,256 photographs from an ISBI 2020 challenge, with diabetic-retinopathy grades, **dual-view
-pairs of the same eye**, and quality scores from three readers — overall quality plus artefact,
-clarity and field-definition subscores. It also carries a separate ultra-wide-field split for one of
+**2,000** photographs from an ISBI 2020 challenge, with diabetic-retinopathy grades, **dual-view
+pairs of the same eye**, and quality scores — an overall grade plus artefact, clarity and
+field-definition subscores. It also carries a separate 256-image ultra-wide-field split for one of
 its sub-challenges.
 
 ## 1. What it is
 
-- **Images:** on the order of 2,256 regular fundus photographs, in training, validation and
-  unlabelled online-evaluation splits, plus ultra-wide-field frames for a third sub-challenge.
+- **Images:** **2,000 regular fundus photographs** — 1,200 training, 400 validation and 400
+  online-evaluation — from **500 patients**, two photographs of each of 1,000 eyes. A further 256
+  ultra-wide-field frames belong to a third sub-challenge and are counted separately.
+- **Labels:** all three splits are labelled. The evaluation split was released unlabelled for the
+  competition and its grades were published afterwards, in July 2022, as two spreadsheets.
 - **Collected at:** Chinese clinical sites, released for the ISBI 2020 Diabetic Retinopathy
   challenge.
 - **Purpose:** DR grading, image-quality assessment and transfer learning, with two views per eye.
@@ -18,26 +21,63 @@ its sub-challenges.
 | | |
 | --- | --- |
 | Home | GitHub, [deepdrdoc/Deep-Diabetic-Retinopathy-Image-Dataset-DeepDRiD-](https://github.com/deepdrdoc/Deep-Diabetic-Retinopathy-Image-Dataset-DeepDRiD-) (also mirrored at [AIMedLab/DeepDRiD](https://github.com/AIMedLab/DeepDRiD)) |
-| Download | **direct, no registration** — from the repository releases: training, validation and an unlabelled online-evaluation set |
-| Citation | The ISBI 2020 DeepDRiD challenge report (Liu et al.); confirm the exact citation from the repository README at download time |
+| Download | **direct, no registration** — the photographs are committed to the repository itself rather than attached to a release, so the route is a clone (or a subtree checkout) at a pinned commit |
+| Citation | Liu R, Wang X, Wu Q, Dai L, Fang X, Yan T, et al. *DeepDRiD: Diabetic Retinopathy—Grading and Image Quality Estimation Challenge.* Patterns 2022;3(6):100512. DOI: [10.1016/j.patter.2022.100512](https://doi.org/10.1016/j.patter.2022.100512) |
 | Licence | **CC BY-SA 4.0** — attribution and **share-alike**, so derivatives of the dataset carry the same obligation. The only share-alike dataset in this catalogue |
-| Content | About 2,256 regular fundus images plus an ultra-wide-field split |
-| Annotations | DR grades, overall image quality plus artefact, clarity and field-definition subscores, from two ophthalmologists confirmed or revised by a senior third |
+| Content | 2,000 regular fundus images plus a 256-image ultra-wide-field split |
+| Annotations | DR grades, overall image quality plus artefact, clarity and field-definition subscores, from two ophthalmologists confirmed or revised by a senior third. **Only the final value is published**, not the individual readers', so reader disagreement cannot be measured here |
+| Provenance of the photographs | Three screening programmes, named per image in a companion CSV added in April 2022: the Niching Diabetes Screening Project (`Nicheng`, 1,140 of the 1,600 labelled train and validation images), the Nationwide Screening for Complications of Diabetes (`Nation`, 36) and the Shanghai Diabetic Complication Screening Project (`Shanghai`, 24). The evaluation split is not attributed |
+
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.deepdrid                          # clones and builds 512 and 1024
+uv run python -m datasets.deepdrid --sizes 512,720,1024     # any sizes a model needs
+```
+
+- **Downloads:** a subtree checkout of the repository at commit `56d8af71`, taking only
+  `regular_fundus_images` — about 2 GB. No account, no form; the commit is what pins the bytes,
+  since a repository has no archive to checksum.
+- **Builds:** the photograph and its field-of-view mask, at `native/` plus each requested size.
+  There are no vessel, artery/vein or disc annotations in this dataset to build.
+- **Not built:** the ultra-widefield sub-challenge (sub-challenge 3), 256 images left in the
+  repository. It is a different instrument, and pooling a 200° frame with these would make every
+  measurement in the store mean two things at once.
+- **Quality:** `quality` is the authors' own overall grade mapped to the atlas's vocabulary —
+  their `1` ("good enough for the diagnosis of retinal diseases") becomes `good` and their `0`
+  becomes `bad`, with `quality_source` recording that it is theirs rather than ours. The three
+  subscores are kept as columns of their own, unmapped.
+- **Extra columns:** `overall_quality` (the authors' verdict in their words), `artifact` (0–10,
+  **lower is better**), `clarity` (1–10, higher is better), `field_definition` (1–10, higher is
+  better), `patient_dr_level` (the grade from both eyes together), `view` (which photograph of this
+  eye) and `screening_project` (`Nicheng`, `Shanghai`, `Nation`, or empty for the evaluation split).
+- **Coded labels are stored as words.** `disease` holds `severe npdr`, not `3`; the graded 0–10
+  scores keep their numbers, since there the number *is* the scale. Section 4.1 has every legend.
+- **Empty cells mean unknown:** eleven training photographs have no DR grade (section 7), so
+  `disease` is empty for them rather than zero, and the whole dataset has no published resolution,
+  so `um_per_px` is empty in every row and `resolution_source` is `unknown`.
+- **Grouping:** `patient` is the dataset's own id and is unique across all three splits, so a
+  by-person split is possible. `eye` is read from the filename suffix the authors document
+  (`_l` left, `_r` right). `visit` is empty: the dataset photographs each patient once.
+- **Peculiarities:** the labels arrive in three different shapes — a CSV per split for training and
+  validation, a second CSV naming the screening project, and two spreadsheets for the evaluation
+  split whose grades were published two years after the competition. `disease` is the grade for
+  *this* eye, taken from whichever of the two per-eye columns applies.
 
 ## 3. The images
 
-### 3.1 Regular fundus photographs — about 2,256 images
+### 3.1 Regular fundus photographs — 2,000 images
 
 | | |
 | --- | --- |
-| Resolution (pixels) | Mixed |
+| Resolution (pixels) | Six sizes: 1736×1824 (1,294 images), 1976×1984 (660), 1734×1821 (18), 2230×1725 (10), 2232×1727 (10), 1592×1728 (8). Mostly near-square with the circular field cropped close; the two landscape sizes are the twenty white-surround images noted in section 7 |
 | Microns per pixel | Unknown |
 | Camera | Not stated uniformly |
 | Field of view | Not stated |
 | Centring | **Dual view per eye** — one macula-centred and one disc-centred photograph of the same eye |
 | Modality | Colour fundus photography |
 
-### 3.2 Ultra-wide-field split
+### 3.2 Ultra-wide-field split — 256 images
 
 | | |
 | --- | --- |
@@ -52,9 +92,45 @@ its sub-challenges.
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
-| Quality | **Two ophthalmologists, confirmed or revised by a senior third** | — | Overall grade plus artefact, clarity and field-definition subscores |
+| Quality | **Two ophthalmologists, confirmed or revised by a senior third** | — | Overall grade plus artefact, clarity and field-definition subscores. Only the arbitrated result is published, so the readers cannot be compared against each other |
 | Disease | As above | — | DR grades, per image and per patient |
 | Other labels | — | — | The dual-view pairing, which allows within-eye agreement to be measured |
+
+### 4.1 What the grades and scores mean
+
+The release's `Readme.docx` defines every code. The fetcher stores the wording rather than the
+number for the named categories, and keeps the number for the graded scales.
+
+| Diabetic retinopathy | Meaning |
+| --- | --- |
+| 0 | No apparent retinopathy |
+| 1 | Mild non-proliferative |
+| 2 | Moderate non-proliferative |
+| 3 | Severe non-proliferative |
+| 4 | Proliferative |
+| 5 | Image quality too low to grade — **occurs in no published split** |
+
+Applied per eye and, separately, per patient: the patient's grade follows the worse eye, so the two
+differ on 357 of the 1,600 labelled photographs.
+
+| Overall quality | Meaning |
+| --- | --- |
+| 0 | Not good enough for the diagnosis of retinal diseases |
+| 1 | Good enough for the diagnosis of retinal diseases |
+
+| Score | Artefact — **0 is best** | Clarity — **10 is best** | Field definition — **10 is best** |
+| --- | --- | --- | --- |
+| 0 | No artefacts | — | — |
+| 1 | Outside the aortic arch, under 1/4 of the image | Only a level 1 vascular arch identifiable | Includes neither optic disc nor macula |
+| 4 | Not affecting the macular area, under 1/4 | Level 2 arch and a few lesions | Contains either the disc or the macula |
+| 6 | Covers between 1/4 and 1/2 | Level 3 arch and some lesions | Contains both disc and macula |
+| 8 | Covers over 1/2, not the whole posterior pole | Level 3 arch and most lesions | Disc and macula within 2 disc diameters of centre |
+| 10 | Covers the entire posterior pole | Level 3 arch and all lesions | Disc and macula within 1 disc diameter of centre |
+
+Note what a perfect field-definition score demands: the disc *and* the macula both within one disc
+diameter of the frame's centre. It marks excellent framing, not a precondition for reading the
+photograph — which is why deriving an overall grade from these scores would disagree with the
+ophthalmologists on hundreds of images they passed as diagnosable.
 
 ## 5. Inheritance
 
@@ -72,8 +148,22 @@ its sub-challenges.
 
 ## 7. Known defects
 
-- Counts vary between the challenge materials and later papers; 2,256 is the figure later work
-  cites for the regular split.
+- **The figure 2,256 is the whole dataset, not the regular split.** Later work citing it as the
+  number of regular fundus photographs is over-counting by 256: the repository holds exactly 2,000
+  regular images and 256 ultra-wide-field ones. Verified by counting the archive at commit
+  `56d8af71`.
+- **Eleven photographs are extra views, and none of them is graded.** The dual-view design holds
+  for 998 of the 1,000 eyes, but in the training split patients 56, 77, 164 and 167 have views
+  numbered 3 and 4 — eleven images across eight eyes — and **every one has an empty
+  diabetic-retinopathy level**. Patient 164 breaks the pairing outright: one photograph of the left
+  eye and three of the right. Code that assumes `_l1` and `_l2` exist for every eye will miss
+  images or raise, and code that assumes every image is graded will read an empty cell as a zero.
+- **Twenty photographs write the surround white instead of black.** All twenty are the landscape
+  2230×1725 and 2232×1727 images, from five training patients (27, 96, 120, 130, 330), and they
+  also carry a burnt-in index in the top-left corner. Any code that finds the field of view by
+  looking for darkness will treat the whole frame as retina on these, then crop and measure a
+  square that is 30% surround. The fetcher looks for a uniform border-connected colour instead, so
+  they come out as ordinary circles.
 - **Share-alike is easy to overlook.** Anything published that qualifies as a derivative of this
   dataset inherits CC BY-SA — a real constraint if it is mixed into a corpus meant to be released
   under something else.

@@ -23,8 +23,55 @@ nothing else here does.
 | Download | **direct, no registration** |
 | Citation | Kumar JRH, Seelamantula CS, et al. *Chákṣu: A glaucoma specific fundus image database.* Scientific Data 2023;10:70. DOI: [10.1038/s41597-023-01943-4](https://doi.org/10.1038/s41597-023-01943-4) — note the published author correction |
 | Licence | **CC BY 4.0** |
-| Content | 1,345 images across three cameras — see section 3 |
-| Annotations | Optic disc and cup boundaries from **five experts**, and five independent glaucoma decisions, all kept separate |
+| Content | 1,345 images across three cameras — see section 3 — published as two archives, `Train.zip` and `Test.zip` |
+| Annotations | Optic disc and cup boundaries from **five experts**, and five independent glaucoma decisions, all kept separate. The archives also carry four fusions of the five outlines — mean, median, majority and STAPLE — and each expert's own cup-to-disc measurements |
+
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.chaksu                          # downloads and builds 512 and 1024
+uv run python -m datasets.chaksu --sizes 512,720,1024     # any sizes a model needs
+```
+
+- **Downloads:** `Train.zip` (8.6 GB) and `Test.zip` (2.7 GB) from figshare. No account, no form.
+  Both are read where they lie: the per-expert masks are uncompressed TIFFs that come to about
+  70 GB unpacked, and each is read once and turned into a polygon.
+- **Builds:** the photograph, its field-of-view mask, and **ten contours per image** — disc and cup
+  from each of the five experts — in one `contours/<key>.csv` per photograph, at `native/` plus
+  each requested size.
+- **Not built:** the four fused masks (mean, median, majority, STAPLE), because each is a function
+  of the five outlines the store keeps; the per-expert cup-to-disc measurements, for the same
+  reason; and the annotation overlays, which are the photographs with a boundary drawn on them.
+- **Subsets:** `bosch`, `forus` and `remidio`, one per camera, because they are not the same shape
+  and Remidio is portrait.
+- **Splits:** `train` and `test`, as the two archives divide them.
+- **Per-reader values:** `labels.csv` holds all five glaucoma decisions under the field `disease`,
+  with the published majority as the `consensus` reader; `multi_reader` names `disease` on every
+  row. The verdicts are lowercased and the misspelling in section 7 is read as the verdict it is.
+- **Grouping:** partial. Sixty Bosch photographs name the person they came from — `P11_image_1`
+  and `P11_image_2` are two photographs of patient 11 — and those sixty fill `patient`: **31
+  people, 29 of them contributing two photographs each**. Nothing else in the dataset identifies
+  anyone, so `patient` is empty on the other 1,285 and no laterality is published at all.
+- **Peculiarities:** the archive's folder capitalisation varies between experts, so the masks are
+  indexed from what is in the archive rather than addressed by a composed path; the column holding
+  the agreed verdict is headed differently in the two archives, so it is found by shape rather than
+  by name (section 7).
+- **The build checks itself.** After the store is written, thirty photographs — ten from each
+  camera — have their stored contours redrawn in the archive's own coordinates and compared with
+  the binary masks it publishes for the same expert and structure. The result goes in `build.json`:
+  **300 contours, median overlap 0.990, worst 0.972**, even across all three cameras
+  (0.988–0.993) and all five experts (0.9895–0.9904). The check measures the crop and the
+  placement rather than the tracing, which is where a silent error would sit; run against the three
+  masks section 7 records as broken, it returns 0.42, 0.41 and 0.56, so it does detect one.
+- **Trace quality:** each outline is scored against the mask it came from, and a score below 0.95
+  is recorded in the row's `notes`. Three of the 13,450 masks fall below it — all of them broken in
+  the archive, not in the tracing (section 7). A faithful trace scores about 0.98.
+
+The contours were checked against the dataset's own arithmetic rather than by eye. Chákṣu publishes
+each expert's cup-to-disc ratios alongside their outlines, so the vertical ratio recomputed from the
+stored polygons can be compared with the number the authors report for the same expert and the same
+photograph. Over **6,721 expert-image pairs** the median difference is **+0.0003**, with 93% inside
+0.01 and 98.8% inside 0.05. The handful outside that are the broken masks in section 7.
 
 ## 3. The images
 
@@ -57,9 +104,14 @@ landscape photographs may crop the wrong axis silently.
 
 ### 3.3 Bosch handheld — 145 images
 
+**Its field of view is an ellipse, not a circle** — about 1441 pixels wide and 1221 tall in a
+1920×1440 frame. Code that assumes a round field and crops to a square the diameter of a fitted
+circle takes 2.2% of the retina off the left and right edges. Forus is mildly elliptical too, and
+loses 0.15% the same way; Remidio is round.
+
 | | |
 | --- | --- |
-| Resolution (pixels) | 1920×1440 |
+| Resolution (pixels) | 1920×1440, with an elliptical field about 1441×1221 |
 | Microns per pixel | Unknown |
 | Camera | Bosch handheld |
 | Field of view | Not stated |
@@ -70,9 +122,9 @@ landscape photographs may crop the wrong axis silently.
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
-| Optic disc | **Five, kept separate** | Native | Per-expert boundaries |
-| Optic cup | **Five, kept separate** | Native | Per-expert boundaries |
-| Disease | **Five independent decisions per eye** | — | Glaucoma; the five may disagree, and that disagreement is preserved |
+| Optic disc | **Five, kept separate** | Native | Per-expert boundaries, published as binary masks at full resolution |
+| Optic cup | **Five, kept separate** | Native | As above |
+| Disease | **Five independent decisions per eye**, plus a published majority | — | Two verdicts only: `NORMAL` and `GLAUCOMA SUSPECT`. Not a severity grade |
 
 ## 5. Inheritance
 
@@ -92,6 +144,32 @@ landscape photographs may crop the wrong axis silently.
 - The paper carries a published author correction; cite the corrected version.
 - Mixing the three cameras without separating them mixes a portrait 2448×3264 photograph with a
   landscape 1920×1440 one.
+- **The Bosch field is elliptical** (section 3.3), which silently costs 2.2% of the retina to any
+  pipeline that crops to a circle's bounding square.
+- **Only sixty photographs say who they came from**, all of them Bosch (section 2.1). A random
+  split can therefore put one of those 31 people on both sides of itself.
+- **Two of the five experts misspell the verdict.** They write `GLAUCOMA  SUSUPECT` — a doubled
+  space and a transposition — where the other three write `GLAUCOMA SUSPECT`. Counting the raw
+  strings turns one verdict into two categories and makes those two experts look like they never
+  agree with the rest.
+- **The archive's own capitalisation is inconsistent.** One expert's folder is `Bosch/cup`,
+  another's `Bosch/Cup`. Code that composes the path rather than listing what is there finds
+  nothing for some of the five, and silently reports fewer readers than the dataset has.
+- **The decision files name each photograph twice over**, as `Image101.jpg-Image101-1.jpg`, and the
+  Remidio files use a `.tif` extension for photographs stored as `.JPG`. Match on the name before
+  the first hyphen, without its extension.
+- **The column holding the agreed verdict is not always called the same thing.** In `Train.zip` it
+  is `Majority Decision`; in `Test.zip` the Forus and Remidio files head it `Glaucoma Decision`.
+  Code that looks for the word *majority* silently loses the consensus for 109 photographs — a
+  third of the test half — and leaves them looking ungraded.
+- **One published cup-to-disc measurement is `NaN`** among the 7,450 in the per-expert files.
+- **A few expert masks are outlines rather than filled regions, and broken ones at that.** Expert 2's
+  disc for `Image145` (Bosch, train) is 38 disconnected fragments whose largest piece is 777 pixels,
+  against about 39,000 for the same disc drawn by the other experts. Two more are flagged in the
+  built store's `notes`: expert 3's disc on `Image162` (train) and on `p28_image1` (test). Anything
+  taking the largest connected component of those masks gets a shape that is not the optic disc.
+  All three are recorded in `src/datasets/exclusions/chaksu.json`, scoped to the one expert
+  concerned: the other four experts' discs on those photographs are sound and stay usable.
 
 ## 8. Notes
 

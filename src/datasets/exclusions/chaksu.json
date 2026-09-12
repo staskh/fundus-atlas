@@ -1,0 +1,32 @@
+{
+  "dataset": "chaksu",
+  "exclusions": [
+    {
+      "key": "train_bosch_image145",
+      "maps": ["disc"],
+      "readers": ["expert2"],
+      "reason": "annotation-incomplete",
+      "detail": "The published disc mask is an unfilled boundary broken into 38 pieces, the largest 777 pixels, enclosing 1,542 pixels once filled. The same disc drawn by the other four experts covers 39,000 to 44,000. Anything taking the largest connected component gets a fragment, not an optic disc; the traced contour scores 0.42 against its own mask.",
+      "evidence": "docs/datasets/chaksu.md, section 7",
+      "found": "2026-09-12"
+    },
+    {
+      "key": "train_bosch_image162",
+      "maps": ["disc"],
+      "readers": ["expert3"],
+      "reason": "annotation-incomplete",
+      "detail": "As above: an unfilled boundary in 9 pieces, largest 1,214 pixels, 2,492 once filled, against 39,000 to 47,000 for the other four experts. The traced contour scores 0.41.",
+      "evidence": "docs/datasets/chaksu.md, section 7",
+      "found": "2026-09-12"
+    },
+    {
+      "key": "test_bosch_p28_image1",
+      "maps": ["disc"],
+      "readers": ["expert3"],
+      "reason": "annotation-incomplete",
+      "detail": "As above: an unfilled boundary in 2 pieces, largest 1,409 pixels, 1,825 once filled, against 37,000 to 41,000 for the other four experts. The traced contour scores 0.56.",
+      "evidence": "docs/datasets/chaksu.md, section 7",
+      "found": "2026-09-12"
+    }
+  ]
+}

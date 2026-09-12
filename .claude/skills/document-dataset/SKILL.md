@@ -60,6 +60,11 @@ Use `template.md` verbatim and keep its section numbering.
    Prose belongs under the table, not in it: restrictions worth knowing, a licence conflict between
    two sources, a deposit whose title does not match the dataset's name.
 
+   **Where a fetcher exists, section 2 ends with a `How to fetch` subsection** — the command, what it
+   downloads, what it builds, what needs a human, and anything peculiar a person running it will hit.
+   The `fetch-dataset` skill defines its shape; keep it to what someone running the command needs,
+   since the provenance is already in the tables above it.
+
 3. **The images** — the physical facts about the pixels. **Where a dataset has well-defined
    subcollections — different cameras, different acquisition sites, a challenge's separate training
    and test releases, or an ultra-wide split alongside a standard one — repeat this section once per
