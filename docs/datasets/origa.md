@@ -24,6 +24,34 @@ published number rather than only against itself.
 | Content | 650 images, 2048 tall and 2426–2616 wide |
 | Annotations | Optic disc and cup masks, **`ExpCDR`** (the graders' vertical cup-to-disc ratio), glaucoma label, eye side, an A/B subset split |
 
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.origa --archive ~/glaucoma-datasets.zip
+```
+
+**This fetcher never downloads.** ORIGA has no open host, and the Kaggle bundle it arrives in needs
+an account, so the archive must be obtained by hand and handed over with `--archive`. Run without
+it, the fetcher says so and stops rather than looking for a way round the login.
+
+- **Builds:** the photograph, its field-of-view mask, and the disc and cup contours, at `native/`
+  plus each requested size. Both structures come out of the one published mask — the cup is the
+  inner value and the disc is the cup plus the ring around it.
+- **Not built:** everything in the bundle that is not ORIGA. It also carries
+  [G1020](g1020.md) and [REFUGE](refuge.md), each of which has its own page.
+- **Found, not addressed:** the bundle is a third party's packaging and may be rearranged at any
+  time, so the fetcher looks for whichever CSV carries an `ExpCDR` column and matches photographs
+  and masks to its rows by name. A bundle with no such sheet fails saying so, rather than building
+  nothing and calling it success.
+- **Subsets:** `a` and `b`, the study's own division. Papers commonly use A to train and B to test,
+  but the authors published them as sets rather than as a split, and that is how they are recorded.
+- **Extra columns:** `expert_cdr`, the graders' own vertical cup-to-disc ratio.
+- **Grouping:** `eye` comes from the sheet; no patient identity is published, so two photographs of
+  one person cannot be told from two of different people.
+- **How to check it built correctly:** recompute the vertical cup-to-disc ratio from the stored
+  contours and compare it against `expert_cdr`. That is the check this dataset exists for, and it
+  would also be the first thing to fail if the mask encoding were the other way round.
+
 ## 3. The images
 
 | | |
