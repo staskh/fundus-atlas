@@ -8,8 +8,8 @@ import shutil
 import sys
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
-from functools import partial
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 
 import numpy as np
