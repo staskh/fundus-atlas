@@ -33,6 +33,9 @@ BUILDER_VERSION = 4
 #: polygons in `contours/<key>.csv`, never a raster.
 LAYERS = ("vessels", "av", "fov", "disc", "cup")
 
+#: The layers that live in `contours/<key>.csv` as polygons rather than in a directory of rasters.
+OUTLINED = ("disc", "cup")
+
 #: An outline whose trace reproduces its own mask less faithfully than this is worth a note in the
 #: row: the shape was not a single clean blob. About 0.98 is as good as the convention allows.
 POOR_TRACE = 0.95
@@ -116,7 +119,7 @@ def run(
     for n, record in enumerate(records, 1):
         try:
             rows.append(
-                built[record.key]
+                _reusable(built[record.key], record)
                 if _is_built(record.key, store, args.sizes, built)
                 else _build_one(
                     record,
@@ -148,6 +151,20 @@ def run(
     return 0
 
 
+def _reusable(row: dict[str, str], record: SourceRecord) -> dict[str, str]:
+    """A row from an earlier build, ready for this run's readings.
+
+    Whatever the readers decide is cleared first. Those cells were filled from readings the last
+    time too, and a fetcher that has since corrected a label — a decision column read under the
+    wrong heading, say — must be able to reach a store whose images are already built without
+    rebuilding them.
+    """
+    decided = {reading.field for reading in record.readings}
+    if not decided:
+        return row
+    return {**row, **dict.fromkeys(decided, ""), "multi_reader": "", "readers": ""}
+
+
 def _previous_build(store: Path) -> dict | None:
     """What an earlier run left here, or `None` for a store that does not exist yet."""
     record = store / "build.json"
@@ -160,15 +177,23 @@ def _previous_rows(store: Path) -> list[dict[str, str]]:
 
 
 def _is_built(key: str, store: Path, sizes: list[int], built: dict[str, dict[str, str]]) -> bool:
-    """Whether this image is finished: described in the manifest and present at every size."""
+    """Whether this image is finished: described in the manifest and present at every size.
+
+    Disc and cup are one contour file rather than two rasters, so looking for `disc/<key>.png`
+    would call every outlined image unbuilt and trace all ten of its masks again on every run.
+    """
     row = built.get(key)
     if row is None:
         return False
-    layers = ["images", *(name for name in row.get("maps", "").split(";") if name)]
+    named = [name for name in row.get("maps", "").split(";") if name]
+    rasters = ["images", *(name for name in named if name not in OUTLINED)]
+    wanted = [(layer, f"{key}.png") for layer in rasters]
+    if any(name in OUTLINED for name in named):
+        wanted.append(("contours", f"{key}.csv"))
     return all(
-        paths.layer(store, size, layer).joinpath(f"{key}.png").exists()
+        paths.layer(store, size, layer).joinpath(file).exists()
         for size in [paths.NATIVE, *sizes]
-        for layer in layers
+        for layer, file in wanted
     )
 
 

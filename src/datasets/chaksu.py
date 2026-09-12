@@ -127,11 +127,16 @@ def _record(split, camera, stem, member, decisions, outlines) -> build.SourceRec
     )
 
 
-def _reader(expert: str) -> str:
-    """`Expert 3` and `expert.3` and `Majority Decision` as this store names them."""
-    if "majority" in expert.lower():
-        return manifest.CONSENSUS
-    return "expert" + "".join(ch for ch in expert if ch.isdigit())
+def _reader(column: str) -> str:
+    """The reader a decision column belongs to.
+
+    Anything that is not one of the five numbered experts is the agreed verdict, whatever it is
+    called: the train archives head that column `Majority Decision` and two of the test archives
+    head it `Glaucoma Decision`. Matching on the words would drop the consensus for a third of the
+    test half and leave those photographs looking ungraded.
+    """
+    digits = "".join(ch for ch in column if ch.isdigit())
+    return f"expert{digits}" if digits else manifest.CONSENSUS
 
 
 def _half(archive: Path) -> str:

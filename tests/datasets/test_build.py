@@ -321,3 +321,57 @@ def test_an_unreadable_outline_leaves_the_photograph_built(tmp_path):
     assert ("disc", "expert1") in drawn
     assert ("disc", "expert2") not in drawn
     assert "could not be read" in row["notes"]
+
+
+def test_an_image_whose_outlines_are_built_counts_as_built(tmp_path):
+    # Disc and cup are contour files, not rasters. Looking for disc.png finds nothing, so every
+    # image with an outline would be traced again on every run — ten masks apiece, for nothing.
+    store, _ = build_outlined(tmp_path)
+    row = next(iter(manifest.read(store)))
+    assert row["maps"] == "fov;disc;cup"
+    assert build._is_built("a", store, [64], {"a": row})
+
+
+def test_an_image_whose_contours_are_missing_does_not_count_as_built(tmp_path):
+    store, _ = build_outlined(tmp_path)
+    row = next(iter(manifest.read(store)))
+    (store / "64" / "contours" / "a.csv").unlink()
+    assert not build._is_built("a", store, [64], {"a": row})
+
+
+def test_a_reused_row_takes_this_run_s_readings(tmp_path):
+    # A label corrected in the fetcher must reach a store that already has its images, without
+    # rebuilding them and without colliding with the value the previous run recorded.
+    raw = a_dataset(tmp_path)
+
+    def with_verdict(verdict):
+        def discover_graded(layers):
+            records = discover(layers)
+            for record in records:
+                record.readings = [manifest.Reading(record.key, "disease", "consensus", verdict)]
+            return records
+
+        return discover_graded
+
+    def run(verdict):
+        args = cli.parse(
+            "synthetic",
+            ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)],
+        )
+        build.run(
+            slug="synthetic",
+            sources=[],
+            discover=with_verdict(verdict),
+            resolution_of=resolution.Declared(5.0, "published", "stated"),
+            args=args,
+            extra_columns=[manifest.Column("artifact", "0 is best")],
+        )
+        return tmp_path / "store" / "synthetic"
+
+    store = run("normal")
+    assert next(iter(manifest.read(store)))["disease"] == "normal"
+    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    (store / "build.json").unlink()
+    store = run("glaucoma suspect")
+    assert next(iter(manifest.read(store)))["disease"] == "glaucoma suspect"
+    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before

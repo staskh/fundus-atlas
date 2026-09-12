@@ -141,3 +141,12 @@ def test_no_resolution_is_claimed():
 def _tmp_subdirs(tmp_path):
     (tmp_path / "a").mkdir(exist_ok=True)
     (tmp_path / "b").mkdir(exist_ok=True)
+
+
+def test_the_agreed_column_is_found_whatever_the_archive_calls_it(tmp_path):
+    # The train archives head it "Majority Decision"; two of the test archives head it "Glaucoma
+    # Decision". Matching on the words leaves a third of the test half looking ungraded.
+    assert chaksu._reader("Majority Decision") == manifest.CONSENSUS
+    assert chaksu._reader("Glaucoma Decision") == manifest.CONSENSUS
+    assert chaksu._reader("Expert.4") == "expert4"
+    assert chaksu._reader("Expert 4") == "expert4"
