@@ -62,13 +62,18 @@ each other, and a model that knows where the disc is has a better idea where the
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| ADAM | Training, validation, test | Optic disc masks, converted by the authors into centre coordinates | Yes: a combined test split across the three |
-| [REFUGE](../datasets/refuge.md) | Training, validation, test | Optic disc masks, converted the same way | As above |
-| [IDRiD](../datasets/idrid.md) | Training, validation, test | Fovea and disc centre coordinates as published | As above |
+| [ADAM](../datasets/adam.md) | Training, validation, test — **265 photographs** | Optic disc masks, converted by the authors into centre coordinates | Yes: a combined test split across the three |
+| [REFUGE](../datasets/refuge.md) | As above — **800 photographs** | Optic disc masks, converted the same way | As above |
+| [IDRiD](../datasets/idrid.md) | As above — **516 photographs** | Fovea and disc centre coordinates as published | As above |
 
-The three are pooled into one table and split together, so **[REFUGE](../datasets/refuge.md) and
-[IDRiD](../datasets/idrid.md) are unavailable for a fair benchmark of this model**, as is ADAM,
-which is not yet catalogued here.
+The counts are read from the table the package ships,
+`fovea_od_localization/data/ADAM+IDRID+REFUGE_df.csv`, which holds 1,581 rows. ADAM contributes 265
+of its 400 labelled photographs: the preparation notebook discards those whose disc mask is blank,
+which is a property of [ADAM](../datasets/adam.md) rather than of this model.
+
+The three are pooled into one table and split together, so **[ADAM](../datasets/adam.md),
+[REFUGE](../datasets/refuge.md) and [IDRiD](../datasets/idrid.md) are all unavailable for a fair
+benchmark of this model**.
 
 ## 7. Weights
 

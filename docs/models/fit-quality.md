@@ -3,9 +3,9 @@
 Given a whole fundus photograph, this returns one number between 0 and 1 — how confident ten
 networks are, on average, that the image is gradeable. It exists because the two quality graders
 already in this catalogue both learned from [EyeQ](../datasets/eyeq.md), and this one did not: it
-was trained on [DeepDRiD](../datasets/deepdrid.md) and DrimDB instead, with photographs of the
-outer eye counted as ungradeable, which makes it the only quality model here that can be scored
-against an EyeQ-trained one on common ground.
+was trained on [DeepDRiD](../datasets/deepdrid.md) and [DRIMDB](../datasets/drimdb.md) instead,
+with photographs of the outer eye counted as ungradeable, which makes it the only quality model
+here that can be scored against an EyeQ-trained one on common ground.
 
 It is a **binary** grader — gradeable against ungradeable — where AutoMorph's and QuickQual's are
 three-way. Anything finer has to come from the probability, and the authors are explicit that the
@@ -69,10 +69,12 @@ threshold on it is not transferable between datasets.
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
 | [DeepDRiD](../datasets/deepdrid.md) | Training and test | The dataset's own binary overall-quality label | Yes: the authors report on a DeepDRiD test split |
-| DrimDB | Training and test | The dataset's own labels, with out-of-domain images such as photographs of the outer eye counted as ungradeable | Yes: a DrimDB test split |
+| [DRIMDB](../datasets/drimdb.md) | Training and test | The dataset's own three-class grade, with its **outlier** class — images that are not fundus photographs — counted as ungradeable | Yes: a DRIMDB test split |
 
-**[DeepDRiD](../datasets/deepdrid.md) is therefore unavailable for a fair benchmark of this model**,
-and so is DrimDB. DrimDB is not yet catalogued here.
+**[DeepDRiD](../datasets/deepdrid.md) and [DRIMDB](../datasets/drimdb.md) are therefore both
+unavailable for a fair benchmark of this model.** Between them they are also the reason it behaves
+differently from the other two quality graders here: DRIMDB asks it to reject images that are not
+retinas at all, which neither EyeQ nor FQS contains.
 
 ## 7. Weights
 
@@ -89,8 +91,8 @@ and so is DrimDB. DrimDB is not yet catalogued here.
 | --- | --- | --- | --- |
 | DeepDRiD test split | Accuracy | 0.78 | `1_read_more/Readmore_quality_prediction.md` |
 | DeepDRiD test split | ROC AUC | 0.84 | as above |
-| DrimDB test split | Accuracy | 1.0 | as above |
-| DrimDB test split | ROC AUC | 1.0 | as above |
+| DRIMDB test split | Accuracy | 1.0 | as above |
+| DRIMDB test split | ROC AUC | 1.0 | as above |
 
 The authors note that predicting DeepDRiD's binary quality label is a hard task and give 0.75 /
 0.75 as the previous state of the art
