@@ -18,6 +18,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 
 | Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [Fundus Image Toolbox quality](models/fit-quality.md) | Gradeable / ungradeable, as a probability | ResNets and EfficientNets, ensemble of 10 | 512² (no mask) | DeepDRiD, DrimDB | Yes | Yes, in the repository | MIT; weights' own Zenodo record | — | 2026-08 | 2026-09-12 |
 | [VascX quality](models/vascx-quality.md) | Image-quality assessment | U-Net ensemble | 1024² (no mask) | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
 | [AutoMorph quality grader](models/automorph-quality-grader.md) | Good / Usable / Reject | EfficientNet, ensemble of 8 | 512² (no mask) | EyeQ training split, 12,543 EyePACS images | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md) | 2025-06 | 2026-09-10 |
 | [QuickQual](models/quickqual.md) | Good / Usable / Bad probabilities | Frozen DenseNet121 features plus an SVM | short side 512, aspect kept (no mask) | EyeQ (SVM fitted); ImageNet (frozen features) | Yes | Not applicable — nothing is trained | None stated | [AutoMorphalyzer](projects/automorphalyzer.md) | 2023-11 | 2026-09-10 |
@@ -27,6 +28,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [VascX vessels](models/vascx-vessels.md) | Blood vessels, one class | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [FR-UNet vessel ensemble](models/frunet-fives.md) | Blood vessels, as a fraction of five members voting | FR-UNet, ensemble of 5 | 512² → back to original | FIVES | Yes | Yes, upstream | **None stated**, weights included | — | 2026-05 | 2026-09-12 |
 | [SEGAN vessel segmenter](models/segan-vessel.md) | Blood vessels, one class | GAN-based U-Net, ensemble of 10 | 912² → back to original | DRIVE, STARE, CHASE-DB1, HRF, IOSTAR, LES-AV (`ALL-SIX`) | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
 | [LWNet](models/lwnet.md) | Blood vessels, one class | W-Net, two chained U-Nets, ~70k parameters | 512² → back to original | DRIVE, CHASE-DB, HRF | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
 
@@ -56,7 +58,9 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 
 | Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [Fundus Image Toolbox fovea and disc locator](models/fit-fovea-od.md) | Fovea and disc centres, as points | EfficientNet-B3, multi-task | 350² centre crop (points, no mask) | ADAM, REFUGE, IDRiD | Yes | Yes, in the repository | MIT; weights' own Zenodo record | — | 2026-08 | 2026-09-12 |
 | [VascX fovea](models/vascx-fovea.md) | Fovea location, as a point | U-Net ensemble | 1024² (point, no mask) | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [SuperRetina](models/superretina.md) | Keypoints matching one photograph to another of the same eye | Keypoint detector and descriptor, SuperPoint family | 512² (points and a transform) | See the paper | Yes | Yes, upstream | **None stated**, weights included | — | 2023-02 | 2026-09-12 |
 
 ## 2. How to read this table
 
