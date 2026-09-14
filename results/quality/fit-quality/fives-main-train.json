@@ -1,0 +1,21 @@
+{
+  "fingerprint": "e227de942d7f8cc795d449b2325a5be72c9efd9a264b3ed14bee12af952fee95",
+  "model": "fit-quality",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.58,
+      "kappa": 0.17570735430409423,
+      "photographs": 600,
+      "roc_auc": 0.9754128440366974
+    },
+    "graded": 600,
+    "photographs": 600,
+    "three_class": null,
+    "without_reference": 0
+  },
+  "unit": "fives/main/train"
+}

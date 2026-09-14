@@ -91,8 +91,10 @@ def _pair(
 
     kept = None if force else runs.reusable(results, NAME, adapter.slug, unit, identity)
     if kept is not None:
+        print(f"{adapter.slug} × {unit.name}: kept, nothing that could change it has", flush=True)
         return {**common, "summary": kept["summary"], "reused": True}
 
+    print(f"{adapter.slug} × {unit.name}: {len(loader)} photographs", flush=True)
     grades = _grade(adapter, loader, batch)
     truth = {row["key"]: row["quality"] for row in loader.rows}
     summary = {
@@ -101,6 +103,11 @@ def _pair(
         "device": declared.get("device"),
     }
     runs.write(results, NAME, adapter.slug, unit, identity, summary, _rows(loader, grades))
+    print(
+        f"{adapter.slug} × {unit.name}: covered {summary['coverage']:.2f}, "
+        f"accuracy {summary['gradeable']['accuracy']}",
+        flush=True,
+    )
     return {**common, "summary": summary, "reused": False}
 
 
