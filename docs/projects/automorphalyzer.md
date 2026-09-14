@@ -56,13 +56,20 @@ its output against AutoMorph's. Read any result from it with that caveat attache
 | [SEGAN vessel segmenter](../models/segan-vessel.md) | Blood vessels, one class | Borrowed via AutoMorph, which trained the weights |
 | [BF-Net](../models/bf-net.md) | Arteries against veins | Borrowed from [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) (GPL-3.0), via AutoMorph |
 | [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) | Optic disc and cup | Borrowed via AutoMorph, which retrained the [lwnet](../models/lwnet.md) architecture (MIT) for this task |
-| [QuickQual](../models/quickqual.md) | Image quality, as a probability of rejection | Borrowed from [QuickQual](https://github.com/justinengelmann/QuickQual), which states no license |
+| [QuickQual](../models/quickqual.md) — **the MEME variant, not the classifier** | Image quality, as one probability that the photograph is bad | Borrowed from [QuickQual](https://github.com/justinengelmann/QuickQual), which states no license. *(This atlas's observation: `preprocess/preprocess.py` builds a frozen DenseNet121, selects nine of its features by index, and applies the ten numbers of QuickQual-MEME written out in the source. The three-class support vector machine QuickQual's page describes is never downloaded and never loaded)* |
 
-The quality stage is the visible difference. AutoMorph's EyeQ-based module graded images and could
-reject them; here every image goes through the pipeline and receives a QuickQual rejection
-probability in the output file instead. That moves the decision from the software to the analyst,
-which is a defensible choice but means the output table contains rows that AutoMorph would have
-discarded.
+The quality stage is the visible difference, and it differs in two ways rather than one.
+AutoMorph's EyeQ-based module graded images Good, Usable or Reject and dropped some of them before
+segmentation; here every image goes through the pipeline and receives a single number —
+`QuickQual_quality`, the probability that the photograph is bad — in the output file instead. That
+moves the decision from the software to the analyst, which is a defensible choice but means the
+output table contains rows that AutoMorph would have discarded.
+
+**The three-way distinction disappears entirely.** The variant used here emits one probability and
+no classes, so nothing in this pipeline distinguishes a merely *usable* photograph from a good one;
+that judgement is left to whoever reads the column, with no threshold recommended anywhere in the
+repository. Nothing downstream reads the column either: `measure.py` merges it into the results
+table and no code path filters on it.
 
 ## 5. Models introduced here
 
@@ -95,7 +102,7 @@ AutoMorph diverge most.
 | [Local calibre](../biomarkers/vessel-calibre.md) | Prior literature | retipy via AutoMorph | Corrected and made faster |
 | [CRAE, CRVE](../biomarkers/central-retinal-equivalents.md) | Knudtson formula only | retipy via AutoMorph | **Hubbard formula removed.** Measured in zones B and C only |
 | [Arteriovenous ratio (AVR)](../biomarkers/avr.md) | Ratio of the above | — | Added, in zones B and C |
-| Quality (probability of rejection) | QuickQual | [QuickQual](https://github.com/justinengelmann/QuickQual) | Reused, and written into the collated results file |
+| Quality (probability that the photograph is bad) | QuickQual-MEME | [QuickQual](https://github.com/justinengelmann/QuickQual) | Reused, and written into the collated results file as `QuickQual_quality`. Never thresholded, and never read again by the pipeline |
 
 All measurements are in pixels at a fixed working size of 912×912, because the pipeline assumes no
 knowledge of pixel resolution. Its authors note that both codebases measure at that universal size,

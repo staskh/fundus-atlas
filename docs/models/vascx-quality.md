@@ -103,7 +103,13 @@ Reported in the VascX Models paper. Numbers are in that paper and are not restat
   runs a model then fails with `ModuleNotFoundError`. Found 2026-09-14 on commit `d0cde1c7`; a user
   must know to install both, and nothing tells them which versions go together.
 - **Nothing published states what the three outputs mean.** They reach the user as `q1`, `q2`,
-  `q3`. A pipeline filtering on the wrong column filters on the wrong thing, silently.
+  `q3`, and as **raw logits** rather than probabilities — `run_quality_estimation` writes
+  `item["logits"]` straight to the file. A pipeline filtering on the wrong column filters on the
+  wrong thing, silently.
+- **Nothing in VascX reads them again.** `quality.csv` is written and never consumed: no
+  photograph is refused, no biomarker is withheld, and no threshold is suggested anywhere in the
+  repository. Whether the quality model changes any VascX output is therefore not a question about
+  the model — the answer is no, unless a user writes the filter themselves.
 - **The documented 1024 grid is not the grid the network sees** (section 4). A reader comparing
   this model against one that works at 512 would conclude it has four times the linear resolution
   to work with; it has rather less.

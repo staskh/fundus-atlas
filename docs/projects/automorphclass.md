@@ -53,6 +53,7 @@ work:
 | [BF-Net](../models/bf-net.md) (720 px) | Arteries against veins | Borrowed from AutoMorph |
 | [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) (512 px) | Optic disc and cup | Borrowed from AutoMorph, which retrained the [lwnet](../models/lwnet.md) architecture for this task |
 | Skeletonisation | Vessel skeleton, a processing step rather than anatomy | Included in the package |
+| — | **No image-quality model.** AutoMorph's quality stage is absent from this package, so every photograph handed to it is measured and nothing is refused. *(This atlas's observation, from reading the package on 2026-09-15: nothing under `src/pytorch_automorph/` mentions quality, and no gate stands between the input and the segmentation models)* | Dropped |
 
 The pipeline is AutoMorph's, reimplemented as PyTorch classes
 (`Vessel_segmentation.py`, `AV_classification.py`, `Optic_disc_and_cup.py`) with the stage

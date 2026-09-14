@@ -39,8 +39,15 @@ trained themselves on EyeQ's labelled [EyePACS](../datasets/eyeq.md) images, and
 ## 4. What it produces
 
 - **Purpose:** `quality`
-- **Output classes:** three quality grades — Good, Usable, Reject — following EyeQ's grading scheme.
-  AutoMorph uses the result to route images; images graded Reject are not carried into measurement.
+- **Output classes:** three quality grades — Good, Usable, Reject — following EyeQ's grading scheme,
+  emitted as the mean of eight seeds' softmax outputs.
+- **How AutoMorph turns those three into a decision is not the model's own verdict.**
+  `merge_quality_assessment.py` copies a photograph into `Results/M1/Good_quality/` when the
+  argmax is Good, **or** when the argmax is Usable *and the mean probability of the Reject class is
+  below 0.25*; everything else goes to `Bad_quality/`. All three M2 segmentation stages read
+  `Good_quality/` only, so a photograph the grader called Usable with a Reject probability of 0.3 is
+  never segmented and never measured. *(This atlas's observation, read at commit `9a953e5e` on
+  2026-09-15.)*
 - **Input grid:** 512×512, square, resized with aspect ratio ignored from AutoMorph's
   912-diameter preprocessed image.
 - **Output grid:** not applicable — the model returns three class scores, not a mask.
@@ -95,6 +102,14 @@ here only to place the task, not to rank them.
 
 ## 10. Known defects
 
+- **The published gate is stricter than the published grade, and nothing says so.** The paper and
+  the README describe a three-class grader; the code admits the middle class only conditionally
+  (section 4). Anyone reproducing "AutoMorph's quality filter" from the description alone will
+  carry photographs the pipeline drops. A stricter variant, additionally requiring the standard
+  deviation of the Usable probability across the eight seeds to be under 0.1, is present as a
+  commented-out line beside it — so the operating point in the repository is one of at least two
+  the authors tried, with nothing recording which produced any published result.
+
 None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health.
 
 ## 11. Notes
@@ -108,4 +123,4 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-15

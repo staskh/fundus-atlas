@@ -56,7 +56,13 @@ training.
 ## 5. Architecture
 
 - **Family:** a frozen DenseNet121 feature extractor with a scikit-learn support vector machine as
-  the classifier. A variant, QuickQualMEME, is provided in a separate notebook.
+  the classifier.
+- **The MEME variant is a different model**, provided in a separate notebook: it selects nine of
+  the same features by index and applies nine weights and a bias, emitting **one probability that
+  the photograph is bad** rather than three class probabilities. It therefore cannot answer the
+  three-way question this page's model answers, and it is what
+  [AutoMorphalyzer](../projects/automorphalyzer.md) actually runs — see section 9. It has no page
+  of its own in this catalogue yet.
 - **Parameters:** DenseNet121's, unchanged and not trained; the SVM adds a few kilobytes.
 - **Single model or ensemble:** single model.
 
@@ -97,7 +103,7 @@ result. Recorded as their claim.
 
 | Project | How it is used | Weights |
 | --- | --- | --- |
-| [AutoMorphalyzer](../projects/automorphalyzer.md) | Replaces AutoMorph's quality module; the rejection probability is written into the collated results file and no image is rejected | The published classifier |
+| [AutoMorphalyzer](../projects/automorphalyzer.md) | Replaces AutoMorph's quality module; one probability that the photograph is bad is written into the collated results file, no image is rejected, and nothing downstream reads the column | **Not this classifier** — the MEME variant of section 5, whose ten numbers are copied into its source. *(This atlas's observation, `preprocess/preprocess.py`, read 2026-09-15)* |
 
 ## 10. Known defects
 
