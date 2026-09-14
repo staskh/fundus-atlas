@@ -58,7 +58,9 @@ class FitQuality:
         """A photograph as the toolbox's own batch path expects it: channels first, 0 to 1.
 
         The resize, the centre crop and the normalisation are the toolbox's, applied inside its
-        own inference from the training transforms; nothing is done for it here.
+        own inference from the training transforms; nothing is done for it here. The batch stays
+        on the processor it was built on, because the toolbox turns each photograph back into a
+        PIL image before it moves anything to its own device.
         """
         return torch.from_numpy(pixels.transpose(2, 0, 1).copy()).float() / 255.0
 
@@ -67,7 +69,7 @@ class FitQuality:
 
         try:
             confidence, _ = ensemble_predict_quality(
-                self._loaded(), list(images.to(self.device)), img_size=GRID
+                self._loaded(), list(images), img_size=GRID
             )
         except Exception as failure:  # a crash is the model's answer to nothing
             return [Grade(key, outcome=FAILED, note=repr(failure)) for key in keys]
