@@ -156,3 +156,8 @@ def test_the_units_a_store_holds_are_read_from_its_manifest(store: Path) -> None
         "mshf/cfp/train",
         "mshf/portable/train",
     ]
+
+
+def test_a_dataset_that_was_never_built_says_how_to_build_it(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError, match="python -m datasets.hrf"):
+        base.units("hrf", root=tmp_path)

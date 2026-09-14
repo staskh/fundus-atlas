@@ -91,7 +91,7 @@ def _pair(
 
     kept = None if force else runs.reusable(results, NAME, adapter.slug, unit, identity)
     if kept is not None:
-        print(f"{adapter.slug} × {unit.name}: kept, nothing that could change it has", flush=True)
+        print(f"{adapter.slug} × {unit.name}: kept — nothing that could change it did", flush=True)
         return {**common, "summary": kept["summary"], "reused": True}
 
     print(f"{adapter.slug} × {unit.name}: {len(loader)} photographs", flush=True)

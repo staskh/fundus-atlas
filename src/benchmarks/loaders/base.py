@@ -49,8 +49,15 @@ class Unit:
 
 
 def units(slug: str, root: Path | None = None, findings: Path | None = None) -> list[Unit]:
-    """Every evaluation unit a store holds, in a stable order."""
+    """Every evaluation unit a store holds, in a stable order.
+
+    :raises FileNotFoundError: if the dataset has not been built, saying how to build it.
+    """
     store = (root or paths.root()) / slug
+    if not (store / "manifest.csv").exists():
+        raise FileNotFoundError(
+            f"no store for {slug} at {store}; build it with `python -m datasets.{slug}`"
+        )
     found = {
         (row["subset"], row["split"])
         for row in exclusions.usable_rows(store, findings=_findings(slug, findings))
