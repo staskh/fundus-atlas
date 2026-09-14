@@ -57,12 +57,11 @@ training.
 
 - **Family:** a frozen DenseNet121 feature extractor with a scikit-learn support vector machine as
   the classifier.
-- **The MEME variant is a different model**, provided in a separate notebook: it selects nine of
-  the same features by index and applies nine weights and a bias, emitting **one probability that
-  the photograph is bad** rather than three class probabilities. It therefore cannot answer the
-  three-way question this page's model answers, and it is what
-  [AutoMorphalyzer](../projects/automorphalyzer.md) actually runs — see section 9. It has no page
-  of its own in this catalogue yet.
+- **The MEME variant is a different model and has [its own page](quickqual-meme.md)**: nine of the
+  same features by index, nine weights and a bias, emitting **one probability that the photograph
+  is bad** rather than three class probabilities. It cannot answer the three-way question this
+  page's model answers, and it is what [AutoMorphalyzer](../projects/automorphalyzer.md) actually
+  runs — see section 9.
 - **Parameters:** DenseNet121's, unchanged and not trained; the SVM adds a few kilobytes.
 - **Single model or ensemble:** single model.
 
@@ -103,7 +102,7 @@ result. Recorded as their claim.
 
 | Project | How it is used | Weights |
 | --- | --- | --- |
-| [AutoMorphalyzer](../projects/automorphalyzer.md) | Replaces AutoMorph's quality module; one probability that the photograph is bad is written into the collated results file, no image is rejected, and nothing downstream reads the column | **Not this classifier** — the MEME variant of section 5, whose ten numbers are copied into its source. *(This atlas's observation, `preprocess/preprocess.py`, read 2026-09-15)* |
+| — | **No catalogued project runs this classifier.** [AutoMorphalyzer](../projects/automorphalyzer.md) reaches for QuickQual but runs [QuickQual-MEME](quickqual-meme.md) instead, whose ten numbers are copied into its source. *(This atlas's observation, `preprocess/preprocess.py`, read 2026-09-15)* | — |
 
 ## 10. Known defects
 

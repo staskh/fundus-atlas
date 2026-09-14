@@ -33,7 +33,13 @@ VERSION = 2
 DATASETS = ("fives", "fqs", "mshf")
 
 #: The models, by the slug of their catalogue page.
-MODELS = ("fit-quality", "vascx-quality", "automorph-quality-grader", "quickqual")
+MODELS = (
+    "fit-quality",
+    "vascx-quality",
+    "automorph-quality-grader",
+    "quickqual",
+    "quickqual-meme",
+)
 
 #: How many photographs go to the model at once.
 BATCH = 8

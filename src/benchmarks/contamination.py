@@ -20,6 +20,8 @@ TRAINED_ON: dict[str, dict[str, str]] = {
     "automorph-quality-grader": {"eyeq": IN_SAMPLE},
     # docs/models/quickqual.md section 6: EyeQ's train split, evaluated on EyeQ's test split.
     "quickqual": {"eyeq": IN_SAMPLE},
+    # docs/models/quickqual-meme.md section 6: the same ten parameters, fitted on the same split.
+    "quickqual-meme": {"eyeq": IN_SAMPLE},
 }
 
 #: Models whose training data could not be established from their page. VascX names "more than

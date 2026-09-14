@@ -51,6 +51,7 @@ class AutoMorphQualityGrader:
             "network_grid": GRID,
             "grades": "good, usable, reject",
             "emits_probabilities": True,
+            "named_grades": COLUMNS,
             "ensemble": 8,
             "gate": (
                 f"AutoMorph's own rule, which is not this model's argmax: a `good` verdict is "

@@ -43,6 +43,7 @@ class QuickQual:
             "network_grid": GRID,
             "grades": "good, usable, bad",
             "emits_probabilities": True,
+            "named_grades": COLUMNS,
             "ensemble": 1,
             "gate": (
                 "none. AutoMorphalyzer is the only catalogued pipeline that reaches for QuickQual, "

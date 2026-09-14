@@ -35,15 +35,20 @@ def test_every_adapter_reads_its_model_into_one_vocabulary(slug: str) -> None:
     adapter = catalogue.load(slug, device="cpu")
     emitted = (
         np.array([[0.7, 0.2, 0.1], [0.05, 0.15, 0.8]])
-        if adapter.declare()["grades"] != "gradeable against ungradeable"
+        if adapter.declare()["named_grades"]
         else np.array([0.7, 0.05])
     )
 
     graded = type(adapter).interpret(["a", "b"], emitted)
 
     assert [grade.key for grade in graded] == ["a", "b"]
-    assert graded[0].gradeable > graded[1].gradeable
     assert all(grade.outcome == "graded" for grade in graded)
+    assert all(0.0 <= grade.gradeable <= 1.0 for grade in graded), (
+        "every model here answers the one comparable question with a confidence"
+    )
+    assert all(
+        grade.verdict in adapter.declare()["named_grades"] or not grade.verdict for grade in graded
+    )
 
 
 def test_a_three_way_grader_names_the_class_it_was_most_confident_of() -> None:
@@ -102,3 +107,23 @@ def test_a_model_no_pipeline_gates_on_gates_nothing(slug: str) -> None:
 
     assert graded[0].gated is None
     assert "none" in adapter.declare()["gate"].lower()
+
+
+def test_the_meme_variant_reads_one_probability_that_the_photograph_is_bad() -> None:
+    adapter = catalogue.load("quickqual-meme", device="cpu")
+
+    graded = type(adapter).interpret(["sound", "poor"], np.array([0.05, 0.95]))
+
+    assert [grade.gradeable for grade in graded] == [pytest.approx(0.95), pytest.approx(0.05)]
+    assert [grade.verdict for grade in graded] == ["", ""], "it names no grade, it scores one"
+
+
+def test_automorphalyzer_carries_every_photograph_into_measurement() -> None:
+    adapter = catalogue.load("quickqual-meme", device="cpu")
+
+    graded = type(adapter).interpret(["sound", "poor"], np.array([0.05, 0.99]))
+
+    assert [grade.gated for grade in graded] == [True, True], (
+        "measuring everything is a decision, and the one AutoMorphalyzer makes"
+    )
+    assert "every" in adapter.declare()["gate"].lower()

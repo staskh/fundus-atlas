@@ -44,6 +44,7 @@ class FitQuality:
             "network_grid": GRID,
             "grades": "gradeable against ungradeable",
             "emits_probabilities": True,
+            "named_grades": (),
             "threshold": THRESHOLD,
             "gate": (
                 f"the toolbox's own default threshold of {THRESHOLD} on its confidence. No "

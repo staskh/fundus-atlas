@@ -49,6 +49,7 @@ class VascxQuality:
             "network_grid": NETWORK_GRID,
             "grades": "three classes, read as good, usable and bad",
             "emits_probabilities": True,
+            "named_grades": COLUMNS,
             "ensemble": "one checkpoint holding several folds",
             "gate": (
                 "none. VascX writes the three outputs to `quality.csv` as raw logits named q1, q2 "
