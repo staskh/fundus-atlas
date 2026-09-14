@@ -3,7 +3,7 @@
 
 import json
 from collections.abc import Iterable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from models.utils.grading import GRADES
@@ -203,7 +203,7 @@ def _quality(scored: list[dict[str, object]]) -> Iterable[str]:
 
 def _today() -> str:
     """The date a page was generated, in UTC, so two machines date the same run alike."""
-    return datetime.now(timezone.utc).date().isoformat()
+    return datetime.now(UTC).date().isoformat()
 
 
 def _first(scored: list[dict[str, object]], model: str = "", unit: str = "") -> dict[str, object]:
