@@ -204,7 +204,7 @@ consumer can then read any store without special-casing. Missing values are empt
 | `eye` | str | `od` (right), `os` (left), or empty |
 | `disease` | str | The dataset's own label, verbatim, not remapped to a common vocabulary. One value: the published consensus, or the only reader's, or empty — section 5.1 |
 | `quality` | str | Always `good`, `usable`, `bad` or empty — the dataset's own grade mapped, or derived from its component ratings — section 5.4. One value, on the same rule as `disease` |
-| `quality_source` | str | `published` or `derived`, so the two are never pooled by accident. Empty where there is no grade at all |
+| `quality_source` | str | `published`, `derived` or `assumed`, so the three are never pooled by accident. Empty where there is no grade at all |
 | `source_image` | str | Path of the source file inside the archive, so a row can be traced back |
 | `sha256` | str | Checksum of the source image file |
 | `notes` | str | Per-image caveats: a stray file, an odd field angle, a mask that disagrees with its description |
@@ -349,6 +349,19 @@ rating of *artefacts* is best at zero — the fetcher declares it rather than th
 counts as full marks. A component the dataset left blank counts as short of best, which is
 deliberately pessimistic: an unrated aspect is not evidence of a good one.
 
+**Where the dataset grades nothing at all, a grade may be assumed — and marked as assumed.** Some
+datasets carry no quality annotation and were plainly curated: one camera, every frame centred the
+same way, a clinical study that would not have kept an unreadable photograph, annotations drawn on
+all of them by hand. `quality.Assumed("good", because=...)` records that supposition on every row
+with `quality_source` set to `assumed`, and the reason is stated on the dataset page beside it.
+
+Two rules keep it honest. **The reason is required** — an assumption nobody has to justify is a
+guess — and **`assumed` is the weakest source there is**: it is this repository's supposition, not
+the authors' statement, which `CLAUDE.md` §4.4 requires be kept apart. What it makes such a dataset
+good for is one particular question — how much of a sound dataset a model would throw away — and
+never for measuring how well a model finds bad photographs, of which it contains none by
+construction.
+
 The rules around it:
 
 - **A published grade wins over a derived one.** Where the dataset states an overall verdict, that
@@ -359,9 +372,10 @@ The rules around it:
   of the 576 photographs its ophthalmologists judged good enough for diagnosis `bad`, because a
   perfect field-definition score there means the disc and macula both sit within one disc diameter
   of the centre — excellent framing, not a precondition for reading the image.
-- **`quality_source` exists so the two are never pooled silently.** A study filtering on
-  `quality == "good"` across several datasets is mixing authors' grades with ours unless it checks
-  this column, and that mixture is invisible without it.
+- **`quality_source` exists so the three are never pooled silently.** A study filtering on
+  `quality == "good"` across several datasets is mixing authors' grades with ours — derived from
+  their components, or assumed outright — unless it checks this column, and that mixture is
+  invisible without it.
 - **Derive per grader, not from an average.** Where each grader rated the components, the rule runs
   once per grader into `labels.csv`; the manifest cell then follows section 5.1 — the graders' value
   where they agree, empty with `quality` listed in `multi_reader` where they do not. Averaging
@@ -504,7 +518,10 @@ has to look it up and can always see where it came from.
    converting to microns.
 2. **`field_angle`** — the dataset states a field of view. At the posterior pole a degree of field is
    about **300 µm** of retina, so `um_per_px = 300 * degrees / fov_diameter_px`. State the assumption
-   in the comment; it is an approximation that ignores eye length and projection.
+   in the comment; it is an approximation that ignores eye length and projection. **This one is per
+   image, not per dataset**, because the field's diameter in pixels differs from photograph to
+   photograph: declare `Declared(um_per_px=None, source="field_angle", degrees=30, note=...)` and
+   the value is computed from each row's own fitted field as the manifest is written.
 3. **`disc_anchored`** — no field angle, but the dataset (or a reader) marks the optic disc. A real
    optic disc is about **1800 µm** across, so `um_per_px = 1800 / disc_diameter_px`. Prefer this to a
    guessed field angle: it is anchored on the eye rather than on the camera.

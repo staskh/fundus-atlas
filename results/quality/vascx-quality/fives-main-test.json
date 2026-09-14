@@ -1,11 +1,12 @@
 {
-  "fingerprint": "1e25ec3a9439a2ea809d939c8eb72d2a60ac0501a8f661d9b480f4ed4da33bdc",
+  "fingerprint": "5edf51ddf2f37991cf9e4692c7562fd7de5a6d63ac028dee230700d61f9c4a02",
   "model": "vascx-quality",
   "summary": {
     "coverage": 1.0,
     "declined": 0,
     "device": "mps",
     "failed": 0,
+    "gate": null,
     "gradeable": {
       "accuracy": 0.925,
       "kappa": 0.7024990083300278,
@@ -14,6 +15,11 @@
     },
     "graded": 200,
     "photographs": 200,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
     "three_class": {
       "accuracy": 0.76,
       "confusion": {
@@ -34,7 +40,13 @@
         }
       },
       "kappa_quadratic": 0.767250821467689,
-      "photographs": 200
+      "photographs": 200,
+      "recall": {
+        "bad": 0.8461538461538461,
+        "good": 0.8120300751879699,
+        "usable": 0.5365853658536586
+      },
+      "unused_by_the_reference": []
     },
     "without_reference": 0
   },

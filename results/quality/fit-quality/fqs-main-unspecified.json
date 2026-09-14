@@ -1,11 +1,19 @@
 {
-  "fingerprint": "9f1b74ac8bb4f9edbdbb8ae91013df38b2c6b7c0ee7ec9fafb6e1388d3b81166",
+  "fingerprint": "9c2341434244f38f407bb8ff260f9e635b2fd82e51fe9a252cdf9458cffeeb9d",
   "model": "fit-quality",
   "summary": {
     "coverage": 1.0,
     "declined": 0,
     "device": "mps",
     "failed": 0,
+    "gate": {
+      "accuracy": 0.7915367483296214,
+      "carried": 915,
+      "carried_share": 0.40757238307349664,
+      "differs_from_the_verdict": 0,
+      "kappa": 0.5953677529673648,
+      "photographs": 2245
+    },
     "gradeable": {
       "accuracy": 0.7915367483296214,
       "kappa": 0.5953677529673648,
@@ -14,6 +22,11 @@
     },
     "graded": 2245,
     "photographs": 2245,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
     "three_class": null,
     "without_reference": 0
   },

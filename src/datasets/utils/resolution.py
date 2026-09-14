@@ -18,20 +18,36 @@ DISC_MICRONS = 1800.0
 class Declared:
     """A dataset's native resolution, as established by the person writing its fetcher.
 
-    :param um_per_px: microns per pixel, or `None` where it could not be established.
+    :param um_per_px: microns per pixel, or `None` where it is per image or could not be
+        established at all.
     :param source: one of :data:`SOURCES`.
+    :param degrees: the stated field of view, for a dataset whose scale follows from it. The
+        resolution is then **per image** rather than per dataset, because the field's diameter in
+        pixels differs from photograph to photograph, so the value is computed by
+        :meth:`for_field` as each row is written.
     :param note: the derivation, or why no value could be established.
     """
 
     um_per_px: float | None
     source: str
     note: str
+    degrees: float | None = None
 
     def __post_init__(self) -> None:
         if self.source not in SOURCES:
             raise ValueError(f"{self.source!r} is not one of {SOURCES}")
+        if self.source == "field_angle":
+            if self.degrees is None:
+                raise ValueError("source 'field_angle' needs the degrees the authors state")
+            return
         if (self.um_per_px is None) != (self.source == "unknown"):
             raise ValueError("a value needs a source, and source 'unknown' needs no value")
+
+    def for_field(self, fov_r: float) -> float | None:
+        """This photograph's resolution, given the radius of the field that was fitted to it."""
+        if self.source == "field_angle" and fov_r > 0:
+            return from_field_angle(self.degrees, 2 * fov_r)
+        return self.um_per_px
 
 
 def um_per_px_at(um_per_px: float | None, crop_side: int, size: int) -> float | None:

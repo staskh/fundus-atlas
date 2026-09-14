@@ -385,7 +385,7 @@ def _build_one(
         "crop_y0": str(square.y0),
         "crop_side": str(square.side),
         "pad_fraction": f"{crop.pad_fraction(square, height, width):.4f}",
-        "um_per_px": "" if resolution_of.um_per_px is None else f"{resolution_of.um_per_px:g}",
+        "um_per_px": _scale(resolution_of.for_field(circle.r)),
         "resolution_source": resolution_of.source,
         "maps": ";".join(name for name in LAYERS if name in frames or name in structures),
         "readers": ";".join(readers),
@@ -483,6 +483,11 @@ def _inside(image: Path, raw: Path) -> str:
         return str(image.resolve().relative_to(raw.resolve()))
     except ValueError:
         return str(image)
+
+
+def _scale(um_per_px: float | None) -> str:
+    """A resolution as the manifest writes it, and nothing at all where none is established."""
+    return "" if um_per_px is None else f"{um_per_px:g}"
 
 
 def _resize(layer: str, frame: np.ndarray, size: int) -> np.ndarray:
