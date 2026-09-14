@@ -1,8 +1,11 @@
 # ABOUTME: What a quality benchmark measures: coverage first, and then accuracy, agreement and
 # ABOUTME: ranking on the photographs a model was willing to answer for.
 
+import math
+import warnings
 from collections.abc import Iterable
 
+from sklearn.exceptions import UndefinedMetricWarning
 from sklearn.metrics import accuracy_score, cohen_kappa_score, roc_auc_score
 
 from models.utils.grading import BAD, DECLINED, FAILED, GRADED, GRADES, Grade
@@ -60,7 +63,7 @@ def _gradeable(truth: dict[str, str], scored: list[Grade]) -> dict[str, object]:
     return {
         "photographs": len(scored),
         "accuracy": accuracy_score(reference, predicted) if scored else None,
-        "kappa": cohen_kappa_score(reference, predicted) if both_classes else None,
+        "kappa": _agreement(reference, predicted) if both_classes else None,
         "roc_auc": (
             roc_auc_score(reference, confidence)
             if both_classes and all(value is not None for value in confidence)
@@ -82,11 +85,24 @@ def _three_class(truth: dict[str, str], scored: list[Grade]) -> dict[str, object
     return {
         "photographs": len(named),
         "accuracy": accuracy_score(reference, predicted),
-        "kappa_quadratic": cohen_kappa_score(
+        "kappa_quadratic": _agreement(
             reference, predicted, labels=list(GRADES), weights="quadratic"
         ),
         "confusion": confusion,
     }
+
+
+def _agreement(reference: list, predicted: list, **how: object) -> float | None:
+    """Agreement beyond chance, or nothing where it has no value.
+
+    Two sets of verdicts with only one label in common leave κ undefined. That is an answer, not a
+    problem: it is reported as a dash rather than as a number nobody can read, which is why the
+    library's warning about it is expected here and handled rather than printed.
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UndefinedMetricWarning)
+        value = cohen_kappa_score(reference, predicted, **how)
+    return None if value is None or math.isnan(value) else float(value)
 
 
 def _says_worth_measuring(grade: Grade) -> bool:

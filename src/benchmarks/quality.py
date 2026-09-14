@@ -16,7 +16,7 @@ from . import contamination, runs, scoring
 from .loaders.base import FLOOR, Unit, collate
 from .loaders.base import units as units_of
 from .loaders.quality import QualityLoader
-from .report import write_report
+from .report import write_index, write_report
 
 #: What this benchmark is called, in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "quality"
@@ -113,9 +113,14 @@ def _grade(adapter, loader: QualityLoader, batch: int) -> list:
 
 
 def _rows(loader: QualityLoader, grades: list) -> list[dict[str, object]]:
-    """The per-image evidence: what the dataset said, and what the model said."""
+    """The per-image evidence: what the dataset said, and what the model said.
+
+    Every row carries the same columns, including for a photograph the model failed on: a file
+    whose columns depend on which photograph came first is not evidence of anything.
+    """
     readers = {row["key"]: loader.readers.get(row["key"], {}) for row in loader.rows}
     truth = {row["key"]: row["quality"] for row in loader.rows}
+    named = sorted({name for grade in grades for name in grade.classes})
     return [
         {
             "key": grade.key,
@@ -127,7 +132,8 @@ def _rows(loader: QualityLoader, grades: list) -> list[dict[str, object]]:
             "verdict": grade.verdict,
             "gradeable": "" if grade.gradeable is None else f"{grade.gradeable:.6f}",
             **{
-                name: f"{value:.6f}" for name, value in sorted(grade.classes.items())
+                name: ("" if name not in grade.classes else f"{grade.classes[name]:.6f}")
+                for name in named
             },
             "note": grade.note,
         }
@@ -190,6 +196,7 @@ def main(argv: list[str] | None = None) -> None:
     scored = run(adapters, units, root=root, batch=args.batch, force=args.force)
     if args.report:
         write_report(NAME, scored)
+        write_index()
 
 
 if __name__ == "__main__":

@@ -113,3 +113,17 @@ def test_a_photograph_the_model_never_saw_is_an_error_rather_than_a_silent_gap()
 
     with pytest.raises(ValueError, match="b"):
         scoring.summarise(truth, [Grade("a", verdict=GOOD, gradeable=0.9)])
+
+
+def test_agreement_that_has_no_value_is_reported_as_nothing() -> None:
+    truth = {"a": GOOD, "b": BAD}
+    grades = [
+        Grade("a", verdict=GOOD, gradeable=0.9, classes={GOOD: 0.9, USABLE: 0.1, BAD: 0.0}),
+        Grade("b", outcome=FAILED, note="broke"),
+    ]
+
+    summary = scoring.summarise(truth, grades)
+
+    assert summary["three_class"]["photographs"] == 1
+    assert summary["three_class"]["kappa_quadratic"] is None, "one verdict leaves κ undefined"
+    assert summary["three_class"]["accuracy"] == pytest.approx(1.0)

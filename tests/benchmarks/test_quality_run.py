@@ -133,3 +133,30 @@ def test_the_run_records_what_produced_it(tmp_path: Path) -> None:
 
     assert "brightness" in record.read_text()
     assert "builder_version" in record.read_text()
+
+
+class Fickle(Brightness):
+    """A model that answers for one photograph and crashes on the other."""
+
+    slug = "fickle"
+
+    def grade(self, images, keys):
+        from models.utils.grading import FAILED, Grade
+
+        return [
+            Grade(key, outcome=FAILED, note="broke")
+            if index == 0
+            else Grade(key, verdict=GOOD, gradeable=0.8, classes={GOOD: 0.8, BAD: 0.2})
+            for index, key in enumerate(keys)
+        ]
+
+
+def test_a_photograph_the_model_failed_on_keeps_the_same_columns(tmp_path: Path) -> None:
+    unit = Unit("fives", "main", "train")
+    quality.run([Fickle()], [unit], results=tmp_path / "results", root=a_store(tmp_path))
+
+    evidence = list(runs.rows(tmp_path / "results", quality.NAME, "fickle", unit))
+
+    assert list(evidence[0]) == list(evidence[1])
+    assert evidence[0]["outcome"] == "failed"
+    assert evidence[0]["good"] == ""

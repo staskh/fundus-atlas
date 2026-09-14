@@ -45,3 +45,34 @@ def test_a_stored_score_is_kept_only_while_its_fingerprint_holds(tmp_path: Path)
 
     assert runs.reusable(tmp_path, "quality", "quickqual", unit, "before") is not None
     assert runs.reusable(tmp_path, "quality", "quickqual", unit, "after") is None
+
+
+def test_the_index_lists_every_benchmark_that_has_results(tmp_path: Path) -> None:
+    from benchmarks import report
+
+    unit = Unit("fives", "main", "test")
+    runs.write(
+        tmp_path / "results",
+        "quality",
+        "quickqual",
+        unit,
+        "fingerprint",
+        {
+            "photographs": 2,
+            "coverage": 1.0,
+            "graded": 2,
+            "declined": 0,
+            "failed": 0,
+            "gradeable": {"photographs": 2, "accuracy": 0.5, "roc_auc": None, "kappa": None},
+            "three_class": None,
+        },
+        [{"key": "a"}],
+    )
+
+    path = report.write_index(results=tmp_path / "results", into=tmp_path / "docs")
+
+    written = path.read_text()
+    assert "quality" in written
+    assert "quickqual" in written
+    assert "fives/main/test" in written
+    assert "—" in written, "a metric that does not exist is a dash, not a zero"
