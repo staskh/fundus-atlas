@@ -168,3 +168,22 @@ def test_a_run_in_which_something_declined_does_not_claim_otherwise(tmp_path: Pa
     written = report.write_report("quality", [entry], into=tmp_path).read_text()
 
     assert "No model declined" not in written
+
+
+def test_an_assumed_reference_is_explained_rather_than_read_as_a_grade(tmp_path: Path) -> None:
+    entry = scored()
+    entry["grade_source"] = ["assumed"]
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "contains no bad photographs at all" in written
+    assert "how much of" in written
+
+
+def test_a_run_without_an_assumed_reference_does_not_mention_one(tmp_path: Path) -> None:
+    entry = scored()
+    entry["grade_source"] = ["published"]
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "assumed" not in written

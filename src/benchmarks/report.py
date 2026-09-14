@@ -122,14 +122,25 @@ def _quality(scored: list[dict[str, object]]) -> Iterable[str]:
         )
     yield ""
     yield (
-        "**`published` and `derived` are not the same kind of reference.** A published grade is the "
-        "dataset's own verdict on the photograph. A derived one is this repository's, computed from "
-        "the components the dataset did publish — for [FIVES](../datasets/fives.md), three binary "
-        "scores for illumination and contrast, blur and low contrast, where all three sound is "
-        "`good`, exactly one short is `usable`, and anything else is `bad`. A model measured "
-        "against a derived grade is being measured against that rule as much as against the "
-        "dataset."
+        "**The three kinds of reference are not the same statement.** A `published` grade is the "
+        "dataset's own verdict on the photograph. A `derived` one is this repository's, computed "
+        "from the components the dataset did publish — for [FIVES](../datasets/fives.md), three "
+        "binary scores for illumination and contrast, blur and low contrast, where all three "
+        "sound is `good`, exactly one short is `usable`, and anything else is `bad`. A model "
+        "measured against a derived grade is being measured against that rule as much as against "
+        "the dataset."
     )
+    if any("assumed" in (entry.get("grade_source") or []) for entry in scored):
+        yield ""
+        yield (
+            "**An `assumed` reference contains no bad photographs at all**, by construction: the "
+            "dataset graded nothing, and this repository took every photograph in it as sound "
+            "because it was curated — one camera, one centring, every frame annotated by hand. "
+            "Such a unit cannot say whether a model finds bad photographs, and no ranking metric "
+            "is defined on it. What it does measure, and nothing else here can, is **how much of "
+            "a sound dataset each model would throw away**: its accuracy on that unit is the "
+            "share it would keep."
+        )
     yield ""
     yield "## 3. Coverage: what each model was willing to answer"
     yield ""

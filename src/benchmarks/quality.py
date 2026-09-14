@@ -29,8 +29,10 @@ NAME = "quality"
 VERSION = 2
 
 #: The datasets this benchmark is run on by default: the ones that grade the photograph itself and
-#: are not excluded by the size floor or the crop rule.
-DATASETS = ("fives", "fqs", "mshf")
+#: are not excluded by the size floor or the crop rule. PAPILA grades nothing and is here on an
+#: assumed reference — every photograph taken as sound — which measures one thing the others
+#: cannot: how much of a curated dataset each model would throw away.
+DATASETS = ("fives", "fqs", "mshf", "papila")
 
 #: The models, by the slug of their catalogue page.
 MODELS = (
