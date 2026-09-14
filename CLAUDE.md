@@ -86,6 +86,15 @@ Skills that exist today:
 - **5.7** `fetch-dataset` — building a dataset fetcher: the command-line contract, the store layout,
   the manifest schema, how resolution is inferred when a dataset publishes none, and the `How to
   fetch` subsection every fetcher adds to its dataset page.
+- **5.8** `add-upstream` — bringing in somebody else's repository: pinned install or pinned clone,
+  patches, imports, and the provenance a run records.
+- **5.9** `add-model` — the adapter that lets a benchmark run one catalogued model: what it must
+  declare, what it must not do, and the page it must match.
+- **5.10** `build-benchmark` — a benchmark: its evaluation units, loaders, metrics, and the
+  fingerprint that keeps a re-run cheap.
+- **5.11** `analyse-benchmark` — the notebook every benchmark gets: what its analysis must show.
+- **5.12** `report-benchmark` — the summary document a run generates, and the rule that it is
+  generated rather than written.
 
 Before adding or changing an entry of any kind, load the matching skill and follow it. Where a skill
 does not exist yet, stop and agree the convention with Stas, then write the skill — do not invent a
@@ -110,9 +119,21 @@ Catalogues live under `docs/`: `PROJECTS.md` and `projects/` for pipelines, `MOD
 `datasets/` for image collections. Each summary table and its detail pages are maintained together,
 per the skills in section 5.
 
-Code lives under `src/`. Dataset fetchers are `src/datasets/<slug>.py`, one per catalogued dataset,
-and everything they share is in `src/datasets/utils/` — a helper two fetchers need belongs there, so
-that two datasets cannot disagree about a crop rule, a palette or a resize. Images found to be
-unusable are recorded in `src/datasets/exclusions/<slug>.json`, in the repository rather than in
-the downloaded store, so a finding survives deleting and rebuilding the store. Tests are in
-`tests/datasets/`, run against synthetic fixtures rather than downloads.
+Code lives under `src/`, one layer per kind of thing, and each layer's own skill in section 5 is
+the authority on it:
+
+- `src/datasets/<slug>.py` — one fetcher per catalogued dataset, with everything they share in
+  `src/datasets/utils/`, so that two datasets cannot disagree about a crop rule, a palette or a
+  resize. Images found to be unusable are recorded in `src/datasets/exclusions/<slug>.json`, in the
+  repository rather than in the downloaded store, so a finding survives rebuilding it.
+- `src/upstreams/<project>.py` — one module per third-party **repository**: where its code comes
+  from, pinned, and how it is imported. Patches to it live in `src/upstreams/patches/<project>/`.
+- `src/models/<slug>.py` — one adapter per catalogued **model**, matching `docs/models/<slug>.md`.
+  Five models from one repository are five adapters and one upstream.
+- `src/benchmarks/` — one module per benchmark, its loaders, its scorer and its report writer.
+- `results/` — per-image scores, committed: a summary table is a claim and these are its evidence.
+- `notebooks/` — one analysis notebook per benchmark.
+
+Tests are in `tests/`, mirroring `src/`, and run against synthetic fixtures rather than downloads.
+Three directories are git-ignored caches: `.atlas_data/` for dataset stores, `.atlas_code/` for
+third-party checkouts and weights, `.atlas_runs/` for what a benchmark run produces.
