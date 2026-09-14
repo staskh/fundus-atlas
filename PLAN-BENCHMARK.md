@@ -40,10 +40,11 @@ catalogue can: **do two of these agree, measured on the same images, on the same
 | [ARIA](docs/projects/aria.md) | **Not benchmarked** — MATLAB, and not worth the trouble |
 
 Excluding the AutoMorph pipeline does not exclude its models: SEGAN, BF-Net and the lwnet-derived
-disc/cup model are all reached through the two children. **One consequence to decide:**
-[AutoMorph's own quality grader](docs/models/automorph-quality-grader.md) is reached from no child —
-AutoMorphalyzer replaced it with QuickQual — so it can only be run from the AutoMorph repository, as
-a model rather than a pipeline. Benchmark it that way, or drop it with the pipeline?
+disc/cup model are all reached through the two children.
+[AutoMorph's own quality grader](docs/models/automorph-quality-grader.md) is reached from neither —
+AutoMorphalyzer replaced it with QuickQual — so it is **benchmarked as a standalone model**, run
+from the AutoMorph repository without the pipeline around it. It is a model like any other; only the
+pipeline is out of scope.
 
 **The seven built stores are a beginning, not the set.** Datasets are fetched as a benchmark needs
 them; every benchmark names the datasets it wants, and the ones not yet built are a work item rather
@@ -63,18 +64,29 @@ The unit is **(dataset, subset, split)**, not the dataset:
   dataset hides what a map should show.
 - The store already carries both columns, so the unit needs no new bookkeeping.
 
-**Photographs under 1024 pixels are excluded**, measured on `crop_side` — the field's own size in
-the store, not the frame. Checked against what is built today, this removes:
+Two exclusions apply, and they catch different things.
 
-| Store | Excluded | Which |
+**A size floor: photographs whose field is under 512 pixels are excluded**, measured on `crop_side`
+— the field's own size in the store, not the frame.
+
+**A crop rule: a dataset whose images are crops rather than whole photographs is excluded whole.**
+Measuring pixels on a crop of a resized photograph relates to nothing, and no floor catches it,
+because a crop can be large. The evidence is in the manifest: the share of rows where no field
+boundary could be found at all. It is declared per dataset rather than inferred per image, because
+one image whose retina fills the frame is ordinary and a dataset where that is true of every image
+is not.
+
+Against what is built today:
+
+| Store | Excluded | By which rule |
 | --- | --- | --- |
-| [RIGA](docs/datasets/riga.md) | **all 744** | 800×800 throughout |
-| [MSHF](docs/datasets/mshf.md) | 235 of 802 | the DR-XJU thumbnails, 412×310 to 555×419 |
+| [RIGA](docs/datasets/riga.md) | **all 744** | the crop rule — **744 of 744** rows have no findable field boundary. Its 800-pixel images clear the floor easily; they are still crops |
+| [MSHF](docs/datasets/mshf.md) | 229 of 802 | the floor — the DR-XJU thumbnails at 412×310. Six of the larger DR-XJU images clear 512 and stay. Two MSHF rows have no findable field, which is 0.2% and ordinary, not a crop dataset |
 | DeepDRiD, FQS, Chákṣu, FIVES, GRAPE | none | — |
 
-RIGA disappearing is consistent rather than awkward: its images are crops of photographs, which
-already disqualified them for anything measured in pixels. It also means **the six-reader disc/cup
-dataset is not available**, and Chákṣu's five readers become the human ceiling instead.
+RIGA going is consistent rather than awkward — its images were already disqualified for anything
+measured in pixels. It does mean **the six-reader disc/cup dataset is unavailable**, and Chákṣu's
+five readers become the human ceiling instead.
 
 **Exclusions recorded in `src/datasets/exclusions/` are applied too**, so a finding like Chákṣu's
 three broken expert masks is automatically out of every score.
@@ -106,13 +118,17 @@ catalogue current rather than to guess.
    are arithmetic on the same contours. Datasets: [Chákṣu](docs/datasets/chaksu.md),
    [GRAPE](docs/datasets/grape.md), and [ORIGA](docs/datasets/origa.md) once its archive arrives —
    ORIGA being the one with a published cup-to-disc ratio to check against.
-3. **Arteries and veins: segmentation**, with plain vessels folded in rather than benchmarked
-   separately. An artery/vein ground truth collapses to a vessel mask, so:
-   - **vessel level** — every vessel model and every A/V model, scored against the collapsed mask;
-   - **A/V level** — A/V models only, scored per class.
+3. **Arteries and veins: segmentation — artery/vein models only.** Vessel-only models are **not
+   benchmarked for now** and are kept for later; an artery/vein model already produces a vessel mask
+   as the union of its classes, so the question "how good are the vessels" is answered without them.
+   Each A/V model is scored three ways on the same output:
+   - **arteries** against the annotation's arteries,
+   - **veins** against its veins,
+   - **A+V**, both classes merged on each side, which is the vessel score.
 
-   None of the seven stores carries A/V, so this one needs datasets fetched first: HRF-AV, LES-AV,
-   RITE, IOSTAR, Leuven-Haifa and their kin. FIVES contributes at the vessel level today.
+   Three numbers, because a model can find the vessels and colour them wrongly, and one number
+   cannot show that. None of the seven stores carries A/V, so this benchmark needs datasets fetched
+   first: HRF-AV, LES-AV, RITE, IOSTAR, Leuven-Haifa and their kin.
 4. **Arteries and veins: biomarkers**, separately from the segmentation, since the interesting
    result is the paired one — the same calibre, tortuosity and fractal dimension computed on the
    annotation and on each model's mask.
@@ -123,11 +139,27 @@ catalogue current rather than to guess.
 
 | Level | Metrics |
 | --- | --- |
-| Vessels | Dice; **clDice** alongside, since Dice is dominated by thick vessels while every width and tortuosity figure comes from the centreline |
-| Artery/vein | Dice per class, plus the **swap rate**: the share of correctly-found vessel pixels given the wrong class |
+| A+V — the two classes merged, which is the vessel score | Dice; **clDice** alongside, since Dice is dominated by thick vessels while every width and tortuosity figure comes from the centreline |
+| Arteries, and veins, separately | Dice per class, plus the **swap rate**: the share of correctly-found vessel pixels given the wrong class |
 | Disc and cup | Dice per structure; **centre offset** in pixels; **equivalent radius error**; and the **cup-to-disc ratio error**, which is what anyone actually uses |
-| Quality | Accuracy, ROC AUC, and Cohen's κ against the dataset's grade |
+| Quality | **Coverage first** — see below — then accuracy, ROC AUC and Cohen's κ on what was graded |
 | Landmarks | Distance in pixels **and in disc diameters**, the latter being the only camera-independent form |
+
+### 6.1 A model may decline, and that counts
+
+Not every model answers every photograph. AutoMorph's grader declines images it judges ungradeable,
+and a model that crashes on an input has also failed to answer. So **every prediction has one of
+three outcomes** — `graded` with a value, `declined` by the model itself, or `failed` — and the
+first number reported for any model is its **coverage**: the share of the evaluation unit it was
+willing to answer at all.
+
+Coverage is reported beside accuracy and **never folded into it**. A grader that answers the easy
+60% of a dataset and is right about all of them is not better than one that answers everything and
+is right about 85%, and a table that prints only accuracy makes the first look better than the
+second. Declining is also not always wrong — refusing an ungradeable photograph is the job — which
+is why the two numbers are reported together and neither is a score on its own. A declined
+photograph is excluded from the accuracy metrics and counted in coverage; a failure is counted
+separately again, because a crash is our problem or the model's, not a judgement about the image.
 
 **Biomarker comparison between implementations is available for only some biomarkers, and the plan
 must not pretend otherwise.** The atlas has already documented the reason: "tortuosity" names at
@@ -141,7 +173,7 @@ truth is the one thing that must not be altered to make a comparison convenient.
 records the model's own grid beside the score, since a model working at 512 against a 2048-pixel
 annotation is handicapped in a way the number alone does not show.
 
-### 6.1 Resampling: the answer to "which approach?"
+### 6.2 Resampling: the answer to "which approach?"
 
 Three rules, in order of preference:
 
@@ -304,8 +336,8 @@ needs:
 | --- | --- |
 | `QualityLoader` | photograph, the dataset's own grade, and the per-reader grades where `labels.csv` has them |
 | `DiscCupLoader` | photograph, and the disc and cup contours per reader — plus the derived centre, radius and cup-to-disc ratio |
-| `VesselLoader` | photograph, and the vessel mask — including an A/V map collapsed to vessels |
-| `ArteryVeinLoader` | photograph, and the A/V map as classes |
+| `ArteryVeinLoader` | photograph, and the A/V map — as two classes, and as their union, which is the vessel ground truth |
+| `VesselLoader` | photograph and a binary vessel mask, for datasets annotated that way. Written when vessel-only models come back into scope |
 
 A base class holds what they share — the store, the unit, the exclusions, the size, the ordering —
 and each subclass supplies only *what counts as ground truth here*. Adding a dataset means building
@@ -325,15 +357,40 @@ its store; the loaders already read it. Adding a **kind** of benchmark means one
   applied, the store's `builder_version`, the evaluation unit, the resampling path, the environment's
   versions, and the date. A score without that is an anecdote.
 
+### 11.1 A re-run keeps what has already been measured
+
+**Decided.** Datasets arrive as benchmarks need them, and a benchmark will be re-run many times —
+after a new dataset is built, a model is added, a patch is written. Re-scoring everything each time
+would make that unaffordable, so a run is **incremental by default**, on the same principle the
+dataset stores already use.
+
+Each (model, evaluation unit) pair is scored once and its scores are kept with a **fingerprint** of
+everything that could change them:
+
+- the model's pinned commit or version, and the sha256 of the weights actually loaded;
+- the patches applied, by content;
+- the store's `builder_version` and the unit's row count;
+- the metric set and the resampling path;
+- the benchmark's own version.
+
+A re-run recomputes a pair only when its fingerprint differs; everything else is read from
+`results/`. Adding a dataset therefore costs only the new dataset, and adding a model costs only
+that model — while a changed patch or a rebuilt store correctly invalidates exactly what it touched.
+`--force` recomputes regardless, and, as with the stores, the predicted masks are the expensive part
+and are not what gets kept: the scores are.
+
+The trap this design has to avoid is a stale score outliving the thing that produced it. That is
+what the fingerprint is for, and why it covers the patches by content rather than by name.
+
 ## 12. Open questions
 
-1. **[AutoMorph's quality grader](docs/models/automorph-quality-grader.md)** — reached from neither
-   child. Benchmark it as a standalone model, or drop it with the pipeline (section 2)?
-2. **The 1024 floor removes RIGA entirely** (section 3). Agreed, given its images are crops anyway?
-3. **Which datasets to fetch next**, in the order the benchmarks need them: EyeQ and DRIMDB for
+1. **Which datasets to fetch next**, in the order the benchmarks need them: EyeQ and DRIMDB for
    quality; REFUGE, PAPILA, Drishti-GS, G1020, RIM-ONE DL for disc and cup; HRF, RITE, LES-AV,
    IOSTAR, Leuven-Haifa for arteries and veins.
-4. **ORIGA** still needs its archive by hand before the disc/cup benchmark can use its `ExpCDR`.
+2. **ORIGA** still needs its archive by hand before the disc/cup benchmark can use its `ExpCDR`.
+3. **Which A/V models exist to benchmark**, now that vessel-only models are deferred: BF-Net through
+   AutoMorphClass and AutoMorphalyzer, VascX artery/vein, OCULARNet and OCULARNet-nano, LUNet. Worth
+   confirming that list is the intended one before the datasets are fetched for it.
 
 ---
 
