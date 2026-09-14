@@ -49,7 +49,7 @@ pipeline is out of scope.
 **The seven built stores are a beginning, not the set.** Datasets are fetched as a benchmark needs
 them; every benchmark names the datasets it wants, and the ones not yet built are a work item rather
 than a limitation. The same goes for models: **adding one must mean adding one file**, which is what
-section 9 is designed around.
+section 10 is designed around.
 
 ## 3. What a benchmark is run on
 
@@ -293,62 +293,134 @@ weights.
 
 **Decided in shape; the detail is the first thing to build.**
 
-```
-src/
-  datasets/             built: one fetcher per dataset → .atlas_data/<slug>/
-  models/               ONE MODULE PER MODEL — adding a model is adding one file
-    utils/              fetching upstreams, pinned installs, patch application, shared runner
-    patches/<slug>/     patch files, where an upstream must be changed
-  biomarkers/           one implementation or adapter per catalogued biomarker
-    utils/
-    synthetic/          the generators of section 7
-  benchmarks/           one module per benchmark; the scorer; the report writer
-    utils/
-      loaders.py        the dataset loaders of section 10.1
-tests/
-  datasets/ models/ biomarkers/ benchmarks/
+### 10.1 Two layers, because a project is not a model
 
-.atlas_data/            git-ignored — dataset stores
-.atlas_code/            git-ignored — third-party clones at pinned commits
-.atlas_runs/            git-ignored — predicted masks: large, and reproducible
+The catalogues already separate these and the code should too. A **project** is a repository: one
+clone, one pinned commit, one set of dependencies. A **model** is one network with one purpose
+class. [VascX](docs/projects/vascx.md) is one repository holding five models;
+[AutoMorphalyzer](docs/projects/automorphalyzer.md) is one repository running four borrowed ones.
+So:
 
-results/                committed — per-image scores, the evidence behind every table
-docs/
-  BENCHMARKS.md         committed — summary tables, one row per model × evaluation unit
-  benchmarks/<name>.md  committed — what each benchmark asks, how it ran, what it found
-```
+| Layer | One per | What it knows |
+| --- | --- | --- |
+| **Upstream** — `src/upstreams/<project>.py` | **repository** | Where the code is: the repo and pinned commit, or the pinned pip version; which patches to apply; how to put it on `sys.path` and import it; where its weights come from |
+| **Model adapter** — `src/models/<model-slug>.py` | **catalogued model**, one-to-one with `docs/models/<slug>.md` | Which upstream it comes from, which weights inside it, how to prepare an image for it, how to read its output |
 
-**One module per model** is the extensibility requirement made concrete: a model declares its
-upstream, its weights, its input preparation and its output interpretation, and registers itself.
-Nothing else in the tree changes when a model is added. The same holds for datasets — the fetchers
-already work this way — and for biomarkers.
+**So: one fetcher per repository, one adapter per model.** VascX is fetched once and five adapters
+import from that one checkout. This is what keeps "adding a model is one file" true — if the
+upstream is already there, a sibling model really is one file; a model from a new repository is two.
 
-### 10.1 The loaders
+The model slug matches the catalogue's, so `docs/models/vascx-vessels.md` ↔
+`src/models/vascx-vessels.py`, and a model with no page cannot be benchmarked. That is deliberate:
+the contamination marks of section 4 come from the page.
 
-**Decided: one extendable class per benchmark kind**, and new datasets need no loader code at all.
+### 10.2 What a model adapter is
 
-The stores make this possible: every one has the same manifest schema, the same layers, the same
-contour format. So a loader reads `manifest.csv`, applies exclusions and the 1024 floor, filters to
-an evaluation unit, and yields the photograph with the ground truth in the form that benchmark
-needs:
+**The adapter is the only place allowed to know that a model is peculiar.** Everything downstream —
+loader, scorer, report — sees one interface, so a new model changes nothing but its own file.
+
+It does four things:
+
+1. **Prepares the input.** The store has already centred, squared and scaled every photograph, so no
+   adapter crops or centres. What each one *does* do is the preparation its upstream bakes into its
+   own inference and which is easy to get wrong: the grid it wants, its colour space, its
+   normalisation, its CLAHE or contrast step, the tensor layout and dtype.
+2. **Calls the model**, through the upstream it declares.
+3. **Interprets the output into the atlas's convention**: probabilities where the model emits them,
+   a fixed class order for artery/vein, a grade in the atlas's vocabulary rather than the model's
+   codes, and the `graded` / `declined` / `failed` outcome of section 6.1. Resampling to the
+   scoring frame happens after this, in one shared place, not per adapter.
+4. **Declares itself** — purpose class, input grid, weights identity, whether it emits
+   probabilities — so the runner can record all of it without asking the model.
+
+What an adapter must **not** do is score anything, choose a dataset, or write a result. Those are
+the benchmark's job, and keeping them out is what makes adapters comparable.
+
+### 10.3 What a biomarker adapter is
+
+The same shape, one layer down. A biomarker implementation usually lives inside somebody's
+project — PVBM's tortuosity, AutoMorph's central retinal equivalents — and each expects its input in
+its own form. The adapter:
+
+1. **Prepares the input** from the atlas's masks: the mask encoding that implementation expects
+   (which value means artery), the resolution it assumes, whether it wants a skeleton or a filled
+   mask, whether it needs the optic disc as a centre and radius or as a mask.
+2. **Calls the implementation.**
+3. **Returns named numbers with units** — and, critically, **names the variant**: not "tortuosity"
+   but Hart's τ1, or Grisan's density. Section 6 only allows two implementations to be compared when
+   they compute the same defined quantity, and the variant name is what makes that checkable rather
+   than assumed.
+
+`src/biomarkers/` holds **both kinds**: adapters onto other people's implementations, and our own
+implementations where no upstream exists or where the synthetic fixtures of section 7 need a
+reference. Both satisfy the same interface, so a comparison table does not care which is which —
+though the report always says which, because "our implementation" is a claim like any other.
+
+### 10.4 The loaders are PyTorch datasets
+
+**Decided: the loader is a `torch.utils.data.Dataset`**, so that batch inference is ordinary —
+`DataLoader(loader, batch_size=n, num_workers=k)` — rather than something the benchmark reinvents.
+
+One subclass per benchmark kind, each supplying only *what counts as ground truth here*:
 
 | Loader | Yields |
 | --- | --- |
 | `QualityLoader` | photograph, the dataset's own grade, and the per-reader grades where `labels.csv` has them |
 | `DiscCupLoader` | photograph, and the disc and cup contours per reader — plus the derived centre, radius and cup-to-disc ratio |
 | `ArteryVeinLoader` | photograph, and the A/V map — as two classes, and as their union, which is the vessel ground truth |
-| `VesselLoader` | photograph and a binary vessel mask, for datasets annotated that way. Written when vessel-only models come back into scope |
+| `VesselLoader` | photograph and a binary vessel mask. Written when vessel-only models come back into scope |
 
-A base class holds what they share — the store, the unit, the exclusions, the size, the ordering —
-and each subclass supplies only *what counts as ground truth here*. Adding a dataset means building
-its store; the loaders already read it. Adding a **kind** of benchmark means one subclass.
+A base class holds what they share: the store, the evaluation unit, the exclusions and the two rules
+of section 3, the ordering, and the key — which travels with every sample so a prediction can never
+be attributed to the wrong photograph.
+
+Two practical points that follow from batching:
+
+- **Batch at the model's grid, score at native.** Photographs differ in size, so a batch is only
+  possible once they are on a common grid — which is exactly what the store's `512/` and `1024/`
+  directories are for, and why they exist. The loader therefore yields images at the size the model
+  asks for, and the **ground truth is loaded at native by the scorer**, not stacked into the batch.
+- **The ground truth of a multi-reader dataset does not stack.** Chákṣu has five contours per
+  structure and they are polygons of differing length, so the collate function keeps them as a list
+  rather than padding them into a tensor.
+
+### 10.5 The tree
+
+```
+src/
+  datasets/             built: one fetcher per dataset → .atlas_data/<slug>/
+  upstreams/            ONE MODULE PER REPOSITORY — fetch, pin, patch, import
+    utils/              pinned clone, pinned install, patch application
+    patches/<project>/  patch files, where an upstream must be changed
+  models/               ONE MODULE PER CATALOGUED MODEL — the adapters of 10.2
+  biomarkers/           our implementations and the adapters of 10.3
+    synthetic/          the generators of section 7
+  benchmarks/           one module per benchmark; the scorer; the report writer
+    loaders/            the PyTorch datasets of 10.4
+tests/
+  datasets/ upstreams/ models/ biomarkers/ benchmarks/
+notebooks/              one analysis notebook per benchmark — section 12
+
+.atlas_data/            git-ignored — dataset stores
+.atlas_code/            git-ignored — third-party checkouts at pinned commits
+.atlas_runs/            git-ignored — predicted masks, kept: the biomarker benchmark reads them
+
+results/                committed — per-image scores, the evidence behind every table
+docs/
+  BENCHMARKS.md         committed — summary tables, one row per model × evaluation unit
+  benchmarks/<name>.md  committed — the generated summary of each benchmark run
+```
 
 ## 11. What is recorded
 
 **Decided.**
 
-- **Predicted masks are not committed.** Large, and reproducible from the model, the store and the
-  run record.
+- **Predicted masks are not committed, but they are kept** — in `.atlas_runs/`, addressed by the
+  run that produced them. They are not a by-product to be thrown away: **the biomarker benchmark's
+  input is exactly these masks**, so the paired comparison of section 1 reads a segmentation run's
+  output rather than running the models again. That makes the run identity load-bearing — a
+  biomarker result names the segmentation run it measured, and a mask whose fingerprint no longer
+  matches its model is recomputed before anything is measured from it.
 - **Per-image scores are committed.** A few megabytes, not reproducible without re-running
   everything, and they are the atlas's actual contribution — a summary table is a claim and the
   per-image scores are its evidence. CC BY 4.0, like the rest of the write-ups.
@@ -382,7 +454,49 @@ and are not what gets kept: the scores are.
 The trap this design has to avoid is a stale score outliving the thing that produced it. That is
 what the fingerprint is for, and why it covers the patches by content rather than by name.
 
-## 12. Open questions
+## 12. Notebooks and the written summary
+
+**Decided.**
+
+A benchmark produces three things, and they are for different readers:
+
+1. **`results/` — the per-image scores.** Machine-readable, committed, the evidence.
+2. **A notebook per benchmark, in `notebooks/`** — at least one, for analysis and illustration:
+   the distributions behind each summary number, where models disagree with each other and with the
+   readers, what the failures look like as images. A table says a model scores 0.82; the notebook is
+   where someone finds out that the 0.82 is two populations and one of them is a camera.
+3. **A summary document, generated at the end of a run**, into `docs/benchmarks/<name>.md`. Written
+   by the run rather than by hand, so it cannot drift from the numbers: it states what was asked,
+   which models and units took part, the contamination marks, coverage, the metrics, and what the
+   run itself recorded — the pinned commits, the resampling path, the excluded photographs and why.
+
+The notebook is where judgement goes and the generated document is where facts go, which is why they
+are not the same artefact. Both are CC BY 4.0 like the rest of the write-ups, and the prose rules of
+`CLAUDE.md` §4 apply to both: for a reader who is not a software engineer, numbered headings, a map
+rather than a leaderboard.
+
+## 13. The skills this needs
+
+**Decided in principle; the skills are written as each component is first built.**
+
+Every kind of entry in this repository has a skill that defines its shape, and the benchmark
+components should be no different — that is what has kept four catalogues consistent. The proposed
+set, each in `.claude/skills/`:
+
+| Skill | Governs |
+| --- | --- |
+| `add-upstream` | Bringing in a third-party repository: pinning, patching, importing, recording provenance |
+| `add-model` | A model adapter: the interface, what it must declare, what it must not do, and the model page it must match |
+| `add-biomarker-implementation` | A biomarker adapter or our own implementation: variants, units, inputs, and the synthetic fixtures it must pass |
+| `build-benchmark` | A benchmark: its evaluation units, metrics, loaders, fingerprint and incremental behaviour |
+| `analyse-benchmark` | The notebook: what every benchmark's analysis must show, so two of them can be read against each other |
+| `report-benchmark` | The generated summary document: its sections, and the rule that it is generated rather than written |
+
+Writing all six now would be guessing. Each is written **when its first instance is built**, from
+what that instance actually taught — which is how `fetch-dataset` got rules 13.1 to 13.10, none of
+which could have been written in advance.
+
+## 14. Open questions
 
 1. **Which datasets to fetch next**, in the order the benchmarks need them: EyeQ and DRIMDB for
    quality; REFUGE, PAPILA, Drishti-GS, G1020, RIM-ONE DL for disc and cup; HRF, RITE, LES-AV,
