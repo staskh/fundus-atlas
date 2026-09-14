@@ -49,8 +49,36 @@ def summarise(truth: dict[str, str], grades: Iterable[Grade]) -> dict[str, objec
         "declined": counts[DECLINED],
         "failed": counts[FAILED],
         "coverage": counts[GRADED] / len(grades) if grades else 0.0,
+        "reference_grades": [grade for grade in GRADES if grade in set(truth.values())],
         "gradeable": _gradeable(truth, scored),
         "three_class": _three_class(truth, scored),
+        "gate": _gate(truth, scored),
+    }
+
+
+def _gate(truth: dict[str, str], scored: list[Grade]) -> dict[str, object] | None:
+    """What the model's own project would carry into measurement, scored on the same question.
+
+    A pipeline's gate is not the model's argmax. AutoMorph admits a photograph its grader called
+    merely usable only when the same grader's probability of `bad` is under a quarter, and a model
+    no catalogued pipeline gates on has no gate to score at all.
+    """
+    gated = [grade for grade in scored if grade.gated is not None]
+    if not gated:
+        return None
+    reference = [truth[grade.key] in WORTH_MEASURING for grade in gated]
+    carried = [bool(grade.gated) for grade in gated]
+    return {
+        "photographs": len(gated),
+        "carried": sum(carried),
+        "carried_share": sum(carried) / len(gated),
+        "accuracy": accuracy_score(reference, carried),
+        "kappa": _agreement(reference, carried) if len(set(reference)) == 2 else None,
+        "differs_from_the_verdict": sum(
+            1
+            for grade, passed in zip(gated, carried, strict=True)
+            if passed != _says_worth_measuring(grade)
+        ),
     }
 
 
@@ -82,8 +110,18 @@ def _three_class(truth: dict[str, str], scored: list[Grade]) -> dict[str, object
     confusion = {was: dict.fromkeys(GRADES, 0) for was in GRADES}
     for was, said in zip(reference, predicted, strict=True):
         confusion[was][said] += 1
+    seen = {grade for grade in GRADES if grade in set(reference)}
     return {
         "photographs": len(named),
+        "unused_by_the_reference": [grade for grade in GRADES if grade not in seen],
+        "recall": {
+            grade: (
+                confusion[grade][grade] / sum(confusion[grade].values())
+                if sum(confusion[grade].values())
+                else None
+            )
+            for grade in GRADES
+        },
         "accuracy": accuracy_score(reference, predicted),
         "kappa_quadratic": _agreement(
             reference, predicted, labels=list(GRADES), weights="quadratic"

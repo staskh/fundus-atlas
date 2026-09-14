@@ -30,6 +30,11 @@ class Grade:
         usable against bad — which is the one number every quality model in this catalogue can
         produce and therefore the one they can be compared on.
     :param classes: the probability of each atlas grade, where the model emits three.
+    :param gated: what the model's **own project** would do with this photograph — carry it into
+        measurement, or drop it. It is not the model's verdict and not the atlas's reading of it:
+        a pipeline is free to admit a merely usable photograph, or to refuse one, and several do
+        it by a rule that is not the model's own argmax. ``None`` where no catalogued pipeline
+        gates on this model at all.
     :param note: why it declined, or what it failed with.
     """
 
@@ -38,6 +43,7 @@ class Grade:
     verdict: str = ""
     gradeable: float | None = None
     classes: dict[str, float] = field(default_factory=dict)
+    gated: bool | None = None
     note: str = ""
 
     def __post_init__(self) -> None:
@@ -48,7 +54,9 @@ class Grade:
         unknown = sorted(set(self.classes) - set(GRADES))
         if unknown:
             raise ValueError(f"{unknown} are not grades; the vocabulary is {GRADES}")
-        if self.outcome != GRADED and (self.verdict or self.gradeable is not None):
+        if self.outcome != GRADED and (
+            self.verdict or self.gradeable is not None or self.gated is not None
+        ):
             raise ValueError(
                 f"{self.key} is {self.outcome} and cannot also carry a grade: a photograph the "
                 f"model would not answer for has no answer to record"

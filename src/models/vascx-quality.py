@@ -50,6 +50,11 @@ class VascxQuality:
             "grades": "three classes, read as good, usable and bad",
             "emits_probabilities": True,
             "ensemble": "one checkpoint holding several folds",
+            "gate": (
+                "none. VascX writes the three outputs to `quality.csv` as raw logits named q1, q2 "
+                "and q3, and nothing in the pipeline reads them again: no photograph is refused "
+                "and no biomarker is withheld on their account"
+            ),
             "device": self.device,
             "upstream": vascx.provenance(),
         }

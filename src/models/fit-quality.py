@@ -45,6 +45,11 @@ class FitQuality:
             "grades": "gradeable against ungradeable",
             "emits_probabilities": True,
             "threshold": THRESHOLD,
+            "gate": (
+                f"the toolbox's own default threshold of {THRESHOLD} on its confidence. No "
+                f"catalogued pipeline runs this model; the toolbox is a library, and the "
+                f"threshold is what its own inference applies"
+            ),
             "ensemble": 10,
             "device": self.device,
             "upstream": fit.provenance(),
@@ -77,7 +82,8 @@ class FitQuality:
     def interpret(keys: list[str], confidence: np.ndarray) -> list[Grade]:
         """The ensemble's mean confidence, read as the atlas reads every quality model."""
         return [
-            Grade(key, gradeable=float(value)) for key, value in zip(keys, confidence, strict=True)
+            Grade(key, gradeable=float(value), gated=bool(value >= THRESHOLD))
+            for key, value in zip(keys, confidence, strict=True)
         ]
 
     def _loaded(self) -> list:

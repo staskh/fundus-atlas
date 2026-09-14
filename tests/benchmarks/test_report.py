@@ -63,12 +63,13 @@ def test_a_binary_grader_gets_no_three_class_table(tmp_path: Path) -> None:
     assert "No model in this run named all three grades." in written
 
 
-def test_a_three_way_grader_is_counted_by_what_it_said(tmp_path: Path) -> None:
-    entry = scored()
-    entry["summary"]["three_class"] = {
+def three_class() -> dict[str, object]:
+    return {
         "photographs": 3,
         "accuracy": 2 / 3,
         "kappa_quadratic": 0.5,
+        "unused_by_the_reference": [],
+        "recall": {"good": 1.0, "usable": 0.0, "bad": 1.0},
         "confusion": {
             "good": {"good": 1, "usable": 0, "bad": 0},
             "usable": {"good": 0, "usable": 0, "bad": 1},
@@ -76,10 +77,58 @@ def test_a_three_way_grader_is_counted_by_what_it_said(tmp_path: Path) -> None:
         },
     }
 
+
+def test_a_three_way_grader_is_scored_by_how_often_each_grade_is_found(tmp_path: Path) -> None:
+    entry = scored()
+    entry["summary"]["three_class"] = three_class()
+
     written = report.write_report("quality", [entry], into=tmp_path).read_text()
 
-    assert "said good" in written
-    assert "| 0.667 | 0.500 | 1 | 0 | 2 |" in written
+    assert "recall on usable" in written
+    assert "| 0.667 | 0.500 | 1.000 | 0.000 | 1.000 |" in written
+
+
+def test_the_confusion_behind_a_three_class_score_is_shown(tmp_path: Path) -> None:
+    entry = scored()
+    entry["summary"]["three_class"] = three_class()
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "Dataset said ↓ / model said →" in written
+    assert "| usable | 0 | 0 | 1 |" in written
+
+
+def test_a_reference_that_never_says_usable_is_named_as_such(tmp_path: Path) -> None:
+    entry = scored()
+    entry["summary"]["three_class"] = {**three_class(), "unused_by_the_reference": ["usable"]}
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "never says `usable`" in written
+
+
+def test_the_gate_a_project_applies_is_reported_with_its_rule(tmp_path: Path) -> None:
+    entry = scored()
+    entry["declared"]["gate"] = "good passes; usable passes only under a quarter of bad"
+    entry["summary"]["gate"] = {
+        "photographs": 200,
+        "carried": 150,
+        "carried_share": 0.75,
+        "accuracy": 0.82,
+        "kappa": 0.6,
+        "differs_from_the_verdict": 12,
+    }
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "usable passes only under a quarter of bad" in written
+    assert "| 150 of 200 | 0.750 | 0.820 | 12 |" in written
+
+
+def test_a_model_no_pipeline_gates_on_says_so(tmp_path: Path) -> None:
+    written = report.write_report("quality", [scored()], into=tmp_path).read_text()
+
+    assert "No catalogued pipeline gates on any model in this run." in written
 
 
 def test_every_heading_is_numbered(tmp_path: Path) -> None:
@@ -95,6 +144,7 @@ def test_every_heading_is_numbered(tmp_path: Path) -> None:
                 "Coverage: what each model was willing to answer",
                 "Worth measuring, or not",
                 "The three grades",
+                "What each model's own project would carry into measurement",
                 "What these numbers do not say",
             ],
             start=1,

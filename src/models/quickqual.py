@@ -44,6 +44,12 @@ class QuickQual:
             "grades": "good, usable, bad",
             "emits_probabilities": True,
             "ensemble": 1,
+            "gate": (
+                "none. AutoMorphalyzer is the only catalogued pipeline that reaches for QuickQual, "
+                "and it runs the MEME variant — a nine-feature linear model emitting one "
+                "probability of `bad` — not this three-class classifier, and it writes that "
+                "number into its results table without ever acting on it"
+            ),
             "backbone": upstream.BACKBONE,
             "device": self.device,
             "upstream": upstream.provenance(),

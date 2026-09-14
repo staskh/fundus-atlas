@@ -55,3 +55,26 @@ def test_three_class_probabilities_are_named_rather_than_ordered() -> None:
 def test_a_class_outside_the_vocabulary_is_refused() -> None:
     with pytest.raises(ValueError, match="ungradeable"):
         grading.Grade(key="img_00000", classes={"ungradeable": 1.0})
+
+
+def test_a_grade_can_carry_what_its_own_project_would_do_with_the_photograph() -> None:
+    grade = grading.Grade(
+        key="img_00000",
+        verdict=grading.USABLE,
+        gradeable=0.7,
+        classes={grading.GOOD: 0.2, grading.USABLE: 0.6, grading.BAD: 0.2},
+        gated=False,
+    )
+
+    assert grade.gated is False, "usable, but its pipeline would still drop it"
+
+
+def test_a_model_no_pipeline_gates_on_says_nothing_about_gating() -> None:
+    grade = grading.Grade(key="img_00000", verdict=grading.GOOD, gradeable=0.9)
+
+    assert grade.gated is None
+
+
+def test_a_photograph_the_model_never_judged_cannot_have_been_gated() -> None:
+    with pytest.raises(ValueError, match="declined"):
+        grading.Grade(key="img_00000", outcome=grading.DECLINED, gated=True)

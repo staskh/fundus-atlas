@@ -186,31 +186,101 @@ def _quality(scored: list[dict[str, object]]) -> Iterable[str]:
         yield "No model in this run named all three grades."
     else:
         yield (
-            "Only the models that grade in three classes appear here. The weighted κ is "
-            "quadratic, which counts calling a good photograph bad as worse than calling it "
-            "usable."
+            "Only the models that grade in three classes appear here — a binary grader has no "
+            "opinion to compare. The weighted κ is quadratic, which counts calling a good "
+            "photograph bad as worse than calling it usable. **Recall** is the share of the "
+            "photographs a reference actually gave a grade that the model gave the same grade: it "
+            "is the number that shows whether the middle class means anything, because a model "
+            "can score well overall while never once saying `usable` correctly."
         )
         yield ""
         yield (
             "| Model | Unit | Accuracy | Quadratic κ | "
-            + " | ".join(f"said {grade}" for grade in GRADES)
+            + " | ".join(f"recall on {grade}" for grade in GRADES)
             + " |"
         )
         yield "| --- | --- | --- | --- |" + " --- |" * len(GRADES)
         for entry in three:
             level = entry["summary"]["three_class"]
-            said = {grade: 0 for grade in GRADES}
-            for row in level["confusion"].values():
-                for grade, count in row.items():
-                    said[grade] += count
+            recall = level.get("recall", {})
             yield (
                 f"| {entry['model']} | {entry['unit']} | {_number(level['accuracy'])} | "
                 f"{_number(level['kappa_quadratic'])} | "
-                + " | ".join(str(said[grade]) for grade in GRADES)
+                + " | ".join(_number(recall.get(grade)) for grade in GRADES)
                 + " |"
             )
+        yield ""
+        missing = sorted(
+            {
+                (entry["unit"], grade)
+                for entry in three
+                for grade in entry["summary"]["three_class"].get("unused_by_the_reference", [])
+            }
+        )
+        if missing:
+            yield (
+                "**Some of these references do not use all three grades**, so a dash above is the "
+                "reference's silence rather than the model's failure: "
+                + "; ".join(f"{unit} never says `{grade}`" for unit, grade in missing)
+                + ". A three-class score against a two-class reference measures how often the "
+                "model's middle class is counted as a mistake, which is a different question from "
+                "how well it grades."
+            )
+            yield ""
+        yield "### 5.1 What each model was asked and what it said"
+        yield ""
+        yield (
+            "One table per model and unit: the rows are the grade the dataset gave, the columns "
+            "the grade the model gave. The diagonal is agreement."
+        )
+        yield ""
+        for entry in three:
+            confusion = entry["summary"]["three_class"]["confusion"]
+            yield f"**{entry['model']} · {entry['unit']}**"
+            yield ""
+            yield "| Dataset said ↓ / model said → | " + " | ".join(GRADES) + " |"
+            yield "| --- |" + " --- |" * len(GRADES)
+            for was in GRADES:
+                row = confusion.get(was, {})
+                yield f"| {was} | " + " | ".join(str(row.get(said, 0)) for said in GRADES) + " |"
+            yield ""
+
+    yield "## 6. What each model's own project would carry into measurement"
     yield ""
-    yield "## 6. What these numbers do not say"
+    yield (
+        "A grade is not a decision. What matters to anyone using one of these pipelines is which "
+        "photographs reach a segmentation model at all, and that is decided by a rule belonging to "
+        "the pipeline rather than to the model — sometimes a rule that is not the model's own "
+        "verdict. This section scores those rules on the same question as section 4: was the "
+        "photograph worth measuring?"
+    )
+    yield ""
+    yield "| Model | The rule its project applies |"
+    yield "| --- | --- |"
+    for model in models:
+        yield f"| {model} | {_first(scored, model)['declared'].get('gate', '—')} |"
+    yield ""
+    gated = [entry for entry in scored if entry["summary"].get("gate")]
+    if not gated:
+        yield "No catalogued pipeline gates on any model in this run."
+    else:
+        yield "| Model | Unit | Carried | Share carried | Accuracy | Differs from its own verdict |"
+        yield "| --- | --- | --- | --- | --- | --- |"
+        for entry in gated:
+            level = entry["summary"]["gate"]
+            yield (
+                f"| {entry['model']} | {entry['unit']} | {level['carried']} of "
+                f"{level['photographs']} | {_number(level['carried_share'])} | "
+                f"{_number(level['accuracy'])} | {level['differs_from_the_verdict']} |"
+            )
+        yield ""
+        yield (
+            "The last column is the one to read: it counts the photographs where the pipeline "
+            "disagrees with its own model — where a rule about the middle class overrides the "
+            "grade the network gave."
+        )
+    yield ""
+    yield "## 7. What these numbers do not say"
     yield ""
     yield (
         "Every result carries a mark in section 4. `out-of-sample` means the model's page does not "

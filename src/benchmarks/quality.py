@@ -23,7 +23,10 @@ NAME = "quality"
 
 #: The benchmark's own version. Changing what is measured, or how, changes this, and every stored
 #: score whose fingerprint carries the old one is measured again.
-VERSION = 1
+#:
+#: 2 — added the gate each model's own project applies, the per-grade recall behind the three-class
+#: score, and the grades the reference itself uses.
+VERSION = 2
 
 #: The datasets this benchmark is run on by default: the ones that grade the photograph itself and
 #: are not excluded by the size floor or the crop rule.
@@ -138,6 +141,7 @@ def _rows(loader: QualityLoader, grades: list) -> list[dict[str, object]]:
             ),
             "outcome": grade.outcome,
             "verdict": grade.verdict,
+            "carried_by_its_pipeline": "" if grade.gated is None else str(grade.gated).lower(),
             "gradeable": "" if grade.gradeable is None else f"{grade.gradeable:.6f}",
             **{
                 name: ("" if name not in grade.classes else f"{grade.classes[name]:.6f}")

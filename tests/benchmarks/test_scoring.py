@@ -127,3 +127,60 @@ def test_agreement_that_has_no_value_is_reported_as_nothing() -> None:
     assert summary["three_class"]["photographs"] == 1
     assert summary["three_class"]["kappa_quadratic"] is None, "one verdict leaves κ undefined"
     assert summary["three_class"]["accuracy"] == pytest.approx(1.0)
+
+
+def test_the_gate_a_pipeline_applies_is_scored_on_its_own_terms() -> None:
+    truth = {"a": GOOD, "b": USABLE, "c": BAD}
+    grades = [
+        Grade(
+            "a", verdict=GOOD, gradeable=0.9, classes={GOOD: 0.8, USABLE: 0.1, BAD: 0.1}, gated=True
+        ),
+        # Its pipeline drops this one although the model called it usable.
+        Grade(
+            "b",
+            verdict=USABLE,
+            gradeable=0.7,
+            classes={GOOD: 0.2, USABLE: 0.5, BAD: 0.3},
+            gated=False,
+        ),
+        Grade(
+            "c", verdict=BAD, gradeable=0.1, classes={GOOD: 0.0, USABLE: 0.1, BAD: 0.9}, gated=False
+        ),
+    ]
+
+    summary = scoring.summarise(truth, grades)
+
+    assert summary["gate"]["photographs"] == 3
+    assert summary["gate"]["carried"] == 1
+    assert summary["gate"]["carried_share"] == pytest.approx(1 / 3)
+    assert summary["gate"]["accuracy"] == pytest.approx(2 / 3), "it drops a usable photograph"
+
+
+def test_a_model_no_pipeline_gates_on_is_not_given_a_gate_score() -> None:
+    truth = {"a": GOOD}
+    grades = [Grade("a", verdict=GOOD, gradeable=0.9, classes={GOOD: 0.9, USABLE: 0.1, BAD: 0.0})]
+
+    assert scoring.summarise(truth, grades)["gate"] is None
+
+
+def test_the_reference_says_which_grades_it_actually_uses() -> None:
+    truth = {"a": GOOD, "b": BAD}
+    grades = [Grade("a", gradeable=0.9), Grade("b", gradeable=0.1)]
+
+    summary = scoring.summarise(truth, grades)
+
+    assert summary["reference_grades"] == [GOOD, BAD], "this reference never says usable"
+
+
+def test_a_three_class_score_names_the_grades_the_reference_never_used() -> None:
+    truth = {"a": GOOD, "b": BAD}
+    grades = [
+        Grade("a", verdict=GOOD, gradeable=0.9, classes={GOOD: 0.9, USABLE: 0.1, BAD: 0.0}),
+        Grade("b", verdict=USABLE, gradeable=0.6, classes={GOOD: 0.2, USABLE: 0.5, BAD: 0.3}),
+    ]
+
+    summary = scoring.summarise(truth, grades)
+
+    assert summary["three_class"]["unused_by_the_reference"] == [USABLE]
+    assert summary["three_class"]["recall"][GOOD] == pytest.approx(1.0)
+    assert summary["three_class"]["recall"][USABLE] is None, "the reference never said usable"

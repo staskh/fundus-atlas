@@ -19,6 +19,12 @@ GRID = 512
 #: third class is named Reject, which is this atlas's `bad`.
 COLUMNS = (GOOD, USABLE, BAD)
 
+#: How much `bad` AutoMorph tolerates in a photograph its grader called merely usable before
+#: dropping it. From `merge_quality_assessment.py`, which is the stage that actually decides what
+#: gets measured: a `good` verdict passes, a `usable` one passes only under this, and everything
+#: else is copied to `Bad_quality/` and never reaches a segmentation model.
+TOLERATED_BAD = 0.25
+
 
 class AutoMorphQualityGrader:
     """Eight seeds of an EfficientNet-b4 classifier, their softmax outputs averaged.
@@ -46,6 +52,12 @@ class AutoMorphQualityGrader:
             "grades": "good, usable, reject",
             "emits_probabilities": True,
             "ensemble": 8,
+            "gate": (
+                f"AutoMorph's own rule, which is not this model's argmax: a `good` verdict is "
+                f"carried into measurement, a `usable` one only while the probability of `bad` "
+                f"stays under {TOLERATED_BAD}, and everything else is dropped before any "
+                f"segmentation model sees it"
+            ),
             "device": self.device,
             "upstream": automorph.provenance(),
         }
@@ -65,6 +77,13 @@ class AutoMorphQualityGrader:
         image = (image - lit.mean()) / lit.std()
         return torch.from_numpy(image.transpose(2, 0, 1).copy())
 
+    @staticmethod
+    def _carried(classes: dict[str, float], verdict: str) -> bool:
+        """AutoMorph's own gate, which is not this model's argmax."""
+        if verdict == GOOD:
+            return True
+        return verdict == USABLE and classes[BAD] < TOLERATED_BAD
+
     def grade(self, images: torch.Tensor, keys: list[str]) -> list[Grade]:
         try:
             batch = images.to(self.device, dtype=torch.float32)
@@ -82,12 +101,14 @@ class AutoMorphQualityGrader:
         graded = []
         for key, row in zip(keys, probabilities, strict=True):
             classes = dict(zip(COLUMNS, (float(value) for value in row), strict=True))
+            verdict = max(classes, key=classes.get)
             graded.append(
                 Grade(
                     key,
-                    verdict=max(classes, key=classes.get),
+                    verdict=verdict,
                     gradeable=classes[GOOD] + classes[USABLE],
                     classes=classes,
+                    gated=AutoMorphQualityGrader._carried(classes, verdict),
                 )
             )
         return graded
