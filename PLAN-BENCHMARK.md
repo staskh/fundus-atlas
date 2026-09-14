@@ -246,6 +246,17 @@ The honest risk: one of these may need a framework version that genuinely cannot
 others. If that happens the model is recorded as **not benchmarkable in the shared environment**,
 with what it needs written down, rather than the environment being quietly forked.
 
+**What the first four upstreams cost.** One environment holds them, and it took one dependency
+override to get there: VascX's inference package pins `albumentations==1.3.1`, whose import reaches
+for `imgaug`, which reaches for a NumPy attribute removed in NumPy 2 — and the Fundus Image Toolbox
+is what puts `imgaug` in the environment at all. Albumentations 1.4 carries the same API the
+inference package uses and no `imgaug` import. Two further pins were needed because VascX does not
+declare the packages that run its models. Both are recorded in `pyproject.toml` with the reason,
+which is the point of patching in the open. One thing could not be satisfied: QuickQual's
+classifier was pickled by a scikit-learn that no longer installs on this Python, so it is unpickled
+by a later one that warns the result may be invalid — recorded on its model page as a defect rather
+than worked around.
+
 ### 8.2 The dot in `.atlas_code` — the answer to "does it break imports?"
 
 **No, with one rule.** A leading dot is nothing to Python's import machinery: any directory on
@@ -485,16 +496,17 @@ set, each in `.claude/skills/`:
 
 | Skill | Governs |
 | --- | --- |
-| `add-upstream` | Bringing in a third-party repository: pinning, patching, importing, recording provenance |
-| `add-model` | A model adapter: the interface, what it must declare, what it must not do, and the model page it must match |
-| `add-biomarker-implementation` | A biomarker adapter or our own implementation: variants, units, inputs, and the synthetic fixtures it must pass |
-| `build-benchmark` | A benchmark: its evaluation units, metrics, loaders, fingerprint and incremental behaviour |
-| `analyse-benchmark` | The notebook: what every benchmark's analysis must show, so two of them can be read against each other |
-| `report-benchmark` | The generated summary document: its sections, and the rule that it is generated rather than written |
+| `add-upstream` | Bringing in a third-party repository: pinning, patching, importing, recording provenance — **written** |
+| `add-model` | A model adapter: the interface, what it must declare, what it must not do, and the model page it must match — **written** |
+| `add-biomarker-implementation` | A biomarker adapter or our own implementation: variants, units, inputs, and the synthetic fixtures it must pass — waiting for its first instance |
+| `build-benchmark` | A benchmark: its evaluation units, metrics, loaders, fingerprint and incremental behaviour — **written** |
+| `analyse-benchmark` | The notebook: what every benchmark's analysis must show, so two of them can be read against each other — **written** |
+| `report-benchmark` | The generated summary document: its sections, and the rule that it is generated rather than written — **written** |
 
 Writing all six now would be guessing. Each is written **when its first instance is built**, from
 what that instance actually taught — which is how `fetch-dataset` got rules 13.1 to 13.10, none of
-which could have been written in advance.
+which could have been written in advance. Five of the six were written from the quality benchmark;
+the sixth waits for the first biomarker implementation.
 
 ## 14. Open questions
 
