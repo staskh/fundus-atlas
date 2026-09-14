@@ -61,3 +61,12 @@ filterwarnings = [
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint.per-file-ignores]
+# A model adapter is named for its catalogue page — `docs/models/fit-quality.md` ↔
+# `src/models/fit-quality.py` — and those slugs carry hyphens, which no module name may. The
+# adapters are loaded from their path rather than imported, so the name is deliberate.
+"src/models/*-*.py" = ["N999"]
+# An adapter catches whatever its upstream raises and turns it into a failed prediction: one
+# unreadable photograph must not lose a run of three thousand.
+"src/models/*.py" = ["BLE001"]

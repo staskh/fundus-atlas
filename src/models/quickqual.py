@@ -89,9 +89,11 @@ class QuickQual:
         if self._backbone is None:
             import timm
 
-            self._backbone = timm.create_model(
-                upstream.BACKBONE, pretrained=True, num_classes=0
-            ).eval().to(self.device)
+            self._backbone = (
+                timm.create_model(upstream.BACKBONE, pretrained=True, num_classes=0)
+                .eval()
+                .to(self.device)
+            )
         return self._backbone
 
     def _loaded_classifier(self):

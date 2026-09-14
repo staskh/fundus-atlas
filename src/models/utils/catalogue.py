@@ -16,9 +16,7 @@ ENTRY = "model"
 
 def slugs() -> list[str]:
     """Every model this repository can run, in the order a report should list them."""
-    return sorted(
-        path.stem for path in DIRECTORY.glob("*.py") if not path.stem.startswith("__")
-    )
+    return sorted(path.stem for path in DIRECTORY.glob("*.py") if not path.stem.startswith("__"))
 
 
 def load(slug: str, **arguments: object) -> object:
@@ -33,7 +31,9 @@ def load(slug: str, **arguments: object) -> object:
 
 
 def _module(slug: str, path: Path) -> ModuleType:
-    specification = importlib.util.spec_from_file_location(f"models._{slug.replace('-', '_')}", path)
+    specification = importlib.util.spec_from_file_location(
+        f"models._{slug.replace('-', '_')}", path
+    )
     module = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(module)
     return module

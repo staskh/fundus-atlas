@@ -68,9 +68,7 @@ class FitQuality:
         from fundus_image_toolbox.quality_prediction import ensemble_predict_quality
 
         try:
-            confidence, _ = ensemble_predict_quality(
-                self._loaded(), list(images), img_size=GRID
-            )
+            confidence, _ = ensemble_predict_quality(self._loaded(), list(images), img_size=GRID)
         except Exception as failure:  # a crash is the model's answer to nothing
             return [Grade(key, outcome=FAILED, note=repr(failure)) for key in keys]
         return self.interpret(keys, np.atleast_1d(np.asarray(confidence, dtype=float)))
@@ -79,8 +77,7 @@ class FitQuality:
     def interpret(keys: list[str], confidence: np.ndarray) -> list[Grade]:
         """The ensemble's mean confidence, read as the atlas reads every quality model."""
         return [
-            Grade(key, gradeable=float(value))
-            for key, value in zip(keys, confidence, strict=True)
+            Grade(key, gradeable=float(value)) for key, value in zip(keys, confidence, strict=True)
         ]
 
     def _loaded(self) -> list:

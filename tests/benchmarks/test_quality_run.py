@@ -5,10 +5,10 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from conftest import row, write_store
 
 from benchmarks import quality, runs
 from benchmarks.loaders.base import Unit
-from conftest import row, write_store
 from models.utils.grading import BAD, GOOD, Grade
 
 

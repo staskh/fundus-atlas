@@ -86,14 +86,17 @@ def test_every_heading_is_numbered(tmp_path: Path) -> None:
     written = report.write_report("quality", [scored()], into=tmp_path).read_text()
 
     headings = [line for line in written.splitlines() if line.startswith("## ")]
-    assert headings == [f"## {index}. {heading}" for index, heading in enumerate(
-        [
-            "What ran",
-            "What it ran on",
-            "Coverage: what each model was willing to answer",
-            "Worth measuring, or not",
-            "The three grades",
-            "What these numbers do not say",
-        ],
-        start=1,
-    )]
+    assert headings == [
+        f"## {index}. {heading}"
+        for index, heading in enumerate(
+            [
+                "What ran",
+                "What it ran on",
+                "Coverage: what each model was willing to answer",
+                "Worth measuring, or not",
+                "The three grades",
+                "What these numbers do not say",
+            ],
+            start=1,
+        )
+    ]

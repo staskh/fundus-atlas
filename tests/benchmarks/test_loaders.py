@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 import torch
+from conftest import row, write_store
 
 from benchmarks.loaders import base, quality
-from conftest import row, write_store
 
 
 def test_a_unit_is_a_dataset_a_subset_and_a_split() -> None:
@@ -151,4 +151,8 @@ def test_the_units_a_store_holds_are_read_from_its_manifest(store: Path) -> None
 
     found = base.units("mshf", root=store.parent)
 
-    assert [unit.name for unit in found] == ["mshf/cfp/test", "mshf/cfp/train", "mshf/portable/train"]
+    assert [unit.name for unit in found] == [
+        "mshf/cfp/test",
+        "mshf/cfp/train",
+        "mshf/portable/train",
+    ]

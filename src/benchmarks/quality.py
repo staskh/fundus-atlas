@@ -4,7 +4,7 @@
 import argparse
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import torch
@@ -52,7 +52,7 @@ def run(
     :param record: where this run's own record is written; ``.atlas_runs/`` by default.
     :return: one entry per (model, unit), whether it was measured now or read from `results/`.
     """
-    started = datetime.now(timezone.utc)
+    started = datetime.now(UTC)
     scored: list[dict[str, object]] = []
     for adapter in adapters:
         for unit in units:
@@ -191,7 +191,9 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--batch", type=int, default=BATCH, help=f"batch size (default {BATCH})")
     parser.add_argument("--data-root", help="override the store root")
     parser.add_argument("--force", action="store_true", help="measure again, fingerprint or not")
-    parser.add_argument("--no-report", dest="report", action="store_false", help="skip the write-up")
+    parser.add_argument(
+        "--no-report", dest="report", action="store_false", help="skip the write-up"
+    )
     args = parser.parse_args(argv)
 
     root = Path(args.data_root) if args.data_root else None

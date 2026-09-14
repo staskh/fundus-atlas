@@ -70,8 +70,7 @@ class AutoMorphQualityGrader:
             batch = images.to(self.device, dtype=torch.float32)
             with torch.no_grad():
                 members = [
-                    torch.softmax(member(batch), dim=1).cpu().numpy()
-                    for member in self._loaded()
+                    torch.softmax(member(batch), dim=1).cpu().numpy() for member in self._loaded()
                 ]
         except Exception as failure:
             return [Grade(key, outcome=FAILED, note=repr(failure)) for key in keys]

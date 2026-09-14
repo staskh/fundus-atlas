@@ -25,9 +25,7 @@ def test_a_result_is_read_back_as_it_was_written(tmp_path: Path) -> None:
     unit = Unit("fives", "main", "test")
     rows = [{"key": "a", "grade": "good", "outcome": "graded", "gradeable": "0.9"}]
 
-    runs.write(
-        tmp_path, "quality", "quickqual", unit, "fingerprint", {"coverage": 1.0}, rows
-    )
+    runs.write(tmp_path, "quality", "quickqual", unit, "fingerprint", {"coverage": 1.0}, rows)
     found = runs.read(tmp_path, "quality", "quickqual", unit)
 
     assert found["fingerprint"] == "fingerprint"

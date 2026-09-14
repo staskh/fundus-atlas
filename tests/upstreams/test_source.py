@@ -73,11 +73,7 @@ def test_a_patch_is_applied_to_the_checkout(origin: Path, tmp_path: Path) -> Non
     patches = tmp_path / "patches" / "grader"
     patches.mkdir(parents=True)
     (patches / "001-verdict.patch").write_text(
-        "--- a/grader.py\n"
-        "+++ b/grader.py\n"
-        "@@ -1 +1 @@\n"
-        "-VERDICT = 'good'\n"
-        "+VERDICT = 'usable'\n"
+        "--- a/grader.py\n+++ b/grader.py\n@@ -1 +1 @@\n-VERDICT = 'good'\n+VERDICT = 'usable'\n"
     )
     checkout = source.Checkout("grader", str(origin), head_of(origin), patches=patches.parent)
 
@@ -90,11 +86,7 @@ def test_a_patch_is_applied_once_and_named_by_its_content(origin: Path, tmp_path
     patches = tmp_path / "patches" / "grader"
     patches.mkdir(parents=True)
     (patches / "001-verdict.patch").write_text(
-        "--- a/grader.py\n"
-        "+++ b/grader.py\n"
-        "@@ -1 +1 @@\n"
-        "-VERDICT = 'good'\n"
-        "+VERDICT = 'usable'\n"
+        "--- a/grader.py\n+++ b/grader.py\n@@ -1 +1 @@\n-VERDICT = 'good'\n+VERDICT = 'usable'\n"
     )
     checkout = source.Checkout("grader", str(origin), head_of(origin), patches=patches.parent)
     tree = checkout.obtain(root=tmp_path / "code")
@@ -113,7 +105,7 @@ def test_a_checkout_can_be_imported_from(origin: Path, tmp_path: Path) -> None:
     try:
         checkout.on_path(root=tmp_path / "code")
         assert str(tree) in sys.path
-        import grader  # noqa: PLC0415
+        import grader
 
         assert grader.VERDICT == "good"
     finally:
@@ -122,7 +114,7 @@ def test_a_checkout_can_be_imported_from(origin: Path, tmp_path: Path) -> None:
 
 
 def test_an_installed_upstream_reports_the_version_that_is_actually_there() -> None:
-    import numpy  # noqa: PLC0415
+    import numpy
 
     installed = source.Installed("numpy")
 
@@ -154,7 +146,7 @@ def test_a_checkout_can_be_imported_from_a_subdirectory(origin: Path, tmp_path: 
 
     try:
         assert str(tree / "module") in sys.path
-        import grader  # noqa: PLC0415
+        import grader
 
         assert grader.VERDICT == "good"
     finally:
@@ -163,7 +155,7 @@ def test_a_checkout_can_be_imported_from_a_subdirectory(origin: Path, tmp_path: 
 
 
 def test_an_upstream_installed_from_a_repository_reports_the_commit_it_came_from() -> None:
-    from upstreams import fit  # noqa: PLC0415
+    from upstreams import fit
 
     assert fit.CODE.provenance()["commit"] == fit.CODE.commit
 

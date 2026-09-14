@@ -23,9 +23,7 @@ def fingerprint(facts: dict[str, object]) -> str:
     A re-run recomputes a (model, unit) pair only when this differs, so anything left out of it is
     something a stale score can outlive.
     """
-    return hashlib.sha256(
-        json.dumps(facts, sort_keys=True, default=str).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(facts, sort_keys=True, default=str).encode()).hexdigest()
 
 
 def write(
