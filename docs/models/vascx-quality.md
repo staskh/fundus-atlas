@@ -37,14 +37,23 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 ## 4. What it produces
 
 - **Purpose:** `quality`
-- **Output classes:** an image-quality assessment. VascX also computes classical image-quality metrics without a model — edge strength, sharpness and variance of the Laplacian — which are separate from this model's output.
-- **Input grid:** 1024×1024. Preprocessing crops to the detected fundus bounds and resamples so the
-  fundus diameter fills a 1024-pixel square, so every VascX model sees the retina at the same scale
-  regardless of the camera's native resolution — which is what makes VascX biomarkers comparable
-  across cameras without a per-image scale factor.
-- **Output grid:** not a mask — a quality assessment. The 1024 grid still matters, because quality is judged on the resampled image rather than the original.
-- **Grid set in:** `square_size=1024` in `rtnls_fundusprep/preprocessor.py` (the default passed by
-  its batch entry point), with `rescale(image, resolution=1024)` in the same package's `utils.py`.
+- **Output classes:** **three**, emitted as unnamed logits and written to `quality.csv` as the
+  columns `q1`, `q2`, `q3`. Nothing published says what the three are; the checkpoint's
+  configuration names [EyeQ](../datasets/eyeq.md) as the data it was trained on, and EyeQ grades
+  Good, Usable and Reject in that order. *(This atlas's observation; section 10.)* VascX also
+  computes classical image-quality metrics without a model — edge strength, sharpness and variance
+  of the Laplacian — which are separate from this model's output.
+- **Input grid:** **224×224 — not 1024.** Preprocessing crops to the detected fundus bounds and
+  resamples so the fundus diameter fills a 1024-pixel square, which is the grid every other VascX
+  model works on and what makes VascX biomarkers comparable across cameras. This model then
+  **resizes that square down to 224** before the network sees it. *(This atlas's observation, read
+  from the published checkpoint on 2026-09-14 — see section 10.)*
+- **Output grid:** not a mask — three class scores. The grids still matter, because quality is
+  judged on a 224-pixel rendition of the resampled image rather than on the original.
+- **Grid set in:** the checkpoint's own stored configuration, `datamodule.test_transform`, which
+  holds `square_size: 1024`, `resize: 224`, `contrast_enhance: false`; the 1024 square comes from
+  `square_size=1024` in `rtnls_fundusprep/preprocessor.py`, and `resize` is applied by
+  `FundusTestTransform` in `rtnls_inference`.
 - **Input expected:** a colour-fundus photograph, in standard image formats or DICOM. Preprocessing
   is not optional: the pipeline crops to the field of view and enhances contrast first.
 - **Preprocessing in the published code:** performed by
@@ -64,6 +73,7 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 | --- | --- | --- | --- |
 | More than fifteen published annotated datasets, combined | Training | Their own authors | In the paper; the per-model split is not restated here |
 | Dutch cohort images, principally the Rotterdam Study | Training | The cohort's graders | In the paper |
+| [EyeQ](../datasets/eyeq.md) — **for this model specifically** | Training | The EyeQ authors | Not stated. *(This atlas's observation: the published checkpoint's own configuration points its data at an `eyeq` dataset file — see section 10)* |
 
 The training set absorbs most of the public annotated data, so few public datasets remain for a
 blind benchmark of this model. That cuts both ways: broad training is why it generalises, and also
@@ -88,7 +98,18 @@ Reported in the VascX Models paper. Numbers are in that paper and are not restat
 
 ## 10. Known defects
 
-None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health.
+- **The package that runs the models is not declared as a dependency.** `retinalysis-vascx`
+  installs without `retinalysis-inference` or `retinalysis-fundusprep`, and importing anything that
+  runs a model then fails with `ModuleNotFoundError`. Found 2026-09-14 on commit `d0cde1c7`; a user
+  must know to install both, and nothing tells them which versions go together.
+- **Nothing published states what the three outputs mean.** They reach the user as `q1`, `q2`,
+  `q3`. A pipeline filtering on the wrong column filters on the wrong thing, silently.
+- **The documented 1024 grid is not the grid the network sees** (section 4). A reader comparing
+  this model against one that works at 512 would conclude it has four times the linear resolution
+  to work with; it has rather less.
+
+These three are this atlas's findings, from reading the code and the published checkpoint on
+2026-09-14, not the authors' statements.
 
 ## 11. Notes
 
@@ -96,7 +117,10 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
   different time; no version statement was found.
 - Reporting quality rather than acting on it means every image is measured. Filtering is the user's
   job, the same trade-off [AutoMorphalyzer](../projects/automorphalyzer.md) makes with QuickQual.
+- **The checkpoint carries its own training configuration**, which is where the facts in sections 4
+  and 6 come from. That is unusually good practice — most published weights carry nothing — and it
+  is what let this page correct its own grid.
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-14

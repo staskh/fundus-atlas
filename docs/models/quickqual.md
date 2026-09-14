@@ -101,7 +101,17 @@ result. Recorded as their claim.
 
 ## 10. Known defects
 
-None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health.
+- **The published classifier was pickled by scikit-learn 1.2.2**, a release from 2023 that cannot
+  be installed on Python 3.12 at all. Any current environment therefore unpickles it with a much
+  later scikit-learn, which warns that the result "might lead to breaking code or invalid results".
+  Found 2026-09-14 while loading `quickqual_dn121_512.pkl` with scikit-learn 1.9.1. Nothing
+  observed was wrong — the classifier's probabilities behave as the README describes — but it is
+  an unverifiable dependency on a version nobody can reproduce, and it is inherited by
+  [AutoMorphalyzer](../projects/automorphalyzer.md), which depends on this file.
+- **Loading it runs code from it.** A joblib pickle is executable content, and this one is fetched
+  over plain HTTPS from a release asset with no published checksum. This atlas pins its sha256
+  (`7ed87654…`) and refuses anything else; a user following the README has nothing to check
+  against.
 
 ## 11. Notes
 
@@ -114,4 +124,4 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-14

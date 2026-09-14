@@ -19,9 +19,9 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Fundus Image Toolbox quality](models/fit-quality.md) | Gradeable / ungradeable, as a probability | ResNets and EfficientNets, ensemble of 10 | 512² (no mask) | DeepDRiD, DrimDB | Yes | Yes, in the repository | MIT; weights' own Zenodo record | — | 2026-08 | 2026-09-12 |
-| [VascX quality](models/vascx-quality.md) | Image-quality assessment | U-Net ensemble | 1024² (no mask) | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [VascX quality](models/vascx-quality.md) | Three unnamed class scores | U-Net ensemble | 1024² square, then **224²** into the network | EyeQ, and 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-14 |
 | [AutoMorph quality grader](models/automorph-quality-grader.md) | Good / Usable / Reject | EfficientNet, ensemble of 8 | 512² (no mask) | EyeQ training split, 12,543 EyePACS images | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md) | 2025-06 | 2026-09-10 |
-| [QuickQual](models/quickqual.md) | Good / Usable / Bad probabilities | Frozen DenseNet121 features plus an SVM | short side 512, aspect kept (no mask) | EyeQ (SVM fitted); ImageNet (frozen features) | Yes | Not applicable — nothing is trained | None stated | [AutoMorphalyzer](projects/automorphalyzer.md) | 2023-11 | 2026-09-10 |
+| [QuickQual](models/quickqual.md) | Good / Usable / Bad probabilities | Frozen DenseNet121 features plus an SVM | short side 512, aspect kept (no mask) | EyeQ (SVM fitted); ImageNet (frozen features) | Yes | Not applicable — nothing is trained | None stated | [AutoMorphalyzer](projects/automorphalyzer.md) | 2023-11 | 2026-09-14 |
 
 ### 1.2 Vessels — blood vessels as a single class
 
