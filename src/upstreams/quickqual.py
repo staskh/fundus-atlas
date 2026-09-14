@@ -53,7 +53,7 @@ def meme(readme: Path | None = None) -> Meme:
     path = readme or (CODE.obtain() / "README.md")
     text = path.read_text()
     found = {
-        name: re.search(pattern, text, re.S)
+        name: re.search(pattern, text, re.DOTALL)
         for name, pattern in (
             ("features", r"feats\[:,\s*\[(.*?)\]\]"),
             ("weights", r"w\s*=\s*torch\.tensor\(\[(.*?)\]\)"),
