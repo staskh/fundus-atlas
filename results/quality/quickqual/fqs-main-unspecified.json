@@ -1,0 +1,42 @@
+{
+  "fingerprint": "27d063670bcfd89d4a671257aa60efee8e5703edb080716ae964b595b10ffab1",
+  "model": "quickqual",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.8240534521158129,
+      "kappa": 0.6390424015021601,
+      "photographs": 2245,
+      "roc_auc": 0.9089208020450812
+    },
+    "graded": 2245,
+    "photographs": 2245,
+    "three_class": {
+      "accuracy": 0.6855233853006681,
+      "confusion": {
+        "bad": {
+          "bad": 747,
+          "good": 30,
+          "usable": 161
+        },
+        "good": {
+          "bad": 20,
+          "good": 433,
+          "usable": 61
+        },
+        "usable": {
+          "bad": 184,
+          "good": 250,
+          "usable": 359
+        }
+      },
+      "kappa_quadratic": 0.7171277185160849,
+      "photographs": 2245
+    },
+    "without_reference": 0
+  },
+  "unit": "fqs/main/unspecified"
+}

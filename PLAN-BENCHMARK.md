@@ -110,10 +110,12 @@ catalogue current rather than to guess.
 
 **Decided.**
 
-1. **Quality.** First because it needs no mask, four of the seven stores already carry quality
-   labels — [DeepDRiD](docs/datasets/deepdrid.md), [FQS](docs/datasets/fqs.md),
-   [MSHF](docs/datasets/mshf.md), [FIVES](docs/datasets/fives.md) — and the models are small.
-   [EyeQ](docs/datasets/eyeq.md) and [DRIMDB](docs/datasets/drimdb.md) are fetched for it.
+1. **Quality. Built** — [docs/benchmarks/quality.md](docs/benchmarks/quality.md). Four models on
+   [FIVES](docs/datasets/fives.md), [FQS](docs/datasets/fqs.md) and [MSHF](docs/datasets/mshf.md),
+   seven evaluation units, 3,599 photographs each. [DeepDRiD](docs/datasets/deepdrid.md) is held
+   back because the toolbox ensemble trained on it; [EyeQ](docs/datasets/eyeq.md) and
+   [DRIMDB](docs/datasets/drimdb.md) are the next to fetch, and both are in-sample for two of the
+   four models, which is the reason to have them.
 2. **Disc and cup: segmentation and biomarkers together**, as one benchmark, because the biomarkers
    are arithmetic on the same contours. Datasets: [Chákṣu](docs/datasets/chaksu.md),
    [GRAPE](docs/datasets/grape.md), and [ORIGA](docs/datasets/origa.md) once its archive arrives —

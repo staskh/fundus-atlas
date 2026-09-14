@@ -1,0 +1,42 @@
+{
+  "fingerprint": "12c16444bc9ff1b93236648ed94869d389ac123269a58a4e159ae79843deceaf",
+  "model": "vascx-quality",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.8842975206611571,
+      "kappa": 0.7186046511627906,
+      "photographs": 242,
+      "roc_auc": 0.9242940199335549
+    },
+    "graded": 242,
+    "photographs": 242,
+    "three_class": {
+      "accuracy": 0.8057851239669421,
+      "confusion": {
+        "bad": {
+          "bad": 158,
+          "good": 5,
+          "usable": 9
+        },
+        "good": {
+          "bad": 14,
+          "good": 37,
+          "usable": 19
+        },
+        "usable": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        }
+      },
+      "kappa_quadratic": 0.6997805134077679,
+      "photographs": 242
+    },
+    "without_reference": 0
+  },
+  "unit": "mshf/portable/train"
+}

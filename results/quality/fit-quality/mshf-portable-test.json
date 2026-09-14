@@ -1,0 +1,21 @@
+{
+  "fingerprint": "0c7049f51e7445100108c6786df9a38fa4f34203b197f4e1f4ca6f1d2ce581e6",
+  "model": "fit-quality",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.85,
+      "kappa": 0.4104803493449781,
+      "photographs": 60,
+      "roc_auc": 0.9983633387888706
+    },
+    "graded": 60,
+    "photographs": 60,
+    "three_class": null,
+    "without_reference": 0
+  },
+  "unit": "mshf/portable/test"
+}

@@ -1,0 +1,42 @@
+{
+  "fingerprint": "1e25ec3a9439a2ea809d939c8eb72d2a60ac0501a8f661d9b480f4ed4da33bdc",
+  "model": "vascx-quality",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.925,
+      "kappa": 0.7024990083300278,
+      "photographs": 200,
+      "roc_auc": 0.9661803713527851
+    },
+    "graded": 200,
+    "photographs": 200,
+    "three_class": {
+      "accuracy": 0.76,
+      "confusion": {
+        "bad": {
+          "bad": 22,
+          "good": 0,
+          "usable": 4
+        },
+        "good": {
+          "bad": 1,
+          "good": 108,
+          "usable": 24
+        },
+        "usable": {
+          "bad": 10,
+          "good": 9,
+          "usable": 22
+        }
+      },
+      "kappa_quadratic": 0.767250821467689,
+      "photographs": 200
+    },
+    "without_reference": 0
+  },
+  "unit": "fives/main/test"
+}

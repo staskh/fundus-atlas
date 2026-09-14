@@ -1,0 +1,42 @@
+{
+  "fingerprint": "a00da8d35d291cc406bcba22b6805cbce9e5cc731763fb0ebff48d7e5d6a4f60",
+  "model": "quickqual",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.9183673469387755,
+      "kappa": 0.833616298811545,
+      "photographs": 49,
+      "roc_auc": 0.9913793103448276
+    },
+    "graded": 49,
+    "photographs": 49,
+    "three_class": {
+      "accuracy": 0.8163265306122449,
+      "confusion": {
+        "bad": {
+          "bad": 19,
+          "good": 0,
+          "usable": 1
+        },
+        "good": {
+          "bad": 3,
+          "good": 21,
+          "usable": 5
+        },
+        "usable": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        }
+      },
+      "kappa_quadratic": 0.8051259390190013,
+      "photographs": 49
+    },
+    "without_reference": 5
+  },
+  "unit": "mshf/cfp/test"
+}

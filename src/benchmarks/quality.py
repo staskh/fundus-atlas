@@ -80,6 +80,7 @@ def _pair(
     common = {
         "model": adapter.slug,
         "unit": unit.name,
+        "grade_source": sorted({row["quality_source"] for row in loader.rows}),
         "contamination": contamination.mark(adapter.slug, unit),
         "grid": declared["grid"],
         "network_grid": declared["network_grid"],

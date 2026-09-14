@@ -1,0 +1,21 @@
+{
+  "fingerprint": "dde49dac134ca2d436f30a6cb7761237f6b137794186266093275f0dd866a47e",
+  "model": "fit-quality",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.768595041322314,
+      "kappa": 0.26219512195121963,
+      "photographs": 242,
+      "roc_auc": 0.9458887043189368
+    },
+    "graded": 242,
+    "photographs": 242,
+    "three_class": null,
+    "without_reference": 0
+  },
+  "unit": "mshf/portable/train"
+}

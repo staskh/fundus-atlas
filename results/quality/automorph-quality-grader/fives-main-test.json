@@ -1,0 +1,42 @@
+{
+  "fingerprint": "52748e746221048850b8e75d12428d01527013d116d235913d78f6b97afd662b",
+  "model": "automorph-quality-grader",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.815,
+      "kappa": 0.4798987911161091,
+      "photographs": 200,
+      "roc_auc": 0.9694960212201591
+    },
+    "graded": 200,
+    "photographs": 200,
+    "three_class": {
+      "accuracy": 0.62,
+      "confusion": {
+        "bad": {
+          "bad": 25,
+          "good": 0,
+          "usable": 1
+        },
+        "good": {
+          "bad": 8,
+          "good": 87,
+          "usable": 38
+        },
+        "usable": {
+          "bad": 28,
+          "good": 1,
+          "usable": 12
+        }
+      },
+      "kappa_quadratic": 0.6417183189423525,
+      "photographs": 200
+    },
+    "without_reference": 0
+  },
+  "unit": "fives/main/test"
+}

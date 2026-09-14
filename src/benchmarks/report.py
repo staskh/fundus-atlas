@@ -8,7 +8,8 @@ from pathlib import Path
 
 from models.utils.grading import GRADES
 
-from . import runs
+from . import contamination, runs
+from .loaders.base import Unit
 
 #: Where the generated documents live, beside the catalogues they refer to.
 DIRECTORY = Path(__file__).resolve().parents[2] / "docs" / "benchmarks"
@@ -53,15 +54,16 @@ def _index(results: Path) -> Iterable[str]:
         yield ""
         yield f"Generated in full at [benchmarks/{benchmark}.md](benchmarks/{benchmark}.md)."
         yield ""
-        yield "| Model | Unit | Photographs | Coverage | Accuracy | ROC AUC |"
-        yield "| --- | --- | --- | --- | --- | --- |"
+        yield "| Model | Unit | Photographs | Coverage | Accuracy | ROC AUC | Marked |"
+        yield "| --- | --- | --- | --- | --- | --- | --- |"
         for record in _stored(results / benchmark):
             summary = record["summary"]
             level = summary.get("gradeable", {})
             yield (
                 f"| [{record['model']}](models/{record['model']}.md) | {record['unit']} | "
                 f"{summary.get('photographs', '—')} | {_number(summary.get('coverage'))} | "
-                f"{_number(level.get('accuracy'))} | {_number(level.get('roc_auc'))} |"
+                f"{_number(level.get('accuracy'))} | {_number(level.get('roc_auc'))} | "
+                f"{contamination.mark(record['model'], Unit(*record['unit'].split('/')))} |"
             )
     yield ""
     yield "---"
@@ -108,15 +110,26 @@ def _quality(scored: list[dict[str, object]]) -> Iterable[str]:
         "against."
     )
     yield ""
-    yield "| Unit | Photographs | Ungraded by the dataset |"
-    yield "| --- | --- | --- |"
+    yield "| Unit | Photographs | Ungraded by the dataset | Where the grade comes from |"
+    yield "| --- | --- | --- | --- |"
     for unit in units:
         entry = _first(scored, unit=unit)
         summary = entry["summary"]
         yield (
             f"| {unit} | {summary['photographs']} | "
-            f"{summary.get('without_reference', 0)} set aside |"
+            f"{summary.get('without_reference', 0)} set aside | "
+            f"{', '.join(entry.get('grade_source') or ['—'])} |"
         )
+    yield ""
+    yield (
+        "**`published` and `derived` are not the same kind of reference.** A published grade is the "
+        "dataset's own verdict on the photograph. A derived one is this repository's, computed from "
+        "the components the dataset did publish — for [FIVES](../datasets/fives.md), three binary "
+        "scores for illumination and contrast, blur and low contrast, where all three sound is "
+        "`good`, exactly one short is `usable`, and anything else is `bad`. A model measured "
+        "against a derived grade is being measured against that rule as much as against the "
+        "dataset."
+    )
     yield ""
     yield "## 3. Coverage: what each model was willing to answer"
     yield ""
@@ -206,7 +219,13 @@ def _quality(scored: list[dict[str, object]]) -> Iterable[str]:
     )
     yield ""
     for model in models:
-        yield f"- **{model}** — {_marks(scored, model)}"
+        declared = _first(scored, model)["declared"]
+        binary = (
+            ""
+            if _first(scored, model)["summary"].get("three_class")
+            else (" It grades in two classes, not three, so it has no row in section 5.")
+        )
+        yield f"- **{model}** — {_marks(scored, model)}. Emits: {declared.get('grades', '—')}.{binary}"
     yield ""
     yield "---"
     yield ""

@@ -1,0 +1,21 @@
+{
+  "fingerprint": "9f1b74ac8bb4f9edbdbb8ae91013df38b2c6b7c0ee7ec9fafb6e1388d3b81166",
+  "model": "fit-quality",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.7915367483296214,
+      "kappa": 0.5953677529673648,
+      "photographs": 2245,
+      "roc_auc": 0.9389624182073565
+    },
+    "graded": 2245,
+    "photographs": 2245,
+    "three_class": null,
+    "without_reference": 0
+  },
+  "unit": "fqs/main/unspecified"
+}

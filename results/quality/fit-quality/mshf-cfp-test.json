@@ -1,0 +1,21 @@
+{
+  "fingerprint": "0e3d24d92ab741af9ab035f7fd4d2843803e8149ad7e63aeaeec68bc41efbd50",
+  "model": "fit-quality",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.8367346938775511,
+      "kappa": 0.6818181818181819,
+      "photographs": 49,
+      "roc_auc": 0.996551724137931
+    },
+    "graded": 49,
+    "photographs": 49,
+    "three_class": null,
+    "without_reference": 5
+  },
+  "unit": "mshf/cfp/test"
+}

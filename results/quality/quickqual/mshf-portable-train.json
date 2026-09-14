@@ -1,0 +1,42 @@
+{
+  "fingerprint": "6ca9a0540523ae69e75760320e7fc1f603fd8f08da9810aa6a2c59fa71d4c934",
+  "model": "quickqual",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gradeable": {
+      "accuracy": 0.9090909090909091,
+      "kappa": 0.7670633531676584,
+      "photographs": 242,
+      "roc_auc": 0.9659883720930231
+    },
+    "graded": 242,
+    "photographs": 242,
+    "three_class": {
+      "accuracy": 0.8801652892561983,
+      "confusion": {
+        "bad": {
+          "bad": 167,
+          "good": 3,
+          "usable": 2
+        },
+        "good": {
+          "bad": 17,
+          "good": 46,
+          "usable": 7
+        },
+        "usable": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        }
+      },
+      "kappa_quadratic": 0.7535979865004004,
+      "photographs": 242
+    },
+    "without_reference": 0
+  },
+  "unit": "mshf/portable/train"
+}
