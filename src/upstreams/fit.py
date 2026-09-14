@@ -17,18 +17,22 @@ CODE = source.Installed(
 QUALITY_WEIGHTS = "https://zenodo.org/records/11174749/files/weights.tar.gz"
 
 
-def quality_ensemble(device: str = "cpu") -> tuple[list, list[Path]]:
-    """The ten-member quality ensemble, and the checkpoint files it loaded.
+def quality_weights() -> list[Path]:
+    """The ensemble's ten checkpoints, downloaded on first use, without loading them."""
+    from fundus_image_toolbox.quality_prediction.scripts.model import download_weights
 
-    :return: the ensemble as the toolbox returns it, and the weight files, so the run can record
-        which weights produced its numbers.
-    """
+    cache = paths.weights("fit")
+    cache.mkdir(parents=True, exist_ok=True)
+    return sorted(Path(download_weights(cache_dir=cache)).rglob("*.pth"))
+
+
+def quality_ensemble(device: str = "cpu") -> list:
+    """The ten-member quality ensemble, as the toolbox returns it."""
     from fundus_image_toolbox.quality_prediction import load_quality_ensemble
 
     cache = paths.weights("fit")
     cache.mkdir(parents=True, exist_ok=True)
-    ensemble = load_quality_ensemble(device=device, cache_dir=cache)
-    return ensemble, sorted(cache.rglob("*.pth"))
+    return load_quality_ensemble(device=device, cache_dir=cache)
 
 
 def provenance() -> dict[str, object]:

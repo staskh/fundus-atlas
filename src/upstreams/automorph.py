@@ -21,18 +21,24 @@ CODE = source.Checkout(
 QUALITY_WEIGHTS = f"{QUALITY_STAGE}/Retinal_quality/EyePACS_quality/efficientnet"
 
 
-def quality_stage() -> tuple[object, list[Path]]:
-    """The stage's own model module, and the eight checkpoints of its ensemble."""
-    tree = CODE.on_path()
-    import model  # the stage's own module, reached because its directory is on sys.path
-
+def quality_weights() -> list[Path]:
+    """The eight seeds of the quality ensemble, committed in the repository."""
+    tree = CODE.obtain()
     checkpoints = sorted((tree / QUALITY_WEIGHTS).glob("*/best_loss_checkpoint.pth"))
     if len(checkpoints) != 8:
         raise RuntimeError(
             f"expected the eight seeds of the quality ensemble in {tree / QUALITY_WEIGHTS}, "
             f"found {len(checkpoints)}"
         )
-    return model, checkpoints
+    return checkpoints
+
+
+def quality_stage() -> object:
+    """The stage's own model module, reached because its directory is on ``sys.path``."""
+    CODE.on_path()
+    import model
+
+    return model
 
 
 def provenance() -> dict[str, object]:

@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 from sklearn.metrics import accuracy_score, cohen_kappa_score, roc_auc_score
 
-from models.grading import BAD, DECLINED, FAILED, GRADED, GRADES, Grade
+from models.utils.grading import BAD, DECLINED, FAILED, GRADED, GRADES, Grade
 
 #: The grades that mean the photograph is worth measuring. Every quality model in this catalogue
 #: can answer this question, whether it grades in two classes or three, so it is the level at

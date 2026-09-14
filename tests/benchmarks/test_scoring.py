@@ -4,7 +4,7 @@
 import pytest
 
 from benchmarks import scoring
-from models.grading import BAD, DECLINED, FAILED, GOOD, USABLE, Grade
+from models.utils.grading import BAD, DECLINED, FAILED, GOOD, USABLE, Grade
 
 
 def test_coverage_counts_what_the_model_would_answer_for() -> None:

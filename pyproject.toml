@@ -53,6 +53,11 @@ packages = ["src/datasets", "src/upstreams", "src/models", "src/benchmarks"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+# Deprecations inside the upstreams, which are pinned and not ours to fix.
+filterwarnings = [
+    "ignore:`torch.jit.*` is deprecated:FutureWarning",
+    "ignore:Got processor for keypoints:UserWarning",
+]
 
 [tool.ruff]
 line-length = 100

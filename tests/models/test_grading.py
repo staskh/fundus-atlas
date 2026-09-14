@@ -3,7 +3,7 @@
 
 import pytest
 
-from models import grading
+from models.utils import grading
 
 
 def test_a_graded_photograph_carries_a_verdict_in_the_atlas_vocabulary() -> None:
