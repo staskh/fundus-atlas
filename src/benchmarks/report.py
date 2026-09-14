@@ -135,6 +135,18 @@ def _quality(scored: list[dict[str, object]]) -> Iterable[str]:
             f"{summary['declined']} | {summary['failed']} | {summary['coverage']:.3f} |"
         )
     yield ""
+    if not any(entry["summary"]["declined"] for entry in scored):
+        yield (
+            "**No model declined a photograph in this run.** Declining is something a model does "
+            "on its own judgement, and none of these does it: where a pipeline refuses a "
+            "photograph — AutoMorph drops one whose fundus its preprocessing cannot find — that "
+            "refusal belongs to the pipeline and not to the model, and this benchmark runs the "
+            "models without the pipelines around them. The store's field-of-view crop has already "
+            "answered the question that gate asks. A model's own opinion that a photograph is not "
+            "worth measuring is a **grade**, scored in section 4 like any other, rather than a "
+            "refusal to answer."
+        )
+        yield ""
     yield "## 4. Worth measuring, or not"
     yield ""
     yield (

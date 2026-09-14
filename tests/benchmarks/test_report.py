@@ -100,3 +100,21 @@ def test_every_heading_is_numbered(tmp_path: Path) -> None:
             start=1,
         )
     ]
+
+
+def test_a_run_in_which_nothing_declined_says_so(tmp_path: Path) -> None:
+    entry = scored()
+    entry["summary"]["declined"] = 0
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "No model declined a photograph in this run." in written
+
+
+def test_a_run_in_which_something_declined_does_not_claim_otherwise(tmp_path: Path) -> None:
+    entry = scored()
+    entry["summary"]["declined"] = 4
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "No model declined" not in written
