@@ -170,3 +170,18 @@ misrepresent, and they live on the detail pages. Two conventions do belong in th
 modalities that are not colour fundus photography in the Dataset cell**, so nobody pools them by
 accident. And where a dataset's photographs come from another dataset, say so in the Dataset cell
 too, briefly — section 2 of `DATASETS.md` carries the full map in both directions.
+
+`DATASETS.md` also regroups the summary rows by annotation type, so a reader can look up a quality
+set, an artery/vein set, a disc/cup set or a disease-graded set without scanning every column:
+
+| Section | Lists datasets that |
+| --- | --- |
+| 1.1 | Grade the *photograph* (quality) |
+| 1.2 | Distinguish arteries from veins |
+| 1.3 | Annotate the optic disc, with disc-only sets separated from disc-and-cup |
+| 1.4 | Grade the *eye* for disease, naming which condition and which scheme |
+
+When a row's Quality, A/V, Disc, Cup or Disease cell changes, update the matching regroup in the
+same commit. Do not add a dataset to 1.4 because it was collected in a disease clinic if it carries
+no disease label — [RIGA](../../docs/datasets/riga.md) is the worked example. Do not add a dataset
+to 1.3's disc-and-cup table if it marks the disc only.

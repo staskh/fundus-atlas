@@ -219,3 +219,9 @@ __marimo__/
 
 # Dataset stores: downloaded images and everything built from them.
 /.atlas_data/
+
+# Third-party code fetched at a pinned commit, and the weights it downloads.
+/.atlas_code/
+
+# Benchmark runs: predicted masks and the run records beside them.
+/.atlas_runs/

@@ -40,6 +40,11 @@ A green mark says nothing about the **licence** — several ✅ datasets are res
 prohibit redistribution, and one ⛔ dataset is more permissively licensed than some ✅ ones. Getting
 the data and being allowed to use it are separate questions, so read the Licence column beside it.
 
+The annotation columns of the table are the same facts regrouped in 1.1–1.4: quality of the
+photograph, arteries against veins, the optic disc (and whether the cup is there too), and disease
+of the eye. Those lists do not add datasets; they make the same catalogue readable by what is
+labelled.
+
 | Dataset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Images | Resolution | Year | Quality | Vessels | A/V | Disc | Cup | Disease | Other labels | Licence | Down |
 | :------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [EyeQ](datasets/eyeq.md) ← EyePACS | 28,792 | **highly mixed** — many devices | 2019 | ✅ Good / Usable / Reject | — | — | — | — | ✅ DR 0–4, from EyePACS | — | labels **not stated**; images under EyePACS competition terms | 🟡 |
@@ -88,6 +93,137 @@ the data and being allowed to use it are separate questions, so read the Licence
 | [STARE](datasets/stare.md) | 20 (vessel subset of 397) | 700×605 | 2000 | — | ✅ **×2 observers** | — | — | — | ✅ 10 of 20 with pathology | — | **not stated** | ✅ |
 | [UNAF](datasets/unaf.md) | 15 | 1444×1444 as redistributed | 2024 | — | — | ✅ | — | — | ✅ DR | Paraguay — geographic coverage | **not established** | ❓ |
 
+### 1.1 Quality of the photograph
+
+Quality grades the *photograph* — whether it is sharp enough, bright enough and well enough framed
+to be read — not the *eye*. A Reject from [EyeQ](datasets/eyeq.md) and a glaucoma label from
+[REFUGE](datasets/refuge.md) are different kinds of statement. These are the datasets that score the
+image itself.
+
+| Dataset | Images | What is scored | Readers |
+| --- | --- | --- | --- |
+| [EyeQ](datasets/eyeq.md) ← EyePACS | 28,792 | Three levels: Good / Usable / Reject | Graded by the EyeQ authors |
+| [BRSET](datasets/brset.md) | 16,266 | Four separate flags: focus, illumination, image field, artefacts — not one overall grade | Per photograph |
+| [mBRSET](datasets/mbrset.md) | 5,164 | Quality assessment per photograph, on handheld cameras | Per photograph |
+| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 | Overall (good enough to diagnose / not) plus artefact, clarity and field-definition subscores | Two ophthalmologists, confirmed or revised by a senior third. **Only the arbitrated result is published**, so the readers cannot be compared |
+| [FQS](datasets/fqs.md) | 2,246 | A **continuous 0–100** score and a three-class grade (good / usable / reject) | Score: **six doctors, kept separate**. Class: **three graders, kept separate** |
+| [MSHF](datasets/mshf.md) +UWF | 1,302 | Four binary components: illumination, clarity, contrast, overall | **Three readers, kept separate** as well as merged |
+| [FIVES](datasets/fives.md) | 800 | Illumination, blur and contrast | Graded per photograph |
+| [FunPiQ](datasets/funpiq.md) ← EyeQ, BRSET, mBRSET | 300 | **Pixel-level** masks of the degraded regions — which part of the image is unusable, not only how bad the whole frame is. The only such annotation here | Under a board-certified ophthalmologist |
+| [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | A quality **score from an automated network**, not a human grader | — |
+| [DRIMDB](datasets/drimdb.md) | 216 | Three classes: good, bad, and **outlier** — photographs that are not of a retina | Unknown how many readers |
+| [RAV](datasets/rav.md) | 206 | Not a grade: poor-quality photographs were **kept on purpose** rather than excluded | — |
+| [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | High / low — 83 high-quality, 17 low-quality | Per photograph |
+
+[FunPiQ](datasets/funpiq.md) re-annotates photographs already in EyeQ, BRSET and mBRSET, so it is
+not a fourth camera. [DRIMDB](datasets/drimdb.md) is named for diabetic retinopathy and carries no
+disease grade; its contribution is the quality classes, including the outlier class.
+
+### 1.2 Arteries and veins
+
+An **artery/vein** annotation colours arteries and veins as separate classes. That is what calibre
+ratios such as CRAE and the arteriovenous ratio need: a vessel map that does not tell the two
+apart cannot produce them. Datasets that only trace vessels, without saying which is which, stay
+in the Vessels column of the summary and are not repeated here.
+
+| Dataset | Images | What is labelled | Notes |
+| --- | --- | --- | --- |
+| [REYIA](datasets/reyia.md) ← 9 sources | 589 | Artery/vein maps | A compilation: 478 of the 589 photographs come from other datasets. Scoring REYIA and its sources counts the same eyes twice |
+| [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | Arterioles and venules | **Two readers kept separate** on the test split — a junior drawing and a senior's correction |
+| [RAV](datasets/rav.md) | 206 | Artery/vein segmentation | Population cohort (Rotterdam Study); quality mixed by design |
+| [AVRDB](datasets/avrdb.md) | 100 | Artery/vein network | Also publishes an **AVR number per image** |
+| [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | Pixel-level artery/vein | Newer than the models in this catalogue, so it can evaluate them |
+| [VICAVR](datasets/vicavr.md) | 58 | Artery/vein labels **near the disc**, not a dense whole-image map | **Three experts**; published calibres at several radii from the disc |
+| [GAVE](datasets/gave.md) | 50 | Vessel and artery/vein labels | Reader count not stated |
+| [HRF](datasets/hrf.md) | 45 | Arteries and veins as separate classes | The **HRF-AV** layer, added by a second group; the original release has vessels only |
+| [RITE](datasets/rite.md) ← DRIVE | 40 | Four classes: artery, vein, overlap, uncertain | **RITE is DRIVE** — the same 40 photographs. Widely cited as "DRIVE-AV" |
+| [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | **AVR as a number per image**, from two experts using IVAN — not a pixel map of arteries and veins | In this list because it distinguishes arterioles from venules as a measurement, not as a mask |
+| [RAVIR](datasets/ravir.md) **(IR)** | 36 | Artery and vein segmentations | **Infrared reflectance**, not colour fundus photography. Test masks withheld |
+| [IOSTAR](datasets/iostar.md) **(SLO)** | 30 | Artery/vein | Scanning laser ophthalmoscopy, not a colour photograph |
+| [DualModal2019](datasets/dualmodal2019.md) **(dual-modal)** | 30 | Artery/vein | Same eyes imaged two ways |
+| [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | Artery/vein | **Two independent raters, kept separate**. A 200° Optos field, not a standard photograph |
+| [LES-AV](datasets/les-av.md) | 22 | Artery/vein maps | Vessel masks are derived from the A/V labels, not drawn independently |
+| [UNAF](datasets/unaf.md) | 15 | Artery/vein segmentation | Paraguay — the smallest set here; its value is geographic coverage |
+
+### 1.3 Optic disc, and disc with cup
+
+The **optic disc** is the visible head of the optic nerve. The **cup** is the depression in its
+centre. A cup-to-disc ratio, used in glaucoma work, needs both outlines. Datasets that mark the
+disc only cannot support that measurement; they are listed separately.
+
+**Disc and cup.** Both structures are outlined. Where the cup is missing on some photographs, that
+is noted in the Cup column.
+
+| Dataset | Images | Disc | Cup | Notes |
+| --- | --- | --- | --- | --- |
+| [Chákṣu](datasets/chaksu.md) | 1,345 | ✅ **×5 experts**, kept separate | ✅ **×5 experts**, kept separate | Five independent glaucoma decisions as well |
+| [REFUGE / REFUGE2](datasets/refuge.md) | 1,200 / 2,000 | ✅ consensus | ✅ consensus | REFUGE2 contains the first edition's 1,200 |
+| [G1020](datasets/g1020.md) | 1,020 | ✅ | ✅ on **791 of 1,020** | Not disc-centred — a harder disc-segmentation test than a disc-centred set |
+| [RIGA](datasets/riga.md) ← MESSIDOR | 750 | ✅ **×6 ophthalmologists**, kept separate | ✅ **×6 ophthalmologists**, kept separate | **No disease label**, despite being collected for glaucoma analysis |
+| [ORIGA](datasets/origa.md) | 650 | ✅ | ✅ | Also publishes the graders' own cup-to-disc ratio as a number |
+| [GRAPE](datasets/grape.md) | 631 | ✅ | ✅ | Contours are on a **crop around the nerve**, not the full 50° frame |
+| [PAPILA](datasets/papila.md) | 488 | ✅ ×2 experts | ✅ ×2 experts | Both eyes of the same patient, with the clinical record |
+| [RIM-ONE DL](datasets/rim-one-dl.md) ← r1–r3 | 485 | ✅ | ✅ | Hospital-based train/test split |
+| [GAMMA](datasets/gamma.md) +OCT | 300 pairs, ~100 labelled | ✅ | ✅ | Only the training split has public labels |
+| [MAPLES-DR](datasets/maples-dr.md) ← MESSIDOR | 198 | ✅ | ✅ on **192 of 198** | Labels drawn at 1500×1500, then stored at MESSIDOR's native size |
+| [Drishti-GS](datasets/drishti-gs.md) | 101 | ✅ ×4 experts, **soft maps** | ✅ ×4 experts, soft maps | The value at each pixel is how many experts included it |
+| [HRF](datasets/hrf.md) | 45 | Centres ×2 experts in the original release; contours via HRF-Seg+ | ✅ via HRF-Seg+, on **40 of 45** | Three annotation layers. The original authors marked disc **centres**, not contours; the cup arrives only with HRF-Seg+ |
+
+**Disc only — no cup.** These mark the optic disc (or optic nerve head) and do not outline the
+cup, so they cannot yield a cup-to-disc ratio.
+
+| Dataset | Images | What is marked | Notes |
+| --- | --- | --- | --- |
+| [ADAM](datasets/adam.md) | 1,200 | Disc **masks**; some are entirely blank | A blank mask means no disc was annotated in that photograph, not that there is no disc. No cup |
+| [IDRiD](datasets/idrid.md) | 516 | Disc masks on **81 of 516** — the segmentation subset only | The other 435 have disease grades and no disc outline. No cup |
+| [UoA-DR](datasets/uoa-dr.md) | 200 | Disc **boundary and centre** | The centre is what a zone-based vessel measurement needs. No cup |
+| [AVRDB](datasets/avrdb.md) | 100 | Optic **nerve head** | Alongside arteries, veins and a published AVR. No cup |
+| [FOVEA](datasets/fovea-dataset.md) +surgical | 80 | Disc, **×2 readers**, on preoperative and surgical-microscope views | Paired views of the same eye. No cup |
+| [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | Disc reference | There so a zone-based calibre measurement has a centre. No cup |
+| [IOSTAR](datasets/iostar.md) **(SLO)** | 30 | Disc | Scanning laser ophthalmoscopy, not a colour photograph. No cup |
+
+### 1.4 Disease of the eye
+
+Disease grades the *eye*, on a scheme that is **not interchangeable** between datasets: a 0–4
+diabetic-retinopathy scale here, a glaucoma triple that includes "suspect" there, a binary AMD
+flag elsewhere. A collection assembled in a disease clinic is not the same as a collection
+*labelled* for that disease — [RIGA](datasets/riga.md) has six readers' disc and cup outlines and
+no glaucoma label, so it is not in this table.
+
+| Dataset | Images | Diabetic retinopathy | Glaucoma | AMD | Other labelled conditions |
+| --- | --- | --- | --- | --- | --- |
+| [EyeQ](datasets/eyeq.md) ← EyePACS | 28,792 | ✅ 0–4, inherited from EyePACS | — | — | — |
+| [BRSET](datasets/brset.md) | 16,266 | ✅ present/absent, plus ICDR and SDRG grades 0–4 | increased cup–disc ratio as a flag, not a glaucoma diagnosis | ✅ present/absent | **Multi-label, each present/absent:** diabetic macular oedema, toxoplasmosis scar, nevus, vascular occlusion, hypertensive retinopathy, drusen, non-diabetic haemorrhage, retinal detachment, myopic fundus, other |
+| [mBRSET](datasets/mbrset.md) | 5,164 | ✅ grades | — | — | — |
+| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 | ✅ 0–4, **per image and per patient** (worse eye) | — | — | — |
+| [Chákṣu](datasets/chaksu.md) | 1,345 | — | ✅ `NORMAL` / `GLAUCOMA SUSPECT`, **×5 independent decisions** — not a severity grade | — | — |
+| [MSHF](datasets/mshf.md) +UWF | 1,302 | ✅ on the colour-fundus portion | ✅ on the colour-fundus portion | — | Healthy, as a third class. Disease is by acquisition group, not a per-image grade overlapping the others |
+| [REFUGE / REFUGE2](datasets/refuge.md) | 1,200 / 2,000 | — | ✅ yes/no; about 10% glaucomatous in REFUGE | — | — |
+| [ADAM](datasets/adam.md) | 1,200 | — | — | ✅ AMD / non-AMD | Lesion masks: drusen, exudates, haemorrhages, scars |
+| [MESSIDOR](datasets/messidor.md) | 1,200 | ✅ **0–3** (not the five-level ICDR scale) | — | — | Macular-oedema **risk 0–2** |
+| [G1020](datasets/g1020.md) | 1,020 | — | ✅ 296 glaucoma / 724 normal | — | — |
+| [FIVES](datasets/fives.md) | 800 | ✅ 200 | ✅ 200 | ✅ 200 | 200 normal. One class per eye, by design |
+| [ORIGA](datasets/origa.md) | 650 | — | ✅ 168 glaucoma / 482 normal | — | — |
+| [GRAPE](datasets/grape.md) | 631 | — | ✅ glaucoma, **longitudinal** — the same eyes followed over visits | — | Visual fields, OCT, intraocular pressure |
+| [REYIA](datasets/reyia.md) ← 9 sources | 589 | by source (MESSIDOR, mBRSET) | by source (PAPILA, MAGREBHIA, GRAPE) | by source (AV-WIDE) | **No unified disease scheme** — each subset keeps its source's labels, and ENRICH has none |
+| [IDRiD](datasets/idrid.md) | 516 | ✅ 0–4 on all 516 | — | — | Macular-oedema risk 0–2 on all 516; four lesion classes on 81 |
+| [PAPILA](datasets/papila.md) | 488 | — | ✅ healthy / **suspect** / glaucoma | — | Full clinical record per eye |
+| [RIM-ONE DL](datasets/rim-one-dl.md) ← r1–r3 | 485 | — | ✅ 313 normal / 172 glaucoma | — | — |
+| [GAMMA](datasets/gamma.md) +OCT | 300 pairs, ~100 labelled | — | ✅ normal / **early** / **progressive** (intermediate and advanced) | — | Paired OCT volume |
+| [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | — | ✅ three categories, plus healthy | — | Twelve published vessel measurements |
+| [UoA-DR](datasets/uoa-dr.md) | 200 | ✅ International Clinical Diabetic Retinopathy scale | — | — | — |
+| [MAPLES-DR](datasets/maples-dr.md) ← MESSIDOR | 198 | ✅ **regraded** DR, not inherited from MESSIDOR | — | — | Macular oedema, **regraded**; six lesion classes |
+| [Drishti-GS](datasets/drishti-gs.md) | 101 | — | ✅ glaucoma | — | Cup-to-disc ratio, notching |
+| [AVRDB](datasets/avrdb.md) | 100 | — | — | — | **Hypertensive retinopathy** and **papilloedema**; published AVR |
+| [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | ✅ 20 | ✅ 20 | ✅ 20 | 40 normal. One class per eye |
+| [HRF](datasets/hrf.md) | 45 | ✅ 15 | ✅ 15 | — | 15 healthy. One class per eye |
+| [DRIVE](datasets/drive.md) | 40 | 7 of 40 with mild early changes; 33 with none | — | — | A **collection description**, not a per-image grade file |
+| [RAVIR](datasets/ravir.md) **(IR)** | 36 | ✅ represented | — | — | Hypertensive retinopathy. Infrared reflectance, not colour |
+| [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | — | — | ✅ healthy / AMD, with the AMD subtype described | — |
+| [LES-AV](datasets/les-av.md) | 22 | — | ✅ **subtypes**: normal, normal-tension, open-angle — the only subtype labels here | — | Blood pressure, heart rate, intraocular pressure |
+| [STARE](datasets/stare.md) | 20 | — | — | — | **10 of 20 show pathology**, not named as a disease scheme |
+| [UNAF](datasets/unaf.md) | 15 | ✅ represented | — | — | — |
+
 ## 2. Shared photographs
 
 Two datasets built on the same photographs are one camera's worth of evidence. This section maps
@@ -127,10 +263,13 @@ These look like fundus datasets in a file browser and cannot be pooled with them
 - **The annotation columns** — quality, vessels, A/V, disc, cup — carry ✅ where the dataset supplies
   that label and `—` where it does not, with a reader count where more than one person annotated
   (`✅ ×5 experts`). **A reader count above one is the most useful property a dataset can have**: it
-  is what lets a human agreement ceiling be measured rather than assumed.
+  is what lets a human agreement ceiling be measured rather than assumed. Sections **1.1–1.4**
+  collect the same facts by annotation type, so a reader looking for a quality set, an artery/vein
+  set, a disc/cup set or a disease-graded set does not have to scan every row.
 - **Quality** grades the *photograph*; **Disease** grades the *eye*, and the schemes are not
   interchangeable between datasets — four classes here, three there, a glaucoma triple including
-  "suspect" elsewhere. The cell names the scheme; the page explains it.
+  "suspect" elsewhere. The cell names the scheme; the page explains it. Disc without cup cannot
+  produce a cup-to-disc ratio; those datasets are separated in 1.3.
 - **Other labels** — fovea locations, lesion classes, demographics, published biomarker values,
   vessel junctions. This is where the unusual and most valuable content hides.
 - **Down** summarises the access route; the detail of it — the URL, the form, the agreement, which
@@ -154,4 +293,5 @@ These look like fundus datasets in a file browser and cannot be pooled with them
 
 Dataset pages follow a fixed structure so they can be read against each other. Load the
 `document-dataset` skill, which defines that structure and this table's columns, before adding or
-changing an entry.
+changing an entry. A change to a row's Quality, A/V, Disc, Cup or Disease cell also updates the
+matching regroup in sections 1.1–1.4.
