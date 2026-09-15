@@ -201,3 +201,28 @@ def test_the_run_records_what_produced_it(tmp_path: Path) -> None:
     assert "brightness" in record
     assert "builder_version" in record
     assert "processed" in record
+
+
+def test_the_configuration_is_known_before_anything_is_measured(tmp_path: Path) -> None:
+    """The page describing a run must not need the run to have happened."""
+    adapter = Brightness()
+
+    configured = quality.configuration([adapter], ["fives"], root=a_store(tmp_path))
+
+    assert adapter.scored == [], "reading a manifest is not scoring a photograph"
+    assert configured["models"] == [{"slug": "brightness", "declared": adapter.declare()}]
+    assert configured["datasets"] == [
+        {
+            "slug": "fives",
+            "total": 3,
+            "excluded": {},
+            "grade_source": ["published"],
+            "padding": 0.0,
+        }
+    ]
+
+
+def test_a_dataset_with_no_store_is_left_out_of_the_configuration(tmp_path: Path) -> None:
+    configured = quality.configuration([Brightness()], ["fives", "eyeq"], root=a_store(tmp_path))
+
+    assert [entry["slug"] for entry in configured["datasets"]] == ["fives"]

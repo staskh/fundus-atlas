@@ -17,6 +17,24 @@ the whole rule, and everything else follows from it: if a sentence cannot be pro
 `results/` and the run's own record, it does not belong in either document — it belongs in the
 notebook, where judgement lives.
 
+**They are written at different moments, and that is deliberate:**
+
+| Document | Written |
+| --- | --- |
+| `<slug>-docs.md` | **before the measuring starts**, and again after any change to the benchmark's code |
+| `<slug>-results.md` | **after the measuring finishes** |
+
+The configuration page describes what is *about to* happen — which models, which datasets, what is
+excluded, what the columns will mean — and every word of it is known before a single photograph is
+scored. Writing it first buys three things: somebody can read what a run is going to do before
+committing hours of it, a run that dies halfway still leaves an accurate account of itself, and the
+page cannot quietly describe a configuration other than the one that ran. The results page needs
+the numbers, so it waits.
+
+A change to the benchmark's code is therefore a change to the configuration page in the same
+commit, run or no run: a column added to the evidence, a model added to the declared list, an
+exclusion rule altered. Regenerating it costs nothing — it measures nothing.
+
 `src/benchmarks/report.py` holds the generators. A benchmark calls them at the end of a run, and
 `--no-report` skips them. **What only one benchmark's documents say lives in its own file beside
 this one** — `quality.md`, and one per benchmark thereafter — and you load that file too.

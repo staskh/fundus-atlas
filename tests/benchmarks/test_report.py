@@ -55,12 +55,28 @@ def rows(**overrides: str) -> dict[str, str]:
     return entry
 
 
+def configured() -> dict[str, object]:
+    """What a run knows before it measures anything."""
+    return {
+        "models": [{"slug": "quickqual", "declared": scored()["declared"]}],
+        "datasets": [
+            {
+                "slug": "fives",
+                "total": 200,
+                "excluded": {"below the size floor": 3},
+                "grade_source": ["derived"],
+                "padding": 0.0,
+            }
+        ],
+    }
+
+
 def test_the_configuration_page_names_every_declared_model_including_the_absent(
     tmp_path: Path,
 ) -> None:
     path = report.write_docs(
         "quality",
-        [scored()],
+        configured(),
         missing_models={"lunet-quality": "no adapter written"},
         missing_datasets={"eyeq": "no store built"},
         columns={"key": "the photograph"},
@@ -76,7 +92,7 @@ def test_the_configuration_page_names_every_declared_model_including_the_absent(
 def test_the_configuration_page_explains_every_column_of_the_evidence(tmp_path: Path) -> None:
     written = report.write_docs(
         "quality",
-        [scored()],
+        configured(),
         missing_models={},
         missing_datasets={},
         columns={"key": "the photograph", "gradeable": "how confident it is"},
@@ -158,7 +174,7 @@ def test_every_heading_is_numbered(tmp_path: Path) -> None:
     for written in (
         report.write_docs(
             "quality",
-            [scored()],
+            configured(),
             missing_models={},
             missing_datasets={},
             columns={},
@@ -173,3 +189,19 @@ def test_every_heading_is_numbered(tmp_path: Path) -> None:
             f"## {index}. {heading.split('. ', 1)[1]}"
             for index, heading in enumerate(headings, start=1)
         ]
+
+
+def test_the_configuration_page_can_be_written_before_anything_is_measured(
+    tmp_path: Path,
+) -> None:
+    written = report.write_docs(
+        "quality",
+        configured(),
+        missing_models={},
+        missing_datasets={},
+        columns={},
+        into=tmp_path,
+    ).read_text()
+
+    assert "before" in written, "the page says when it was written, because it matters"
+    assert "3 below the size floor" in written, "the exclusions are known from the manifest alone"

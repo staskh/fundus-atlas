@@ -1,0 +1,38 @@
+{
+  "benchmark": "quality",
+  "dataset": "fives",
+  "fingerprint": "c51796b3046d3b54d0dd558ffb65af34dab8a8830461c3eb7866f046df693a93",
+  "model": "fit-quality",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": {
+      "accuracy": 0.57,
+      "carried": 375,
+      "carried_share": 0.46875,
+      "differs_from_the_verdict": 0,
+      "kappa": 0.1808304807262986,
+      "photographs": 800
+    },
+    "gradeable": {
+      "accuracy": 0.57,
+      "kappa": 0.1808304807262986,
+      "photographs": 800,
+      "roc_auc": 0.973076460790879
+    },
+    "graded": 800,
+    "photographs": 800,
+    "processed": 800,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": null,
+    "total": 800
+  }
+}

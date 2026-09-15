@@ -29,6 +29,11 @@ class QualityLoader(Photographs):
         self._exclude(NO_REFERENCE, len(rows) - len(graded))
         return graded
 
+    @property
+    def grade_sources(self) -> list[str]:
+        """Where this dataset's grades came from: published, derived, or assumed."""
+        return sorted({row[f"{FIELD}_source"] for row in self.rows})
+
     def __getitem__(self, index: int) -> dict[str, object]:
         row = self.rows[index]
         sample = super().__getitem__(index)

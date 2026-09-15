@@ -1,0 +1,58 @@
+{
+  "benchmark": "quality",
+  "dataset": "fqs",
+  "fingerprint": "a00c77df9bd2abfd89a7c852720e96a83de508aea66fce76b9d19810d677b964",
+  "model": "vascx-quality",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": null,
+    "gradeable": {
+      "accuracy": 0.8075723830734967,
+      "kappa": 0.582333495833843,
+      "photographs": 2245,
+      "roc_auc": 0.9277031336921252
+    },
+    "graded": 2245,
+    "photographs": 2245,
+    "processed": 2245,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": {
+      "accuracy": 0.6472160356347438,
+      "confusion": {
+        "bad": {
+          "bad": 546,
+          "good": 34,
+          "usable": 358
+        },
+        "good": {
+          "bad": 1,
+          "good": 451,
+          "usable": 62
+        },
+        "usable": {
+          "bad": 39,
+          "good": 298,
+          "usable": 456
+        }
+      },
+      "kappa_quadratic": 0.6901995799822189,
+      "photographs": 2245,
+      "recall": {
+        "bad": 0.582089552238806,
+        "good": 0.877431906614786,
+        "usable": 0.575031525851198
+      },
+      "unused_by_the_reference": []
+    },
+    "total": 2245
+  }
+}

@@ -215,20 +215,38 @@ A sample is an unfinished run, not a different one, so it is written to the same
 and a later run finishes it (section 5). A result that is not complete **says so in its own file and
 in every table that quotes it**, so that a sample can never be read as a measurement.
 
-## 8. Testing a benchmark without a model
+## 8. The order a run does things in
+
+1. **Work out the configuration**: which declared models have adapters, which declared datasets
+   have stores, and for each of those how many photographs it holds and what the exclusions took
+   out. All of that is known without scoring anything — a loader reads a manifest, not an image.
+2. **Write `<slug>-docs.md`**, before any measuring. A run that dies halfway then still leaves an
+   accurate account of what it was going to do, and anybody can read what is about to happen before
+   committing hours of it.
+3. **Measure**, model by model, dataset by dataset.
+4. **Write `<slug>-results.md`** and the index, from what is now in `results/`.
+
+`--no-report` skips steps 2 and 4. Nothing else about a run depends on the order, but this order is
+what makes the configuration page trustworthy: it describes the run that is happening rather than
+the run that happened to finish.
+
+**A change to the benchmark's code means regenerating the configuration page in the same commit**,
+whether or not anything is measured. It costs nothing: it measures nothing.
+
+## 9. Testing a benchmark without a model
 
 Write a small **real adapter** in the test — one that grades by mean brightness, say — and run the
 benchmark against it. It satisfies the same interface the catalogued models do, so what the test
 exercises is the run rather than a rehearsal of one. Never mock an adapter, and never test a
 benchmark against a downloaded store.
 
-## 9. Rules
+## 10. Rules
 
-- **9.1** The benchmark never knows which model it is running; the adapter never knows which
+- **10.1** The benchmark never knows which model it is running; the adapter never knows which
   benchmark is running it.
-- **9.2** Every result carries its contamination mark, from `benchmarks/contamination.py`, whose
+- **10.2** Every result carries its contamination mark, from `benchmarks/contamination.py`, whose
   entries cite the model page's training-data section. `unknown` is never merged with
   `out-of-sample`, and where a model trained on one split only, the report breaks that dataset into
   its splits rather than publishing one number over both.
-- **9.3** Nothing is scored against a dataset's own published value without saying so.
-- **9.4** A benchmark reports; it does not rank. No "best", no ordering, no crowning.
+- **10.3** Nothing is scored against a dataset's own published value without saying so.
+- **10.4** A benchmark reports; it does not rank. No "best", no ordering, no crowning.

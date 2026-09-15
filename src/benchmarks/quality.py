@@ -62,6 +62,36 @@ def missing_datasets(slugs: list[str], root: Path | None = None) -> dict[str, st
     return missing
 
 
+def configuration(
+    models: list,
+    datasets: list[str],
+    root: Path | None = None,
+) -> dict[str, object]:
+    """What this run is about to do, without doing any of it.
+
+    A loader reads a manifest rather than an image, so every fact the configuration page states —
+    the models, the datasets, how many photographs each holds, what the exclusions take out — is
+    known before a photograph is scored. That is what lets the page be written first.
+    """
+    absent = missing_datasets(datasets, root)
+    described = []
+    for slug in (name for name in datasets if name not in absent):
+        loader = QualityLoader(slug, size=models[0].grid if models else 512, root=root)
+        described.append(
+            {
+                "slug": slug,
+                "total": loader.total,
+                "excluded": dict(loader.excluded),
+                "grade_source": loader.grade_sources,
+                "padding": loader.padding,
+            }
+        )
+    return {
+        "models": [{"slug": model.slug, "declared": model.declare()} for model in models],
+        "datasets": described,
+    }
+
+
 def run(
     models: list,
     datasets: list[str],
@@ -170,7 +200,7 @@ def _pair(
         "weights": loaded,
         "fingerprint": identity,
         "grade_source": sorted({entry["grade_source"] for entry in evidence}),
-        "padding": _padding(evidence),
+        "padding": loader.padding,
         "counts": counts,
         "summary": summary,
         "measured": len(fresh),
@@ -237,16 +267,6 @@ def _rows(loader: QualityLoader, grades: list) -> list[dict[str, object]]:
     ]
 
 
-def _padding(evidence: list[dict[str, object]]) -> float:
-    """How much of the square the store built is canvas rather than photograph, at the median.
-
-    A fundus cut off at top and bottom leaves black bands in a square crop, and a quality model
-    judges the square it is given.
-    """
-    pads = sorted(float(entry["pad_fraction"]) for entry in evidence if entry.get("pad_fraction"))
-    return pads[len(pads) // 2] if pads else 0.0
-
-
 def _store(slug: str, root: Path | None) -> dict[str, object]:
     """What the photographs were built by, so a rebuilt store is measured again."""
     build = (root or paths.root()) / slug / "build.json"
@@ -293,6 +313,18 @@ def main(asked) -> None:
     models, no_adapter = adapters(wanted_models, asked.device)
     for slug, why in no_adapter.items():
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
+    no_store = missing_datasets(wanted_datasets, root)
+
+    # The configuration page is written first: it describes the run that is about to happen, so a
+    # run that dies halfway still leaves an accurate account of itself.
+    if asked.report:
+        report.write_docs(
+            NAME,
+            configuration(models, wanted_datasets, root),
+            no_adapter,
+            no_store,
+            report.QUALITY_COLUMNS,
+        )
 
     scored = run(
         models,
@@ -307,13 +339,11 @@ def main(asked) -> None:
     if not asked.report:
         return
 
-    no_store = missing_datasets(wanted_datasets, root)
     evidence = {
         (entry_["model"], entry_["dataset"]): runs.rows(
             runs.RESULTS, NAME, entry_["model"], entry_["dataset"]
         )
         for entry_ in scored
     }
-    report.write_docs(NAME, scored, no_adapter, no_store, report.QUALITY_COLUMNS)
     report.write_results(NAME, scored, evidence, no_adapter, no_store)
     report.write_index()

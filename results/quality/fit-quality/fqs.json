@@ -1,0 +1,38 @@
+{
+  "benchmark": "quality",
+  "dataset": "fqs",
+  "fingerprint": "361b09d485ab8a36103b7ab0af0351750c6c3340ac2169229008f3c2f0837926",
+  "model": "fit-quality",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": {
+      "accuracy": 0.7915367483296214,
+      "carried": 915,
+      "carried_share": 0.40757238307349664,
+      "differs_from_the_verdict": 0,
+      "kappa": 0.5953677529673648,
+      "photographs": 2245
+    },
+    "gradeable": {
+      "accuracy": 0.7915367483296214,
+      "kappa": 0.5953677529673648,
+      "photographs": 2245,
+      "roc_auc": 0.9389624182073565
+    },
+    "graded": 2245,
+    "photographs": 2245,
+    "processed": 2245,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": null,
+    "total": 2245
+  }
+}

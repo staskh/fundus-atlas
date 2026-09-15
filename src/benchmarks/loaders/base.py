@@ -113,6 +113,16 @@ class Photographs(Dataset):
         chosen = random.Random(seed).sample(range(len(self.rows)), how_many)
         return [self.rows[index] for index in sorted(chosen)]
 
+    @property
+    def padding(self) -> float:
+        """How much of the square the store built is canvas rather than photograph, at the median.
+
+        A fundus cut off at top and bottom leaves black bands in a square crop, and a model judges
+        the square it is handed.
+        """
+        pads = sorted(float(row["pad_fraction"]) for row in self.rows if row["pad_fraction"])
+        return pads[len(pads) // 2] if pads else 0.0
+
     def restrict(self, keys: set[str]) -> None:
         """Keep only the photographs named — the ones a resumed run still has to score.
 
