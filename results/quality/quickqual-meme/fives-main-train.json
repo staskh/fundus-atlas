@@ -1,0 +1,34 @@
+{
+  "fingerprint": "d583ea6ca2bcd432f00714a8576408ecabb84d169db41dda52e0d9079b3f47b9",
+  "model": "quickqual-meme",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gate": {
+      "accuracy": 0.9083333333333333,
+      "carried": 600,
+      "carried_share": 1.0,
+      "differs_from_the_verdict": 219,
+      "kappa": 0.0,
+      "photographs": 600
+    },
+    "gradeable": {
+      "accuracy": 0.7266666666666667,
+      "kappa": 0.2986957451357709,
+      "photographs": 600,
+      "roc_auc": 0.9525604670558799
+    },
+    "graded": 600,
+    "photographs": 600,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": null,
+    "without_reference": 0
+  },
+  "unit": "fives/main/train"
+}

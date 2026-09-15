@@ -46,6 +46,7 @@ def row(key: str, **overrides: str) -> dict[str, str]:
         "subset": "main",
         "split": "train",
         "crop_side": "1024",
+        "pad_fraction": "0.0000",
         "quality": "good",
         "quality_source": "published",
         "maps": "fov",

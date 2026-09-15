@@ -1,11 +1,19 @@
 {
-  "fingerprint": "3bf0fb0383d3ce1dceee7a263476649a9e03e68c87828ef1b3293de4c1db5922",
+  "fingerprint": "150b973b14d2988c3d92bc939096e75cb717c2a1fa830d924775497a572c913e",
   "model": "automorph-quality-grader",
   "summary": {
     "coverage": 1.0,
     "declined": 0,
     "device": "mps",
     "failed": 0,
+    "gate": {
+      "accuracy": 0.8429752066115702,
+      "carried": 34,
+      "carried_share": 0.14049586776859505,
+      "differs_from_the_verdict": 17,
+      "kappa": 0.5493923951391612,
+      "photographs": 242
+    },
     "gradeable": {
       "accuracy": 0.8966942148760331,
       "kappa": 0.7267636166561287,
@@ -14,6 +22,10 @@
     },
     "graded": 242,
     "photographs": 242,
+    "reference_grades": [
+      "good",
+      "bad"
+    ],
     "three_class": {
       "accuracy": 0.743801652892562,
       "confusion": {
@@ -34,7 +46,15 @@
         }
       },
       "kappa_quadratic": 0.5620404931568828,
-      "photographs": 242
+      "photographs": 242,
+      "recall": {
+        "bad": 0.9825581395348837,
+        "good": 0.15714285714285714,
+        "usable": null
+      },
+      "unused_by_the_reference": [
+        "usable"
+      ]
     },
     "without_reference": 0
   },

@@ -1,0 +1,32 @@
+{
+  "fingerprint": "2fd0abd2af5161d08c2cc66d6b1cd63ca443b5dda5bba19a7f1d928615168bbd",
+  "model": "quickqual-meme",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gate": {
+      "accuracy": 1.0,
+      "carried": 488,
+      "carried_share": 1.0,
+      "differs_from_the_verdict": 231,
+      "kappa": null,
+      "photographs": 488
+    },
+    "gradeable": {
+      "accuracy": 0.5266393442622951,
+      "kappa": null,
+      "photographs": 488,
+      "roc_auc": null
+    },
+    "graded": 488,
+    "photographs": 488,
+    "reference_grades": [
+      "good"
+    ],
+    "three_class": null,
+    "without_reference": 0
+  },
+  "unit": "papila/main/unspecified"
+}

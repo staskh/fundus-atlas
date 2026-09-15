@@ -1,11 +1,12 @@
 {
-  "fingerprint": "17ce1bfe3185ab41a6846b94e3c641ac197106e5b0522008edaf164fcd10fba2",
+  "fingerprint": "498bf24059569cfc006afa9e94eaca973b00c9a41c8da92dc8a11adde0802d35",
   "model": "quickqual",
   "summary": {
     "coverage": 1.0,
     "declined": 0,
     "device": "mps",
     "failed": 0,
+    "gate": null,
     "gradeable": {
       "accuracy": 0.805,
       "kappa": 0.46295786284770035,
@@ -14,6 +15,11 @@
     },
     "graded": 200,
     "photographs": 200,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
     "three_class": {
       "accuracy": 0.695,
       "confusion": {
@@ -34,7 +40,13 @@
         }
       },
       "kappa_quadratic": 0.6564425869519019,
-      "photographs": 200
+      "photographs": 200,
+      "recall": {
+        "bad": 0.9615384615384616,
+        "good": 0.7518796992481203,
+        "usable": 0.34146341463414637
+      },
+      "unused_by_the_reference": []
     },
     "without_reference": 0
   },

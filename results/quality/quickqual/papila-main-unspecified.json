@@ -1,0 +1,55 @@
+{
+  "fingerprint": "23d1028cbf8bd04eb607fb792e88ed10877167bcdbb684f371c24c6617fd2a3c",
+  "model": "quickqual",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gate": null,
+    "gradeable": {
+      "accuracy": 0.42418032786885246,
+      "kappa": null,
+      "photographs": 488,
+      "roc_auc": null
+    },
+    "graded": 488,
+    "photographs": 488,
+    "reference_grades": [
+      "good"
+    ],
+    "three_class": {
+      "accuracy": 0.3709016393442623,
+      "confusion": {
+        "bad": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        },
+        "good": {
+          "bad": 281,
+          "good": 181,
+          "usable": 26
+        },
+        "usable": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        }
+      },
+      "kappa_quadratic": 0.0,
+      "photographs": 488,
+      "recall": {
+        "bad": null,
+        "good": 0.3709016393442623,
+        "usable": null
+      },
+      "unused_by_the_reference": [
+        "usable",
+        "bad"
+      ]
+    },
+    "without_reference": 0
+  },
+  "unit": "papila/main/unspecified"
+}

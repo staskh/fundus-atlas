@@ -17,6 +17,7 @@ Generated in full at [benchmarks/quality.md](benchmarks/quality.md).
 | [automorph-quality-grader](models/automorph-quality-grader.md) | mshf/cfp/train | 203 | 1.000 | 0.956 | 0.998 | out-of-sample |
 | [automorph-quality-grader](models/automorph-quality-grader.md) | mshf/portable/test | 60 | 1.000 | 0.900 | 0.979 | out-of-sample |
 | [automorph-quality-grader](models/automorph-quality-grader.md) | mshf/portable/train | 242 | 1.000 | 0.897 | 0.960 | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | papila/main/unspecified | 488 | 1.000 | 0.391 | — | out-of-sample |
 | [fit-quality](models/fit-quality.md) | fives/main/test | 200 | 1.000 | 0.540 | 0.967 | out-of-sample |
 | [fit-quality](models/fit-quality.md) | fives/main/train | 600 | 1.000 | 0.580 | 0.975 | out-of-sample |
 | [fit-quality](models/fit-quality.md) | fqs/main/unspecified | 2245 | 1.000 | 0.792 | 0.939 | out-of-sample |
@@ -24,6 +25,7 @@ Generated in full at [benchmarks/quality.md](benchmarks/quality.md).
 | [fit-quality](models/fit-quality.md) | mshf/cfp/train | 203 | 1.000 | 0.695 | 0.998 | out-of-sample |
 | [fit-quality](models/fit-quality.md) | mshf/portable/test | 60 | 1.000 | 0.850 | 0.998 | out-of-sample |
 | [fit-quality](models/fit-quality.md) | mshf/portable/train | 242 | 1.000 | 0.769 | 0.946 | out-of-sample |
+| [fit-quality](models/fit-quality.md) | papila/main/unspecified | 488 | 1.000 | 0.279 | — | out-of-sample |
 | [quickqual](models/quickqual.md) | fives/main/test | 200 | 1.000 | 0.805 | 0.968 | out-of-sample |
 | [quickqual](models/quickqual.md) | fives/main/train | 600 | 1.000 | 0.855 | 0.969 | out-of-sample |
 | [quickqual](models/quickqual.md) | fqs/main/unspecified | 2245 | 1.000 | 0.824 | 0.909 | out-of-sample |
@@ -31,6 +33,15 @@ Generated in full at [benchmarks/quality.md](benchmarks/quality.md).
 | [quickqual](models/quickqual.md) | mshf/cfp/train | 203 | 1.000 | 0.951 | 0.997 | out-of-sample |
 | [quickqual](models/quickqual.md) | mshf/portable/test | 60 | 1.000 | 0.917 | 0.987 | out-of-sample |
 | [quickqual](models/quickqual.md) | mshf/portable/train | 242 | 1.000 | 0.909 | 0.966 | out-of-sample |
+| [quickqual](models/quickqual.md) | papila/main/unspecified | 488 | 1.000 | 0.424 | — | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | fives/main/test | 200 | 1.000 | 0.720 | 0.956 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | fives/main/train | 600 | 1.000 | 0.727 | 0.953 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | fqs/main/unspecified | 2245 | 1.000 | 0.778 | 0.900 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | mshf/cfp/test | 49 | 1.000 | 0.816 | 0.995 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | mshf/cfp/train | 203 | 1.000 | 0.754 | 0.989 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | mshf/portable/test | 60 | 1.000 | 0.917 | 0.984 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | mshf/portable/train | 242 | 1.000 | 0.901 | 0.970 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | papila/main/unspecified | 488 | 1.000 | 0.527 | — | out-of-sample |
 | [vascx-quality](models/vascx-quality.md) | fives/main/test | 200 | 1.000 | 0.925 | 0.966 | unknown |
 | [vascx-quality](models/vascx-quality.md) | fives/main/train | 600 | 1.000 | 0.942 | 0.968 | unknown |
 | [vascx-quality](models/vascx-quality.md) | fqs/main/unspecified | 2245 | 1.000 | 0.808 | 0.928 | unknown |
@@ -38,7 +49,8 @@ Generated in full at [benchmarks/quality.md](benchmarks/quality.md).
 | [vascx-quality](models/vascx-quality.md) | mshf/cfp/train | 203 | 1.000 | 0.966 | 0.997 | unknown |
 | [vascx-quality](models/vascx-quality.md) | mshf/portable/test | 60 | 1.000 | 0.883 | 0.894 | unknown |
 | [vascx-quality](models/vascx-quality.md) | mshf/portable/train | 242 | 1.000 | 0.884 | 0.924 | unknown |
+| [vascx-quality](models/vascx-quality.md) | papila/main/unspecified | 488 | 1.000 | 0.555 | — | unknown |
 
 ---
 
-**Generated:** 2026-09-14
+**Generated:** 2026-09-15

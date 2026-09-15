@@ -187,3 +187,13 @@ def test_a_run_without_an_assumed_reference_does_not_mention_one(tmp_path: Path)
     written = report.write_report("quality", [entry], into=tmp_path).read_text()
 
     assert "assumed" not in written
+
+
+def test_how_much_of_the_square_is_canvas_is_reported(tmp_path: Path) -> None:
+    entry = scored()
+    entry["padding"] = 0.188
+
+    written = report.write_report("quality", [entry], into=tmp_path).read_text()
+
+    assert "Black canvas" in written
+    assert "| 0.188 |" in written

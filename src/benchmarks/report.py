@@ -110,16 +110,27 @@ def _quality(scored: list[dict[str, object]]) -> Iterable[str]:
         "against."
     )
     yield ""
-    yield "| Unit | Photographs | Ungraded by the dataset | Where the grade comes from |"
-    yield "| --- | --- | --- | --- |"
+    yield (
+        "| Unit | Photographs | Ungraded by the dataset | Where the grade comes from | "
+        "Black canvas |"
+    )
+    yield "| --- | --- | --- | --- | --- |"
     for unit in units:
         entry = _first(scored, unit=unit)
         summary = entry["summary"]
         yield (
             f"| {unit} | {summary['photographs']} | "
             f"{summary.get('without_reference', 0)} set aside | "
-            f"{', '.join(entry.get('grade_source') or ['—'])} |"
+            f"{', '.join(entry.get('grade_source') or ['—'])} | "
+            f"{_number(entry.get('padding'))} |"
         )
+    yield ""
+    yield (
+        "**Black canvas** is the share of the square the store built that is not photograph. A "
+        "fundus cut off at top and bottom leaves bands there, and a quality model judges the "
+        "square it is handed, so the figure belongs beside the score. It is small everywhere here "
+        "except [PAPILA](../datasets/papila.md), whose retina fills the frame vertically."
+    )
     yield ""
     yield (
         "**The three kinds of reference are not the same statement.** A `published` grade is the "

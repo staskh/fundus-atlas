@@ -114,6 +114,7 @@ def _pair(
         "model": adapter.slug,
         "unit": unit.name,
         "grade_source": sorted({row["quality_source"] for row in loader.rows}),
+        "padding": _padding(loader),
         "contamination": contamination.mark(adapter.slug, unit),
         "grid": declared["grid"],
         "network_grid": declared["network_grid"],
@@ -181,6 +182,17 @@ def _rows(loader: QualityLoader, grades: list) -> list[dict[str, object]]:
         }
         for grade in grades
     ]
+
+
+def _padding(loader: QualityLoader) -> float:
+    """How much of the square the store built is canvas rather than photograph, at the median.
+
+    A fundus cut off at top and bottom leaves black bands in a square crop, and a quality model
+    judges the square it is given. The share is a fact about the unit, so a reader can see it
+    beside the score rather than discover it later.
+    """
+    pads = sorted(float(row["pad_fraction"]) for row in loader.rows)
+    return pads[len(pads) // 2] if pads else 0.0
 
 
 def _store(unit: Unit, root: Path | None) -> dict[str, object]:

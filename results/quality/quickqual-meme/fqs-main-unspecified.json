@@ -1,0 +1,34 @@
+{
+  "fingerprint": "d71f07360f802270116be53d51b325c3eb8684af6dd7d3aedef4ce7c582b01d7",
+  "model": "quickqual-meme",
+  "summary": {
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "failed": 0,
+    "gate": {
+      "accuracy": 0.5821826280623608,
+      "carried": 2245,
+      "carried_share": 1.0,
+      "differs_from_the_verdict": 1222,
+      "kappa": 0.0,
+      "photographs": 2245
+    },
+    "gradeable": {
+      "accuracy": 0.778173719376392,
+      "kappa": 0.5627184432602921,
+      "photographs": 2245,
+      "roc_auc": 0.899706027736495
+    },
+    "graded": 2245,
+    "photographs": 2245,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": null,
+    "without_reference": 0
+  },
+  "unit": "fqs/main/unspecified"
+}
