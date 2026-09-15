@@ -46,6 +46,23 @@ MODELS = (
 #: How many photographs go to the model at once.
 BATCH = 8
 
+#: What a model declares that could change its numbers, and therefore what its fingerprint is made
+#: of. Everything else an adapter declares — the prose describing its gate, the vocabulary it
+#: emits, the processor it happened to run on — is documentation: rewording it must not throw away
+#: hours of measurement, and a number the model acts on must not hide inside a sentence, which is
+#: why a threshold is declared as a number of its own.
+FINGERPRINTED = (
+    "slug",
+    "purpose",
+    "grid",
+    "network_grid",
+    "ensemble",
+    "emits_probabilities",
+    "threshold",
+    "gate_threshold",
+    "backbone",
+)
+
 
 def run(
     adapters: list,
@@ -86,7 +103,7 @@ def _pair(
     loaded = adapter.identity()
     identity = runs.fingerprint(
         {
-            "model": {name: value for name, value in declared.items() if name != "device"},
+            "model": {name: declared[name] for name in FINGERPRINTED if name in declared},
             "weights": loaded,
             "store": store,
             "photographs": len(loader),

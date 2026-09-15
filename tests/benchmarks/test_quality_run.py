@@ -193,3 +193,49 @@ def test_a_model_with_nothing_to_let_go_of_is_left_alone(tmp_path: Path) -> None
         results=tmp_path / "results",
         root=a_store(tmp_path),
     )
+
+
+def test_a_reworded_declaration_does_not_throw_away_hours_of_measurement(tmp_path: Path) -> None:
+    """Prose is not a fact about the numbers."""
+
+    class Reworded(Brightness):
+        def declare(self) -> dict[str, object]:
+            return {**super().declare(), "gate": "a longer explanation of the same rule"}
+
+    unit = Unit("fives", "main", "train")
+    store = a_store(tmp_path)
+    quality.run([Brightness()], [unit], results=tmp_path / "results", root=store)
+
+    again = quality.run([Reworded()], [unit], results=tmp_path / "results", root=store)
+
+    assert again[0]["reused"] is True
+
+
+def test_a_changed_grid_is_measured_again(tmp_path: Path) -> None:
+    class Finer(Brightness):
+        def declare(self) -> dict[str, object]:
+            return {**super().declare(), "network_grid": 1024}
+
+    unit = Unit("fives", "main", "train")
+    store = a_store(tmp_path)
+    quality.run([Brightness()], [unit], results=tmp_path / "results", root=store)
+
+    again = quality.run([Finer()], [unit], results=tmp_path / "results", root=store)
+
+    assert again[0]["reused"] is False
+
+
+def test_a_changed_gate_threshold_is_measured_again(tmp_path: Path) -> None:
+    """A number the model acts on is a fact, even though the rule around it is prose."""
+
+    class Stricter(Brightness):
+        def declare(self) -> dict[str, object]:
+            return {**super().declare(), "gate_threshold": 0.1}
+
+    unit = Unit("fives", "main", "train")
+    store = a_store(tmp_path)
+    quality.run([Brightness()], [unit], results=tmp_path / "results", root=store)
+
+    again = quality.run([Stricter()], [unit], results=tmp_path / "results", root=store)
+
+    assert again[0]["reused"] is False

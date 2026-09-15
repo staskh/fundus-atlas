@@ -82,9 +82,14 @@ are set aside by the loader, counted, and reported.
 ## 5. The fingerprint, and why a re-run is cheap
 
 Each (model, unit) pair is scored once and kept with a fingerprint of **everything that could
-change it**:
+change it, and nothing that cannot**:
 
-- the model's declaration, less the device;
+- the facts in the model's declaration that bear on its numbers — its grids, its ensemble size,
+  the thresholds it acts on — and **not** the prose beside them. Rewording an explanation must not
+  throw away hours of measurement; equally, a number the model acts on must be declared as a number
+  of its own rather than left inside a sentence, or changing it would silently keep a stale score.
+  The benchmark names these keys explicitly rather than hashing whatever the adapter happens to
+  return;
 - the sha256 of the weights actually loaded;
 - the patches applied, by content (carried in the upstream's provenance);
 - the store's `builder_version` and the unit's photograph count;

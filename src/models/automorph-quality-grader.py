@@ -53,6 +53,7 @@ class AutoMorphQualityGrader:
             "emits_probabilities": True,
             "named_grades": COLUMNS,
             "ensemble": 8,
+            "gate_threshold": TOLERATED_BAD,
             "gate": (
                 f"AutoMorph's own rule, which is not this model's argmax: a `good` verdict is "
                 f"carried into measurement, a `usable` one only while the probability of `bad` "

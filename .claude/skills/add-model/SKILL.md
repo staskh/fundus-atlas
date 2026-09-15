@@ -71,6 +71,13 @@ Three rules about this shape, each learned from one of the four models built fir
 - **`declare()` touches nothing.** It is called to build a fingerprint, possibly to then skip the
   work. `identity()` is where weights are located and hashed — and it locates them *without loading
   them*, which is why the upstream publishes `<model>_weights()` separately.
+- **Every number the adapter acts on is declared as a number.** A benchmark fingerprints the facts
+  in a declaration, not the sentences: a threshold left inside a description can be changed without
+  invalidating a single stored score, which is exactly the stale result the fingerprint exists to
+  prevent. Declare the rule in prose *and* the constant beside it.
+- **A model that loads weights publishes `release()`**, clearing what it loaded and calling
+  `utils.device.forget()`. A run holds five models otherwise, and ten networks plus eight is how a
+  machine comes to kill it.
 - **`interpret()` is a pure function**, kept apart from `grade()`. It is where a model's codes
   become the atlas's grades, it is the part most likely to be silently wrong, and separating it is
   what lets a test check the mapping without a gigabyte of weights.
