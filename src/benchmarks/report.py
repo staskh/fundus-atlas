@@ -531,6 +531,14 @@ def _index(results: Path) -> Iterable[str]:
         "with one marked `out-of-sample`, and a model agreeing with another model is not evidence "
         "that either agrees with an expert."
     )
+    yield ""
+    yield (
+        "**Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one "
+        "class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash "
+        "means the metric has nothing to measure — a dataset whose reference has only one class "
+        "supports neither κ nor a ranking — and a photograph count of the form *n of m* means a "
+        "run that has not finished."
+    )
     for benchmark in sorted(path.name for path in results.glob("*") if path.is_dir()):
         yield ""
         yield f"## {benchmark.capitalize()}"
@@ -540,15 +548,21 @@ def _index(results: Path) -> Iterable[str]:
             f"[What came out](benchmarks/{benchmark}-results.md)"
         )
         yield ""
-        yield "| Model | Dataset | Photographs | Coverage | Accuracy | ROC AUC | Marked |"
-        yield "| --- | --- | --- | --- | --- | --- | --- |"
+        yield (
+            "| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | Marked |"
+        )
+        yield "| --- | --- | --- | --- | --- | --- | --- | --- |"
         for record in _stored(results / benchmark):
             summary = record["summary"]
             level = summary.get("gradeable", {})
+            done = summary.get("processed", "—")
+            if not summary.get("complete", True):
+                done = f"{done} of {summary.get('total', '—')}"
             yield (
                 f"| [{record['model']}](models/{record['model']}.md) | {record['dataset']} | "
-                f"{summary.get('processed', '—')} | {_number(summary.get('coverage'))} | "
-                f"{_number(level.get('accuracy'))} | {_number(level.get('roc_auc'))} | "
+                f"{done} | {_number(summary.get('coverage'))} | "
+                f"{_number(level.get('accuracy'))} | {_number(level.get('kappa'))} | "
+                f"{_number(level.get('roc_auc'))} | "
                 f"{contamination.mark(record['model'], record['dataset'])} |"
             )
     yield ""

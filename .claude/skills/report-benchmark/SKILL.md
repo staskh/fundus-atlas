@@ -99,7 +99,17 @@ list. Both come from the code, so both are generated rather than remembered.
 A reader arriving from a model page finds that model's rows together; two tables can be read against
 each other because they are ordered alike.
 
-## 4. What both documents must always carry
+## 4. And one index across every benchmark
+
+`docs/BENCHMARKS.md` is generated as well, from what is on disk rather than from the run that has
+just finished — so running one benchmark cannot blank another's section. It holds one section per
+benchmark, each linking to that benchmark's two pages, and one row per model and dataset carrying
+the same headline numbers as that benchmark's own section 1. It is the page somebody arrives at
+from the README, so it repeats the two warnings that matter: that a row is comparable only with
+rows carrying the same mark, and that a dash is a metric with nothing to measure rather than a
+score of zero.
+
+## 5. What both documents must always carry
 
 - **The contamination mark on every result**, never aggregated away, and `unknown` never written as
   if it were `out-of-sample`.
@@ -112,7 +122,7 @@ each other because they are ordered alike.
 - **A run missing a declared piece says so in its first paragraph** — how many models of how many
   declared, how many datasets of how many — so that nobody reads four models as the whole field.
 
-## 5. What they must never do
+## 6. What they must never do
 
 - **Rank.** A benchmark page is a map, not a leaderboard: no "best", no ordering by score, no bold
   winner. Sort by model and dataset, which is an order nobody can read as a verdict.
@@ -121,7 +131,7 @@ each other because they are ordered alike.
   exist to show.
 - **Explain away a bad number.** If a result needs an argument, the argument goes in the notebook.
 
-## 6. Prose
+## 7. Prose
 
 Written for a clinician or a researcher (`CLAUDE.md` §4.1): every metric expanded on first use, no
 jargon assumed, and the reason a number matters stated before the number. The generators hold those

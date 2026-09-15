@@ -4,32 +4,34 @@ What this repository measured against what experts annotated, on the same images
 
 **Read a row, not a column.** A result marked `in-sample` or `unknown` is not comparable with one marked `out-of-sample`, and a model agreeing with another model is not evidence that either agrees with an expert.
 
+**Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash means the metric has nothing to measure — a dataset whose reference has only one class supports neither κ nor a ranking — and a photograph count of the form *n of m* means a run that has not finished.
+
 ## Quality
 
 [How it is run](benchmarks/quality-docs.md) · [What came out](benchmarks/quality-results.md)
 
-| Model | Dataset | Photographs | Coverage | Accuracy | ROC AUC | Marked |
-| --- | --- | --- | --- | --- | --- | --- |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | fives | 800 | 1.000 | 0.853 | 0.973 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | fqs | 2245 | 1.000 | 0.816 | 0.930 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | mshf | 554 | 1.000 | 0.924 | 0.983 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | papila | 488 | 1.000 | 0.391 | — | out-of-sample |
-| [fit-quality](models/fit-quality.md) | fives | 800 | 1.000 | 0.570 | 0.973 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | fqs | 2245 | 1.000 | 0.792 | 0.939 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | mshf | 554 | 1.000 | 0.756 | 0.982 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | papila | 488 | 1.000 | 0.279 | — | out-of-sample |
-| [quickqual](models/quickqual.md) | fives | 800 | 1.000 | 0.843 | 0.969 | out-of-sample |
-| [quickqual](models/quickqual.md) | fqs | 2245 | 1.000 | 0.824 | 0.909 | out-of-sample |
-| [quickqual](models/quickqual.md) | mshf | 554 | 1.000 | 0.926 | 0.984 | out-of-sample |
-| [quickqual](models/quickqual.md) | papila | 488 | 1.000 | 0.424 | — | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | fives | 800 | 1.000 | 0.725 | 0.955 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | fqs | 2245 | 1.000 | 0.778 | 0.900 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | mshf | 554 | 1.000 | 0.841 | 0.957 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | papila | 488 | 1.000 | 0.527 | — | out-of-sample |
-| [vascx-quality](models/vascx-quality.md) | fives | 800 | 1.000 | 0.938 | 0.968 | unknown |
-| [vascx-quality](models/vascx-quality.md) | fqs | 2245 | 1.000 | 0.808 | 0.928 | unknown |
-| [vascx-quality](models/vascx-quality.md) | mshf | 554 | 1.000 | 0.919 | 0.967 | unknown |
-| [vascx-quality](models/vascx-quality.md) | papila | 488 | 1.000 | 0.555 | — | unknown |
+| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | Marked |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | fives | 800 | 1.000 | 0.853 | 0.494 | 0.973 | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | fqs | 2245 | 1.000 | 0.816 | 0.605 | 0.930 | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | mshf | 554 | 1.000 | 0.924 | 0.845 | 0.983 | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | papila | 488 | 1.000 | 0.391 | — | — | out-of-sample |
+| [fit-quality](models/fit-quality.md) | fives | 800 | 1.000 | 0.570 | 0.181 | 0.973 | out-of-sample |
+| [fit-quality](models/fit-quality.md) | fqs | 2245 | 1.000 | 0.792 | 0.595 | 0.939 | out-of-sample |
+| [fit-quality](models/fit-quality.md) | mshf | 554 | 1.000 | 0.756 | 0.480 | 0.982 | out-of-sample |
+| [fit-quality](models/fit-quality.md) | papila | 488 | 1.000 | 0.279 | — | — | out-of-sample |
+| [quickqual](models/quickqual.md) | fives | 800 | 1.000 | 0.843 | 0.471 | 0.969 | out-of-sample |
+| [quickqual](models/quickqual.md) | fqs | 2245 | 1.000 | 0.824 | 0.639 | 0.909 | out-of-sample |
+| [quickqual](models/quickqual.md) | mshf | 554 | 1.000 | 0.926 | 0.849 | 0.984 | out-of-sample |
+| [quickqual](models/quickqual.md) | papila | 488 | 1.000 | 0.424 | — | — | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | fives | 800 | 1.000 | 0.725 | 0.315 | 0.955 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | fqs | 2245 | 1.000 | 0.778 | 0.563 | 0.900 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | mshf | 554 | 1.000 | 0.841 | 0.671 | 0.957 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | papila | 488 | 1.000 | 0.527 | — | — | out-of-sample |
+| [vascx-quality](models/vascx-quality.md) | fives | 800 | 1.000 | 0.938 | 0.674 | 0.968 | unknown |
+| [vascx-quality](models/vascx-quality.md) | fqs | 2245 | 1.000 | 0.808 | 0.582 | 0.928 | unknown |
+| [vascx-quality](models/vascx-quality.md) | mshf | 554 | 1.000 | 0.919 | 0.836 | 0.967 | unknown |
+| [vascx-quality](models/vascx-quality.md) | papila | 488 | 1.000 | 0.555 | — | — | unknown |
 
 ---
 

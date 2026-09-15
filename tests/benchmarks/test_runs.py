@@ -78,3 +78,28 @@ def test_rows_are_written_in_the_order_the_dataset_holds_them(tmp_path: Path) ->
         "a",
         "b",
     ], "a resumed run appends, and the evidence must not depend on when a photograph was scored"
+
+
+def test_the_index_reads_a_partial_result_as_unfinished(tmp_path: Path) -> None:
+    from benchmarks import report
+
+    runs.write(
+        tmp_path / "results",
+        "quality",
+        "quickqual",
+        "fives",
+        "fingerprint",
+        {
+            "processed": 20,
+            "total": 488,
+            "complete": False,
+            "coverage": 1.0,
+            "gradeable": {"accuracy": 0.5, "kappa": 0.1, "roc_auc": None},
+        },
+        [{"key": "a"}],
+    )
+
+    written = report.write_index(results=tmp_path / "results", into=tmp_path / "docs").read_text()
+
+    assert "20 of 488" in written
+    assert "Cohen's κ" in written and "0.100" in written
