@@ -7,7 +7,7 @@ import torch
 from upstreams import automorph
 from upstreams.utils import weights
 
-from .utils.device import pick
+from .utils.device import forget, pick
 from .utils.grading import BAD, FAILED, GOOD, USABLE, Grade
 
 #: The store grid this reads, and the grid the networks see. AutoMorph reaches it by resizing its
@@ -123,6 +123,11 @@ class AutoMorphQualityGrader:
                 member.load_state_dict(torch.load(checkpoint, map_location=self.device))
                 self._ensemble.append(member.to(self.device).eval())
         return self._ensemble
+
+    def release(self) -> None:
+        """Give back what this model loaded, for a run that has finished with it."""
+        self._ensemble = None
+        forget()
 
 
 def model(**arguments: object) -> AutoMorphQualityGrader:

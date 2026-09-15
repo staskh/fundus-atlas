@@ -7,7 +7,7 @@ import torch
 from upstreams import vascx
 from upstreams.utils import weights
 
-from .utils.device import pick
+from .utils.device import forget, pick
 from .utils.grading import BAD, FAILED, GOOD, USABLE, Grade
 
 #: The store grid this reads. VascX preprocesses every photograph so that the fundus diameter
@@ -114,6 +114,11 @@ class VascxQuality:
                 )
             self._ensemble = ensemble
         return self._ensemble
+
+    def release(self) -> None:
+        """Give back what this model loaded, for a run that has finished with it."""
+        self._ensemble = None
+        forget()
 
 
 def model(**arguments: object) -> VascxQuality:

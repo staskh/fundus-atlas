@@ -160,3 +160,36 @@ def test_a_photograph_the_model_failed_on_keeps_the_same_columns(tmp_path: Path)
     assert list(evidence[0]) == list(evidence[1])
     assert evidence[0]["outcome"] == "failed"
     assert evidence[0]["good"] == ""
+
+
+def test_a_model_is_let_go_of_once_its_units_are_done(tmp_path: Path) -> None:
+    """Five ensembles held at once is how a run gets killed for memory."""
+
+    class Heavy(Brightness):
+        slug = "heavy"
+
+        def __init__(self) -> None:
+            super().__init__()
+            self.released = 0
+
+        def release(self) -> None:
+            self.released += 1
+
+    adapter = Heavy()
+    quality.run(
+        [adapter],
+        [Unit("fives", "main", "train")],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+    )
+
+    assert adapter.released == 1
+
+
+def test_a_model_with_nothing_to_let_go_of_is_left_alone(tmp_path: Path) -> None:
+    quality.run(
+        [Brightness()],
+        [Unit("fives", "main", "train")],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+    )

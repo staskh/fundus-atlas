@@ -8,7 +8,7 @@ from torchvision.transforms import functional as F
 from upstreams import quickqual as upstream
 from upstreams.utils import weights
 
-from .utils.device import pick
+from .utils.device import forget, pick
 from .utils.grading import BAD, FAILED, GOOD, USABLE, Grade
 
 #: The store grid this reads. QuickQual resizes the shorter side to 512 and leaves the other
@@ -109,6 +109,12 @@ class QuickQual:
 
             self._classifier = joblib.load(upstream.classifier())
         return self._classifier
+
+    def release(self) -> None:
+        """Give back what this model loaded, for a run that has finished with it."""
+        self._backbone = None
+        self._classifier = None
+        forget()
 
 
 def model(**arguments: object) -> QuickQual:

@@ -7,7 +7,7 @@ import torch
 from upstreams import fit
 from upstreams.utils import weights
 
-from .utils.device import pick
+from .utils.device import forget, pick
 from .utils.grading import FAILED, Grade
 
 #: The store grid this reads, and the grid the networks see. The toolbox's default is 512 and it
@@ -91,6 +91,11 @@ class FitQuality:
         if self._ensemble is None:
             self._ensemble = fit.quality_ensemble(device=self.device)
         return self._ensemble
+
+    def release(self) -> None:
+        """Give back what this model loaded, for a run that has finished with it."""
+        self._ensemble = None
+        forget()
 
 
 def model(**arguments: object) -> FitQuality:

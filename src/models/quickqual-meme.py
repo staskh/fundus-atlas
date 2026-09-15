@@ -8,7 +8,7 @@ from torchvision.transforms import functional as F
 from upstreams import quickqual as upstream
 from upstreams.utils import weights
 
-from .utils.device import pick
+from .utils.device import forget, pick
 from .utils.grading import FAILED, Grade
 
 #: The store grid this reads. The published example resizes the shorter side to 512, which for a
@@ -113,6 +113,11 @@ class QuickQualMeme:
                 .to(self.device)
             )
         return self._backbone
+
+    def release(self) -> None:
+        """Give back what this model loaded, for a run that has finished with it."""
+        self._backbone = None
+        forget()
 
 
 def model(**arguments: object) -> QuickQualMeme:

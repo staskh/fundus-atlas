@@ -68,6 +68,11 @@ def run(
     for adapter in adapters:
         for unit in units:
             scored.append(_pair(adapter, unit, results, root, batch, force))
+        # Ten networks here and eight there add up: a model whose units are done is let go of
+        # rather than held until the run ends.
+        let_go = getattr(adapter, "release", None)
+        if let_go is not None:
+            let_go()
     _record(scored, started, record or runs.RUNS)
     return scored
 
