@@ -19,9 +19,16 @@ Load this beside `SKILL.md` when changing what `docs/benchmarks/quality-docs.md`
 ## 2. What `quality-results.md` leads with
 
 Section 1 is **model × dataset**, and the numbers in it are, in this order: photographs, coverage,
-accuracy on *worth measuring*, ROC AUC, and the contamination mark. Nothing else belongs in the
-headline table — the three-class scores and the gates are sections of their own, because only some
-models have them.
+accuracy on *worth measuring*, **Cohen's κ**, ROC AUC, and the contamination mark. Nothing else
+belongs in the headline table — the three-class scores and the gates are sections of their own,
+because only some models have them.
+
+**κ goes wherever accuracy goes**, here and in the detail table. Accuracy flatters a model on a
+dataset where one class dominates: a grader that keeps everything scores well on a collection that
+is mostly gradeable while agreeing with nobody about anything. A wide gap between the two is the
+reading, and the page says so beneath the table. κ is undefined where a reference has only one
+class — a dash, never a zero, because the formula collapses to zero there and that would read as
+disagreement rather than as the absence of a question.
 
 The detail section breaks each dataset into its splits and subsets, which for this benchmark means:
 FIVES by split, FQS whole (it publishes none), MSHF by camera **and** split — its portable and

@@ -316,8 +316,8 @@ def _results(
         "different data."
     )
     yield ""
-    yield "| Model | Dataset | Photographs | Coverage | Accuracy | ROC AUC | Marked |"
-    yield "| --- | --- | --- | --- | --- | --- | --- |"
+    yield "| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | Marked |"
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- |"
     for entry in sorted(scored, key=lambda entry: (entry["model"], entry["dataset"])):
         level = entry["summary"]["gradeable"]
         counts = entry["counts"]
@@ -325,9 +325,17 @@ def _results(
             f"| {entry['model']} | {entry['dataset']} | "
             f"{counts['processed']}{'' if counts['complete'] else ' of ' + str(counts['total'])} | "
             f"{_number(entry['summary']['coverage'])} | {_number(level['accuracy'])} | "
-            f"{_number(level['roc_auc'])} | "
+            f"{_number(level['kappa'])} | {_number(level['roc_auc'])} | "
             f"{contamination.mark(entry['model'], entry['dataset'])} |"
         )
+    yield ""
+    yield (
+        "**Accuracy flatters a model on a dataset where one class dominates.** A grader that keeps "
+        "everything scores well on a collection that is mostly gradeable while agreeing with "
+        "nobody about anything. **Cohen's κ** is what is left after chance agreement is taken out, "
+        "so the two together say what neither says alone, and a wide gap between them is the "
+        "reading. κ is undefined where a reference has only one class — a dash, never a zero."
+    )
     yield ""
     yield "## 2. Coverage: what each model was willing to answer"
     yield ""
@@ -360,15 +368,19 @@ def _results(
         "split of a dataset, the splits carry different marks and only this table can be read."
     )
     yield ""
-    yield "| Model | Dataset / subset / split | Photographs | Accuracy | ROC AUC | Marked |"
-    yield "| --- | --- | --- | --- | --- | --- |"
+    yield (
+        "| Model | Dataset / subset / split | Photographs | Accuracy | Cohen's κ | ROC AUC | "
+        "Marked |"
+    )
+    yield "| --- | --- | --- | --- | --- | --- | --- |"
     for model in models:
         for dataset in datasets:
             rows = evidence.get((model, dataset), [])
             for (subset, split), group in _grouped(rows):
                 yield (
                     f"| {model} | {dataset} / {subset} / {split} | {len(group)} | "
-                    f"{_number(_accuracy(group))} | {_number(_auc(group))} | "
+                    f"{_number(_accuracy(group))} | {_number(_kappa(group))} | "
+                    f"{_number(_auc(group))} | "
                     f"{contamination.mark(model, dataset, split)} |"
                 )
     yield ""
@@ -433,6 +445,27 @@ def _accuracy(rows: list[dict[str, str]]) -> float | None:
     if not graded:
         return None
     return sum(_worth(row) == _said(row) for row in graded) / len(graded)
+
+
+def _kappa(rows: list[dict[str, str]]) -> float | None:
+    """Agreement beyond chance, from the two-by-two table these rows make.
+
+    Undefined where the reference has only one class: there is no chance agreement to take out,
+    and the formula collapses to zero, which would read as disagreement rather than as the absence
+    of a question.
+    """
+    graded = [row for row in rows if row.get("outcome") == "graded"]
+    if not graded:
+        return None
+    worth = [row for row in graded if _worth(row)]
+    against = [row for row in graded if not _worth(row)]
+    if not worth or not against:
+        return None
+    kept = [row for row in graded if _said(row)]
+    total = len(graded)
+    agreed = sum(_worth(row) == _said(row) for row in graded) / total
+    by_chance = (len(worth) * len(kept) + len(against) * (total - len(kept))) / total**2
+    return (agreed - by_chance) / (1 - by_chance) if by_chance < 1 else None
 
 
 def _auc(rows: list[dict[str, str]]) -> float | None:

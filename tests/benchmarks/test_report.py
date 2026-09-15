@@ -205,3 +205,30 @@ def test_the_configuration_page_can_be_written_before_anything_is_measured(
 
     assert "before" in written, "the page says when it was written, because it matters"
     assert "3 below the size floor" in written, "the exclusions are known from the manifest alone"
+
+
+def test_agreement_beyond_chance_is_reported_beside_accuracy(tmp_path: Path) -> None:
+    evidence = {
+        ("quickqual", "fives"): [
+            rows(key="a", grade="good", gradeable="0.9"),
+            rows(key="b", grade="bad", verdict="bad", gradeable="0.1"),
+        ]
+    }
+
+    written = report.write_results("quality", [scored()], evidence, into=tmp_path).read_text()
+
+    assert "Cohen's κ" in written
+    assert "| 1.000 | 1.000 |" in written, "perfect agreement, beyond chance too"
+
+
+def test_a_group_with_one_class_has_no_agreement_to_measure(tmp_path: Path) -> None:
+    evidence = {
+        ("quickqual", "fives"): [
+            rows(key="a", grade="good", gradeable="0.9"),
+            rows(key="b", grade="good", gradeable="0.8"),
+        ]
+    }
+
+    written = report.write_results("quality", [scored()], evidence, into=tmp_path).read_text()
+
+    assert "| 1.000 | — | — |" in written, "κ and a ranking both need both classes"
