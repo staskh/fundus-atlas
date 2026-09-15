@@ -129,6 +129,14 @@ bounding square takes another 0.9% off the sides of what did survive.
   dataset unusable on every component. The consequence is that **DR-ZJU's 187 photographs have no
   agreed score at all**: the other six tabs cover the remaining 1,115. The three readers' individual
   scores are complete and unaffected.
+- **The agreed score is not a majority vote, on 24 of the 613 photographs that have one.** For
+  `test_dr_xju_189` the three readers wrote bad, good and good, and the agreed score is **bad**;
+  fifteen of the twenty-four go the other way, overriding a majority of `bad` with `good`. Whatever
+  the authors did to reach it — a fourth opinion, a discussion, a re-read — it was not counting
+  votes, and nothing in the archive says what it was. Anyone scoring a model against the agreed
+  score is scoring it against that unexplained step on 4% of the dataset. *(This atlas's finding,
+  2026-09-15; the readers' own scores are published, so the alternative is available.)*
+
 - **DR-XJU-30 and DR-XJU-31 are odd twice over.** They are missing from the agreed-score sheet, and
   they appear in the `AI-use` split as `.png` where every original is `.jpg`.
 - **One group is published at thumbnail size and cropped** (section 3.1), which for a quality

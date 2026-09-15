@@ -63,7 +63,24 @@ numbered heading:
 6. **What the benchmark cannot say** — contamination marks that are `unknown` rather than clean,
    ground truths that are not comparable across datasets, and anything the metrics hide.
 
-## 4. Grouping is the notebook's job
+## 4. A benchmark may need a second notebook, about the reference
+
+`<name>.ipynb` asks how the models did. Where a benchmark's datasets publish **each reader's own
+opinion**, a companion notebook — `<name>-humans.ipynb` — asks what the reference itself is worth,
+and it belongs beside the first rather than inside it:
+
+- how often the readers simply agree, and how often beyond chance;
+- whether the published consensus is the majority, and what happens where it is not;
+- what they disagree *about*, where a dataset rates components separately;
+- and the comparison the benchmark cannot make on its own: **model against the consensus, beside
+  reader against reader, on the same κ scale.** A model at or above the reader band is matching a
+  committee rather than beating an expert; a model below it has room that is unambiguously its own.
+
+Keep it separate because it answers a different question and has a different audience: the first
+notebook is read by somebody choosing a model, the second by somebody deciding whether to trust a
+dataset. Findings about a dataset go on that dataset's page, in the same commit.
+
+## 5. Grouping is the notebook's job
 
 A run scores a whole dataset and writes `subset` and `split` into every row, so the notebook is
 where those become questions: does this model behave differently on the portable camera? Does the
@@ -71,14 +88,14 @@ training half score higher than the test half, and by how much? **A grouping tha
 matter belongs in the results document too** — tell the report generator about it rather than
 leaving the finding in a notebook nobody regenerates.
 
-## 5. Writing for the reader
+## 6. Writing for the reader
 
 The prose rules of `CLAUDE.md` §4 apply: the reader is a clinician or a researcher, not a software
 engineer. Markdown cells carry the argument and code cells the arithmetic; a notebook that is only
 code is a script. Number every heading. Do not crown a winner — the last cell of an analysis is what
 the numbers do not say, not a ranking.
 
-## 6. Practical shape
+## 7. Practical shape
 
 - Read the results with two small functions at the top — one returning the per-image rows, one the
   summaries — so every later cell is about the analysis rather than about file paths.
