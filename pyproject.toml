@@ -13,17 +13,60 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+# The benchmark environment, section 8.1 of PLAN-BENCHMARK.md: one environment for every upstream,
+# each pinned to the commit its model page describes. Kept apart from the fetchers' dependencies so
+# that building a dataset store does not require a deep-learning stack.
+benchmarks = [
+    "torch>=2.4",
+    "torchvision>=0.19",
+    "timm>=1.0",
+    "joblib>=1.4",
+    "efficientnet_pytorch>=0.7",
+    "pandas>=2.0",
+    "scikit-learn>=1.5",
+    "fundus-image-toolbox @ git+https://github.com/berenslab/fundus_image_toolbox@d7757e28fbf639856b53cfe00019f605af8c1f17",
+    # VascX does not declare the package that runs its models; pinned here to the release
+    # contemporary with the commit above.
+    "retinalysis-inference==0.7.1",
+    "retinalysis-fundusprep==1.3.0",
+    "retinalysis-vascx @ git+https://github.com/Eyened/retinalysis-vascx@d0cde1c7f9b54718be9b8d4ec871a5849ca6e857",
+]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv]
+# VascX's inference package pins albumentations 1.3.1, whose package import reaches for imgaug,
+# which reaches for a NumPy attribute removed in NumPy 2 — and the Fundus Image Toolbox is what
+# puts imgaug in the environment. 1.4 carries the same API the inference package uses and no
+# imgaug import at all, which is what lets both upstreams share one environment.
+override-dependencies = ["albumentations>=1.4,<2"]
+
+[tool.hatch.metadata]
+# Two upstreams are pinned to a commit rather than to a release, section 8 of PLAN-BENCHMARK.md.
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
-packages = ["src/datasets"]
+packages = ["src/datasets", "src/upstreams", "src/models", "src/benchmarks"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+# Deprecations inside the upstreams, which are pinned and not ours to fix.
+filterwarnings = [
+    "ignore:`torch.jit.*` is deprecated:FutureWarning",
+    "ignore:Got processor for keypoints:UserWarning",
+]
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint.per-file-ignores]
+# A model adapter is named for its catalogue page — `docs/models/fit-quality.md` ↔
+# `src/models/fit-quality.py` — and those slugs carry hyphens, which no module name may. The
+# adapters are loaded from their path rather than imported, so the name is deliberate.
+"src/models/*-*.py" = ["N999"]
+# An adapter catches whatever its upstream raises and turns it into a failed prediction: one
+# unreadable photograph must not lose a run of three thousand.
+"src/models/*.py" = ["BLE001"]

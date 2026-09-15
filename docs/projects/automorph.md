@@ -45,7 +45,7 @@ same network, a point easily missed because both descend from the same group's w
 
 | Module | Model | Segments | Origin |
 | --- | --- | --- | --- |
-| `M1_Retinal_Image_quality_EyePACS` | [AutoMorph quality grader](../models/automorph-quality-grader.md) — an EfficientNet classifier, ensemble of eight | Image quality grade, not anatomy | Introduced here. The grading *labels* come from the [EyeQ](https://github.com/HzFu/EyeQ) dataset, but the model is AutoMorph's own, trained on them — it is not [EyeQ](../datasets/eyeq.md)'s published MCF-Net |
+| `M1_Retinal_Image_quality_EyePACS` | [AutoMorph quality grader](../models/automorph-quality-grader.md) — an EfficientNet classifier, ensemble of eight | Image quality grade, not anatomy — and a **gate**: see below | Introduced here. The grading *labels* come from the [EyeQ](https://github.com/HzFu/EyeQ) dataset, but the model is AutoMorph's own, trained on them — it is not [EyeQ](../datasets/eyeq.md)'s published MCF-Net |
 | `M2_Vessel_seg` | [SEGAN vessel segmenter](../models/segan-vessel.md) — an adversarial segmenter — a generator (`Segmenter`) trained against a `Discriminator`; the module's own script is headed "This is sh file for SEGAN" and its weight files are named `G_best_F1_epoch.pth` for the generator | Blood vessels only, as one class | Borrowed. The GAN backbone is the SEGAN method of [A Refined Equilibrium Generative Adversarial Network for Retinal Vessel Segmentation](https://arxiv.org/abs/1909.11936) (Neurocomputing 2021); [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) states its backbone is a revision of that method |
 | `M2_Artery_vein` | [BF-Net](../models/bf-net.md) — a binary-to-multi fusion network: `Generator_main` fused with a `Generator_branch`, plus a discriminator | Arteries against veins (multi-class) | Borrowed from [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) (GPL-3.0), the MICCAI 2021 paper [Learning to Address Intra-segment Misclassification in Retinal Imaging](https://doi.org/10.1007/978-3-030-87193-2_46); the module's script is headed "This is SH file for LearningAIM" |
 | `M2_lwnet_disc_cup` | [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) — the [lwnet](../models/lwnet.md) architecture retrained for this task | Optic disc and cup | Borrowed from [lwnet](https://github.com/agaldran/lwnet) (MIT) |
@@ -57,6 +57,15 @@ need not appear in the artery/vein mask.
 
 The architectures are all borrowed. What AutoMorph adds is a set of weights it trained itself for
 those architectures, plus the ensembling and the plumbing between stages — see section 5.
+
+**The quality stage decides what the rest of the pipeline ever sees.**
+`merge_quality_assessment.py` sorts every photograph into `Results/M1/Good_quality/` or
+`Results/M1/Bad_quality/`, and all three segmentation modules read the first of those only. The
+rule is not the grader's own verdict: a photograph passes when the grader's argmax is Good, **or**
+when it is Usable and the mean probability of the Reject class is below 0.25. So the middle class
+is admitted conditionally, on a threshold that appears in no paper, and a photograph dropped here
+is absent from the output table entirely rather than flagged in it. *(This atlas's observation, read
+at commit `9a953e5e` on 2026-09-15.)*
 
 ## 5. Models introduced here
 

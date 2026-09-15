@@ -1,0 +1,64 @@
+{
+  "benchmark": "quality",
+  "dataset": "mshf",
+  "fingerprint": "bb22b61bda49bf63ac76a968af8d25cb921736964b09d8a958b893653f6b7dd1",
+  "model": "vascx-quality",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {
+      "below the size floor": 229,
+      "no reference to score against": 19
+    },
+    "failed": 0,
+    "gate": null,
+    "gradeable": {
+      "accuracy": 0.9187725631768953,
+      "discarded_of_not_worth": 0.9183006535947712,
+      "kappa": 0.8360580274354557,
+      "kept_of_worth_measuring": 0.9193548387096774,
+      "photographs": 554,
+      "roc_auc": 0.9672346088973224
+    },
+    "graded": 554,
+    "photographs": 554,
+    "processed": 554,
+    "reference_grades": [
+      "good",
+      "bad"
+    ],
+    "three_class": {
+      "accuracy": 0.8050541516245487,
+      "confusion": {
+        "bad": {
+          "bad": 281,
+          "good": 5,
+          "usable": 20
+        },
+        "good": {
+          "bad": 20,
+          "good": 165,
+          "usable": 63
+        },
+        "usable": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        }
+      },
+      "kappa_quadratic": 0.8165542997969797,
+      "photographs": 554,
+      "recall": {
+        "bad": 0.9183006535947712,
+        "good": 0.6653225806451613,
+        "usable": null
+      },
+      "unused_by_the_reference": [
+        "usable"
+      ]
+    },
+    "total": 554
+  }
+}

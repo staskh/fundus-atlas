@@ -1,0 +1,61 @@
+{
+  "benchmark": "quality",
+  "dataset": "papila",
+  "fingerprint": "bc504f67bcfd47f8286306376de69b23a7874f448bdf9b2a04bad1fb06196d31",
+  "model": "quickqual",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": null,
+    "gradeable": {
+      "accuracy": 0.42418032786885246,
+      "discarded_of_not_worth": null,
+      "kappa": null,
+      "kept_of_worth_measuring": 0.42418032786885246,
+      "photographs": 488,
+      "roc_auc": null
+    },
+    "graded": 488,
+    "photographs": 488,
+    "processed": 488,
+    "reference_grades": [
+      "good"
+    ],
+    "three_class": {
+      "accuracy": 0.3709016393442623,
+      "confusion": {
+        "bad": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        },
+        "good": {
+          "bad": 281,
+          "good": 181,
+          "usable": 26
+        },
+        "usable": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        }
+      },
+      "kappa_quadratic": 0.0,
+      "photographs": 488,
+      "recall": {
+        "bad": null,
+        "good": 0.3709016393442623,
+        "usable": null
+      },
+      "unused_by_the_reference": [
+        "usable",
+        "bad"
+      ]
+    },
+    "total": 488
+  }
+}

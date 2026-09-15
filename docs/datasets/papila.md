@@ -24,6 +24,41 @@ read against.
 | Content | 488 images at 2576×1934, JPEG |
 | Annotations | Optic disc and cup contours from **two independent experts**, glaucoma assessment, full clinical record per eye |
 
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.papila                      # downloads and builds 512 and 1024
+uv run python -m datasets.papila --sizes 512,1024,2048
+uv run python -m datasets.papila --archive ~/PAPILA.zip
+```
+
+**What it downloads:** one 591 MB zip from figshare, checked against its sha256. Nothing here needs
+a human.
+
+**What it builds:** 488 photographs at native, 512 and 1024, with the field of view detected from
+each frame, and **both experts' disc and cup contours** at every size. The clinical record travels
+as this dataset's own manifest columns: `age`, `gender`, `dioptre_1`, `dioptre_2`, `astigmatism`,
+`phakic`, `pneumatic`, `perkins`, `pachymetry`, `axial_length`, `vf_md`. Codes stay as the authors
+wrote them, except the diagnosis, which is stored as `healthy`, `glaucoma suspect` or `glaucoma`.
+
+**Both eyes of one patient share a `patient` id**, taken from the filename (`RET002OD` and
+`RET002OS` are one person), so a split by person is possible and a split by image is not accidental.
+
+**The quality grade is assumed, not published.** PAPILA grades no photograph. The store records
+`good` for all 488 with `quality_source` set to `assumed` — this repository's supposition, on the
+grounds that every frame here was taken with one camera, disc-centred, and outlined twice over by
+ophthalmologists. It is never to be pooled with a dataset's own grade, and what it is useful for is
+one question: how much of a sound dataset a quality model would discard.
+
+**Left in the archive:** `ImagesWithContours/`, which is the photographs with the outlines drawn on
+them, and `HelpCode/`, which is the authors' example code and their cross-validation folds — an
+evaluation protocol rather than something published about an image.
+
+**The resolution is derived from the field angle**, which the authors state as 30°: about 300
+microns of retina to the degree, over each photograph's own detected field, which works out near
+3.77 µm/px. It is an approximation that ignores eye length, and `resolution_source` says
+`field_angle` on every row so nobody mistakes it for a published figure.
+
 ## 3. The images
 
 | | |
@@ -70,6 +105,17 @@ stated by the authors rather than inferred.
 - The published contour coordinates are floating point; rounding them to pixels costs at most half a
   pixel on a 2576-pixel image, far below the distance between the two experts. Worth knowing, not
   worth worrying about.
+- **The archive carries eleven contour files twice.** Beside `RET062OD_cup_exp2.txt` sits
+  `RET062OD_cup_exp2 2.txt`, and ten more like it — the duplicate names macOS gives a second copy.
+  Every one holds the same coordinates as its original, differing only in line endings, so nothing
+  is lost; but code that globs for `*_cup_exp2*.txt` reads eleven cups twice and would weight those
+  eleven eyes double in any average. *(This atlas's finding, from the archive downloaded
+  2026-09-15; the fetcher matches the exact filename and ignores the copies.)*
+- **The archive explains none of its codes.** Its README points at the paper, and its own helper
+  code reads the diagnosis column without naming its values. This atlas establishes the legend —
+  `0` healthy, `1` glaucoma suspect, `2` glaucoma — by counting: the codes fall 333, 87 and 68,
+  which are exactly the counts the paper publishes for those three groups. Anyone assuming the
+  obvious order (`1` glaucoma, `2` suspect) has the two glaucoma classes the wrong way round.
 
 ## 8. Notes
 

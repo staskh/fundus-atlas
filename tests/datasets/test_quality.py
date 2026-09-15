@@ -71,3 +71,25 @@ def test_one_grade_can_be_mapped_on_its_own():
     # goes through the same declared mapping rather than a second copy of it.
     rule = quality.Published({"0": "good", "1": "usable", "2": "bad"})
     assert [rule.word(code) for code in ("0", "1", "2", "")] == ["good", "usable", "bad", ""]
+
+
+def test_a_grade_nobody_published_is_marked_as_assumed() -> None:
+    rule = quality.Assumed("good", because="every photograph was curated for grading")
+
+    assert rule.grade({}) == ("good", "assumed")
+
+
+def test_an_assumption_says_why_it_was_made() -> None:
+    rule = quality.Assumed("good", because="every photograph was curated for grading")
+
+    assert "curated" in rule.because
+
+
+def test_an_assumed_grade_must_still_be_one_of_the_three_words() -> None:
+    with pytest.raises(ValueError, match="excellent"):
+        quality.Assumed("excellent", because="it looked fine")
+
+
+def test_an_assumption_with_no_reason_is_refused() -> None:
+    with pytest.raises(ValueError, match="why"):
+        quality.Assumed("good", because="")

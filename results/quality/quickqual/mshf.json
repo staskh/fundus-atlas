@@ -1,0 +1,64 @@
+{
+  "benchmark": "quality",
+  "dataset": "mshf",
+  "fingerprint": "6a533b2d0ce8336757cba0ff2d01f61adca65ab68cb5a8c0b82eb0adde938332",
+  "model": "quickqual",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {
+      "below the size floor": 229,
+      "no reference to score against": 19
+    },
+    "failed": 0,
+    "gate": null,
+    "gradeable": {
+      "accuracy": 0.9259927797833934,
+      "discarded_of_not_worth": 0.9803921568627451,
+      "kappa": 0.8486681679480859,
+      "kept_of_worth_measuring": 0.8588709677419355,
+      "photographs": 554,
+      "roc_auc": 0.9839829749103942
+    },
+    "graded": 554,
+    "photographs": 554,
+    "processed": 554,
+    "reference_grades": [
+      "good",
+      "bad"
+    ],
+    "three_class": {
+      "accuracy": 0.8483754512635379,
+      "confusion": {
+        "bad": {
+          "bad": 300,
+          "good": 3,
+          "usable": 3
+        },
+        "good": {
+          "bad": 35,
+          "good": 170,
+          "usable": 43
+        },
+        "usable": {
+          "bad": 0,
+          "good": 0,
+          "usable": 0
+        }
+      },
+      "kappa_quadratic": 0.8074078756083687,
+      "photographs": 554,
+      "recall": {
+        "bad": 0.9803921568627451,
+        "good": 0.6854838709677419,
+        "usable": null
+      },
+      "unused_by_the_reference": [
+        "usable"
+      ]
+    },
+    "total": 554
+  }
+}

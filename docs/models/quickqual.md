@@ -56,7 +56,12 @@ training.
 ## 5. Architecture
 
 - **Family:** a frozen DenseNet121 feature extractor with a scikit-learn support vector machine as
-  the classifier. A variant, QuickQualMEME, is provided in a separate notebook.
+  the classifier.
+- **The MEME variant is a different model and has [its own page](quickqual-meme.md)**: nine of the
+  same features by index, nine weights and a bias, emitting **one probability that the photograph
+  is bad** rather than three class probabilities. It cannot answer the three-way question this
+  page's model answers, and it is what [AutoMorphalyzer](../projects/automorphalyzer.md) actually
+  runs — see section 9.
 - **Parameters:** DenseNet121's, unchanged and not trained; the SVM adds a few kilobytes.
 - **Single model or ensemble:** single model.
 
@@ -97,11 +102,21 @@ result. Recorded as their claim.
 
 | Project | How it is used | Weights |
 | --- | --- | --- |
-| [AutoMorphalyzer](../projects/automorphalyzer.md) | Replaces AutoMorph's quality module; the rejection probability is written into the collated results file and no image is rejected | The published classifier |
+| — | **No catalogued project runs this classifier.** [AutoMorphalyzer](../projects/automorphalyzer.md) reaches for QuickQual but runs [QuickQual-MEME](quickqual-meme.md) instead, whose ten numbers are copied into its source. *(This atlas's observation, `preprocess/preprocess.py`, read 2026-09-15)* | — |
 
 ## 10. Known defects
 
-None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health.
+- **The published classifier was pickled by scikit-learn 1.2.2**, a release from 2023 that cannot
+  be installed on Python 3.12 at all. Any current environment therefore unpickles it with a much
+  later scikit-learn, which warns that the result "might lead to breaking code or invalid results".
+  Found 2026-09-14 while loading `quickqual_dn121_512.pkl` with scikit-learn 1.9.1. Nothing
+  observed was wrong — the classifier's probabilities behave as the README describes — but it is
+  an unverifiable dependency on a version nobody can reproduce, and it is inherited by
+  [AutoMorphalyzer](../projects/automorphalyzer.md), which depends on this file.
+- **Loading it runs code from it.** A joblib pickle is executable content, and this one is fetched
+  over plain HTTPS from a release asset with no published checksum. This atlas pins its sha256
+  (`7ed87654…`) and refuses anything else; a user following the README has nothing to check
+  against.
 
 ## 11. Notes
 
@@ -114,4 +129,4 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-14

@@ -67,7 +67,37 @@ class FromComponents:
         return "bad", "derived"
 
 
-Rule = Published | FromComponents
+@dataclass(frozen=True)
+class Assumed:
+    """A grade nobody published, taken as read for a dataset that grades nothing.
+
+    Some datasets carry no quality annotation at all and yet were plainly curated — every
+    photograph disc-centred, one camera, a clinical study that would have discarded an unreadable
+    frame. Assuming they are all sound makes them usable as a reference for one particular
+    question: how much of a sound dataset a quality model would throw away.
+
+    It is the weakest of the three sources and is marked as such in every row, because it is this
+    repository's assumption rather than the dataset's statement, and `CLAUDE.md` section 4.4 keeps
+    those two apart. A consumer filtering on `quality == "good"` across datasets is otherwise
+    mixing an expert's verdict with our supposition.
+
+    :param because: why the assumption is defensible, recorded on the dataset page beside it.
+    """
+
+    grade_for_every_image: str
+    because: str
+
+    def __post_init__(self) -> None:
+        if self.grade_for_every_image not in VOCABULARY:
+            raise ValueError(f"{self.grade_for_every_image!r} is not one of {VOCABULARY}")
+        if not self.because.strip():
+            raise ValueError("an assumed grade must say why it is assumed")
+
+    def grade(self, row: dict[str, str]) -> tuple[str, str]:
+        return self.grade_for_every_image, "assumed"
+
+
+Rule = Published | FromComponents | Assumed
 
 
 def grade_of(rule: Rule | None, row: dict[str, str]) -> tuple[str, str]:
