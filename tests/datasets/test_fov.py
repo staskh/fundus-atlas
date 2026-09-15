@@ -209,3 +209,40 @@ def test_a_field_running_off_the_sensor_still_keeps_the_camera_s_circle():
     square = crop.square_around(circle, fov.mask_of(image) > 0)
     assert square.side == pytest.approx(340, abs=4)
     assert square.x0 < 0
+
+
+def speckled(height, width, cx, cy, r, value=200, noise=20, seed=0):
+    """A field on a surround that is not flat: the noise a JPEG leaves in a dark border."""
+    image = disc(height, width, cx, cy, r, value=value)
+    scatter = np.random.default_rng(seed).integers(0, noise + 1, size=(height, width, 1))
+    outside = image.max(axis=2) == 0
+    image[outside] = np.broadcast_to(scatter, (height, width, 3))[outside]
+    return image
+
+
+def test_a_noisy_surround_is_still_a_surround():
+    # A compressed thumbnail's black border is not flat black: its pixels scatter, and a tolerance
+    # read off the photograph's own brightness can land below that scatter. The surround then
+    # breaks into pieces, its noise joins the field, and the fitted circle swells to reach it.
+    image = speckled(400, 500, cx=250, cy=200, r=150, value=120, noise=20)
+
+    assert fov.detect(image).r == pytest.approx(150, abs=4)
+
+
+def test_a_noisy_surround_does_not_enlarge_the_square():
+    image = speckled(400, 500, cx=250, cy=200, r=150, value=120, noise=20)
+
+    found = fov.detect(image)
+    square = crop.square_around(found, fov.mask_of(image) > 0)
+
+    assert square.side == pytest.approx(300, abs=8), "the square follows the field, not the noise"
+
+
+def test_the_tolerance_is_learned_from_the_surround_rather_than_from_the_retina():
+    # Two photographs with the same surround and different exposures: how noisy the border is
+    # says nothing about how bright the retina is, so the tolerance must not be read off the one
+    # to judge the other.
+    dark = speckled(400, 500, cx=250, cy=200, r=150, value=90, noise=20)
+    bright = speckled(400, 500, cx=250, cy=200, r=150, value=240, noise=20)
+
+    assert fov.tolerance(dark) == pytest.approx(fov.tolerance(bright), abs=2)
