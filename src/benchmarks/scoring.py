@@ -107,8 +107,17 @@ def _gradeable(truth: dict[str, str], scored: list[Grade]) -> dict[str, object]:
     predicted = [_says_worth_measuring(grade) for grade in scored]
     confidence = [grade.gradeable for grade in scored]
     both_classes = len(set(reference)) == 2
+    worth = [said for was, said in zip(reference, predicted, strict=True) if was]
+    against = [said for was, said in zip(reference, predicted, strict=True) if not was]
     return {
         "photographs": len(scored),
+        # Which mistake the model made, not just how many: throwing away a photograph the readers
+        # called usable costs a study its sample size, and keeping one they called bad costs it
+        # its measurements. A single accuracy hides which of the two a model does.
+        "kept_of_worth_measuring": sum(worth) / len(worth) if worth else None,
+        "discarded_of_not_worth": (
+            sum(not said for said in against) / len(against) if against else None
+        ),
         "accuracy": accuracy_score(reference, predicted) if scored else None,
         "kappa": _agreement(reference, predicted) if both_classes else None,
         "roc_auc": (

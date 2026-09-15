@@ -224,3 +224,28 @@ def test_a_failure_read_back_carries_no_answer_and_its_reason() -> None:
     assert restored.outcome == FAILED
     assert restored.gradeable is None
     assert restored.note == "ValueError()"
+
+
+def test_the_summary_carries_which_mistake_the_model_made() -> None:
+    truth = {"a": GOOD, "b": GOOD, "c": BAD, "d": BAD}
+    grades = [
+        Grade("a", verdict=GOOD, gradeable=0.9),
+        Grade("b", verdict=BAD, gradeable=0.2),
+        Grade("c", verdict=GOOD, gradeable=0.6),
+        Grade("d", verdict=BAD, gradeable=0.1),
+    ]
+
+    level = scoring.summarise(truth, grades)["gradeable"]
+
+    assert level["kept_of_worth_measuring"] == pytest.approx(0.5), "one good photograph thrown away"
+    assert level["discarded_of_not_worth"] == pytest.approx(0.5), "one bad one kept"
+
+
+def test_a_reference_with_one_class_has_only_the_share_it_has() -> None:
+    truth = {"a": GOOD, "b": GOOD}
+    grades = [Grade("a", verdict=GOOD, gradeable=0.9), Grade("b", verdict=BAD, gradeable=0.2)]
+
+    level = scoring.summarise(truth, grades)["gradeable"]
+
+    assert level["kept_of_worth_measuring"] == pytest.approx(0.5)
+    assert level["discarded_of_not_worth"] is None

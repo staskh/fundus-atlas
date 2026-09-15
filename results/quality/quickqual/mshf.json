@@ -16,7 +16,9 @@
     "gate": null,
     "gradeable": {
       "accuracy": 0.9259927797833934,
+      "discarded_of_not_worth": 0.9803921568627451,
       "kappa": 0.8486681679480859,
+      "kept_of_worth_measuring": 0.8588709677419355,
       "photographs": 554,
       "roc_auc": 0.9839829749103942
     },

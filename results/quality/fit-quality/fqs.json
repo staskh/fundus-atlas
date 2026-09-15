@@ -20,7 +20,9 @@
     },
     "gradeable": {
       "accuracy": 0.7915367483296214,
+      "discarded_of_not_worth": 0.9594882729211087,
       "kappa": 0.5953677529673648,
+      "kept_of_worth_measuring": 0.6710022953328233,
       "photographs": 2245,
       "roc_auc": 0.9389624182073565
     },

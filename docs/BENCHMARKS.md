@@ -33,6 +33,17 @@ What this repository measured against what experts annotated, on the same images
 | [vascx-quality](models/vascx-quality.md) | mshf | 554 | 1.000 | 0.919 | 0.836 | 0.967 | unknown |
 | [vascx-quality](models/vascx-quality.md) | papila | 488 | 1.000 | 0.555 | — | — | unknown |
 
+### Where to start, and what the choice turns on
+
+Two questions, and they do not have the same answer. Averaged over the datasets whose reference uses both classes:
+
+- **As they ship**, agreeing with the readers at their own published threshold: **vascx-quality** (κ 0.70) and **quickqual** (κ 0.65). Note that vascx-quality carries `unknown`: nobody published what it trained on, so its lead cannot be called clean.
+- **At ordering photographs**, which is what matters if you will set your own threshold: **fit-quality** (ROC AUC 0.965) and **automorph-quality-grader** (0.962).
+
+**Those are different models, and that is the finding.** fit-quality separates good photographs from bad ones better than anything else here and then gates on a threshold in the wrong place: it keeps only 55% of the photographs the readers called worth measuring. Re-fit that threshold on your own images and it becomes a different proposition; take it as shipped and it throws away 45% of what your own readers would have kept.
+
+Neither line is a verdict on the models. Coverage, contamination and the threshold each model happens to ship with all differ, and a dataset with an assumed reference measures what a model discards rather than whether it is right. Read the rows.
+
 ---
 
 **Generated:** 2026-09-15

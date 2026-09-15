@@ -565,10 +565,82 @@ def _index(results: Path) -> Iterable[str]:
                 f"{_number(level.get('roc_auc'))} | "
                 f"{contamination.mark(record['model'], record['dataset'])} |"
             )
+        yield ""
+        yield from _where_to_start(list(_stored(results / benchmark)))
     yield ""
     yield "---"
     yield ""
     yield f"**Generated:** {_today()}"
+
+
+def _where_to_start(records: list[dict[str, object]]) -> Iterable[str]:
+    """Which models lead, at which question — because the answer is not the same question twice.
+
+    This is not a ranking. A model is best *at something*, and here the two somethings disagree
+    with each other: the model that orders photographs best is the one that gates worst, because
+    its published threshold sits in the wrong place. Naming the leaders without naming what they
+    lead at would hide exactly that.
+    """
+    by_model: dict[str, list[dict[str, object]]] = {}
+    for record in records:
+        level = record["summary"].get("gradeable", {})
+        if level.get("kappa") is not None:
+            by_model.setdefault(record["model"], []).append(level)
+    if len(by_model) < 2:
+        return
+
+    def average(model: str, metric: str) -> float:
+        levels = by_model[model]
+        return sum(level[metric] for level in levels) / len(levels)
+
+    agreeing = sorted(by_model, key=lambda model: -average(model, "kappa"))
+    ranking = sorted(by_model, key=lambda model: -average(model, "roc_auc"))
+    marks = {
+        model: contamination.mark(model, record["dataset"])
+        for record in records
+        for model in [record["model"]]
+    }
+
+    yield "### Where to start, and what the choice turns on"
+    yield ""
+    yield (
+        "Two questions, and they do not have the same answer. Averaged over the datasets whose "
+        "reference uses both classes:"
+    )
+    yield ""
+    yield (
+        f"- **As they ship**, agreeing with the readers at their own published threshold: "
+        f"**{agreeing[0]}** (κ {average(agreeing[0], 'kappa'):.2f}) and **{agreeing[1]}** "
+        f"(κ {average(agreeing[1], 'kappa'):.2f})."
+        + (
+            f" Note that {agreeing[0]} carries `{marks[agreeing[0]]}`: nobody published what it "
+            f"trained on, so its lead cannot be called clean."
+            if marks.get(agreeing[0]) == contamination.UNKNOWN
+            else ""
+        )
+    )
+    yield (
+        f"- **At ordering photographs**, which is what matters if you will set your own "
+        f"threshold: **{ranking[0]}** (ROC AUC {average(ranking[0], 'roc_auc'):.3f}) and "
+        f"**{ranking[1]}** ({average(ranking[1], 'roc_auc'):.3f})."
+    )
+    yield ""
+    if ranking[0] != agreeing[0]:
+        kept = average(ranking[0], "kept_of_worth_measuring")
+        yield (
+            f"**Those are different models, and that is the finding.** {ranking[0]} separates good "
+            f"photographs from bad ones better than anything else here and then gates on a "
+            f"threshold in the wrong place: it keeps only {kept:.0%} of the photographs the "
+            f"readers called worth measuring. Re-fit that threshold on your own images and it "
+            f"becomes a different proposition; take it as shipped and it throws away "
+            f"{1 - kept:.0%} of what your own readers would have kept."
+        )
+        yield ""
+    yield (
+        "Neither line is a verdict on the models. Coverage, contamination and the threshold each "
+        "model happens to ship with all differ, and a dataset with an assumed reference measures "
+        "what a model discards rather than whether it is right. Read the rows."
+    )
 
 
 def _stored(directory: Path) -> Iterable[dict[str, object]]:
