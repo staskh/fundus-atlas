@@ -132,6 +132,19 @@ def _docs(
         "for it, and the run says so every time until somebody writes it."
     )
     yield ""
+    yield "### 2.1 What each model's own project does with its answer"
+    yield ""
+    yield (
+        "A grade is not a decision. Which photographs reach a segmentation model is decided by a "
+        "rule belonging to the **pipeline** rather than to the model, and sometimes by a rule that "
+        "overrides the model's own verdict. Each adapter declares the rule its project applies, "
+        "and the `carried_by_its_pipeline` column of the evidence records what that rule did to "
+        "each photograph."
+    )
+    yield ""
+    for entry in models:
+        yield f"- **{entry['slug']}** — {entry['declared'].get('gate', 'not declared')}"
+    yield ""
     yield "## 3. The datasets"
     yield ""
     yield "| Dataset | Photographs | Reference | Black canvas | Excluded, and why |"
