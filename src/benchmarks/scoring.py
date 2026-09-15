@@ -19,6 +19,25 @@ WORTH_MEASURING = {grade for grade in GRADES if grade != BAD}
 THRESHOLD = 0.5
 
 
+def restored(row: dict[str, str]) -> Grade:
+    """One model's answer, read back from the evidence a previous run wrote.
+
+    A resumed run scores photographs it measured today beside photographs it measured last week,
+    and both have to be the same kind of thing for the summary to mean anything.
+    """
+    classes = {grade: float(row[grade]) for grade in GRADES if row.get(grade)}
+    carried = str(row.get("carried_by_its_pipeline", "")).strip().lower()
+    return Grade(
+        key=row["key"],
+        outcome=row.get("outcome") or GRADED,
+        verdict=row.get("verdict") or "",
+        gradeable=float(row["gradeable"]) if row.get("gradeable") else None,
+        classes=classes,
+        gated={"true": True, "false": False}.get(carried),
+        note=row.get("note", ""),
+    )
+
+
 def summarise(truth: dict[str, str], grades: Iterable[Grade]) -> dict[str, object]:
     """Score one model on one evaluation unit.
 

@@ -9,20 +9,25 @@ from .base import Photographs
 #: The field in ``labels.csv`` that holds a reader's quality verdict.
 FIELD = "quality"
 
+#: Why a photograph is excluded from a quality benchmark though the dataset published it.
+NO_REFERENCE = "no reference to score against"
+
 
 class QualityLoader(Photographs):
-    """One evaluation unit's photographs and the grade each was given.
+    """One dataset's photographs and the grade each was given.
 
-    A photograph the dataset never graded is not part of a quality benchmark: there is nothing to
-    score against. Those keys are kept in :attr:`without_reference` so a run can say how many it
-    set aside rather than quietly loading fewer photographs than the store holds.
+    A photograph the dataset never graded is excluded with its own reason: there is nothing to
+    score against, which is not a failure of the model and is never counted as one.
     """
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.without_reference = [row["key"] for row in self.rows if not row[FIELD]]
-        self.rows = [row for row in self.rows if row[FIELD]]
         self.readers = _readers(self.store)
+
+    def _with_reference(self, rows: list[dict[str, str]]) -> list[dict[str, str]]:
+        graded = [row for row in rows if row[FIELD]]
+        self._exclude(NO_REFERENCE, len(rows) - len(graded))
+        return graded
 
     def __getitem__(self, index: int) -> dict[str, object]:
         row = self.rows[index]

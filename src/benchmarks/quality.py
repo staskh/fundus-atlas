@@ -1,7 +1,6 @@
 # ABOUTME: The quality benchmark: how well a model judges whether a photograph is worth measuring,
-# ABOUTME: measured on the datasets that graded their own photographs.
+# ABOUTME: measured against the grade the dataset's own readers gave it.
 
-import argparse
 import json
 import sys
 from datetime import UTC, datetime
@@ -11,30 +10,24 @@ import torch
 from torch.utils.data import DataLoader
 
 from datasets.utils import paths
+from models.utils import catalogue
 
-from . import contamination, runs, scoring
-from .loaders.base import FLOOR, Unit, collate
-from .loaders.base import units as units_of
+from . import report, runs, scoring
+from .loaders.base import CROPS, FLOOR, available, collate
 from .loaders.quality import QualityLoader
-from .report import write_index, write_report
 
-#: What this benchmark is called, in `results/`, in `docs/benchmarks/` and in a run record.
+#: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "quality"
 
 #: The benchmark's own version. Changing what is measured, or how, changes this, and every stored
 #: score whose fingerprint carries the old one is measured again.
-#:
-#: 2 — added the gate each model's own project applies, the per-grade recall behind the three-class
-#: score, and the grades the reference itself uses.
-VERSION = 2
+VERSION = 3
 
-#: The datasets this benchmark is run on by default: the ones that grade the photograph itself and
-#: are not excluded by the size floor or the crop rule. PAPILA grades nothing and is here on an
-#: assumed reference — every photograph taken as sound — which measures one thing the others
-#: cannot: how much of a curated dataset each model would throw away.
-DATASETS = ("fives", "fqs", "mshf", "papila")
+#: The datasets this benchmark wants. A name here is a statement of intent, not an inventory: a
+#: dataset whose store has not been built is warned about, recorded, and stepped over.
+DATASETS = ("fives", "fqs", "mshf", "papila", "eyeq", "drimdb")
 
-#: The models, by the slug of their catalogue page.
+#: The models, by the slug of their catalogue page, on the same terms.
 MODELS = (
     "fit-quality",
     "vascx-quality",
@@ -45,6 +38,144 @@ MODELS = (
 
 #: How many photographs go to the model at once.
 BATCH = 8
+
+
+def adapters(slugs: list[str], device: str | None = None) -> tuple[list, dict[str, str]]:
+    """The model adapters that exist, and what was declared without one."""
+    found, missing = [], {}
+    for slug in slugs:
+        try:
+            found.append(catalogue.load(slug, **({"device": device} if device else {})))
+        except LookupError:
+            missing[slug] = "no adapter written"
+    return found, missing
+
+
+def missing_datasets(slugs: list[str], root: Path | None = None) -> dict[str, str]:
+    """What was declared that this run cannot measure, and why."""
+    missing = {}
+    for slug in slugs:
+        if slug in CROPS:
+            missing[slug] = "excluded whole: its images are crops rather than photographs"
+        elif not available(slug, root):
+            missing[slug] = "no store built"
+    return missing
+
+
+def run(
+    models: list,
+    datasets: list[str],
+    results: Path = runs.RESULTS,
+    root: Path | None = None,
+    batch: int = BATCH,
+    force: bool = False,
+    record: Path | None = None,
+    max_samples: int | None = None,
+    random_samples: bool = False,
+    seed: int = 0,
+) -> list[dict[str, object]]:
+    """Score every model on every dataset, measuring only what is missing.
+
+    :param models: the model adapters, already constructed.
+    :param datasets: the dataset slugs to score; those with no store are stepped over.
+    :param record: where this run's own record is written; ``.atlas_runs/`` by default.
+    :raises RuntimeError: if nothing declared is available to measure.
+    """
+    started = datetime.now(UTC)
+    absent = missing_datasets(datasets, root)
+    for slug, why in absent.items():
+        print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
+    present = [slug for slug in datasets if slug not in absent]
+    if not present or not models:
+        raise RuntimeError(
+            "nothing to measure: no declared dataset has a store built, or no declared model has "
+            "an adapter. A report from an empty run would say nothing while looking like one that "
+            "says something."
+        )
+
+    scored = []
+    for adapter in models:
+        for slug in present:
+            scored.append(
+                _pair(adapter, slug, results, root, batch, force, max_samples, random_samples, seed)
+            )
+        # Ten networks here and eight there add up: a model whose datasets are done is let go of
+        # rather than held until the run ends.
+        let_go = getattr(adapter, "release", None)
+        if let_go is not None:
+            let_go()
+    _record(scored, absent, started, record or runs.RUNS)
+    return scored
+
+
+def _pair(
+    adapter,
+    slug: str,
+    results: Path,
+    root: Path | None,
+    batch: int,
+    force: bool,
+    max_samples: int | None,
+    random_samples: bool,
+    seed: int,
+) -> dict[str, object]:
+    """One model on one dataset: keep what still stands, measure what is missing, write it all."""
+    loader = QualityLoader(
+        slug,
+        size=adapter.grid,
+        root=root,
+        prepare=adapter.prepare,
+        max_samples=max_samples,
+        random_samples=random_samples,
+        seed=seed,
+    )
+    declared = adapter.declare()
+    store = _store(slug, root)
+    loaded = adapter.identity()
+    identity = runs.fingerprint(
+        {
+            "model": {name: declared[name] for name in FINGERPRINTED if name in declared},
+            "weights": loaded,
+            "store": store,
+            "benchmark": {"name": NAME, "version": VERSION, "floor": FLOOR},
+        }
+    )
+
+    kept = [] if force else runs.measured(results, NAME, adapter.slug, slug, identity)
+    done = {entry["key"] for entry in kept}
+    loader.restrict({row["key"] for row in loader.rows} - done)
+
+    if len(loader):
+        print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
+        fresh = _rows(loader, _grade(adapter, loader, batch))
+    else:
+        print(f"{adapter.slug} × {slug}: kept, nothing left to measure", flush=True)
+        fresh = []
+
+    evidence = sorted(kept + fresh, key=lambda entry: entry["key"])
+    counts = runs.counts(len(evidence), loader.total, loader.excluded)
+    summary = {
+        **scoring.summarise(
+            {entry["key"]: entry["grade"] for entry in evidence},
+            [scoring.restored(entry) for entry in evidence],
+        ),
+        "device": declared.get("device"),
+    }
+    runs.write(results, NAME, adapter.slug, slug, identity, {**summary, **counts}, evidence)
+    return {
+        "model": adapter.slug,
+        "dataset": slug,
+        "declared": declared,
+        "store": store,
+        "weights": loaded,
+        "fingerprint": identity,
+        "grade_source": sorted({entry["grade_source"] for entry in evidence}),
+        "padding": _padding(evidence),
+        "counts": counts,
+        "summary": summary,
+        "measured": len(fresh),
+    }
+
 
 #: What a model declares that could change its numbers, and therefore what its fingerprint is made
 #: of. Everything else an adapter declares — the prose describing its gate, the vocabulary it
@@ -64,90 +195,8 @@ FINGERPRINTED = (
 )
 
 
-def run(
-    adapters: list,
-    units: list[Unit],
-    results: Path = runs.RESULTS,
-    root: Path | None = None,
-    batch: int = BATCH,
-    force: bool = False,
-    record: Path | None = None,
-) -> list[dict[str, object]]:
-    """Score every model on every evaluation unit, measuring only what has changed.
-
-    :param adapters: the model adapters, already constructed.
-    :param results: where per-image scores and summaries are kept.
-    :param record: where this run's own record is written; ``.atlas_runs/`` by default.
-    :return: one entry per (model, unit), whether it was measured now or read from `results/`.
-    """
-    started = datetime.now(UTC)
-    scored: list[dict[str, object]] = []
-    for adapter in adapters:
-        for unit in units:
-            scored.append(_pair(adapter, unit, results, root, batch, force))
-        # Ten networks here and eight there add up: a model whose units are done is let go of
-        # rather than held until the run ends.
-        let_go = getattr(adapter, "release", None)
-        if let_go is not None:
-            let_go()
-    _record(scored, started, record or runs.RUNS)
-    return scored
-
-
-def _pair(
-    adapter, unit: Unit, results: Path, root: Path | None, batch: int, force: bool
-) -> dict[str, object]:
-    loader = QualityLoader(unit, size=adapter.grid, root=root, prepare=adapter.prepare)
-    declared = adapter.declare()
-    store = _store(unit, root)
-    loaded = adapter.identity()
-    identity = runs.fingerprint(
-        {
-            "model": {name: declared[name] for name in FINGERPRINTED if name in declared},
-            "weights": loaded,
-            "store": store,
-            "photographs": len(loader),
-            "benchmark": {"name": NAME, "version": VERSION, "floor": FLOOR},
-        }
-    )
-    common = {
-        "model": adapter.slug,
-        "unit": unit.name,
-        "grade_source": sorted({row["quality_source"] for row in loader.rows}),
-        "padding": _padding(loader),
-        "contamination": contamination.mark(adapter.slug, unit),
-        "grid": declared["grid"],
-        "network_grid": declared["network_grid"],
-        "fingerprint": identity,
-        "declared": declared,
-        "store": store,
-        "weights": loaded,
-    }
-
-    kept = None if force else runs.reusable(results, NAME, adapter.slug, unit, identity)
-    if kept is not None:
-        print(f"{adapter.slug} × {unit.name}: kept — nothing that could change it did", flush=True)
-        return {**common, "summary": kept["summary"], "reused": True}
-
-    print(f"{adapter.slug} × {unit.name}: {len(loader)} photographs", flush=True)
-    grades = _grade(adapter, loader, batch)
-    truth = {row["key"]: row["quality"] for row in loader.rows}
-    summary = {
-        **scoring.summarise(truth, grades),
-        "without_reference": len(loader.without_reference),
-        "device": declared.get("device"),
-    }
-    runs.write(results, NAME, adapter.slug, unit, identity, summary, _rows(loader, grades))
-    print(
-        f"{adapter.slug} × {unit.name}: covered {summary['coverage']:.2f}, "
-        f"accuracy {summary['gradeable']['accuracy']}",
-        flush=True,
-    )
-    return {**common, "summary": summary, "reused": False}
-
-
 def _grade(adapter, loader: QualityLoader, batch: int) -> list:
-    """Every photograph of one unit, in batches at the model's own grid."""
+    """Every photograph still to be scored, in batches at the model's own grid."""
     graded = []
     for sample in DataLoader(loader, batch_size=batch, collate_fn=collate, shuffle=False):
         graded.extend(adapter.grade(sample["image"], sample["key"]))
@@ -160,15 +209,19 @@ def _rows(loader: QualityLoader, grades: list) -> list[dict[str, object]]:
     Every row carries the same columns, including for a photograph the model failed on: a file
     whose columns depend on which photograph came first is not evidence of anything.
     """
-    readers = {row["key"]: loader.readers.get(row["key"], {}) for row in loader.rows}
-    truth = {row["key"]: row["quality"] for row in loader.rows}
+    rows = {row["key"]: row for row in loader.rows}
     named = sorted({name for grade in grades for name in grade.classes})
     return [
         {
             "key": grade.key,
-            "grade": truth[grade.key],
+            "subset": rows[grade.key]["subset"],
+            "split": rows[grade.key]["split"],
+            "grade": rows[grade.key]["quality"],
+            "grade_source": rows[grade.key]["quality_source"],
+            "pad_fraction": rows[grade.key]["pad_fraction"],
             "readers": ";".join(
-                f"{reader}={value}" for reader, value in sorted(readers[grade.key].items())
+                f"{reader}={value}"
+                for reader, value in sorted(loader.readers.get(grade.key, {}).items())
             ),
             "outcome": grade.outcome,
             "verdict": grade.verdict,
@@ -184,28 +237,31 @@ def _rows(loader: QualityLoader, grades: list) -> list[dict[str, object]]:
     ]
 
 
-def _padding(loader: QualityLoader) -> float:
+def _padding(evidence: list[dict[str, object]]) -> float:
     """How much of the square the store built is canvas rather than photograph, at the median.
 
     A fundus cut off at top and bottom leaves black bands in a square crop, and a quality model
-    judges the square it is given. The share is a fact about the unit, so a reader can see it
-    beside the score rather than discover it later.
+    judges the square it is given.
     """
-    pads = sorted(float(row["pad_fraction"]) for row in loader.rows)
+    pads = sorted(float(entry["pad_fraction"]) for entry in evidence if entry.get("pad_fraction"))
     return pads[len(pads) // 2] if pads else 0.0
 
 
-def _store(unit: Unit, root: Path | None) -> dict[str, object]:
+def _store(slug: str, root: Path | None) -> dict[str, object]:
     """What the photographs were built by, so a rebuilt store is measured again."""
-    build = (root or paths.root()) / unit.slug / "build.json"
+    build = (root or paths.root()) / slug / "build.json"
     record = json.loads(build.read_text()) if build.exists() else {}
-    return {"slug": unit.slug, "builder_version": record.get("builder_version")}
+    return {"slug": slug, "builder_version": record.get("builder_version")}
 
 
-def _record(scored: list[dict[str, object]], started: datetime, into: Path) -> None:
+def _record(
+    scored: list[dict[str, object]],
+    absent: dict[str, str],
+    started: datetime,
+    into: Path,
+) -> None:
     """A run's own record: what ran, against what, and when. A score without one is an anecdote."""
-    stamp = started.strftime("%Y-%m-%dT%H-%M-%SZ")
-    directory = into / NAME / stamp
+    directory = into / NAME / started.strftime("%Y-%m-%dT%H-%M-%SZ")
     directory.mkdir(parents=True, exist_ok=True)
     (directory / "run.json").write_text(
         json.dumps(
@@ -215,6 +271,7 @@ def _record(scored: list[dict[str, object]], started: datetime, into: Path) -> N
                 "started": started.isoformat(),
                 "torch": torch.__version__,
                 "python": sys.version.split()[0],
+                "not_measured": absent,
                 "results": scored,
             },
             indent=2,
@@ -225,35 +282,38 @@ def _record(scored: list[dict[str, object]], started: datetime, into: Path) -> N
     )
 
 
-def main(argv: list[str] | None = None) -> None:
-    from models.utils import catalogue
+def main(asked) -> None:
+    """Run the benchmark as `python -m benchmarks --benchmark quality` asked for it."""
+    from . import __main__ as entry
 
-    parser = argparse.ArgumentParser(
-        prog="python -m benchmarks.quality",
-        description="Score quality models against the grades their datasets published.",
+    root = Path(asked.data_root) if asked.data_root else None
+    wanted_models = entry.named(asked.model) or list(MODELS)
+    wanted_datasets = entry.named(asked.dataset) or list(DATASETS)
+
+    models, no_adapter = adapters(wanted_models, asked.device)
+    for slug, why in no_adapter.items():
+        print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
+
+    scored = run(
+        models,
+        wanted_datasets,
+        root=root,
+        batch=asked.batch or BATCH,
+        force=asked.force,
+        max_samples=asked.max_samples,
+        random_samples=asked.random_samples,
+        seed=asked.seed,
     )
-    parser.add_argument("--models", default=",".join(MODELS), help="model slugs, comma separated")
-    parser.add_argument("--datasets", default=",".join(DATASETS), help="dataset slugs")
-    parser.add_argument("--device", help="cuda, mps or cpu; the fastest available by default")
-    parser.add_argument("--batch", type=int, default=BATCH, help=f"batch size (default {BATCH})")
-    parser.add_argument("--data-root", help="override the store root")
-    parser.add_argument("--force", action="store_true", help="measure again, fingerprint or not")
-    parser.add_argument(
-        "--no-report", dest="report", action="store_false", help="skip the write-up"
-    )
-    args = parser.parse_args(argv)
+    if not asked.report:
+        return
 
-    root = Path(args.data_root) if args.data_root else None
-    adapters = [
-        catalogue.load(slug, **({"device": args.device} if args.device else {}))
-        for slug in args.models.split(",")
-    ]
-    units = [unit for slug in args.datasets.split(",") for unit in units_of(slug, root=root)]
-    scored = run(adapters, units, root=root, batch=args.batch, force=args.force)
-    if args.report:
-        write_report(NAME, scored)
-        write_index()
-
-
-if __name__ == "__main__":
-    main()
+    no_store = missing_datasets(wanted_datasets, root)
+    evidence = {
+        (entry_["model"], entry_["dataset"]): runs.rows(
+            runs.RESULTS, NAME, entry_["model"], entry_["dataset"]
+        )
+        for entry_ in scored
+    }
+    report.write_docs(NAME, scored, no_adapter, no_store, report.QUALITY_COLUMNS)
+    report.write_results(NAME, scored, evidence, no_adapter, no_store)
+    report.write_index()

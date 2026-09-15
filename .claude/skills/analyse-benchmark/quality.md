@@ -12,9 +12,9 @@ Load this beside `SKILL.md` when changing `notebooks/quality.ipynb`.
   grader were all fitted on EyeQ labels; the toolbox ensemble was not. Print the matrix and say which
   agreements are expected.
 - **Right where the readers agreed against right where they did not**, for MSHF and FQS, which keep
-  their readers apart. In the first run every model was right 0.87–0.98 of the time where three
-  annotators agreed and 0.0–0.76 where they did not: human disagreement predicts model error, and
-  that is the most useful sentence the analysis produced.
+  their readers apart. Expect the gap to be wide, and treat it as the analysis's most useful output:
+  where three annotators disagreed and a model was wrong, the suspicion belongs on the annotation as
+  much as on the software, which is the whole reason model-against-model numbers exist.
 - **What a model would throw away**, for the dataset with an assumed reference: the share kept by
   each model, and the share kept by each model's *pipeline*, side by side.
 
@@ -24,16 +24,14 @@ The benchmark measures models against references. Anything that asks *why* a num
 did is a diagnostic, runs in the notebook, and is never written into `results/`:
 
 - **Does the store's square crop explain a rejection rate?** Trim the black bands off the native
-  image, hand the model the photograph's own rectangle instead, and compare. On PAPILA this moved
-  QuickQual's keep-rate from 0.458 to 0.017 — the padding was helping, not hurting — which is the
-  answer, and the reason the results page can state the canvas share without implying it is the
-  cause.
+  image, hand the model the photograph's own rectangle instead, and compare. Do this before
+  concluding anything from a dataset whose canvas share is large: the answer has come out the
+  opposite way round from the obvious guess, with the square helping rather than hurting.
 - **Is a class order assumption right?** VascX emits three unnamed logits. A reversed order would
   turn a ROC AUC of 0.99 into 0.01; the analysis is where that is checked and shown.
 
 ## 3. What this analysis must not conclude
 
-- That a model is best. Coverage, threshold and contamination differ; a model that keeps 62% of
-  PAPILA is not thereby better than one that keeps 28%, because neither number is an error rate
-  against a grade anybody published.
+- That a model is best. Coverage, threshold and contamination differ, and on a dataset with an
+  assumed reference no number is an error rate against a grade anybody published.
 - That an `assumed` reference measures accuracy. It measures what a model discards.

@@ -9,7 +9,7 @@ Load this beside `SKILL.md` when changing what `docs/benchmarks/quality-docs.md`
   spelled out for each dataset that uses one, and the warning that an `assumed` reference contains
   no bad photographs at all.
 - **The black canvas share per dataset**: how much of the square the store built is not photograph.
-  A quality model judges the square it is handed, and PAPILA's is 18.8% bands.
+  A quality model judges the square it is handed.
 - **Every column of the evidence**, including the four that a model may leave absent —
   `verdict`, `good`, `usable`, `bad` — and why: a scalar model has no classes to report and none are
   invented for it.
@@ -39,6 +39,8 @@ Beyond the common shape:
   dash reads as the reference's silence rather than the model's failure.
 - **What each project would carry into measurement**, with the rule quoted per project and the count
   of photographs where the pipeline disagreed with its own model.
+- **Where a model and the expert disagree most**, which is the benchmark's primary question and the
+  place a reader looks to judge whether the reference itself deserves a second look.
 - **What a model would throw away**, from the dataset with an assumed reference: the share each
   model, and each pipeline, would keep of a curated collection.
 
@@ -48,6 +50,6 @@ Beyond the common shape:
   machinery rather than as a fact about where refusal happens.
 - *"An `assumed` reference contains no bad photographs at all"* — otherwise its accuracy reads as a
   score rather than as a keep-rate.
-- *"Black canvas is the share of the square that is not photograph"* — otherwise PAPILA's rejection
-  rate invites a guess that the bands caused it. They do not; trimming them makes it worse, and that
-  check belongs in the notebook, not here.
+- *"Black canvas is the share of the square that is not photograph"* — otherwise a dataset with a
+  large share invites the guess that the bands caused its rejection rate. Whether they did is a
+  diagnostic, and it belongs in the notebook, not here.

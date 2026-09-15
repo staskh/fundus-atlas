@@ -1,8 +1,8 @@
-# ABOUTME: What a benchmark is run on: the evaluation unit, the rules that keep photographs out,
+# ABOUTME: What a benchmark is run on: a whole dataset, the rules that take photographs out of it,
 # ABOUTME: and the PyTorch dataset that hands one photograph at a time to a model.
 
+import random
 from collections.abc import Callable
-from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -10,11 +10,16 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
-from datasets.utils import exclusions, paths
+from datasets.utils import exclusions, manifest, paths
 
 #: Photographs whose field of view is smaller than this are excluded, measured on the field's own
 #: size rather than the frame's: below it, a model's grid is finer than the evidence.
 FLOOR = 512
+
+#: Why a photograph was excluded. The words are the reader's, not the code's: they appear in the
+#: generated documents as they are written here.
+BELOW_THE_FLOOR = "below the size floor"
+A_RECORDED_FINDING = "a finding recorded against the image"
 
 #: Datasets whose images are crops of a photograph rather than photographs, and the evidence for
 #: saying so. Measuring pixels on a crop of a resized photograph relates to nothing, and no size
@@ -26,96 +31,106 @@ CROPS = {
 }
 
 
-@dataclass(frozen=True)
-class Unit:
-    """One evaluation unit: a dataset's subset and split, scored on its own.
+def available(slug: str, root: Path | None = None) -> bool:
+    """Whether this dataset's store has been built.
 
-    Contamination is per split and cameras are not interchangeable, so a number over a whole mixed
-    dataset hides what a map should show.
+    A benchmark names the datasets it wants, not the ones that happen to exist, so asking is
+    ordinary: an unbuilt store is something to warn about and step over, not to raise on.
     """
-
-    slug: str
-    subset: str
-    split: str
-
-    @property
-    def name(self) -> str:
-        return f"{self.slug}/{self.subset}/{self.split}"
-
-    @property
-    def filename(self) -> str:
-        """The same thing as a path component, for a result file."""
-        return f"{self.slug}-{self.subset}-{self.split}"
-
-
-def units(slug: str, root: Path | None = None, findings: Path | None = None) -> list[Unit]:
-    """Every evaluation unit a store holds, in a stable order.
-
-    :raises FileNotFoundError: if the dataset has not been built, saying how to build it.
-    """
-    store = (root or paths.root()) / slug
-    if not (store / "manifest.csv").exists():
-        raise FileNotFoundError(
-            f"no store for {slug} at {store}; build it with `python -m datasets.{slug}`"
-        )
-    found = {
-        (row["subset"], row["split"])
-        for row in exclusions.usable_rows(store, findings=_findings(slug, findings))
-    }
-    return [Unit(slug, subset, split) for subset, split in sorted(found)]
+    return ((root or paths.root()) / slug / manifest.MANIFEST).exists()
 
 
 class Photographs(Dataset):
-    """The photographs of one evaluation unit, at one model's grid.
+    """One dataset's photographs, at one model's grid.
+
+    The whole dataset is loaded in a single pass and each photograph carries the subset and split
+    it came from, so that grouping stays a question for the analysis rather than one the run has to
+    be told in advance.
 
     Batching is only possible once photographs are on a common grid, which is what the store's
-    ``512/`` and ``1024/`` directories are for. The ground truth a benchmark scores against is read
-    at native by the scorer, not stacked into the batch.
+    ``512/`` and ``1024/`` directories are for. Ground truth that needs full resolution is read at
+    native by the scorer, not stacked into the batch.
 
     :param size: the store grid to read, which is the grid the model asked for.
     :param prepare: the model adapter's own preparation, applied per photograph so that a batch
         arrives at the model in the form its upstream expects.
+    :param max_samples: score at most this many photographs, for a development run.
+    :param random_samples: choose those at random rather than taking the first of the manifest.
     :param findings: where the repository's exclusions live, for tests.
     """
 
     def __init__(
         self,
-        unit: Unit,
+        slug: str,
         size: int,
         root: Path | None = None,
         prepare: Callable[[np.ndarray], torch.Tensor] | None = None,
         floor: int = FLOOR,
         findings: Path | None = None,
+        max_samples: int | None = None,
+        random_samples: bool = False,
+        seed: int = 0,
     ) -> None:
-        if unit.slug in CROPS:
+        if slug in CROPS:
             raise ValueError(
-                f"{unit.slug} is excluded whole: its images are crops rather than photographs "
-                f"({CROPS[unit.slug]}), and a measurement in pixels on a crop relates to nothing"
+                f"{slug} is excluded whole: its images are crops rather than photographs "
+                f"({CROPS[slug]}), and a measurement in pixels on a crop relates to nothing"
             )
-        self.unit = unit
+        self.slug = slug
         self.size = size
-        self.store = (root or paths.root()) / unit.slug
+        self.store = (root or paths.root()) / slug
         self.prepare = prepare
+        self.excluded: dict[str, int] = {}
         self.rows = self._rows(floor, findings)
+        #: How many photographs the benchmark would ask about, before any sampling.
+        self.total = len(self.rows)
+        self.sampled = max_samples is not None and max_samples < self.total
+        if self.sampled:
+            self.rows = self._sample(max_samples, random_samples, seed)
 
     def _rows(self, floor: int, findings: Path | None) -> list[dict[str, str]]:
-        kept = [
-            row
-            for row in exclusions.usable_rows(
-                self.store, findings=_findings(self.unit.slug, findings)
-            )
-            if row["subset"] == self.unit.subset
-            and row["split"] == self.unit.split
-            and int(row["crop_side"]) >= floor
-        ]
-        return sorted(kept, key=lambda row: row["key"])
+        """Every row the benchmark will ask about, counting what the rules took out on the way."""
+        published = list(manifest.read(self.store))
+        usable = list(exclusions.usable_rows(self.store, findings=_findings(self.slug, findings)))
+        self._exclude(A_RECORDED_FINDING, len(published) - len(usable))
+
+        kept = [row for row in usable if int(row["crop_side"]) >= floor]
+        self._exclude(BELOW_THE_FLOOR, len(usable) - len(kept))
+        return sorted(self._with_reference(kept), key=lambda row: row["key"])
+
+    def _with_reference(self, rows: list[dict[str, str]]) -> list[dict[str, str]]:
+        """The rows this benchmark has something to score against; every row, by default."""
+        return rows
+
+    def _exclude(self, reason: str, count: int) -> None:
+        if count:
+            self.excluded[reason] = self.excluded.get(reason, 0) + count
+
+    def _sample(self, how_many: int, at_random: bool, seed: int) -> list[dict[str, str]]:
+        """A development-sized slice, reproducible either way it is chosen."""
+        if not at_random:
+            return self.rows[:how_many]
+        chosen = random.Random(seed).sample(range(len(self.rows)), how_many)
+        return [self.rows[index] for index in sorted(chosen)]
+
+    def restrict(self, keys: set[str]) -> None:
+        """Keep only the photographs named — the ones a resumed run still has to score.
+
+        This is about work left, not about the dataset, so :attr:`total` is untouched.
+        """
+        self.rows = [row for row in self.rows if row["key"] in keys]
 
     def __len__(self) -> int:
         return len(self.rows)
 
     def __getitem__(self, index: int) -> dict[str, object]:
         row = self.rows[index]
-        return {"key": row["key"], "image": self._image(row["key"])}
+        return {
+            "key": row["key"],
+            "subset": row["subset"],
+            "split": row["split"],
+            "image": self._image(row["key"]),
+        }
 
     def _image(self, key: str) -> torch.Tensor:
         with Image.open(self.store / str(self.size) / "images" / f"{key}.png") as image:

@@ -89,8 +89,8 @@ benchmark scores those gates on the same question as level 1:
 | VascX | none: three logits are written to `quality.csv` and nothing reads them |
 | AutoMorphClass | no quality stage at all |
 
-The column to read is **how often a pipeline disagrees with its own model** — 217 FQS photographs
-and 48 PAPILA ones for AutoMorph, where the middle-class rule overrode the grade the network gave.
+The column to read is **how often a pipeline disagrees with its own model**: the photographs where
+the middle-class rule overrode the grade the network gave. It is not a small number.
 
 ## 5. Declining, and who is declining
 
@@ -100,16 +100,15 @@ belongs to the pipeline, and this benchmark runs the models without the pipeline
 the store's field-of-view crop standing in. Coverage is therefore 1.00 throughout, and the report
 says why rather than letting the reader assume the machinery did nothing.
 
-## 6. Traps this benchmark has already fallen into
+## 6. Traps particular to this benchmark
 
-- **A threshold that does not transfer.** The toolbox ensemble ranks FIVES at 0.97 by ROC AUC and
-  scores 0.54 by accuracy at its own default threshold. Both numbers are published, neither alone
-  is "the score".
+- **A threshold that does not transfer.** A model can rank a dataset almost perfectly and score
+  badly on accuracy at its own default threshold, and its authors may say outright that the
+  threshold does not carry between datasets. Publish both numbers; neither alone is "the score".
 - **Two models agreeing is not two pieces of evidence.** QuickQual, QuickQual-MEME and the AutoMorph
   grader were all fitted on EyeQ labels. Their agreement is expected; agreement with the toolbox
   ensemble, trained elsewhere, is the informative number.
 - **The black canvas is a fact about the store, not the dataset.** A fundus cut off at top and
-  bottom leaves bands in a square crop — 18.8% of PAPILA's — and a quality model judges the square
-  it is handed. The share is reported per dataset. When PAPILA's rejection rate was investigated,
-  trimming the bands made it *worse*, so the canvas was not the cause; report the check, not the
-  assumption.
+  bottom leaves bands in its square crop — PAPILA's is nearly a fifth — and a quality model judges
+  the square it is handed. The share is reported per dataset, and whether it explains anything is a
+  diagnostic for the notebook: report the check, never the assumption.

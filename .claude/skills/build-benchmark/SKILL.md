@@ -5,8 +5,20 @@ description: Build a benchmark — what it runs on, its loader, its metrics, wha
 
 # Building a benchmark
 
-A **benchmark** answers the question the catalogues cannot: do two of these agree, measured on the
-same images, on the same terms? It is one module, `src/benchmarks/<name>.py`, with a loader under
+A **benchmark** measures a model or a pipeline **against what an expert annotated**. That is its
+purpose and the standard everything in it is built to: the reference is a human judgement recorded
+in a published dataset, the score says how far the software is from it, and every rule below exists
+to keep that comparison honest.
+
+**Comparing models with each other is the secondary goal**, and it answers a different kind of
+question. Two models agreeing is not evidence that either is right; two models disagreeing on a
+photograph the readers also disagreed about is a reason to look at the annotation rather than at the
+software. So model-against-model numbers are for forming suspicions — about a dataset's ground
+truth, about where the human ceiling actually sits — and never for crowning anything. Where a model
+is right and the expert's grade says otherwise, that is a finding to chase, not an error to report
+quietly.
+
+A benchmark is one module, `src/benchmarks/<name>.py`, with a loader under
 `src/benchmarks/loaders/`, and it produces committed per-image scores, a run record, two generated
 documents and a notebook.
 
@@ -38,11 +50,10 @@ the per-image evidence carries the `subset` and `split` each photograph came fro
 split, by camera, by anything the manifest records — is an **analysis** question, answered in the
 report and the notebook from those columns.
 
-The first benchmark was built the other way, iterating over (dataset, subset, split), and it was
-wrong three times over: it loaded an eight-network ensemble four times for one dataset MSHF's model
-reads identically; it fixed the grouping at run time, so wanting a number per camera meant running
-the models again; and it put the word *unit* in documents written for clinicians. **The word in
-every report is `dataset`.**
+Running instead over (dataset, subset, split) triples costs three things and buys nothing: a model
+is loaded once per group rather than once per dataset, the grouping is fixed at run time so that
+wanting a number per camera means running the models again, and the word *unit* ends up in
+documents written for clinicians. **The word in every report is `dataset`.**
 
 Two exclusions apply at load time, and they catch different things:
 

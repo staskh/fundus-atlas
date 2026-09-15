@@ -184,3 +184,43 @@ def test_a_three_class_score_names_the_grades_the_reference_never_used() -> None
     assert summary["three_class"]["unused_by_the_reference"] == [USABLE]
     assert summary["three_class"]["recall"][GOOD] == pytest.approx(1.0)
     assert summary["three_class"]["recall"][USABLE] is None, "the reference never said usable"
+
+
+def test_an_answer_read_back_from_the_evidence_is_the_answer_that_was_given() -> None:
+    given = Grade(
+        "a",
+        verdict=USABLE,
+        gradeable=0.7,
+        classes={GOOD: 0.2, USABLE: 0.5, BAD: 0.3},
+        gated=False,
+    )
+    row = {
+        "key": "a",
+        "outcome": "graded",
+        "verdict": "usable",
+        "gradeable": "0.700000",
+        "good": "0.200000",
+        "usable": "0.500000",
+        "bad": "0.300000",
+        "carried_by_its_pipeline": "false",
+        "note": "",
+    }
+
+    assert scoring.restored(row) == given
+
+
+def test_a_failure_read_back_carries_no_answer_and_its_reason() -> None:
+    row = {
+        "key": "a",
+        "outcome": "failed",
+        "verdict": "",
+        "gradeable": "",
+        "carried_by_its_pipeline": "",
+        "note": "ValueError()",
+    }
+
+    restored = scoring.restored(row)
+
+    assert restored.outcome == FAILED
+    assert restored.gradeable is None
+    assert restored.note == "ValueError()"
