@@ -53,8 +53,8 @@ This is what a reader opens **before** looking at a number. Numbered sections, i
 7. **What a re-run would and would not repeat** — what the fingerprint covers, and the separate
    question of completeness: a complete result is never re-run, a partial one is finished, and
    nothing is truncated.
-8. **The three counts every result carries** — `processed`, `total` and `rejected` with its reasons
-   — and the warning that our `rejected` and the model's `declined` are different statements and are
+8. **The three counts every result carries** — `processed`, `total` and `excluded` with its reasons
+   — and the warning that our `excluded` and the model's `declined` are different statements and are
    never added together.
 
 **This page is updated whenever the benchmark's code changes.** A column added to the evidence that

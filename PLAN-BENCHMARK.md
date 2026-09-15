@@ -569,10 +569,13 @@ Each result therefore records three counts, and they answer three different ques
 | --- | --- |
 | `processed` | how many photographs this model has actually scored |
 | `total` | how many the dataset holds, after the exclusions of section 3 |
-| `rejected` | how many photographs those exclusions removed, **broken down by reason** — below the size floor, a finding recorded against the image, no reference to score against |
+| `excluded` | how many photographs those exclusions removed, **broken down by reason** — below the size floor, a finding recorded against the image, no reference to score against |
 
-`rejected` is ours and `declined` is the model's, and the two are never added together: one says the
-benchmark would not ask, the other says the model would not answer.
+`excluded` is ours and `declined` is the model's, and the two are never added together: one says
+the benchmark would not ask, the other says the model would not answer. The word matches the rules
+it counts — the exclusions of section 3. The three relate as `processed ≤ total`, and
+`total + excluded` is what the store holds: a photograph is either one the benchmark asks about
+or one it excluded, never both and never neither.
 
 `--force` discards and recomputes regardless. As with the stores, the predicted masks are the
 expensive part and are not what gets kept: the scores are.

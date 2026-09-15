@@ -166,10 +166,13 @@ page wants that model's evidence across every dataset in one directory.
 | --- | --- |
 | `processed` | how many photographs this model has actually scored |
 | `total` | how many the dataset holds, after the exclusions of section 2 |
-| `rejected` | how many those exclusions removed, **broken down by reason**: below the size floor, a finding recorded against the image, no reference to score against |
+| `excluded` | how many those exclusions removed, **broken down by reason**: below the size floor, a finding recorded against the image, no reference to score against |
 
-`rejected` is ours and `declined` is the model's, and the two are never added together: one says the
-benchmark would not ask, the other says the model would not answer.
+`excluded` is ours and `declined` is the model's, and the two are never added together: one says
+the benchmark would not ask, the other says the model would not answer. The word matches the rules
+it counts — the exclusions of section 2. The three relate as `processed ≤ total`, and
+`total + excluded` is what the store holds: a photograph is either one the benchmark asks about
+or one it excluded, never both and never neither.
 
 **Every per-image row carries the same columns**, including for a photograph the model failed on: a
 file whose columns depend on which photograph came first is not evidence of anything. Every column

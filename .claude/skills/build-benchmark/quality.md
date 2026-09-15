@@ -51,7 +51,7 @@ Three consequences the benchmark must respect:
   `usable` is counted as a mistake there however sensible it was. The scorer records which grades a
   reference actually used, and the report names the missing ones rather than letting a dash read as
   the model's failure.
-- **A photograph the dataset never graded is `rejected`, with `no reference` as the reason** — 19 of
+- **A photograph the dataset never graded is `excluded`, with `no reference` as the reason** — 19 of
   MSHF's. It is not a failure of the model and is never counted as one; it is one of the three
   counts every result carries.
 - **An `assumed` reference contains no bad photographs at all.** No ranking metric is defined on it,
