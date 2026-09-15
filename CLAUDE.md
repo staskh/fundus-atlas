@@ -90,11 +90,15 @@ Skills that exist today:
   patches, imports, and the provenance a run records.
 - **5.9** `add-model` — the adapter that lets a benchmark run one catalogued model: what it must
   declare, what it must not do, and the page it must match.
-- **5.10** `build-benchmark` — a benchmark: its evaluation units, loaders, metrics, and the
+- **5.10** `build-benchmark` — a benchmark: what it runs on, its loaders, metrics, and the
   fingerprint that keeps a re-run cheap.
 - **5.11** `analyse-benchmark` — the notebook every benchmark gets: what its analysis must show.
-- **5.12** `report-benchmark` — the summary document a run generates, and the rule that it is
-  generated rather than written.
+- **5.12** `report-benchmark` — the two documents a run generates — how the benchmark is configured,
+  and what came out — and the rule that both are generated rather than written.
+
+The three benchmark skills each hold the rules common to every benchmark, and **a file per
+benchmark beside them** — `build-benchmark/quality.md` and its siblings — holding what is true of
+that one only. Load both.
 
 Before adding or changing an entry of any kind, load the matching skill and follow it. Where a skill
 does not exist yet, stop and agree the convention with Stas, then write the skill — do not invent a

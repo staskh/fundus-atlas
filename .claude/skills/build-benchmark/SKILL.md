@@ -1,17 +1,23 @@
 ---
 name: build-benchmark
-description: Build a benchmark — its evaluation units, its loader, its metrics, what it keeps and how a re-run avoids measuring what has not changed. Use when adding or changing anything under src/benchmarks/.
+description: Build a benchmark — what it runs on, its loader, its metrics, what it keeps and how a re-run avoids measuring what has not changed. Use when adding or changing anything under src/benchmarks/.
 ---
 
 # Building a benchmark
 
 A **benchmark** answers the question the catalogues cannot: do two of these agree, measured on the
 same images, on the same terms? It is one module, `src/benchmarks/<name>.py`, with a loader under
-`src/benchmarks/loaders/`, and it produces committed per-image scores, a run record, and a
-generated write-up.
+`src/benchmarks/loaders/`, and it produces committed per-image scores, a run record, two generated
+documents and a notebook.
 
-`PLAN-BENCHMARK.md` is the standing decision about what is benchmarked and in what order. This
-skill is how one is built.
+`PLAN-BENCHMARK.md` is the standing decision about what is benchmarked and in what order. This file
+is how any benchmark is built. **What is true of one benchmark only lives in its own file beside
+this one** — `quality.md`, and one per benchmark thereafter — and you load that file too before
+building or changing that benchmark.
+
+| Benchmark | Its rules |
+| --- | --- |
+| Quality | [quality.md](quality.md) |
 
 ## 1. What you produce
 
@@ -22,17 +28,23 @@ skill is how one is built.
 3. **Tests**, `tests/benchmarks/`, written first, against a small store written to `tmp_path` by
    the helpers in `tests/benchmarks/conftest.py` — never against a real store and never against a
    real model.
-4. **The generated write-up**, per `report-benchmark`, and **an analysis notebook**, per
+4. **Two generated documents**, per `report-benchmark`, and **an analysis notebook**, per
    `analyse-benchmark`.
 
-## 2. The evaluation unit
+## 2. A run scores a whole dataset
 
-The unit is **(dataset, subset, split)** — `loaders.base.Unit` — never a whole dataset.
-Contamination is per split, and cameras are not interchangeable: Chákṣu is three cameras, MSHF is
-six groups, and one number over a mixed dataset hides what a map should show. `loaders.base.units`
-reads a store's own units from its manifest.
+**The run's key is the dataset.** The model sees every photograph the store holds, in one pass, and
+the per-image evidence carries the `subset` and `split` each photograph came from. Grouping — by
+split, by camera, by anything the manifest records — is an **analysis** question, answered in the
+report and the notebook from those columns.
 
-Two exclusions apply to every benchmark, and they catch different things:
+The first benchmark was built the other way, iterating over (dataset, subset, split), and it was
+wrong three times over: it loaded an eight-network ensemble four times for one dataset MSHF's model
+reads identically; it fixed the grouping at run time, so wanting a number per camera meant running
+the models again; and it put the word *unit* in documents written for clinicians. **The word in
+every report is `dataset`.**
+
+Two exclusions apply at load time, and they catch different things:
 
 - **The size floor.** Photographs whose field of view is under `loaders.base.FLOOR` pixels are
   excluded, measured on `crop_side` — the field's own size, not the frame's.
@@ -43,89 +55,151 @@ Two exclusions apply to every benchmark, and they catch different things:
 **The repository's own findings are applied too** — `src/datasets/exclusions/` — so a photograph
 recorded as broken is out of every score without anyone remembering to exclude it.
 
+### 2.1 What a benchmark declares may not exist yet
+
+The datasets and models a benchmark names are **a statement of intent, not an inventory**. A run
+therefore **never stops** at a dataset whose store has not been built or a model whose adapter has
+not been written: it warns on the console, records what is missing and why, and measures everything
+else. Adding a name to the list is how a benchmark asks for the work; the run is what keeps
+reminding everyone the work is outstanding.
+
+Three rules keep that from producing a table that quietly means less than it looks like:
+
+- **The gap is published, not just logged.** The generated `-docs.md` names every declared dataset
+  and model and says which ran, which could not, and why: **no store built**, **no adapter
+  written**, or **excluded whole** by the crop rule. Those are three different statements and are
+  never merged.
+- **The results page says how many of how many**, in its first paragraph.
+- **A run with nothing available is an error.** An empty document that looks like a report is worse
+  than a failure.
+
+In code this means asking before loading — a store without a `manifest.csv` and a slug without
+`src/models/<slug>.py` are both ordinary conditions, not exceptions to let escape — and carrying the
+list of what was skipped into the run record and both documents.
+
 ## 3. The loader is a PyTorch dataset
 
-`torch.utils.data.Dataset`, so batching is ordinary. The base class holds the store, the unit, the
-two exclusion rules, the ordering and the key, which travels with every sample so that a prediction
-can never be attributed to the wrong photograph. A subclass adds the ground truth and nothing else.
+`torch.utils.data.Dataset`, so batching is ordinary. The base class holds the store, the two
+exclusion rules, the sampling of section 7.1, the ordering, and the key, which travels with every
+sample so that a prediction can never be attributed to the wrong photograph. A subclass adds the
+ground truth and nothing else.
 
-Two rules follow from batching:
+Three rules follow:
 
+- **A loader is given a dataset, not a split.** It reads the whole store and hands `subset` and
+  `split` along with each photograph.
 - **Batch at the model's grid, score at the annotation's own frame.** The loader yields photographs
   at the size the model asked for — which is what the store's `512/` and `1024/` directories are
-  for — and the ground truth that needs native resolution is read by the scorer, not stacked into
-  the batch.
+  for — and ground truth that needs native resolution is read by the scorer, not stacked into the
+  batch.
 - **Ground truth that does not stack travels as a list.** `loaders.base.collate` stacks the images
   and leaves everything else alone: five readers' contours are not a tensor.
 
-The adapter's `prepare` is passed to the loader as its transform, so a batch arrives at the model
-in the form its upstream expects. Keep `prepare` free of the loaded network, or workers cannot
-pickle it.
+The adapter's `prepare` is passed to the loader as its transform, so a batch arrives at the model in
+the form its upstream expects. Keep `prepare` free of the loaded network, or workers cannot pickle
+it.
 
 ## 4. What is measured
 
-`PLAN-BENCHMARK.md` §6 fixes the metrics per benchmark kind. Two rules are not negotiable:
+Each benchmark's metrics are in its own file. Two rules hold for all of them:
 
 - **Coverage first, and never folded into accuracy.** Every prediction is `graded`, `declined` or
-  `failed`. A grader that answers the easy 60% and is right about all of them is not better than
-  one that answers everything and is right about 85%, and a table printing only accuracy makes the
-  first look better. Declined photographs are excluded from accuracy and counted in coverage;
-  failures are counted separately again.
+  `failed`. A model that answers the easy 60% and is right about all of them is not better than one
+  that answers everything and is right about 85%. Declined predictions are excluded from accuracy
+  and counted in coverage; failures are counted separately again.
 - **Report a threshold-free metric beside a threshold-dependent one** wherever the model's
   threshold was set on other data. The toolbox's quality ensemble scores 0.97 by area under the ROC
   curve and 0.54 by accuracy on the same photographs: only one of those two numbers is about the
   model.
 
-Ground truth a dataset never provided is not a failure of the model. Photographs with no reference
-are set aside by the loader, counted, and reported.
+Ground truth a dataset never provided is not a failure of the model: those photographs are set
+aside by the loader, counted, and reported.
 
-## 5. The fingerprint, and why a re-run is cheap
+## 5. Two questions before anything is measured
 
-Each (model, unit) pair is scored once and kept with a fingerprint of **everything that could
-change it, and nothing that cannot**:
+A run asks these of every (model, dataset) pair, in this order.
 
-- the facts in the model's declaration that bear on its numbers — its grids, its ensemble size,
-  the thresholds it acts on — and **not** the prose beside them. Rewording an explanation must not
-  throw away hours of measurement; equally, a number the model acts on must be declared as a number
-  of its own rather than left inside a sentence, or changing it would silently keep a stale score.
-  The benchmark names these keys explicitly rather than hashing whatever the adapter happens to
-  return;
-- the sha256 of the weights actually loaded;
-- the patches applied, by content (carried in the upstream's provenance);
-- the store's `builder_version` and the unit's photograph count;
+**First, is what is stored still valid?** That is the **fingerprint**, and it covers everything that
+could change a score and nothing that cannot:
+
+- the facts in the model's declaration that bear on its numbers — its grids, its ensemble size, the
+  thresholds it acts on — and **not** the prose beside them. Rewording an explanation must not throw
+  away hours of measurement; equally, a number the model acts on must be declared as a number of its
+  own, or changing it would silently keep a stale score. The benchmark names these keys explicitly
+  rather than hashing whatever the adapter happens to return;
+- the sha256 of the weights actually loaded, and the patches applied, by content;
+- the store's `builder_version`;
 - the benchmark's name, its `VERSION`, and the metric-affecting constants such as the floor.
 
-A re-run recomputes a pair only when this differs; everything else is read from `results/`. So
-adding a dataset costs only that dataset and adding a model costs only that model, while a changed
-patch or a rebuilt store correctly invalidates exactly what it touched. `--force` recomputes
-regardless.
+A fingerprint that differs means the stored scores describe something that no longer exists: discard
+them and measure the pair again from nothing. **Increment `VERSION` whenever what is measured, or
+how, changes** — anything left out of the fingerprint is something a stale score can outlive.
 
-**Increment `VERSION` whenever what is measured, or how, changes.** Anything left out of the
-fingerprint is something a stale score can outlive.
+**Then, is it complete?** How much of a dataset was scored does not change what any photograph
+scored, so it is *not* part of the fingerprint. It is recorded separately, and it decides the work:
+
+- **a complete result is never re-run**;
+- **a partial result is finished** — read the keys already scored, work out which photographs are
+  missing, score **only those**, and merge them into the same file;
+- **nothing is ever truncated.** `--max-samples 50` against a file that already holds 488 leaves all
+  488 alone: a sample is a floor on the work, not a ceiling on the evidence.
 
 ## 6. What is kept
 
 | Where | What | Committed |
 | --- | --- | --- |
-| `results/<name>/<model>/<unit>.csv` | per-image scores: what the dataset said, what the model said | **yes** — the evidence behind every table |
-| `results/<name>/<model>/<unit>.json` | the fingerprint and the summary | **yes** |
-| `.atlas_runs/<name>/<stamp>/run.json` | what ran, against what, with which pins and versions | no |
-| `.atlas_runs/<name>/…` | predicted masks, where the benchmark makes them | no — but **kept**, because the biomarker benchmark reads them |
-| `docs/benchmarks/<name>.md` | the generated write-up | **yes** |
+| `results/<benchmark>/<model>/<dataset>.csv` | per-image scores: what the dataset said, what the model said, and the subset and split it came from | **yes** — the evidence behind every table |
+| `results/<benchmark>/<model>/<dataset>.json` | the fingerprint, the summary, and how much of the dataset is done | **yes** |
+| `.atlas_runs/<benchmark>/<stamp>/run.json` | what ran, against what, with which pins and versions | no |
+| `.atlas_runs/<benchmark>/…` | predicted masks, where the benchmark makes them | no — but **kept**, because the biomarker benchmark reads them |
+| `docs/benchmarks/<benchmark>-docs.md` | how the benchmark is configured and run | **yes**, generated |
+| `docs/benchmarks/<benchmark>-results.md` | what came out | **yes**, generated |
 
-A per-image row carries the key, the dataset's grade, the per-reader grades where there are any,
-the outcome, and whatever the model actually emitted. It is the only artefact that cannot be
-reconstructed without re-running everything.
+The benchmark's name leads the path so that two benchmarks scoring the same model on the same
+photographs stay apart — the artery/vein segmentation benchmark and the biomarker one will do
+exactly that. The model comes next because that is how the files are read: someone following a model
+page wants that model's evidence across every dataset in one directory.
+
+**Every result records three counts**, and they answer three different questions:
+
+| Recorded | Means |
+| --- | --- |
+| `processed` | how many photographs this model has actually scored |
+| `total` | how many the dataset holds, after the exclusions of section 2 |
+| `rejected` | how many those exclusions removed, **broken down by reason**: below the size floor, a finding recorded against the image, no reference to score against |
+
+`rejected` is ours and `declined` is the model's, and the two are never added together: one says the
+benchmark would not ask, the other says the model would not answer.
+
+**Every per-image row carries the same columns**, including for a photograph the model failed on: a
+file whose columns depend on which photograph came first is not evidence of anything. Every column
+is explained in the benchmark's `-docs.md` page; a column that page does not explain is a bug.
 
 ## 7. The command line
 
+One entry point, with the benchmark as a parameter, so that every benchmark is run the same way:
+
 ```
-python -m benchmarks.<name> [--models …] [--datasets …] [--device …] [--batch N]
-                            [--data-root …] [--force] [--no-report]
+python -m benchmarks --benchmark <name> [--model … ] [--dataset …] [--device …] [--batch N]
+                     [--max-samples N] [--random-samples] [--seed N]
+                     [--data-root …] [--force] [--no-report]
 ```
 
-Defaults name the models and datasets the plan chose for that benchmark, so running it with no
-arguments does the intended thing.
+- `--benchmark` names the benchmark; it is the only required option.
+- `--model` and `--dataset` narrow the run, each taking one name or a comma-separated list.
+  Naming one of each is how a single pair is re-measured, which is what debugging an adapter needs.
+- Omitting them runs the models and datasets that benchmark's own file declares, so the command
+  with no narrowing does the intended thing.
+
+### 7.1 Running on part of a dataset
+
+`--max-samples N` scores at most N photographs of each dataset: **the first N of the manifest**, in
+the store's own order, so that two development runs see the same photographs. `--random-samples`
+chooses them at random instead, from a seed the run records and which `--seed` can set.
+
+A sample is an unfinished run, not a different one, so it is written to the same file as a full run
+and a later run finishes it (section 5). A result that is not complete **says so in its own file and
+in every table that quotes it**, so that a sample can never be read as a measurement.
 
 ## 8. Testing a benchmark without a model
 
@@ -140,6 +214,7 @@ benchmark against a downloaded store.
   benchmark is running it.
 - **9.2** Every result carries its contamination mark, from `benchmarks/contamination.py`, whose
   entries cite the model page's training-data section. `unknown` is never merged with
-  `out-of-sample`.
+  `out-of-sample`, and where a model trained on one split only, the report breaks that dataset into
+  its splits rather than publishing one number over both.
 - **9.3** Nothing is scored against a dataset's own published value without saying so.
 - **9.4** A benchmark reports; it does not rank. No "best", no ordering, no crowning.

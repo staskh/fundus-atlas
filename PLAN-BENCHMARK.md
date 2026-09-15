@@ -53,18 +53,28 @@ section 10 is designed around.
 
 ## 3. What a benchmark is run on
 
-**Decided.**
+**Decided — revised after the first benchmark.**
 
-The unit is **(dataset, subset, split)**, not the dataset:
+**A run scores a whole dataset, once.** The model sees every photograph the store holds, in one
+pass, and the per-image evidence carries the subset and the split each photograph came from.
+Splitting is then an **analysis** question, answered in the notebook and the report, where the same
+rows are grouped by subset, by split, by camera, by anything else the manifest records.
 
-- **Contamination is per split.** Where a model trained on a dataset's training half, that half and
-  the test half are reported as if they were separate datasets.
-- **Cameras are not interchangeable.** [Chákṣu](docs/datasets/chaksu.md) is three cameras, one an
-  ellipse-fielded handheld; [MSHF](docs/datasets/mshf.md) is six groups. One number over a mixed
-  dataset hides what a map should show.
-- The store already carries both columns, so the unit needs no new bookkeeping.
+The first benchmark was built the other way round — the run itself iterated over
+(dataset, subset, split) triples — and three things were wrong with it:
 
-Two exclusions apply, and they catch different things.
+- **It measured the same model twice for no reason.** MSHF's four groups meant four loads of an
+  eight-network ensemble and four fingerprints, for one dataset the model reads identically.
+- **It fixed the grouping at run time.** Wanting a number per camera rather than per split meant
+  re-running the models, when the per-image scores already held the answer.
+- **It put a word in the reports that means nothing to a reader.** "Unit" is bookkeeping.
+
+So: **the word in every report is `dataset`**, the run's key is the dataset, and subset and split
+are columns in the evidence. Where a dataset's subsets genuinely are different instruments —
+[Chákṣu](docs/datasets/chaksu.md)'s three cameras, [MSHF](docs/datasets/mshf.md)'s six groups —
+that is something the report must **show**, section 12, and no longer something the run must know.
+
+Two exclusions apply at load time, and they catch different things.
 
 **A size floor: photographs whose field is under 512 pixels are excluded**, measured on `crop_side`
 — the field's own size in the store, not the frame.
@@ -82,7 +92,7 @@ Against what is built today:
 | --- | --- | --- |
 | [RIGA](docs/datasets/riga.md) | **all 744** | the crop rule — **744 of 744** rows have no findable field boundary. Its 800-pixel images clear the floor easily; they are still crops |
 | [MSHF](docs/datasets/mshf.md) | 229 of 802 | the floor — the DR-XJU thumbnails at 412×310. Six of the larger DR-XJU images clear 512 and stay. Two MSHF rows have no findable field, which is 0.2% and ordinary, not a crop dataset |
-| DeepDRiD, FQS, Chákṣu, FIVES, GRAPE | none | — |
+| DeepDRiD, FQS, Chákṣu, FIVES, GRAPE, PAPILA | none | — |
 
 RIGA going is consistent rather than awkward — its images were already disqualified for anything
 measured in pixels. It does mean **the six-reader disc/cup dataset is unavailable**, and Chákṣu's
@@ -90,6 +100,48 @@ five readers become the human ceiling instead.
 
 **Exclusions recorded in `src/datasets/exclusions/` are applied too**, so a finding like Chákṣu's
 three broken expert masks is automatically out of every score.
+
+### 3.1 Running on part of a dataset
+
+**Decided.** Development needs a run that finishes in a minute, and the command line says so:
+
+| Option | Meaning |
+| --- | --- |
+| `--max-samples N` | Score at most N photographs of each dataset — the **first** N of the manifest, in the store's own order |
+| `--random-samples` | Choose those N at random instead, from a seed the run records |
+
+**A sample is an unfinished run, not a different one.** The photographs it scored are scored
+correctly; there are simply fewer of them. So a sampled result is written to the same place as a
+full one, marked with **how many of the dataset were processed and how many the dataset holds**, and
+a later run **finishes it** rather than starting again — section 11.1. Nothing that took an hour is
+ever thrown away to extend it by ten minutes.
+
+Two rules follow. A result that is not complete **says so in its own file and in every table that
+quotes it**, so a sample can never be read as a measurement. And the seed is recorded, so that a
+random sample can be explained afterwards.
+
+### 3.2 A benchmark may ask for what does not exist yet
+
+**Decided.** A benchmark declares the datasets and models it wants, and that list is a **statement
+of intent**, not an inventory. [EyeQ](docs/datasets/eyeq.md) and [DRIMDB](docs/datasets/drimdb.md)
+belong in the quality benchmark and are not fetched; a model page can exist months before its
+adapter does.
+
+So a run **does not stop** at a dataset whose store has not been built or a model whose adapter has
+not been written. It **warns, records what is missing and why, and measures everything else** —
+which is what keeps a benchmark declarative: adding a name to the list is how the benchmark asks
+for the work, and the run itself is what reminds anybody that the work is outstanding.
+
+Three rules stop that becoming a table that quietly means less than it appears to:
+
+- **The gap is published, not just logged.** The benchmark's `-docs.md` names every declared
+  dataset and model, says which of them ran and which could not, and gives the reason — no store
+  built, no adapter written, or excluded whole by the crop rule of section 3, which are three
+  different statements.
+- **The results page says how many of how many.** A reader comparing four models must be told that
+  six were declared.
+- **A run with nothing available is an error.** Continuing past every missing piece to generate an
+  empty document would be a report that says nothing while looking like one that says something.
 
 ## 4. In-sample and out-of-sample
 
@@ -106,21 +158,27 @@ three broken expert masks is automatically out of every score.
 model whose page does not name its training data cannot be marked, which is a reason to keep the
 catalogue current rather than to guess.
 
+**The mark belongs to the reporting step, not to the run** (section 3). A run scores the whole
+dataset; the report then marks each row of its tables, and where a model trained on one split only,
+the report **must** break that dataset into its splits rather than publish one number over both. A
+summary line for a dataset whose splits carry different marks is not a result, and the report says
+so instead of averaging them.
+
 ## 5. The benchmarks, in order
 
 **Decided.**
 
 1. **Quality. Built** — [docs/benchmarks/quality.md](docs/benchmarks/quality.md). Five models on
    [FIVES](docs/datasets/fives.md), [FQS](docs/datasets/fqs.md), [MSHF](docs/datasets/mshf.md) and
-   [PAPILA](docs/datasets/papila.md): eight evaluation units, 4,087 photographs each.
+   [PAPILA](docs/datasets/papila.md): four datasets, 4,087 photographs each.
    [DeepDRiD](docs/datasets/deepdrid.md) is held back because the toolbox ensemble trained on it;
    [EyeQ](docs/datasets/eyeq.md) and [DRIMDB](docs/datasets/drimdb.md) are the next to fetch, and
    both are in-sample for three of the five models, which is the reason to have them.
 
    Two things this benchmark added that the plan had not foreseen. **A grade may be assumed**:
    PAPILA grades nothing, and the store records `good` for all 488 with `quality_source` set to
-   `assumed`, which makes it the only unit here that can say how much of a curated dataset a model
-   would throw away — and the only one on which no ranking metric is defined. And **a grade is not
+   `assumed`, which makes it the only dataset here that can say how much of a curated collection a
+   model would throw away — and the only one on which no ranking metric is defined. And **a grade is not
    a decision**: what reaches measurement is decided by the pipeline, sometimes by a rule that
    overrides its own model, so each adapter declares the gate its project applies and the benchmark
    scores those gates beside the grades. AutoMorph admits a merely usable photograph only while its
@@ -163,8 +221,8 @@ catalogue current rather than to guess.
 Not every model answers every photograph. AutoMorph's grader declines images it judges ungradeable,
 and a model that crashes on an input has also failed to answer. So **every prediction has one of
 three outcomes** — `graded` with a value, `declined` by the model itself, or `failed` — and the
-first number reported for any model is its **coverage**: the share of the evaluation unit it was
-willing to answer at all.
+first number reported for any model is its **coverage**: the share of the dataset it was willing to
+answer at all.
 
 Coverage is reported beside accuracy and **never folded into it**. A grader that answers the easy
 60% of a dataset and is right about all of them is not better than one that answers everything and
@@ -394,9 +452,11 @@ One subclass per benchmark kind, each supplying only *what counts as ground trut
 | `ArteryVeinLoader` | photograph, and the A/V map — as two classes, and as their union, which is the vessel ground truth |
 | `VesselLoader` | photograph and a binary vessel mask. Written when vessel-only models come back into scope |
 
-A base class holds what they share: the store, the evaluation unit, the exclusions and the two rules
-of section 3, the ordering, and the key — which travels with every sample so a prediction can never
-be attributed to the wrong photograph.
+A base class holds what they share: the store, the exclusions and the two rules of section 3, the
+sampling of section 3.1, the ordering, and the key — which travels with every sample so a
+prediction can never be attributed to the wrong photograph. **A loader is given a dataset, not a
+split**: it reads the whole store and hands the subset and the split along with each photograph, so
+that grouping stays a question for the analysis.
 
 Two practical points that follow from batching:
 
@@ -419,7 +479,8 @@ src/
   models/               ONE MODULE PER CATALOGUED MODEL — the adapters of 10.2
   biomarkers/           our implementations and the adapters of 10.3
     synthetic/          the generators of section 7
-  benchmarks/           one module per benchmark; the scorer; the report writer
+  benchmarks/           one module per benchmark; the scorer; the report writers
+    __main__.py         one entry point: `python -m benchmarks --benchmark <name>`
     loaders/            the PyTorch datasets of 10.4
 tests/
   datasets/ upstreams/ models/ biomarkers/ benchmarks/
@@ -429,15 +490,34 @@ notebooks/              one analysis notebook per benchmark — section 12
 .atlas_code/            git-ignored — third-party checkouts at pinned commits
 .atlas_runs/            git-ignored — predicted masks, kept: the biomarker benchmark reads them
 
-results/                committed — per-image scores, the evidence behind every table
+results/<benchmark>/<model>/<dataset>.csv    committed — per-image scores, the evidence behind every table
+results/<benchmark>/<model>/<dataset>.json   committed — the summary, the fingerprint, and how much is done
 docs/
-  BENCHMARKS.md         committed — summary tables, one row per model × evaluation unit
-  benchmarks/<name>.md  committed — the generated summary of each benchmark run
+  BENCHMARKS.md                 committed — one row per model × dataset, across every benchmark
+  benchmarks/<slug>-docs.md     committed — generated: how that benchmark is configured and run
+  benchmarks/<slug>-results.md  committed — generated: what came out, model by model
 ```
+
+The benchmark's own name leads the path so that two benchmarks scoring the same model on the same
+photographs — the artery/vein segmentation benchmark and the biomarker one, which will — stay apart
+without either having to know about the other.
 
 ## 11. What is recorded
 
-**Decided.**
+**Decided — the layout revised after the first benchmark.**
+
+```
+results/<benchmark>/<model-slug>/<dataset-slug>.csv     per-image scores: what the dataset said, what the model said
+results/<benchmark>/<model-slug>/<dataset-slug>.json    the summary, the fingerprint, and how much of the dataset was done
+```
+
+**The benchmark comes first, then the model**, and that ordering does two jobs. It is how the files
+are read — a reader following a model page wants that model's evidence, on every dataset, in one
+directory — and it keeps two benchmarks apart that score the same model on the same dataset, which
+is exactly what the artery/vein work will do: the segmentation benchmark and the biomarker
+benchmark both run an A/V model over the same photographs, and each writes under its own name. The
+dataset is one file, not a directory of splits: subset and split are columns in the CSV, per
+section 3.
 
 - **Predicted masks are not committed, but they are kept** — in `.atlas_runs/`, addressed by the
   run that produced them. They are not a by-product to be thrown away: **the biomarker benchmark's
@@ -450,87 +530,141 @@ docs/
   per-image scores are its evidence. CC BY 4.0, like the rest of the write-ups.
 - **Every run writes a `run.json`**, the discipline a store's `build.json` already follows: model
   slug and pinned commit or pinned version, the sha256 of the weights actually loaded, the patches
-  applied, the store's `builder_version`, the evaluation unit, the resampling path, the environment's
-  versions, and the date. A score without that is an anecdote.
+  applied, the store's `builder_version`, the datasets scored, how much of each was done, the
+  resampling path, the environment's versions, and the date. A score without that is an anecdote.
 
-### 11.1 A re-run keeps what has already been measured
+### 11.1 A re-run measures only what is missing
 
-**Decided.** Datasets arrive as benchmarks need them, and a benchmark will be re-run many times —
-after a new dataset is built, a model is added, a patch is written. Re-scoring everything each time
-would make that unaffordable, so a run is **incremental by default**, on the same principle the
-dataset stores already use.
+**Decided — revised after the first benchmark.** Datasets arrive as benchmarks need them, and a
+benchmark is re-run many times: after a new dataset is built, a model is added, a patch is written,
+a sampled run is extended. Re-scoring everything each time would make that unaffordable, so a run
+asks two questions of every (model, dataset) pair, in this order.
 
-Each (model, evaluation unit) pair is scored once and its scores are kept with a **fingerprint** of
-everything that could change them:
+**First, is what is stored still valid?** That is the **fingerprint**, and it covers everything that
+could change a score:
 
-- the model's pinned commit or version, and the sha256 of the weights actually loaded;
-- the patches applied, by content;
-- the store's `builder_version` and the unit's row count;
-- the metric set and the resampling path;
-- the benchmark's own version.
+- the facts the model declares — its grids, its ensemble, the thresholds it acts on — and not the
+  prose beside them. Hashing a whole declaration means rewording a sentence throws away hours of
+  measurement; the benchmark names the keys that bear on the numbers. The mirror hazard is a
+  behaviour hiding inside a sentence, so any constant a model acts on is declared as a number;
+- the sha256 of the weights actually loaded, and the patches applied, by content;
+- the store's `builder_version`;
+- the metric set, the resampling path, and the benchmark's own version.
 
-A re-run recomputes a pair only when its fingerprint differs; everything else is read from
-`results/`. Adding a dataset therefore costs only the new dataset, and adding a model costs only
-that model — while a changed patch or a rebuilt store correctly invalidates exactly what it touched.
-`--force` recomputes regardless, and, as with the stores, the predicted masks are the expensive part
-and are not what gets kept: the scores are.
+A fingerprint that differs means the stored scores describe something that no longer exists: they
+are discarded and the pair is measured again from nothing.
+
+**Then, is it complete?** The fingerprint says nothing about *how much* was done, because how much
+was done does not change what a photograph scored. So completeness is recorded separately, and:
+
+- **a complete result is never re-run**;
+- **a partial result is finished** — the run reads the keys already scored, works out which
+  photographs are missing, scores **only those**, and merges them into the same file;
+- **nothing is ever truncated.** Asking for `--max-samples 50` against a file that already holds all
+  488 leaves all 488 alone: a sample is a floor on the work, not a ceiling on the evidence.
+
+Each result therefore records three counts, and they answer three different questions:
+
+| Recorded | Means |
+| --- | --- |
+| `processed` | how many photographs this model has actually scored |
+| `total` | how many the dataset holds, after the exclusions of section 3 |
+| `rejected` | how many photographs those exclusions removed, **broken down by reason** — below the size floor, a finding recorded against the image, no reference to score against |
+
+`rejected` is ours and `declined` is the model's, and the two are never added together: one says the
+benchmark would not ask, the other says the model would not answer.
+
+`--force` discards and recomputes regardless. As with the stores, the predicted masks are the
+expensive part and are not what gets kept: the scores are.
 
 The trap this design has to avoid is a stale score outliving the thing that produced it. That is
 what the fingerprint is for, and why it covers the patches by content rather than by name.
 
-## 12. Notebooks and the written summary
+## 12. Notebooks and the two written documents
 
-**Decided.**
+**Decided — revised after the first benchmark.**
 
-A benchmark produces three things, and they are for different readers:
+A benchmark produces four things, and they are for different readers:
 
 1. **`results/` — the per-image scores.** Machine-readable, committed, the evidence.
-2. **A notebook per benchmark, in `notebooks/`** — at least one, for analysis and illustration:
+2. **`docs/benchmarks/<slug>-docs.md` — how this benchmark is configured and run.** What it asks,
+   which models and which datasets take part and why those, how to run it, what every column of its
+   result CSV means, and what it deliberately excludes. It is the page someone reads *before*
+   looking at a number, and **it is updated whenever the benchmark's code changes** — a column
+   added to the evidence that this page does not explain is a bug.
+3. **`docs/benchmarks/<slug>-results.md` — what came out.** It opens with the summary every reader
+   wants, **model × dataset**, and then goes down into the detail: the same models and datasets
+   broken out by split, by subset, by camera, by whatever the benchmark's own kinds are.
+   **The model is the primary index and the dataset, split or kind the secondary one**, in every
+   table, so that two tables can be read against each other and a reader following a model page can
+   find their model in one place.
+4. **A notebook per benchmark, in `notebooks/`** — at least one, for analysis and illustration:
    the distributions behind each summary number, where models disagree with each other and with the
    readers, what the failures look like as images. A table says a model scores 0.82; the notebook is
    where someone finds out that the 0.82 is two populations and one of them is a camera.
-3. **A summary document, generated at the end of a run**, into `docs/benchmarks/<name>.md`. Written
-   by the run rather than by hand, so it cannot drift from the numbers: it states what was asked,
-   which models and units took part, the contamination marks, coverage, the metrics, and what the
-   run itself recorded — the pinned commits, the resampling path, the excluded photographs and why.
 
-The notebook is where judgement goes and the generated document is where facts go, which is why they
-are not the same artefact. Both are CC BY 4.0 like the rest of the write-ups, and the prose rules of
-`CLAUDE.md` §4 apply to both: for a reader who is not a software engineer, numbered headings, a map
-rather than a leaderboard.
+Both documents are **generated by the run**, so they cannot drift from the numbers, and both carry
+the prose rules of `CLAUDE.md` §4: for a reader who is not a software engineer, numbered headings,
+a map rather than a leaderboard. The notebook is where judgement goes; the two documents are where
+facts go. All of it is CC BY 4.0 like the rest of the write-ups.
 
 ## 13. The skills this needs
 
 **Decided in principle; the skills are written as each component is first built.**
 
 Every kind of entry in this repository has a skill that defines its shape, and the benchmark
-components should be no different — that is what has kept four catalogues consistent. The proposed
-set, each in `.claude/skills/`:
+components should be no different — that is what has kept four catalogues consistent. The set, each
+in `.claude/skills/`:
 
 | Skill | Governs |
 | --- | --- |
 | `add-upstream` | Bringing in a third-party repository: pinning, patching, importing, recording provenance — **written** |
 | `add-model` | A model adapter: the interface, what it must declare, what it must not do, and the model page it must match — **written** |
 | `add-biomarker-implementation` | A biomarker adapter or our own implementation: variants, units, inputs, and the synthetic fixtures it must pass — waiting for its first instance |
-| `build-benchmark` | A benchmark: its evaluation units, metrics, loaders, fingerprint and incremental behaviour — **written** |
+| `build-benchmark` | A benchmark: what it runs on, its loaders, its metrics, its fingerprint and its incremental behaviour — **written** |
 | `analyse-benchmark` | The notebook: what every benchmark's analysis must show, so two of them can be read against each other — **written** |
-| `report-benchmark` | The generated summary document: its sections, and the rule that it is generated rather than written — **written** |
+| `report-benchmark` | The two generated documents: their sections, and the rule that they are generated rather than written — **written** |
 
-Writing all six now would be guessing. Each is written **when its first instance is built**, from
-what that instance actually taught — which is how `fetch-dataset` got rules 13.1 to 13.10, none of
-which could have been written in advance. Five of the six were written from the quality benchmark;
-the sixth waits for the first biomarker implementation.
+### 13.1 Common rules, and one file per benchmark
+
+**Decided — after the first benchmark.** The three benchmark skills each divide in two:
+
+```
+.claude/skills/build-benchmark/SKILL.md      what is true of every benchmark
+.claude/skills/build-benchmark/quality.md    what is true only of the quality benchmark
+.claude/skills/build-benchmark/disc-cup.md   …added when that benchmark is built
+```
+
+The main file holds the shape — the run's key, the exclusions, the fingerprint, the command line,
+what is kept where — and **names the file to load beside it** for the benchmark in hand. The
+per-benchmark file holds what only that benchmark can say: which datasets and models take part and
+why, what its metrics are, what its vocabulary is, and the traps particular to it.
+
+The reason for the split is that the first benchmark taught a great deal that applies only to
+quality — coverage before accuracy, a grade against a gate, three kinds of reference — and folding
+all of it into the common skill would make the next benchmark's author read four pages of someone
+else's special case to find one paragraph of shared rule.
+
+Each is written **when its first instance is built**, from what that instance actually taught —
+which is how `fetch-dataset` got rules 13.1 to 13.10, none of which could have been written in
+advance. Five of the six were written from the quality benchmark; the sixth waits for the first
+biomarker implementation.
 
 ## 14. Open questions
 
 1. **Which datasets to fetch next**, in the order the benchmarks need them: EyeQ and DRIMDB for
-   quality; REFUGE, PAPILA, Drishti-GS, G1020, RIM-ONE DL for disc and cup; HRF, RITE, LES-AV,
-   IOSTAR, Leuven-Haifa for arteries and veins.
+   quality; REFUGE, Drishti-GS, G1020, RIM-ONE DL for disc and cup ([PAPILA](docs/datasets/papila.md)
+   is built); HRF, RITE, LES-AV, IOSTAR, Leuven-Haifa for arteries and veins.
 2. **ORIGA** still needs its archive by hand before the disc/cup benchmark can use its `ExpCDR`.
 3. **Which A/V models exist to benchmark**, now that vessel-only models are deferred: BF-Net through
    AutoMorphClass and AutoMorphalyzer, VascX artery/vein, OCULARNet and OCULARNet-nano, LUNet. Worth
    confirming that list is the intended one before the datasets are fetched for it.
+4. **Why every quality model rejects most of [PAPILA](docs/datasets/papila.md).** Between 38% and
+   72% of a curated, disc-centred, two-expert-annotated dataset is called not worth measuring, and
+   the black canvas of its square crop is not the cause — trimming it makes the rejection worse.
+   Whether this is the disc-centred 30° framing, the camera, or something about these models being
+   fitted on screening photographs is the first question the next quality work should answer.
 
 ---
 
-**Written:** 2026-09-14
+**Written:** 2026-09-14 · **Revised after the first benchmark:** 2026-09-15
