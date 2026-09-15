@@ -1,0 +1,40 @@
+{
+  "benchmark": "quality",
+  "dataset": "mshf",
+  "fingerprint": "d268fc678487fa6e1b50906c71d58da823c771f3c569521a20278a62624a77c2",
+  "model": "quickqual-meme",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {
+      "below the size floor": 229,
+      "no reference to score against": 19
+    },
+    "failed": 0,
+    "gate": {
+      "accuracy": 0.44765342960288806,
+      "carried": 554,
+      "carried_share": 1.0,
+      "differs_from_the_verdict": 368,
+      "kappa": 0.0,
+      "photographs": 554
+    },
+    "gradeable": {
+      "accuracy": 0.8411552346570397,
+      "kappa": 0.6709947361317317,
+      "photographs": 554,
+      "roc_auc": 0.9574175100147586
+    },
+    "graded": 554,
+    "photographs": 554,
+    "processed": 554,
+    "reference_grades": [
+      "good",
+      "bad"
+    ],
+    "three_class": null,
+    "total": 554
+  }
+}

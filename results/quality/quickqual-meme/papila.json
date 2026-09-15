@@ -1,0 +1,36 @@
+{
+  "benchmark": "quality",
+  "dataset": "papila",
+  "fingerprint": "f5fc0b6a10af8c8adbbaaa7d3b1b4b0ed13c140f19847c0b1f816fc69a5803d2",
+  "model": "quickqual-meme",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": {
+      "accuracy": 1.0,
+      "carried": 488,
+      "carried_share": 1.0,
+      "differs_from_the_verdict": 231,
+      "kappa": null,
+      "photographs": 488
+    },
+    "gradeable": {
+      "accuracy": 0.5266393442622951,
+      "kappa": null,
+      "photographs": 488,
+      "roc_auc": null
+    },
+    "graded": 488,
+    "photographs": 488,
+    "processed": 488,
+    "reference_grades": [
+      "good"
+    ],
+    "three_class": null,
+    "total": 488
+  }
+}

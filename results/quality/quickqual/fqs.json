@@ -1,0 +1,58 @@
+{
+  "benchmark": "quality",
+  "dataset": "fqs",
+  "fingerprint": "3d37a0e7c42e062893f557bde2fe7db1edaa837c05f2fde86566f6224ecdc0b5",
+  "model": "quickqual",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": null,
+    "gradeable": {
+      "accuracy": 0.8240534521158129,
+      "kappa": 0.6390424015021601,
+      "photographs": 2245,
+      "roc_auc": 0.9089208020450812
+    },
+    "graded": 2245,
+    "photographs": 2245,
+    "processed": 2245,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": {
+      "accuracy": 0.6855233853006681,
+      "confusion": {
+        "bad": {
+          "bad": 747,
+          "good": 30,
+          "usable": 161
+        },
+        "good": {
+          "bad": 20,
+          "good": 433,
+          "usable": 61
+        },
+        "usable": {
+          "bad": 184,
+          "good": 250,
+          "usable": 359
+        }
+      },
+      "kappa_quadratic": 0.7171277185160849,
+      "photographs": 2245,
+      "recall": {
+        "bad": 0.7963752665245203,
+        "good": 0.8424124513618677,
+        "usable": 0.4527112232030265
+      },
+      "unused_by_the_reference": []
+    },
+    "total": 2245
+  }
+}
