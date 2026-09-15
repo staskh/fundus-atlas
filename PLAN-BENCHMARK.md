@@ -110,12 +110,23 @@ catalogue current rather than to guess.
 
 **Decided.**
 
-1. **Quality. Built** — [docs/benchmarks/quality.md](docs/benchmarks/quality.md). Four models on
-   [FIVES](docs/datasets/fives.md), [FQS](docs/datasets/fqs.md) and [MSHF](docs/datasets/mshf.md),
-   seven evaluation units, 3,599 photographs each. [DeepDRiD](docs/datasets/deepdrid.md) is held
-   back because the toolbox ensemble trained on it; [EyeQ](docs/datasets/eyeq.md) and
-   [DRIMDB](docs/datasets/drimdb.md) are the next to fetch, and both are in-sample for two of the
-   four models, which is the reason to have them.
+1. **Quality. Built** — [docs/benchmarks/quality.md](docs/benchmarks/quality.md). Five models on
+   [FIVES](docs/datasets/fives.md), [FQS](docs/datasets/fqs.md), [MSHF](docs/datasets/mshf.md) and
+   [PAPILA](docs/datasets/papila.md): eight evaluation units, 4,087 photographs each.
+   [DeepDRiD](docs/datasets/deepdrid.md) is held back because the toolbox ensemble trained on it;
+   [EyeQ](docs/datasets/eyeq.md) and [DRIMDB](docs/datasets/drimdb.md) are the next to fetch, and
+   both are in-sample for three of the five models, which is the reason to have them.
+
+   Two things this benchmark added that the plan had not foreseen. **A grade may be assumed**:
+   PAPILA grades nothing, and the store records `good` for all 488 with `quality_source` set to
+   `assumed`, which makes it the only unit here that can say how much of a curated dataset a model
+   would throw away — and the only one on which no ranking metric is defined. And **a grade is not
+   a decision**: what reaches measurement is decided by the pipeline, sometimes by a rule that
+   overrides its own model, so each adapter declares the gate its project applies and the benchmark
+   scores those gates beside the grades. AutoMorph admits a merely usable photograph only while its
+   grader's probability of `bad` stays under 0.25; AutoMorphalyzer carries every photograph
+   whatever [QuickQual-MEME](docs/models/quickqual-meme.md) says; AutoMorphClass has no quality
+   stage at all; VascX writes three logits nothing reads.
 2. **Disc and cup: segmentation and biomarkers together**, as one benchmark, because the biomarkers
    are arithmetic on the same contours. Datasets: [Chákṣu](docs/datasets/chaksu.md),
    [GRAPE](docs/datasets/grape.md), and [ORIGA](docs/datasets/origa.md) once its archive arrives —
