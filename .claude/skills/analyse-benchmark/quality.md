@@ -9,7 +9,7 @@ reader is looking for a model, and the datasets sit inside it.
 | # | Section | Must show |
 | --- | --- | --- |
 | 1 | Coverage | graded, declined and failed per model and dataset, before any accuracy |
-| 2 | Against the expert's grade | the confusion matrix of section 2 below, the ROC curves, and the component analysis of section 3 |
+| 2 | Against the expert's grade | the confusion matrix of section 2 below — tabulated **and** drawn — accuracy and κ as bars, the ROC curves, and the component analysis of section 3 |
 | 3 | In-sample and out-of-sample | the same confusion, split by what each model trained on — section 4 |
 | 4 | Model against model | pairwise agreement, with the caveat attached |
 | 5 | Model against the readers | right where the readers agreed, against right where they did not |
@@ -31,6 +31,21 @@ against what the model called worth measuring.
 Report it per model and dataset, as counts and as shares, because the two errors are not
 interchangeable: discarding a good photograph costs a study its sample size, and keeping a bad one
 costs it its measurements. A single accuracy hides which of the two a model does.
+
+**Draw it as well as tabulating it.** A grid of two-by-two heatmaps — models down, datasets
+across — is read in a glance where twenty rows of counts are not, and it is the figure that makes
+two models with the same accuracy and opposite behaviour obviously different. Annotate each cell
+with its count.
+
+**Report Cohen's κ beside accuracy, everywhere accuracy appears.** Accuracy flatters a model on a
+dataset where one class dominates: a grader that keeps everything scores 0.9 on a collection that
+is 90% gradeable while agreeing with nobody about anything. κ measures agreement beyond what
+guessing the common answer would achieve, so the pair together says what neither says alone. It is
+undefined where a reference has only one class — report a dash, never a zero.
+
+**Plot both.** Accuracy and κ as bars, model by model with the datasets inside each model, so that
+the eye compares models rather than datasets (`SKILL.md` §2). Where the two disagree — a high
+accuracy beside a low κ — that is the finding, and the bars put it next to each other.
 
 **Where a model's threshold comes from matters here.** Several of these models publish a hard call
 directly; the Fundus Image Toolbox ensemble publishes only a confidence and calls everything at or
