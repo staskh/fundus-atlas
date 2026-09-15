@@ -42,7 +42,10 @@ class FitQuality:
             "purpose": self.purpose,
             "grid": self.grid,
             "network_grid": GRID,
-            "grades": "gradeable against ungradeable",
+            "grades": (
+                f"one probability that the photograph is gradeable: at or above {THRESHOLD} it "
+                f"counts as gradeable, below it as ungradeable"
+            ),
             "emits_probabilities": True,
             "named_grades": (),
             "threshold": THRESHOLD,

@@ -11,7 +11,7 @@ Whether a model's judgement of a photograph matches **what an expert recorded ab
 | Model | Pinned at | Grid it reads | Grid the network sees | Ensemble | Emits |
 | --- | --- | --- | --- | --- | --- |
 | [automorph-quality-grader](../models/automorph-quality-grader.md) | `9a953e5e` | 512² | 512² | 8 | good, usable, reject |
-| [fit-quality](../models/fit-quality.md) | `d7757e28` | 512² | 512² | 10 | gradeable against ungradeable |
+| [fit-quality](../models/fit-quality.md) | `d7757e28` | 512² | 512² | 10 | one probability that the photograph is gradeable: at or above 0.5 it counts as gradeable, below it as ungradeable |
 | [quickqual](../models/quickqual.md) | `a94feb02` | 512² | 512² | 1 | good, usable, bad |
 | [quickqual-meme](../models/quickqual-meme.md) | `a94feb02` | 512² | 512² | 1 | one probability that the photograph is bad |
 | [vascx-quality](../models/vascx-quality.md) | `d0cde1c7` | 1024² | 224² | one checkpoint holding several folds | three classes, read as good, usable and bad |

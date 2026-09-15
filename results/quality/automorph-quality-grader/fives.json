@@ -1,0 +1,65 @@
+{
+  "benchmark": "quality",
+  "dataset": "fives",
+  "fingerprint": "aef45d4e7887c5ed8f773ba329b7663ce63a213a7356ace76779872eb0782475",
+  "model": "automorph-quality-grader",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": {
+      "accuracy": 0.77375,
+      "carried": 538,
+      "carried_share": 0.6725,
+      "differs_from_the_verdict": 71,
+      "kappa": 0.3757436755246685,
+      "photographs": 800
+    },
+    "gradeable": {
+      "accuracy": 0.8525,
+      "kappa": 0.494262233603703,
+      "photographs": 800,
+      "roc_auc": 0.9725270008070194
+    },
+    "graded": 800,
+    "photographs": 800,
+    "processed": 800,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": {
+      "accuracy": 0.6325,
+      "confusion": {
+        "bad": {
+          "bad": 77,
+          "good": 0,
+          "usable": 4
+        },
+        "good": {
+          "bad": 34,
+          "good": 385,
+          "usable": 173
+        },
+        "usable": {
+          "bad": 80,
+          "good": 3,
+          "usable": 44
+        }
+      },
+      "kappa_quadratic": 0.6041316262342771,
+      "photographs": 800,
+      "recall": {
+        "bad": 0.9506172839506173,
+        "good": 0.6503378378378378,
+        "usable": 0.3464566929133858
+      },
+      "unused_by_the_reference": []
+    },
+    "total": 800
+  }
+}

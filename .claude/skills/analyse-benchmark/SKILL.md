@@ -31,7 +31,18 @@ and you load that file too.
 - It is **committed with its outputs cleared**. Rendered figures are megabytes of base64 that change
   on every run and say nothing in a diff; anyone wanting the pictures runs the notebook.
 
-## 2. What every benchmark's analysis must show
+## 2. The model is the primary index
+
+**Every table and every figure is indexed by model first, dataset second.** The question this
+repository asks is how a piece of software compares with an expert's judgement, so the reader is
+looking for a model — a row per model, datasets within it — and two analyses can only be read
+against each other if they are ordered alike. A table indexed by dataset with models inside it
+answers a question nobody asked: it compares datasets.
+
+The same ordering holds in the generated results page, so a figure in a notebook and a table in a
+document line up.
+
+## 3. What every benchmark's analysis must show
 
 So that two analyses can be read against each other, cover these in this order, each under a
 numbered heading:
@@ -46,11 +57,13 @@ numbered heading:
    separate the photographs the humans were unanimous about from the ones they were not. Being wrong
    where the readers disagreed is different trouble from being wrong where they did not.
 5. **What the hard cases look like** — the photographs every model got wrong, as images, with what
-   the dataset said about each.
+   the dataset said about each, **and with the dataset named beside every one**. Take them from
+   each dataset in turn rather than from the pile: a grid drawn from whichever dataset happens to
+   have the most failures is a picture of that dataset, not of the benchmark.
 6. **What the benchmark cannot say** — contamination marks that are `unknown` rather than clean,
    ground truths that are not comparable across datasets, and anything the metrics hide.
 
-## 3. Grouping is the notebook's job
+## 4. Grouping is the notebook's job
 
 A run scores a whole dataset and writes `subset` and `split` into every row, so the notebook is
 where those become questions: does this model behave differently on the portable camera? Does the
@@ -58,14 +71,14 @@ training half score higher than the test half, and by how much? **A grouping tha
 matter belongs in the results document too** — tell the report generator about it rather than
 leaving the finding in a notebook nobody regenerates.
 
-## 4. Writing for the reader
+## 5. Writing for the reader
 
 The prose rules of `CLAUDE.md` §4 apply: the reader is a clinician or a researcher, not a software
 engineer. Markdown cells carry the argument and code cells the arithmetic; a notebook that is only
 code is a script. Number every heading. Do not crown a winner — the last cell of an analysis is what
 the numbers do not say, not a ranking.
 
-## 5. Practical shape
+## 6. Practical shape
 
 - Read the results with two small functions at the top — one returning the per-image rows, one the
   summaries — so every later cell is about the analysis rather than about file paths.

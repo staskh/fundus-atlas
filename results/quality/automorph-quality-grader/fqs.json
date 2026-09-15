@@ -1,0 +1,65 @@
+{
+  "benchmark": "quality",
+  "dataset": "fqs",
+  "fingerprint": "3cf783b971be6d193d93518d24857509f5580d0d6309a1e0353a0d7d20a8a383",
+  "model": "automorph-quality-grader",
+  "summary": {
+    "complete": true,
+    "coverage": 1.0,
+    "declined": 0,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "gate": {
+      "accuracy": 0.8481069042316258,
+      "carried": 1388,
+      "carried_share": 0.6182628062360802,
+      "differs_from_the_verdict": 217,
+      "kappa": 0.6839259253448431,
+      "photographs": 2245
+    },
+    "gradeable": {
+      "accuracy": 0.8164810690423162,
+      "kappa": 0.6050589888000273,
+      "photographs": 2245,
+      "roc_auc": 0.9299291334343693
+    },
+    "graded": 2245,
+    "photographs": 2245,
+    "processed": 2245,
+    "reference_grades": [
+      "good",
+      "usable",
+      "bad"
+    ],
+    "three_class": {
+      "accuracy": 0.6512249443207127,
+      "confusion": {
+        "bad": {
+          "bad": 583,
+          "good": 36,
+          "usable": 319
+        },
+        "good": {
+          "bad": 4,
+          "good": 465,
+          "usable": 45
+        },
+        "usable": {
+          "bad": 53,
+          "good": 326,
+          "usable": 414
+        }
+      },
+      "kappa_quadratic": 0.6979564586244592,
+      "photographs": 2245,
+      "recall": {
+        "bad": 0.6215351812366737,
+        "good": 0.9046692607003891,
+        "usable": 0.5220680958385876
+      },
+      "unused_by_the_reference": []
+    },
+    "total": 2245
+  }
+}
