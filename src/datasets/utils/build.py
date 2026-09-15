@@ -29,7 +29,10 @@ from datasets.utils import (
 
 #: Bumped when the crop, resample or grading rules change. A store built under an older number was
 #: built to different rules, and a consumer can refuse to mix the two.
-BUILDER_VERSION = 5
+#:
+#: 6 — the surround tolerance is learned from the border ring's own scatter as well as from the
+#: photograph's exposure, so a dark compressed thumbnail no longer counts its own noise as field.
+BUILDER_VERSION = 6
 
 #: The maps a store can hold, in the order they appear in the `maps` column. `disc` and `cup` mean
 #: polygons in `contours/<key>.csv`, never a raster.

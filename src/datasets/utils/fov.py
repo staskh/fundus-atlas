@@ -16,6 +16,13 @@ BORDER = 5
 #: photograph eats into the rim of a dark one.
 RELATIVE_TOLERANCE = 0.05
 
+#: How much of the surround's own scatter the tolerance must cover. A compressed thumbnail's black
+#: border is not flat black — its pixels wander — and a tolerance that does not reach that far
+#: leaves speckles of surround counted as field, which the convex-hull fit then stretches to.
+#: Measured on the border ring, which is where the surround's colour is learned in the first
+#: place: how noisy the surround is, is a fact about the surround and not about the retina.
+RING_QUANTILE = 99.9
+
 #: Bounds on that tolerance: loose enough for the ringing a JPEG leaves along the rim, tight enough
 #: that dim retina is not mistaken for a black surround.
 MIN_TOLERANCE = 4
@@ -60,9 +67,42 @@ def whole(image: np.ndarray) -> Circle:
 
 
 def tolerance(image: np.ndarray) -> float:
-    """How close to the surround's colour a pixel must be to count as surround."""
+    """How close to the surround's colour a pixel must be to count as surround.
+
+    Two readings, and the looser of them wins. The photograph's own 99th percentile scales the
+    tolerance to its exposure, so a fixed value does not eat the rim of a dark photograph. The
+    **border ring's own scatter** then says how far the surround wanders from its colour, which
+    the first reading cannot know: noise in a black border is left there by the encoder and is much
+    the same whether the retina beyond it was well exposed or not. A dark, heavily compressed
+    photograph otherwise gets a tolerance below its own noise floor, and the speckles that survive
+    it are counted as field.
+    """
     scale = RELATIVE_TOLERANCE * float(np.percentile(image, 99))
-    return float(np.clip(scale, MIN_TOLERANCE, MAX_TOLERANCE))
+    return float(np.clip(max(scale, _ring_scatter(image)), MIN_TOLERANCE, MAX_TOLERANCE))
+
+
+def _ring_scatter(image: np.ndarray) -> float:
+    """How far the border ring's own pixels sit from its colour.
+
+    Taken over the ring pixels close enough to its median to be surround at all, so that retina
+    reaching the frame's edge — which the ring then partly samples — cannot inflate the answer.
+    """
+    ring = _ring(image)
+    deviation = np.abs(ring - np.median(ring, axis=0)).max(axis=1)
+    surround = deviation[deviation <= MAX_TOLERANCE]
+    return float(np.percentile(surround, RING_QUANTILE)) if surround.size else 0.0
+
+
+def _ring(image: np.ndarray) -> np.ndarray:
+    """The frame's own border, where a surround must show itself if it exists."""
+    return np.concatenate(
+        [
+            image[:BORDER].reshape(-1, 3),
+            image[-BORDER:].reshape(-1, 3),
+            image[:, :BORDER].reshape(-1, 3),
+            image[:, -BORDER:].reshape(-1, 3),
+        ]
+    ).astype(float)
 
 
 def surround_colour(image: np.ndarray) -> np.ndarray | None:
@@ -73,14 +113,7 @@ def surround_colour(image: np.ndarray) -> np.ndarray | None:
     frame** — so that, rather than darkness, is what is looked for. A brightness test hands back
     the whole frame as field of view on a photograph whose surround happens to be white.
     """
-    ring = np.concatenate(
-        [
-            image[:BORDER].reshape(-1, 3),
-            image[-BORDER:].reshape(-1, 3),
-            image[:, :BORDER].reshape(-1, 3),
-            image[:, -BORDER:].reshape(-1, 3),
-        ]
-    ).astype(float)
+    ring = _ring(image)
     candidate = np.median(ring, axis=0)
     share = float((np.abs(ring - candidate).max(axis=1) <= tolerance(image)).mean())
     return candidate if share >= MIN_RING_SHARE else None

@@ -129,6 +129,21 @@ bounding square takes another 0.9% off the sides of what did survive.
   dataset unusable on every component. The consequence is that **DR-ZJU's 187 photographs have no
   agreed score at all**: the other six tabs cover the remaining 1,115. The three readers' individual
   scores are complete and unaffected.
+- **The DR-XJU thumbnails have a noisy black border, and it used to swell their crop.** These 235
+  photographs are 412×310 JPEGs whose surround is not flat black: its pixels wander up to about 20
+  of 255. A field-of-view rule that reads its tolerance off the photograph's own exposure gives a
+  dark thumbnail a tolerance below that scatter, so the speckles that survive it are counted as
+  field, and a circle fitted to the outermost of them swells. `DR-XJU-216` has a retina 304 pixels
+  across and was built with a fitted circle of 343 and a square of 371. Fixed in `builder_version`
+  6, which learns the tolerance from the border ring's own scatter as well: the same photograph now
+  builds a 307-pixel mask in a 306-pixel square, and the group's masks fill 0.78 of their square
+  where a third of them filled under 0.70. *(This atlas's finding, 2026-09-15.)*
+- **Some Glaucoma photographs are too dark for any field to be found in them.** `Glaucoma-46` has
+  1,534 pixels of frame and 134×205 of it above a fifth of full brightness: the rest of the retina
+  is so underexposed that no threshold separates it from the black around it. The store's field
+  mask for those is approximate and their `fov` layer should not be trusted for anything measured
+  by area. Nothing is lost from the crop — no lit retina falls outside it — but a density computed
+  over that mask would be computed over a guess. *(This atlas's finding, 2026-09-15.)*
 - **The agreed score is not a majority vote, on 24 of the 613 photographs that have one.** For
   `test_dr_xju_189` the three readers wrote bad, good and good, and the agreed score is **bad**;
   fifteen of the twenty-four go the other way, overriding a majority of `bad` with `good`. Whatever
