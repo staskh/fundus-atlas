@@ -14,7 +14,8 @@ throughout; the dataset, the reader and the structure sit inside it.
 | 5 | Against the readers' own disagreement | the ceiling, per dataset — section 5 |
 | 6 | Model against model | agreement on the same photographs, and where they diverge |
 | 7 | The hard cases | outlines drawn over the photograph, up to eight per dataset, each labelled |
-| 8 | What this cannot say | contamination, resampling, references that are not comparable |
+| 8 | What each model costs | seconds per photograph, beside the device it was measured on |
+| 9 | What this cannot say | contamination, resampling, references that are not comparable |
 
 ## 2. Dice is the least informative number here, so do not lead with it
 

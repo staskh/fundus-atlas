@@ -1,3 +1,0 @@
-key,subset,split,native_side,reader,outcome,resampling,disc_dice,disc_centre_offset,disc_width_error,disc_height_error,disc_radius_error,note
-100_od_1,main,unspecified,2102,expert1,graded,"probabilities to native, bilinear, then thresholded",0.923251,3.212516,21.000000,17.000000,9.005121,
-100_od_2,main,unspecified,2104,expert1,graded,"probabilities to native, bilinear, then thresholded",0.949215,3.835423,10.000000,18.000000,5.824462,

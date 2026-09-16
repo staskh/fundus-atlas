@@ -169,7 +169,9 @@ def test_a_folder_of_modules_is_imported_under_a_name_of_ours(tmp_path: Path) ->
     folder = tmp_path / "stage" / "models"
     folder.mkdir(parents=True)
     (folder / "shapes.py").write_text("SIDES = 4\n")
-    (folder / "get_model.py").write_text("from .shapes import SIDES\n\ndef arch():\n    return SIDES\n")
+    (folder / "get_model.py").write_text(
+        "from .shapes import SIDES\n\ndef arch():\n    return SIDES\n"
+    )
 
     imported = source.package("a-stage-of-its-own", folder)
 

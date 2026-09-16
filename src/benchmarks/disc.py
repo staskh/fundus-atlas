@@ -2,6 +2,7 @@
 # ABOUTME: drew, and how far that difference travels into the numbers computed from it.
 
 import json
+import shutil
 import sys
 import time
 from collections.abc import Iterable
@@ -10,6 +11,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from PIL import Image
 from torch.utils.data import DataLoader
 
 from datasets.utils import paths
@@ -52,26 +54,35 @@ WHY_NOT = {
 WORTH_FETCHING = (
     (
         "refuge",
-        "three of the models here trained on it, so it is what turns an in-sample suspicion into "
-        "a measured contrast",
+        (
+            "three of the models here trained on it, so it is what turns an in-sample "
+            "suspicion into a measured contrast"
+        ),
         "registration",
     ),
     (
         "drishti-gs",
-        "four experts **and soft probability maps** — the only dataset here publishing annotator "
-        "uncertainty as a map rather than as separate outlines",
+        (
+            "four experts **and soft probability maps** — the only dataset here publishing "
+            "annotator uncertainty as a map rather than as separate outlines"
+        ),
         "direct",
     ),
     (
         "origa",
-        "publishes `ExpCDR`, an expert cup-to-disc ratio **as a number**, which is the strongest "
-        "available check that a ratio derived from contours means what this benchmark thinks",
+        (
+            "publishes `ExpCDR`, an expert cup-to-disc ratio **as a number**, which is the "
+            "strongest available check that a ratio derived from contours means what this "
+            "benchmark thinks"
+        ),
         "needs an archive by hand",
     ),
     (
         "rim-one-dl",
-        "BEAL's other unlabelled target domain; it completes the contamination picture for that "
-        "model once there is an adapter for it",
+        (
+            "BEAL's other unlabelled target domain; it completes the contamination picture for "
+            "that model once there is an adapter for it"
+        ),
         "direct",
     ),
 )
@@ -168,7 +179,18 @@ def run(
     for adapter in models:
         for slug in present:
             scored.append(
-                _pair(adapter, slug, results, root, batch, force, max_samples, random_samples, seed)
+                _pair(
+                    adapter,
+                    slug,
+                    results,
+                    root,
+                    batch,
+                    force,
+                    max_samples,
+                    random_samples,
+                    seed,
+                    record or runs.RUNS,
+                )
             )
         let_go = getattr(adapter, "release", None)
         if let_go is not None:
@@ -187,6 +209,7 @@ def _pair(
     max_samples: int | None,
     random_samples: bool,
     seed: int,
+    keeping: Path,
 ) -> dict[str, object]:
     """One model on one dataset: keep what still stands, measure what is missing, write it all."""
     loader = DiscCupLoader(
@@ -213,11 +236,12 @@ def _pair(
     kept = [] if force else runs.measured(results, NAME, adapter.slug, slug, identity)
     done = {row["key"] for row in kept}
     loader.restrict({row["key"] for row in loader.rows} - done)
+    masks = _masks_for(keeping / NAME / adapter.slug / slug, identity, keep=bool(kept))
 
     timed = runs.Timing()
     if len(loader):
         print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
-        fresh = _outline(adapter, loader, batch, timed)
+        fresh = _outline(adapter, loader, batch, timed, masks)
     else:
         print(f"{adapter.slug} × {slug}: kept — nothing left to measure", flush=True)
         fresh = []
@@ -246,7 +270,7 @@ def _pair(
 
 
 def _outline(
-    adapter, loader: DiscCupLoader, batch: int, timed: runs.Timing
+    adapter, loader: DiscCupLoader, batch: int, timed: runs.Timing, masks: Path
 ) -> list[dict[str, object]]:
     """Every photograph still to be scored, measured against each reader who drew on it."""
     rows = []
@@ -261,8 +285,33 @@ def _outline(
             note = ""
             timed.record(time.perf_counter() - started, len(sample["key"]))
         for index, key in enumerate(sample["key"]):
+            _keep(masks, key, answers[index])
             rows.extend(_rows(key, sample, index, answers[index], note))
     return rows
+
+
+def _masks_for(directory: Path, identity: str, keep: bool) -> Path:
+    """Where this pair's predicted masks go, emptied where they describe something else.
+
+    The masks are kept because the biomarker benchmark's input is exactly these outlines rather
+    than the scores computed from them. They are named by the fingerprint of what produced them,
+    so a mask a model no longer agrees with is never read as one it does.
+    """
+    marker = directory / "fingerprint.txt"
+    stale = not keep or not marker.exists() or marker.read_text().strip() != identity
+    if directory.exists() and stale:
+        shutil.rmtree(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    marker.write_text(identity + "\n")
+    return directory
+
+
+def _keep(directory: Path, key: str, answer) -> None:
+    """One photograph's masks, in the native frame, one file per structure."""
+    if answer is None or answer.outcome != "graded":
+        return
+    for structure, mask in answer.masks.items():
+        Image.fromarray(np.asarray(mask, dtype=bool)).save(directory / f"{key}-{structure}.png")
 
 
 def _rows(key, sample, index, answer, note) -> list[dict[str, object]]:
@@ -426,12 +475,24 @@ COLUMNS = {
     "cup_dice": "overlap with this reader's cup; absent for a model that finds no cup",
     "disc_centre_offset": "distance between the two disc centres, in native pixels",
     "cup_centre_offset": "as above, for the cup",
+    "disc_centre_offset_diameters": "the same distance **in the expert's own disc diameters**, "
+    "which is the only camera-independent form: ten pixels means one thing on a 2,576-pixel "
+    "photograph and another on a 1,444-pixel one",
+    "cup_centre_offset_diameters": "the cup's offset, measured in that same disc diameter rather "
+    "than in the cup's own — the disc is the ruler",
     "disc_width_error": "signed: the model's disc width less the reader's, in pixels",
     "disc_height_error": "signed, likewise",
     "cup_width_error": "signed, for the cup",
     "cup_height_error": "signed, for the cup",
     "disc_radius_error": "signed: the radius of a circle of the same area, less the reader's",
     "cup_radius_error": "as above, for the cup",
+    "truth_disc_width": "how wide the expert drew the disc, in native pixels — the size every "
+    "error above is an error of",
+    "truth_disc_height": "how tall, likewise",
+    "truth_disc_radius": "the radius of a circle of the same area as the expert's disc",
+    "truth_cup_width": "how wide the expert drew the cup",
+    "truth_cup_height": "how tall",
+    "truth_cup_radius": "the radius of a circle of the same area as the expert's cup",
     "said_vertical_ratio": "the model's cup height over its disc height",
     "truth_vertical_ratio": "this reader's own vertical cup-to-disc ratio",
     "cup_vertical_ratio_error": "**signed**: the model's vertical ratio less the reader's — the "
@@ -480,6 +541,14 @@ def docs_sections(
         "**Signed errors are kept signed.** A model whose discs are three pixels too wide and one "
         "whose discs are three pixels too narrow do not average to agreement, and a cup-to-disc "
         "ratio that reads high sends the wrong patients to a clinic."
+    )
+    yield ""
+    yield (
+        "**The outlines themselves are kept**, one image per structure per photograph, under "
+        "`.atlas_runs/disc/<model>/<dataset>/` beside the fingerprint of the model that drew them. "
+        "A score is a summary of a shape, and the shape is what the next benchmark measures "
+        "biomarkers from; a mask whose fingerprint no longer matches its model is drawn again "
+        "rather than read."
     )
     yield ""
     yield "## 2. The models"
@@ -538,6 +607,15 @@ def docs_sections(
         "**Black canvas** is the share of the square the store built that is not photograph. A "
         "fundus cut off at top and bottom leaves bands there, and a model sees the square it is "
         "handed."
+    )
+    yield ""
+    yield (
+        "**Every reference here is a contour somebody drew**, and the ratios are computed from it. "
+        "[Chákṣu](../datasets/chaksu.md) also publishes each expert's own cup-to-disc ratio **as a "
+        "number**, which would be the strongest available check that a ratio derived from a "
+        "contour means what this benchmark thinks it means — but its store does not carry those "
+        "numbers yet, so nothing here is scored against them. That is a gap in the fetcher rather "
+        "than in the dataset."
     )
     yield ""
     yield "### 3.1 What is worth fetching next, and what each would settle"

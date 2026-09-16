@@ -91,12 +91,19 @@ def measure(said: dict[str, np.ndarray], truth: dict[str, np.ndarray]) -> dict[s
     that scatters, and an absolute error hides which of the two you have.
     """
     found: dict[str, float | None] = {}
+    #: The expert's own disc is the ruler every offset is also given in, because a ten-pixel error
+    #: is a different error on a 2,576-pixel photograph and on a 1,444-pixel one.
+    diameter = equivalent_radius(truth["disc"]) * 2 if truth.get("disc") is not None else None
     for structure in STRUCTURES:
         mine, theirs = said.get(structure), truth.get(structure)
         if mine is None or theirs is None:
             continue
         found[f"{structure}_dice"] = dice(mine, theirs)
-        found[f"{structure}_centre_offset"] = centre_offset(mine, theirs)
+        offset = centre_offset(mine, theirs)
+        found[f"{structure}_centre_offset"] = offset
+        found[f"{structure}_centre_offset_diameters"] = (
+            offset / diameter if offset is not None and diameter else None
+        )
         for name, measured in (("width", 0), ("height", 1)):
             one, other = extent(mine), extent(theirs)
             found[f"{structure}_{name}_error"] = (
@@ -106,6 +113,10 @@ def measure(said: dict[str, np.ndarray], truth: dict[str, np.ndarray]) -> dict[s
         found[f"{structure}_radius_error"] = (
             mine_r - theirs_r if mine_r is not None and theirs_r is not None else None
         )
+        drawn = extent(theirs)
+        found[f"truth_{structure}_width"] = drawn[0] if drawn else None
+        found[f"truth_{structure}_height"] = drawn[1] if drawn else None
+        found[f"truth_{structure}_radius"] = theirs_r
 
     if {"disc", "cup"} <= set(said) and {"disc", "cup"} <= set(truth):
         for name, ratio in (("vertical", vertical_ratio), ("area", area_ratio)):

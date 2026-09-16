@@ -102,3 +102,37 @@ def test_every_measurement_of_one_pair_comes_back_together() -> None:
     assert found["disc_centre_offset"] == pytest.approx(5, abs=0.5)
     assert found["cup_vertical_ratio_error"] == pytest.approx(0.1, abs=0.02)
     assert found["truth_vertical_ratio"] == pytest.approx(0.5, abs=0.02)
+
+
+def test_the_expert_s_own_size_is_recorded_beside_the_error() -> None:
+    """An error of ten pixels means nothing without the size it is ten pixels of."""
+    said = {"disc": circle(300, 150, 150, 50), "cup": circle(300, 150, 150, 20)}
+    truth = {"disc": circle(300, 150, 150, 40), "cup": circle(300, 150, 150, 20)}
+
+    measured = disc.measure(said, truth)
+
+    assert measured["truth_disc_width"] == pytest.approx(81, abs=2)
+    assert measured["truth_disc_height"] == pytest.approx(81, abs=2)
+    assert measured["truth_disc_radius"] == pytest.approx(40, abs=1)
+    assert measured["truth_cup_radius"] == pytest.approx(20, abs=1)
+
+
+def test_the_centre_offset_is_also_given_in_disc_diameters() -> None:
+    """Ten pixels is a different error on a 2,576-pixel photograph and on a 1,444-pixel one."""
+    truth = {"disc": circle(300, 150, 150, 50)}
+    said = {"disc": circle(300, 160, 150, 50)}
+
+    measured = disc.measure(said, truth)
+
+    assert measured["disc_centre_offset"] == pytest.approx(10, abs=0.5)
+    assert measured["disc_centre_offset_diameters"] == pytest.approx(10 / 100, abs=0.01)
+
+
+def test_a_cup_offset_is_measured_in_the_disc_s_diameters_not_its_own() -> None:
+    """The disc is the ruler: a cup's own size is what the model is being wrong about."""
+    truth = {"disc": circle(300, 150, 150, 50), "cup": circle(300, 150, 150, 10)}
+    said = {"disc": circle(300, 150, 150, 50), "cup": circle(300, 155, 150, 10)}
+
+    measured = disc.measure(said, truth)
+
+    assert measured["cup_centre_offset_diameters"] == pytest.approx(5 / 100, abs=0.01)

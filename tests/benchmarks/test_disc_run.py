@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 import torch
 from conftest import row, write_contours, write_store
+from PIL import Image
 
 from benchmarks import disc, report, runs
 from models.utils.outlines import Outlines
@@ -218,9 +219,7 @@ def test_the_index_reports_what_a_disc_run_measured(tmp_path: Path) -> None:
 
 
 def test_a_run_records_how_long_the_model_took_per_photograph(tmp_path: Path) -> None:
-    scored = disc.run(
-        [Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path)
-    )
+    scored = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
 
     assert scored[0]["summary"]["seconds_per_photograph"] > 0
     assert scored[0]["summary"]["timed_photographs"] == 2
@@ -235,3 +234,54 @@ def test_a_run_that_measured_nothing_keeps_the_timing_it_had(tmp_path: Path) -> 
     assert again[0]["summary"]["seconds_per_photograph"] == pytest.approx(
         first[0]["summary"]["seconds_per_photograph"]
     )
+
+
+def test_the_predicted_masks_are_kept_for_what_comes_after(tmp_path: Path) -> None:
+    """The biomarker benchmark's input is these masks, not the scores computed from them."""
+    disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
+    )
+
+    kept = sorted(
+        path.name for path in (tmp_path / "runs" / "disc" / "circles" / "papila").glob("*.png")
+    )
+
+    assert kept == ["a-cup.png", "a-disc.png", "b-cup.png", "b-disc.png"]
+
+
+def test_masks_a_model_no_longer_agrees_with_are_thrown_away(tmp_path: Path) -> None:
+    store = a_store(tmp_path)
+    disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
+    where = tmp_path / "runs" / "disc" / "circles" / "papila"
+    stale = np.asarray(Image.open(where / "a-disc.png")).sum()
+
+    disc.run(
+        [Circles(radius=0.35)],
+        ["papila"],
+        results=tmp_path / "results",
+        root=store,
+        record=tmp_path / "runs",
+    )
+
+    assert np.asarray(Image.open(where / "a-disc.png")).sum() != stale, (
+        "a mask whose fingerprint no longer matches its model is recomputed"
+    )
+
+
+def test_a_kept_mask_is_in_the_frame_the_expert_drew_in(tmp_path: Path) -> None:
+    disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
+    )
+
+    with Image.open(tmp_path / "runs" / "disc" / "circles" / "papila" / "a-disc.png") as mask:
+        assert mask.size == (1024, 1024), "native, not the 512 grid the model read"
