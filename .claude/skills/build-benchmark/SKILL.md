@@ -249,4 +249,7 @@ benchmark against a downloaded store.
   `out-of-sample`, and where a model trained on one split only, the report breaks that dataset into
   its splits rather than publishing one number over both.
 - **10.3** Nothing is scored against a dataset's own published value without saying so.
-- **10.4** A benchmark reports; it does not rank. No "best", no ordering, no crowning.
+- **10.4** A benchmark measures; the **report** may recommend, and must do so as an argument
+  rather than as an ordering: which model is best *at a named question*, the runner-up where it is
+  close, and the caveats that would change the answer (`report-benchmark` §5). What is forbidden is
+  a column sorted by score with nothing said about what the score answers.

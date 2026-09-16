@@ -330,7 +330,7 @@ def main(asked) -> None:
             report.QUALITY_COLUMNS,
         )
 
-    scored = run(
+    run(
         models,
         wanted_datasets,
         root=root,
@@ -343,11 +343,6 @@ def main(asked) -> None:
     if not asked.report:
         return
 
-    evidence = {
-        (entry_["model"], entry_["dataset"]): runs.rows(
-            runs.RESULTS, NAME, entry_["model"], entry_["dataset"]
-        )
-        for entry_ in scored
-    }
-    report.write_results(NAME, scored, evidence, missing_adapters, missing_stores)
+    # The results page is not written here: it states conclusions drawn from the notebook, and a
+    # run must not be able to destroy them. See the `report-benchmark` skill.
     report.write_index()
