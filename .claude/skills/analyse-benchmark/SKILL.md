@@ -18,7 +18,23 @@ and you load that file too.
 | --- | --- |
 | Quality | [quality.md](quality.md) |
 
-## 1. What a notebook may and may not do
+## 1. An existing notebook is extended, never rewritten
+
+A notebook that already exists carries work this skill does not know about: sections added in
+conversation, a diagnostic somebody wrote for one afternoon, a cell that answers a question nobody
+wrote down. **Edit it in place — add sections, extend cells, renumber what follows — and remove
+nothing.** Regenerating the file from a template destroys exactly the material that made it worth
+keeping, and it does so silently, because the diff of a rebuilt notebook is unreadable.
+
+Three practical consequences:
+
+- **Add, then renumber.** A new subsection under section 2 pushes 2.1 to 2.2; fix the headings and
+  leave the content alone.
+- **Where a section must change, change what is wrong with it** rather than replacing the section.
+- **If a rewrite really is needed** — the analysis has been superseded outright — say so and ask
+  first. The notebook is the one artefact here that is not reproducible from the code.
+
+## 2. What a notebook may and may not do
 
 - It **reads `results/`** and the store. It never runs a benchmark, never writes into `results/`,
   and never recomputes a summary number the run already computed — if a figure needs a number the
@@ -31,7 +47,7 @@ and you load that file too.
 - It is **committed with its outputs cleared**. Rendered figures are megabytes of base64 that change
   on every run and say nothing in a diff; anyone wanting the pictures runs the notebook.
 
-## 2. The model is the primary index
+## 3. The model is the primary index
 
 **Every table and every figure is indexed by model first, dataset second.** The question this
 repository asks is how a piece of software compares with an expert's judgement, so the reader is
@@ -42,7 +58,7 @@ answers a question nobody asked: it compares datasets.
 The same ordering holds in the generated results page, so a figure in a notebook and a table in a
 document line up.
 
-## 3. What every benchmark's analysis must show
+## 4. What every benchmark's analysis must show
 
 So that two analyses can be read against each other, cover these in this order, each under a
 numbered heading:
@@ -63,7 +79,7 @@ numbered heading:
 6. **What the benchmark cannot say** — contamination marks that are `unknown` rather than clean,
    ground truths that are not comparable across datasets, and anything the metrics hide.
 
-## 4. A benchmark may need a second notebook, about the reference
+## 5. A benchmark may need a second notebook, about the reference
 
 `<name>.ipynb` asks how the models did. Where a benchmark's datasets publish **each reader's own
 opinion**, a companion notebook — `<name>-humans.ipynb` — asks what the reference itself is worth,
@@ -80,7 +96,7 @@ Keep it separate because it answers a different question and has a different aud
 notebook is read by somebody choosing a model, the second by somebody deciding whether to trust a
 dataset. Findings about a dataset go on that dataset's page, in the same commit.
 
-## 5. Grouping is the notebook's job
+## 6. Grouping is the notebook's job
 
 A run scores a whole dataset and writes `subset` and `split` into every row, so the notebook is
 where those become questions: does this model behave differently on the portable camera? Does the
@@ -88,14 +104,14 @@ training half score higher than the test half, and by how much? **A grouping tha
 matter belongs in the results document too** — tell the report generator about it rather than
 leaving the finding in a notebook nobody regenerates.
 
-## 6. Writing for the reader
+## 7. Writing for the reader
 
 The prose rules of `CLAUDE.md` §4 apply: the reader is a clinician or a researcher, not a software
 engineer. Markdown cells carry the argument and code cells the arithmetic; a notebook that is only
 code is a script. Number every heading. Do not crown a winner — the last cell of an analysis is what
 the numbers do not say, not a ranking.
 
-## 7. Practical shape
+## 8. Practical shape
 
 - Read the results with two small functions at the top — one returning the per-image rows, one the
   summaries — so every later cell is about the analysis rather than about file paths.

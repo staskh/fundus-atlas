@@ -11,7 +11,7 @@ reader is looking for a model, and the datasets sit inside it.
 | 1 | Coverage | graded, declined and failed per model and dataset, before any accuracy |
 | 2 | Against the expert's grade | the confusion matrix of section 2 below — tabulated **and** drawn — accuracy and κ as bars, the ROC curves, and the component analysis of section 3 |
 | 3 | In-sample and out-of-sample | the same confusion, split by what each model trained on — section 4 |
-| 4 | Model against model | pairwise agreement, with the caveat attached |
+| 4 | Model against model | pairwise agreement **as a heatmap**, and again with the assumed-reference dataset taken out and on its own — section 5 |
 | 5 | Model against the readers | right where the readers agreed, against right where they did not |
 | 6 | What a model would throw away | the dataset with an assumed reference, model by model |
 | 7 | The hard cases | photographs as images, up to eight **per dataset**, each labelled with its dataset |
@@ -96,6 +96,15 @@ side is the only way to see what the difference is worth.
 - **Agreement between models, with the caveat attached.** Three of the five were fitted on EyeQ
   labels; their agreement is expected. Agreement with a model trained elsewhere is the informative
   number, and disagreement is where to go looking for a bad annotation.
+
+  **Draw it as a heatmap**, models on both axes: a five-by-five table of numbers is read one cell
+  at a time, and a heatmap shows the block of models that learned from the same labels at a glance.
+
+  **And split the assumed-reference dataset out**, into its own subsection, with a second heatmap
+  for everything else. On a dataset where every photograph is taken as sound, agreement measures
+  how alike two models are when there is nothing to be right about — which is a different quantity
+  from agreement on a graded dataset, and pooling the two hides both. Expect the two heatmaps to
+  disagree; where they do, that is the finding.
 - **Right where the readers agreed against right where they did not**, for the datasets that keep
   their readers apart. Expect the gap to be wide, and treat it as the analysis's most useful
   output: where readers disagreed and a model was wrong, the suspicion belongs on the annotation as
