@@ -30,6 +30,7 @@ building or changing that benchmark.
 | Benchmark | Its rules |
 | --- | --- |
 | Quality | [quality.md](quality.md) |
+| Disc and cup | [disc.md](disc.md) |
 
 ## 1. What you produce
 

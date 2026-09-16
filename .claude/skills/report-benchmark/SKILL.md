@@ -23,6 +23,7 @@ and one per benchmark thereafter — and you load that file too.
 | Benchmark | Its documents |
 | --- | --- |
 | Quality | [quality.md](quality.md) |
+| Disc and cup | [disc.md](disc.md) |
 
 ## 1. Both pages describe the benchmark, not the command line
 

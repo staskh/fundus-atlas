@@ -17,6 +17,7 @@ and you load that file too.
 | Benchmark | Its analysis |
 | --- | --- |
 | Quality | [quality.md](quality.md) |
+| Disc and cup | [disc.md](disc.md) |
 
 ## 1. An existing notebook is extended, never rewritten
 
