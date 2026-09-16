@@ -111,11 +111,31 @@ engineer. Markdown cells carry the argument and code cells the arithmetic; a not
 code is a script. Number every heading. Do not crown a winner — the last cell of an analysis is what
 the numbers do not say, not a ranking.
 
-## 8. Practical shape
+## 8. It must run top to bottom in a clean kernel
+
+A notebook is read by somebody who opens it and presses run. Two failures follow from forgetting
+that, and both have already happened here:
+
+- **A cell that uses a name a later cell defines.** It works while you are editing, because the
+  name is still in the kernel from the run before, and fails for everybody else. Define shared
+  names — the frames, the model and dataset lists — **in the first code cell**, and let later cells
+  only read them.
+- **A path that assumes where the reader started.** An editor opens a notebook with the workspace
+  root as the working directory, a terminal opens it from `notebooks/`, and `Path('..')` is right
+  in one and wrong in the other. **Find the repository** by walking up for a marker, and say so in
+  a sentence when nothing above the working directory looks like it.
+
+**Verify by running it that way**, in a fresh process, stopping at the first cell that raises.
+A harness that catches each exception, prints it and carries on will report success while a cell in
+the middle is broken — which is exactly how both of these reached the repository.
+
+Say what is missing rather than what broke: a notebook with no results to read should name the
+directory it looked in and the command that fills it, not raise "No objects to concatenate".
+
+## 9. Practical shape
 
 - Read the results with two small functions at the top — one returning the per-image rows, one the
   summaries — so every later cell is about the analysis rather than about file paths.
-- Keep paths relative to the notebook (`Path('..').resolve()`), so it runs from `notebooks/`.
 - **Read a column, do not assume its dtype.** A true/false column comes back as booleans from one
   file and as floats once concatenated with a file where it is empty; map the text and let blanks
   fall out of the mean.
