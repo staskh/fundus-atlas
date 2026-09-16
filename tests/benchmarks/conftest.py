@@ -58,3 +58,21 @@ def row(key: str, **overrides: str) -> dict[str, str]:
 @pytest.fixture
 def store(tmp_path: Path) -> Path:
     return tmp_path / "store"
+
+
+def write_contours(
+    store: Path,
+    key: str,
+    drawn: dict[tuple[str, str], list[tuple[float, float]]],
+    sizes: tuple[int, ...] = (512,),
+) -> None:
+    """One photograph's outlines, in the frames the store keeps them in."""
+    for size in ("native", *(str(s) for s in sizes)):
+        where = store / size / "contours"
+        where.mkdir(parents=True, exist_ok=True)
+        with open(where / f"{key}.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["structure", "reader", "node", "x", "y"])
+            for (structure, reader), nodes in drawn.items():
+                for index, (x, y) in enumerate(nodes):
+                    writer.writerow([structure, reader, index, x, y])
