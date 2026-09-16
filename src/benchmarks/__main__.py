@@ -7,7 +7,7 @@ from argparse import Namespace
 
 #: The benchmarks that exist, by the name they are known by everywhere else — in `results/`, in
 #: `docs/benchmarks/`, and in the module that implements them.
-BENCHMARKS = ("quality",)
+BENCHMARKS = ("quality", "disc")
 
 
 def parse(argv: list[str] | None = None) -> Namespace:

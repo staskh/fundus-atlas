@@ -32,7 +32,7 @@ def test_every_adapter_declares_what_the_run_has_to_record(slug: str) -> None:
     declared = catalogue.load(slug).declare()
 
     assert declared["slug"] == slug
-    assert declared["purpose"] == "quality"
+    assert declared["purpose"] in ("quality", "disc/cup")
     assert declared["grid"] in (512, 1024), "the store grid the adapter reads"
     assert declared["network_grid"] > 0, "the grid the network itself sees"
     assert isinstance(declared["upstream"], dict)

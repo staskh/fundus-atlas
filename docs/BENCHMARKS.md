@@ -4,11 +4,11 @@ What this repository measured against what experts annotated, on the same images
 
 **Read a row, not a column.** A result marked `in-sample` or `unknown` is not comparable with one marked `out-of-sample`, and a model agreeing with another model is not evidence that either agrees with an expert.
 
-**Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash means the metric has nothing to measure — a dataset whose reference has only one class supports neither κ nor a ranking — and a photograph count of the form *n of m* means a run that has not finished.
-
 ## Quality
 
 [How it is run](benchmarks/quality-docs.md) · [What came out](benchmarks/quality-results.md)
+
+**Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash means the metric has nothing to measure — a dataset whose reference has only one class supports neither κ nor a ranking — and a photograph count of the form *n of m* means a run that has not finished.
 
 | Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
