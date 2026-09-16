@@ -57,7 +57,18 @@ performance.
   overlaps the expert disc at a Dice score of 0.95 and channel 1 the expert cup at 0.91 to 0.95,
   while channels 2 and 3 cover most of the frame and correspond to neither structure. The channels
   are **independent sigmoids rather than one softmax** — they do not sum to one, and channel 0
-  already contains the cup rather than excluding it. What channels 2 and 3 are remains Unknown.
+  already contains the cup rather than excluding it.
+
+  *Our finding (2026-09-16):* **channels 2 and 3 were never trained.** They answer the same thing
+  whatever they are shown. Their outputs sit on the decision boundary — mean −0.00 and −0.05, with
+  a spread of about 1.8 — so a half-probability threshold hands them 49% and 48% of the frame on
+  every photograph, while the two trained channels sit deep in background territory (mean −19 and
+  −21) and rise above it only on the anatomy. Across six photographs from three datasets, each of
+  channels 2 and 3 repeats itself from one photograph to the next at a correlation of **0.93**,
+  against 0.08 for the disc channel and 0.18 for the cup: the trained channels follow the eye, the
+  other two do not. Shown a flat grey square, a black square and random noise instead of a
+  photograph, they return the same map again — correlation 0.91 to 0.93 with what they return for a
+  real fundus. They are the unused half of a four-channel output layer, not two more structures.
 - **Input grid:** 512×512, square, resized with aspect ratio ignored — so a non-square photograph
   is distorted before the disc is found, and the disc comes back elliptical in proportion to that
   distortion.

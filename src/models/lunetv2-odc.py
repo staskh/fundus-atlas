@@ -17,6 +17,10 @@ GRID = 512
 #: What each output channel holds, established by measuring them against PAPILA's outlines rather
 #: than read from any documentation: there is none. PVBM uses channel 0 and ignores the rest, and
 #: the file's name — `odc`, for disc **and cup** — turns out to be accurate.
+#:
+#: The other two channels were never trained: they answer the same thing for a photograph, a grey
+#: square and random noise alike, and sit on the decision boundary so that a threshold hands each of
+#: them about half the frame. They are read past rather than thresholded.
 CHANNELS = {"disc": 0, "cup": 1}
 
 #: ImageNet's statistics, as PVBM's `DiscSegmenter.segment` normalises with them.
@@ -28,8 +32,9 @@ class LunetV2Disc:
     """One network, four channels, independent rather than exclusive.
 
     They do not sum to one: each channel is its own logit, and the disc channel already contains
-    the cup, so nothing is added together here. Channels 2 and 3 cover most of the frame and
-    correspond to neither structure; they are left alone.
+    the cup, so nothing is added together here. Reading all four as one softmax would be the
+    ordinary assumption and is wrong: the two untrained channels sit at zero while the disc sits
+    around −19, so they would take almost the whole frame and erode the disc.
 
     PVBM, the only catalogued project that runs this file, reads channel 0 and never looks at the
     cup. Measuring the cup here is therefore a measurement of the model rather than of anything

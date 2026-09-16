@@ -10,6 +10,8 @@ How close a model's optic disc and optic cup are to **the outline an ophthalmolo
 
 **Signed errors are kept signed.** A model whose discs are three pixels too wide and one whose discs are three pixels too narrow do not average to agreement, and a cup-to-disc ratio that reads high sends the wrong patients to a clinic.
 
+**The outlines themselves are kept**, one image per structure per photograph, under `.atlas_runs/disc/<model>/<dataset>/` beside the fingerprint of the model that drew them. A score is a summary of a shape, and the shape is what the next benchmark measures biomarkers from; a mask whose fingerprint no longer matches its model is drawn again rather than read.
+
 ## 2. The models
 
 | Model | Pinned at | Grid it reads | Grid the network sees | Finds | Emits |
@@ -18,8 +20,8 @@ How close a model's optic disc and optic cup are to **the outline an ophthalmolo
 | [lunetv2-odc](../models/lunetv2-odc.md) | `f72f6c9e` | 512² | 512² | disc, cup | probabilities, thresholded in the native frame |
 | [segformer-disc-cup](../models/segformer-disc-cup.md) | `a0463fb6` | 512² | 512² | disc, cup | probabilities, thresholded in the native frame |
 | [vascx-disc](../models/vascx-disc.md) | `d0cde1c7` | 1024² | 512² | disc | probabilities, thresholded in the native frame |
-| [beal](../models/beal.md) | **not measured** — no adapter written | — | — | — | — |
-| [isfa](../models/isfa.md) | **not measured** — no adapter written | — | — | — | — |
+| [beal](../models/beal.md) | **not measured** — no adapter yet: its weights are an unversioned Google Drive folder, so nothing can be pinned, and its inference expects the authors' own preprocessed directory layout | — | — | — | — |
+| [isfa](../models/isfa.md) | **not measured** — its repository publishes an ImageNet backbone under `pretrained_model/`, not trained weights — checked against the repository, and its own weights link now 404s | — | — | — | — |
 
 A model named here that has no adapter is **declared, not forgotten**: the benchmark asks for it, and the run says so every time until somebody writes it.
 
@@ -40,6 +42,19 @@ A model that finds only the disc is scored on the disc alone. Its rows carry no 
 **Readers are never merged.** A photograph five ophthalmologists outlined makes five rows of evidence, one per reader, and a model is scored against each of them separately. Averaging the outlines first would invent a consensus nobody drew and would hide the range the readers themselves disagree over — which, on these structures, is often wider than the gap between two models.
 
 **Black canvas** is the share of the square the store built that is not photograph. A fundus cut off at top and bottom leaves bands there, and a model sees the square it is handed.
+
+**Every reference here is a contour somebody drew**, and the ratios are computed from it. [Chákṣu](../datasets/chaksu.md) also publishes each expert's own cup-to-disc ratio **as a number**, which would be the strongest available check that a ratio derived from a contour means what this benchmark thinks it means — but its store does not carry those numbers yet, so nothing here is scored against them. That is a gap in the fetcher rather than in the dataset.
+
+### 3.1 What is worth fetching next, and what each would settle
+
+| Dataset | What it would settle | Cost |
+| --- | --- | --- |
+| [refuge](../datasets/refuge.md) | three of the models here trained on it, so it is what turns an in-sample suspicion into a measured contrast | registration |
+| [drishti-gs](../datasets/drishti-gs.md) | four experts **and soft probability maps** — the only dataset here publishing annotator uncertainty as a map rather than as separate outlines | direct |
+| [origa](../datasets/origa.md) | publishes `ExpCDR`, an expert cup-to-disc ratio **as a number**, which is the strongest available check that a ratio derived from contours means what this benchmark thinks | needs an archive by hand |
+| [rim-one-dl](../datasets/rim-one-dl.md) | BEAL's other unlabelled target domain; it completes the contamination picture for that model once there is an adapter for it | direct |
+
+[RIGA](../datasets/riga.md) is the painful exclusion: 750 photographs each outlined by **six** ophthalmologists, and every one of its images is a crop rather than a photograph, so the crop rule of section 4 excludes it whole.
 
 ## 4. What is excluded, and by which rule
 
@@ -76,12 +91,20 @@ python -m benchmarks --benchmark disc --max-samples 20
 | `cup_dice` | overlap with this reader's cup; absent for a model that finds no cup |
 | `disc_centre_offset` | distance between the two disc centres, in native pixels |
 | `cup_centre_offset` | as above, for the cup |
+| `disc_centre_offset_diameters` | the same distance **in the expert's own disc diameters**, which is the only camera-independent form: ten pixels means one thing on a 2,576-pixel photograph and another on a 1,444-pixel one |
+| `cup_centre_offset_diameters` | the cup's offset, measured in that same disc diameter rather than in the cup's own — the disc is the ruler |
 | `disc_width_error` | signed: the model's disc width less the reader's, in pixels |
 | `disc_height_error` | signed, likewise |
 | `cup_width_error` | signed, for the cup |
 | `cup_height_error` | signed, for the cup |
 | `disc_radius_error` | signed: the radius of a circle of the same area, less the reader's |
 | `cup_radius_error` | as above, for the cup |
+| `truth_disc_width` | how wide the expert drew the disc, in native pixels — the size every error above is an error of |
+| `truth_disc_height` | how tall, likewise |
+| `truth_disc_radius` | the radius of a circle of the same area as the expert's disc |
+| `truth_cup_width` | how wide the expert drew the cup |
+| `truth_cup_height` | how tall |
+| `truth_cup_radius` | the radius of a circle of the same area as the expert's cup |
 | `said_vertical_ratio` | the model's cup height over its disc height |
 | `truth_vertical_ratio` | this reader's own vertical cup-to-disc ratio |
 | `cup_vertical_ratio_error` | **signed**: the model's vertical ratio less the reader's — the number a referral rests on |
