@@ -104,6 +104,22 @@ against the score are not being asked the same question.
 
 ## 7. Known defects
 
+- **The three graders agree on fewer than half the photographs.** All three wrote the same word on
+  **45.8%** of the 2,245; pairwise, they agree beyond chance at κ 0.34 to 0.51. That is not an
+  error in the dataset — it is what grading photograph quality in three classes is actually like,
+  and FQS is unusual in publishing enough to see it.
+
+  **Most of that disagreement is about the middle class.** Collapse `good` and `usable` together —
+  the two-class question of whether a photograph is worth measuring at all, which is what a quality
+  gate actually decides — and the same three graders agree on **69.0%** of the photographs at κ
+  **0.49 to 0.63**. So the dataset is a much firmer reference for *usable against unusable* than
+  its three published classes suggest, and a model's score should be read against whichever of the
+  two bands matches the question being asked of it. *(This atlas's measurement, 2026-09-15; see
+  `notebooks/quality-humans.ipynb`.)*
+- **The agreed grade breaks a three-way tie toward the middle.** On the six photographs where the
+  graders wrote one of each, the published grade is `usable` rather than either extreme. Sensible,
+  and worth knowing before treating the agreed grade as a vote.
+
 - **The shipped cross-validation folds come from an unseeded shuffle.** `dataset_fetch.py` in the
   archive builds them with `sample(frac=1)` and no random seed, so the ten folds are one arbitrary
   draw rather than a split the authors fixed: running the script again gives different folds, and

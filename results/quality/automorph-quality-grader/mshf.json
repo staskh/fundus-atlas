@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "mshf",
-  "fingerprint": "1d8b29f43c3007c2f29edad7c44d3ae008039e3804267de34e2c56478abbedfd",
+  "fingerprint": "1acdb579c9e418ae76554d084e133740315332e3db624af375dd9a0ae0e97bda",
   "model": "automorph-quality-grader",
   "summary": {
     "complete": true,
@@ -9,45 +9,45 @@
     "declined": 0,
     "device": "mps",
     "excluded": {
-      "below the size floor": 229,
+      "below the size floor": 237,
       "no reference to score against": 19
     },
     "failed": 0,
     "gate": {
-      "accuracy": 0.8754512635379061,
-      "carried": 181,
-      "carried_share": 0.3267148014440433,
-      "differs_from_the_verdict": 35,
-      "kappa": 0.7415241057542769,
-      "photographs": 554
+      "accuracy": 0.86996336996337,
+      "carried": 178,
+      "carried_share": 0.326007326007326,
+      "differs_from_the_verdict": 38,
+      "kappa": 0.7310120873173371,
+      "photographs": 546
     },
     "gradeable": {
-      "accuracy": 0.924187725631769,
-      "discarded_of_not_worth": 0.9836601307189542,
-      "kappa": 0.8447972251867663,
-      "kept_of_worth_measuring": 0.8508064516129032,
-      "photographs": 554,
-      "roc_auc": 0.9829683217372971
+      "accuracy": 0.9212454212454212,
+      "discarded_of_not_worth": 0.979933110367893,
+      "kappa": 0.8392952482648158,
+      "kept_of_worth_measuring": 0.8502024291497976,
+      "photographs": 546,
+      "roc_auc": 0.9827427457246151
     },
-    "graded": 554,
-    "photographs": 554,
-    "processed": 554,
+    "graded": 546,
+    "photographs": 546,
+    "processed": 546,
     "reference_grades": [
       "good",
       "bad"
     ],
     "three_class": {
-      "accuracy": 0.7671480144404332,
+      "accuracy": 0.7655677655677655,
       "confusion": {
         "bad": {
-          "bad": 301,
+          "bad": 293,
           "good": 0,
-          "usable": 5
+          "usable": 6
         },
         "good": {
           "bad": 37,
-          "good": 124,
-          "usable": 87
+          "good": 125,
+          "usable": 85
         },
         "usable": {
           "bad": 0,
@@ -55,17 +55,17 @@
           "usable": 0
         }
       },
-      "kappa_quadratic": 0.7528808267043343,
-      "photographs": 554,
+      "kappa_quadratic": 0.7515469531211326,
+      "photographs": 546,
       "recall": {
-        "bad": 0.9836601307189542,
-        "good": 0.5,
+        "bad": 0.979933110367893,
+        "good": 0.5060728744939271,
         "usable": null
       },
       "unused_by_the_reference": [
         "usable"
       ]
     },
-    "total": 554
+    "total": 546
   }
 }

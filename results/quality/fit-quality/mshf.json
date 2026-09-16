@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "mshf",
-  "fingerprint": "24bac83ad2ed98a31ed2d23de54f5db967b7a29c241f9f41148d3c8f6160ad5e",
+  "fingerprint": "87c3eca94922923a170e01ef337df3dcc024e3b1f035419f747c6e152498a853",
   "model": "fit-quality",
   "summary": {
     "complete": true,
@@ -9,34 +9,34 @@
     "declined": 0,
     "device": "mps",
     "excluded": {
-      "below the size floor": 229,
+      "below the size floor": 237,
       "no reference to score against": 19
     },
     "failed": 0,
     "gate": {
-      "accuracy": 0.7563176895306859,
-      "carried": 113,
-      "carried_share": 0.20397111913357402,
+      "accuracy": 0.7564102564102564,
+      "carried": 114,
+      "carried_share": 0.2087912087912088,
       "differs_from_the_verdict": 0,
-      "kappa": 0.48043016131049143,
-      "photographs": 554
+      "kappa": 0.4842105263157894,
+      "photographs": 546
     },
     "gradeable": {
-      "accuracy": 0.7563176895306859,
+      "accuracy": 0.7564102564102564,
       "discarded_of_not_worth": 1.0,
-      "kappa": 0.48043016131049143,
-      "kept_of_worth_measuring": 0.45564516129032256,
-      "photographs": 554,
-      "roc_auc": 0.9817560088551549
+      "kappa": 0.4842105263157894,
+      "kept_of_worth_measuring": 0.46153846153846156,
+      "photographs": 546,
+      "roc_auc": 0.9813074621206993
     },
-    "graded": 554,
-    "photographs": 554,
-    "processed": 554,
+    "graded": 546,
+    "photographs": 546,
+    "processed": 546,
     "reference_grades": [
       "good",
       "bad"
     ],
     "three_class": null,
-    "total": 554
+    "total": 546
   }
 }

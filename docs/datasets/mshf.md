@@ -144,6 +144,13 @@ bounding square takes another 0.9% off the sides of what did survive.
   mask for those is approximate and their `fov` layer should not be trusted for anything measured
   by area. Nothing is lost from the crop — no lit retina falls outside it — but a density computed
   over that mask would be computed over a guess. *(This atlas's finding, 2026-09-15.)*
+- **The agreed score is not a majority vote, on 24 of the 613 photographs that have one.** For
+  `test_dr_xju_189` the three readers wrote bad, good and good, and the agreed score is **bad**;
+  fifteen of the twenty-four go the other way, overriding a majority of `bad` with `good`. Whatever
+  the authors did to reach it — a fourth opinion, a discussion, a re-read — it was not counting
+  votes, and nothing in the archive says what it was. Anyone scoring a model against the agreed
+  score is scoring it against that unexplained step on 4% of the dataset. *(This atlas's finding,
+  2026-09-15; the readers' own scores are published, so the alternative is available.)*
 
 - **DR-XJU-30 and DR-XJU-31 are odd twice over.** They are missing from the agreed-score sheet, and
   they appear in the `AI-use` split as `.png` where every original is `.jpg`.

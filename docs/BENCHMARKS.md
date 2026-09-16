@@ -14,23 +14,23 @@ What this repository measured against what experts annotated, on the same images
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [automorph-quality-grader](models/automorph-quality-grader.md) | fives | 800 | 1.000 | 0.853 | 0.494 | 0.973 | out-of-sample |
 | [automorph-quality-grader](models/automorph-quality-grader.md) | fqs | 2245 | 1.000 | 0.816 | 0.605 | 0.930 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | mshf | 554 | 1.000 | 0.924 | 0.845 | 0.983 | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | mshf | 546 | 1.000 | 0.921 | 0.839 | 0.983 | out-of-sample |
 | [automorph-quality-grader](models/automorph-quality-grader.md) | papila | 488 | 1.000 | 0.391 | — | — | out-of-sample |
 | [fit-quality](models/fit-quality.md) | fives | 800 | 1.000 | 0.570 | 0.181 | 0.973 | out-of-sample |
 | [fit-quality](models/fit-quality.md) | fqs | 2245 | 1.000 | 0.792 | 0.595 | 0.939 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | mshf | 554 | 1.000 | 0.756 | 0.480 | 0.982 | out-of-sample |
+| [fit-quality](models/fit-quality.md) | mshf | 546 | 1.000 | 0.756 | 0.484 | 0.981 | out-of-sample |
 | [fit-quality](models/fit-quality.md) | papila | 488 | 1.000 | 0.279 | — | — | out-of-sample |
 | [quickqual](models/quickqual.md) | fives | 800 | 1.000 | 0.843 | 0.471 | 0.969 | out-of-sample |
 | [quickqual](models/quickqual.md) | fqs | 2245 | 1.000 | 0.824 | 0.639 | 0.909 | out-of-sample |
-| [quickqual](models/quickqual.md) | mshf | 554 | 1.000 | 0.926 | 0.849 | 0.984 | out-of-sample |
+| [quickqual](models/quickqual.md) | mshf | 546 | 1.000 | 0.923 | 0.843 | 0.985 | out-of-sample |
 | [quickqual](models/quickqual.md) | papila | 488 | 1.000 | 0.424 | — | — | out-of-sample |
 | [quickqual-meme](models/quickqual-meme.md) | fives | 800 | 1.000 | 0.725 | 0.315 | 0.955 | out-of-sample |
 | [quickqual-meme](models/quickqual-meme.md) | fqs | 2245 | 1.000 | 0.778 | 0.563 | 0.900 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | mshf | 554 | 1.000 | 0.841 | 0.671 | 0.957 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | mshf | 546 | 1.000 | 0.833 | 0.656 | 0.957 | out-of-sample |
 | [quickqual-meme](models/quickqual-meme.md) | papila | 488 | 1.000 | 0.527 | — | — | out-of-sample |
 | [vascx-quality](models/vascx-quality.md) | fives | 800 | 1.000 | 0.938 | 0.674 | 0.968 | unknown |
 | [vascx-quality](models/vascx-quality.md) | fqs | 2245 | 1.000 | 0.808 | 0.582 | 0.928 | unknown |
-| [vascx-quality](models/vascx-quality.md) | mshf | 554 | 1.000 | 0.919 | 0.836 | 0.967 | unknown |
+| [vascx-quality](models/vascx-quality.md) | mshf | 546 | 1.000 | 0.919 | 0.837 | 0.966 | unknown |
 | [vascx-quality](models/vascx-quality.md) | papila | 488 | 1.000 | 0.555 | — | — | unknown |
 
 ### Where to start, and what the choice turns on
@@ -38,7 +38,7 @@ What this repository measured against what experts annotated, on the same images
 Two questions, and they do not have the same answer. Averaged over the datasets whose reference uses both classes:
 
 - **As they ship**, agreeing with the readers at their own published threshold: **vascx-quality** (κ 0.70) and **quickqual** (κ 0.65). Note that vascx-quality carries `unknown`: nobody published what it trained on, so its lead cannot be called clean.
-- **At ordering photographs**, which is what matters if you will set your own threshold: **fit-quality** (ROC AUC 0.965) and **automorph-quality-grader** (0.962).
+- **At ordering photographs**, which is what matters if you will set your own threshold: **fit-quality** (ROC AUC 0.964) and **automorph-quality-grader** (0.962).
 
 **Those are different models, and that is the finding.** fit-quality separates good photographs from bad ones better than anything else here and then gates on a threshold in the wrong place: it keeps only 55% of the photographs the readers called worth measuring. Re-fit that threshold on your own images and it becomes a different proposition; take it as shipped and it throws away 45% of what your own readers would have kept.
 
@@ -46,4 +46,4 @@ Neither line is a verdict on the models. Coverage, contamination and the thresho
 
 ---
 
-**Generated:** 2026-09-15
+**Generated:** 2026-09-16
