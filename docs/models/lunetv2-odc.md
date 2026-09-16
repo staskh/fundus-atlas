@@ -46,9 +46,18 @@ performance.
 ## 4. What it produces
 
 - **Purpose:** `disc/cup`
-- **Output classes:** the optic disc. The filename's `odc` suggests disc *and cup*, but PVBM uses
-  only the disc, taking the largest contour and fitting a centre and radius; whether a cup channel
-  exists in the file was not established.
+- **Output classes:** **four channels**, of which PVBM reads one. The file emits a
+  `logits` tensor of shape `(batch, 4, 512, 512)`, and `DiscSegmenter.segment` takes channel 0
+  above zero as the disc and never looks at the rest.
+
+  *Our finding (2026-09-16):* channel 0 is the optic disc and **channel 1 is the optic cup** — so
+  the filename's `odc`, for disc *and* cup, is accurate and PVBM discards half of what the model
+  produces. Established by running the file on [PAPILA](../datasets/papila.md) photographs and
+  scoring each channel against both of the outlines the two ophthalmologists drew: channel 0
+  overlaps the expert disc at a Dice score of 0.95 and channel 1 the expert cup at 0.91 to 0.95,
+  while channels 2 and 3 cover most of the frame and correspond to neither structure. The channels
+  are **independent sigmoids rather than one softmax** — they do not sum to one, and channel 0
+  already contains the cup rather than excluding it. What channels 2 and 3 are remains Unknown.
 - **Input grid:** 512×512, square, resized with aspect ratio ignored — so a non-square photograph
   is distorted before the disc is found, and the disc comes back elliptical in proportion to that
   distortion.
@@ -112,10 +121,14 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
   and PVBM caches whatever it downloaded first. Two users running the same PVBM version may
   therefore be running different disc models, and neither could tell. Anyone publishing PVBM
   biomarkers should keep a copy of the file they used, with its checksum.
+- **PVBM reports a disc that the same file could have reported a cup for.** A project computing
+  biomarkers around the optic disc has a cup channel available to it and does not read it; anyone
+  wanting a cup-to-disc ratio from PVBM's disc model can get one, at their own risk, since nothing
+  the authors published evidences that channel's accuracy.
 - **Unknown here is the finding, not a gap to be filled by inference.** The temptation is to assume
   it inherits LUNet's training data; nothing supports that, and the ancestor model performs a
   different task.
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-16

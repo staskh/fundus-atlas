@@ -1,0 +1,11 @@
+key,subset,split,native_side,reader,outcome,resampling,disc_dice,disc_centre_offset,disc_width_error,disc_height_error,disc_radius_error,note
+test_bosch_p10_image2,bosch,test,1438,expert1,graded,"probabilities to native, bilinear, then thresholded",0.981211,1.445886,5.000000,-4.000000,0.765233,
+test_bosch_p10_image2,bosch,test,1438,expert2,graded,"probabilities to native, bilinear, then thresholded",0.970624,1.976388,-7.000000,-9.000000,-3.244489,
+test_bosch_p10_image2,bosch,test,1438,expert3,graded,"probabilities to native, bilinear, then thresholded",0.983954,0.325950,-5.000000,-8.000000,-0.998889,
+test_bosch_p10_image2,bosch,test,1438,expert4,graded,"probabilities to native, bilinear, then thresholded",0.969010,3.964635,1.000000,-8.000000,-3.120102,
+test_bosch_p10_image2,bosch,test,1438,expert5,graded,"probabilities to native, bilinear, then thresholded",0.950413,0.282784,-10.000000,-12.000000,-5.075187,
+test_bosch_p11_image1,bosch,test,1439,expert1,graded,"probabilities to native, bilinear, then thresholded",0.967233,2.304294,-2.000000,-1.000000,1.513074,
+test_bosch_p11_image1,bosch,test,1439,expert2,graded,"probabilities to native, bilinear, then thresholded",0.972448,3.907093,-4.000000,5.000000,1.485645,
+test_bosch_p11_image1,bosch,test,1439,expert3,graded,"probabilities to native, bilinear, then thresholded",0.981249,0.751256,1.000000,2.000000,1.563379,
+test_bosch_p11_image1,bosch,test,1439,expert4,graded,"probabilities to native, bilinear, then thresholded",0.967684,4.516788,-10.000000,4.000000,-0.231097,
+test_bosch_p11_image1,bosch,test,1439,expert5,graded,"probabilities to native, bilinear, then thresholded",0.966633,0.723273,6.000000,-16.000000,-1.025592,

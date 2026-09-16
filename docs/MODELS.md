@@ -53,7 +53,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | [SegFormer disc/cup (pamixsun)](models/segformer-disc-cup.md) | Optic disc and cup | SegFormer transformer, single model | 512² in, 128² logits out | REFUGE | Yes, on Hugging Face | No | Apache-2.0 | — | 2023-09 | 2026-09-10 |
 | [ISFA](models/isfa.md) | Optic disc and cup | DeepLabv3+ with edge attention, image synthesis and feature alignment | 256² | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | **No** | Partly — the image-synthesis stage was never released | None stated | — | 2021-08 | 2026-09-10 |
 | [BEAL](models/beal.md) | Optic disc and cup | DeepLabv3+ with MobileNetV2 backbone, boundary and entropy discriminators | 512² trained; as-stored at test | REFUGE (source); Drishti-GS, RIM-ONE-r3 (unlabelled targets) | Yes | Yes, in the repository | MIT | — | 2021-05 | 2026-09-10 |
-| [LUNet v2 disc (`lunetv2_odc`)](models/lunetv2-odc.md) | Optic disc | Unknown | 512² → back to original | **Unknown** | Yes, from an unversioned Google Drive file | No | None stated; ancestor is CC BY-NC 4.0 | [PVBM](projects/pvbm.md), [OCULARNet](projects/ocularnet.md) | Not applicable | 2026-09-10 |
+| [LUNet v2 disc (`lunetv2_odc`)](models/lunetv2-odc.md) | Optic disc and optic cup; PVBM reads only the disc | Unknown | 512² → back to original | **Unknown** | Yes, from an unversioned Google Drive file | No | None stated; ancestor is CC BY-NC 4.0 | [PVBM](projects/pvbm.md), [OCULARNet](projects/ocularnet.md) | Not applicable | 2026-09-16 |
 
 ### 1.5 Other — landmarks and everything else
 

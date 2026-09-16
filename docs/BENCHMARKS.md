@@ -4,34 +4,57 @@ What this repository measured against what experts annotated, on the same images
 
 **Read a row, not a column.** A result marked `in-sample` or `unknown` is not comparable with one marked `out-of-sample`, and a model agreeing with another model is not evidence that either agrees with an expert.
 
+## Disc
+
+[How it is run](benchmarks/disc-docs.md) · [What came out](benchmarks/disc-results.md)
+
+**A Dice score is read with the errors beside it.** Two models a hundredth apart on overlap can differ by a tenth on the cup-to-disc ratio, which is the number a clinic acts on; the ratio error is signed, so a positive value means the model reads the ratio **high**. Every figure is the mean over each reader's own outline, measured in the native frame, and a photograph count of the form *n of m* means a run that has not finished. **Seconds each** is how long the model itself took per photograph, on the device named in its result, once it was loaded — a measurement of this machine as much as of the model.
+
+| Model | Dataset | Photographs | Outlines | Disc Dice | Cup Dice | Disc centre, px | Cup ratio error | Seconds each | Marked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | chaksu | 2 of 1345 | 10 | 0.970 | 0.862 | 2.197 | -0.167 | 1.168 | out-of-sample |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | grape | 2 of 631 | 2 | 0.941 | 0.708 | 4.587 | 0.027 | 0.247 | out-of-sample |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | papila | 2 of 488 | 4 | 0.796 | 0.759 | 62.310 | 0.067 | 0.241 | out-of-sample |
+| [lunetv2-odc](models/lunetv2-odc.md) | chaksu | 2 of 1345 | 10 | 0.958 | 0.832 | 2.587 | -0.032 | 0.805 | unknown |
+| [lunetv2-odc](models/lunetv2-odc.md) | grape | 2 of 631 | 2 | 0.934 | 0.550 | 6.080 | 0.162 | 0.325 | unknown |
+| [lunetv2-odc](models/lunetv2-odc.md) | papila | 2 of 488 | 4 | 0.939 | 0.891 | 6.453 | -0.005 | 0.293 | unknown |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | chaksu | 2 of 1345 | 10 | 0.971 | 0.811 | 2.161 | -0.073 | 0.653 | out-of-sample |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | grape | 2 of 631 | 2 | 0.911 | 0.583 | 11.260 | 0.117 | 0.238 | out-of-sample |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | papila | 2 of 488 | 4 | 0.947 | 0.890 | 9.270 | 0.017 | 0.202 | out-of-sample |
+| [vascx-disc](models/vascx-disc.md) | chaksu | 2 of 1345 | 10 | 0.971 | — | 2.020 | — | 2.505 | unknown |
+| [vascx-disc](models/vascx-disc.md) | grape | 2 of 631 | 2 | 0.936 | — | 3.524 | — | 1.115 | unknown |
+| [vascx-disc](models/vascx-disc.md) | papila | 2 of 488 | 4 | 0.973 | — | 4.687 | — | 1.109 | unknown |
+
+Read a dash as *not measured* rather than as zero: a model that finds no cup has no cup row to average.
+
 ## Quality
 
 [How it is run](benchmarks/quality-docs.md) · [What came out](benchmarks/quality-results.md)
 
-**Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash means the metric has nothing to measure — a dataset whose reference has only one class supports neither κ nor a ranking — and a photograph count of the form *n of m* means a run that has not finished.
+**Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash means the metric has nothing to measure — a dataset whose reference has only one class supports neither κ nor a ranking — and a photograph count of the form *n of m* means a run that has not finished. **Seconds each** is how long the model itself took per photograph, on the device named in its result, once it was loaded — a measurement of this machine as much as of the model.
 
-| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | Marked |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | fives | 800 | 1.000 | 0.853 | 0.494 | 0.973 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | fqs | 2245 | 1.000 | 0.816 | 0.605 | 0.930 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | mshf | 546 | 1.000 | 0.921 | 0.839 | 0.983 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | papila | 488 | 1.000 | 0.391 | — | — | out-of-sample |
-| [fit-quality](models/fit-quality.md) | fives | 800 | 1.000 | 0.570 | 0.181 | 0.973 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | fqs | 2245 | 1.000 | 0.792 | 0.595 | 0.939 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | mshf | 546 | 1.000 | 0.756 | 0.484 | 0.981 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | papila | 488 | 1.000 | 0.279 | — | — | out-of-sample |
-| [quickqual](models/quickqual.md) | fives | 800 | 1.000 | 0.843 | 0.471 | 0.969 | out-of-sample |
-| [quickqual](models/quickqual.md) | fqs | 2245 | 1.000 | 0.824 | 0.639 | 0.909 | out-of-sample |
-| [quickqual](models/quickqual.md) | mshf | 546 | 1.000 | 0.923 | 0.843 | 0.985 | out-of-sample |
-| [quickqual](models/quickqual.md) | papila | 488 | 1.000 | 0.424 | — | — | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | fives | 800 | 1.000 | 0.725 | 0.315 | 0.955 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | fqs | 2245 | 1.000 | 0.778 | 0.563 | 0.900 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | mshf | 546 | 1.000 | 0.833 | 0.656 | 0.957 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | papila | 488 | 1.000 | 0.527 | — | — | out-of-sample |
-| [vascx-quality](models/vascx-quality.md) | fives | 800 | 1.000 | 0.938 | 0.674 | 0.968 | unknown |
-| [vascx-quality](models/vascx-quality.md) | fqs | 2245 | 1.000 | 0.808 | 0.582 | 0.928 | unknown |
-| [vascx-quality](models/vascx-quality.md) | mshf | 546 | 1.000 | 0.919 | 0.837 | 0.966 | unknown |
-| [vascx-quality](models/vascx-quality.md) | papila | 488 | 1.000 | 0.555 | — | — | unknown |
+| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | Seconds each | Marked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | fives | 800 | 1.000 | 0.853 | 0.494 | 0.973 | — | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | fqs | 2245 | 1.000 | 0.816 | 0.605 | 0.930 | — | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | mshf | 546 | 1.000 | 0.921 | 0.839 | 0.983 | — | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | papila | 488 | 1.000 | 0.391 | — | — | — | out-of-sample |
+| [fit-quality](models/fit-quality.md) | fives | 800 | 1.000 | 0.570 | 0.181 | 0.973 | — | out-of-sample |
+| [fit-quality](models/fit-quality.md) | fqs | 2245 | 1.000 | 0.792 | 0.595 | 0.939 | — | out-of-sample |
+| [fit-quality](models/fit-quality.md) | mshf | 546 | 1.000 | 0.756 | 0.484 | 0.981 | — | out-of-sample |
+| [fit-quality](models/fit-quality.md) | papila | 488 | 1.000 | 0.279 | — | — | — | out-of-sample |
+| [quickqual](models/quickqual.md) | fives | 800 | 1.000 | 0.843 | 0.471 | 0.969 | — | out-of-sample |
+| [quickqual](models/quickqual.md) | fqs | 2245 | 1.000 | 0.824 | 0.639 | 0.909 | — | out-of-sample |
+| [quickqual](models/quickqual.md) | mshf | 546 | 1.000 | 0.923 | 0.843 | 0.985 | — | out-of-sample |
+| [quickqual](models/quickqual.md) | papila | 488 | 1.000 | 0.424 | — | — | — | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | fives | 800 | 1.000 | 0.725 | 0.315 | 0.955 | — | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | fqs | 2245 | 1.000 | 0.778 | 0.563 | 0.900 | — | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | mshf | 546 | 1.000 | 0.833 | 0.656 | 0.957 | — | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | papila | 488 | 1.000 | 0.527 | — | — | — | out-of-sample |
+| [vascx-quality](models/vascx-quality.md) | fives | 800 | 1.000 | 0.938 | 0.674 | 0.968 | — | unknown |
+| [vascx-quality](models/vascx-quality.md) | fqs | 2245 | 1.000 | 0.808 | 0.582 | 0.928 | — | unknown |
+| [vascx-quality](models/vascx-quality.md) | mshf | 546 | 1.000 | 0.919 | 0.837 | 0.966 | — | unknown |
+| [vascx-quality](models/vascx-quality.md) | papila | 488 | 1.000 | 0.555 | — | — | — | unknown |
 
 ### Where to start, and what the choice turns on
 

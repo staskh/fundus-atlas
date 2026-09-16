@@ -30,9 +30,51 @@ VERSION = 1
 #: built is warned about, recorded, and stepped over.
 DATASETS = ("chaksu", "grape", "papila", "refuge", "drishti-gs", "origa", "rim-one-dl")
 
-#: The models, by the slug of their catalogue page. ISFA is declared and has no adapter: its
-#: repository publishes an ImageNet backbone rather than a trained model.
+#: The models, by the slug of their catalogue page.
 MODELS = ("vascx-disc", "automorph-disc-cup", "segformer-disc-cup", "beal", "lunetv2-odc", "isfa")
+
+#: Why a declared model has no adapter, where the reason is worth more than "nobody wrote one".
+#: A model the benchmark asks for and cannot run is a standing question, not an oversight.
+WHY_NOT = {
+    "isfa": (
+        "its repository publishes an ImageNet backbone under `pretrained_model/`, not trained "
+        "weights — checked against the repository, and its own weights link now 404s"
+    ),
+    "beal": (
+        "no adapter yet: its weights are an unversioned Google Drive folder, so nothing can be "
+        "pinned, and its inference expects the authors' own preprocessed directory layout"
+    ),
+}
+
+#: Datasets worth fetching next, and what each would settle that the built ones cannot. Three of
+#: the models here trained on REFUGE, so the first line is what turns "these models agree with each
+#: other" from a suspicion into a measured contrast.
+WORTH_FETCHING = (
+    (
+        "refuge",
+        "three of the models here trained on it, so it is what turns an in-sample suspicion into "
+        "a measured contrast",
+        "registration",
+    ),
+    (
+        "drishti-gs",
+        "four experts **and soft probability maps** — the only dataset here publishing annotator "
+        "uncertainty as a map rather than as separate outlines",
+        "direct",
+    ),
+    (
+        "origa",
+        "publishes `ExpCDR`, an expert cup-to-disc ratio **as a number**, which is the strongest "
+        "available check that a ratio derived from contours means what this benchmark thinks",
+        "needs an archive by hand",
+    ),
+    (
+        "rim-one-dl",
+        "BEAL's other unlabelled target domain; it completes the contamination picture for that "
+        "model once there is an adapter for it",
+        "direct",
+    ),
+)
 
 #: How many photographs go to the model at once. Lower than the quality benchmark's: these models
 #: work at 512 or 1024 and their outputs are resampled to native, which is where the memory goes.
@@ -342,6 +384,7 @@ def main(asked) -> None:
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
 
     declared, missing_adapters = adapters(list(MODELS), asked.device)
+    missing_adapters = {slug: WHY_NOT.get(slug, why) for slug, why in missing_adapters.items()}
     missing_stores = missing_datasets(list(DATASETS), root)
 
     if asked.report:
@@ -495,6 +538,19 @@ def docs_sections(
         "**Black canvas** is the share of the square the store built that is not photograph. A "
         "fundus cut off at top and bottom leaves bands there, and a model sees the square it is "
         "handed."
+    )
+    yield ""
+    yield "### 3.1 What is worth fetching next, and what each would settle"
+    yield ""
+    yield "| Dataset | What it would settle | Cost |"
+    yield "| --- | --- | --- |"
+    for slug, why, cost in WORTH_FETCHING:
+        yield f"| [{slug}](../datasets/{slug}.md) | {why} | {cost} |"
+    yield ""
+    yield (
+        "[RIGA](../datasets/riga.md) is the painful exclusion: 750 photographs each outlined by "
+        "**six** ophthalmologists, and every one of its images is a crop rather than a photograph, "
+        "so the crop rule of section 4 excludes it whole."
     )
     yield ""
     yield "## 4. What is excluded, and by which rule"

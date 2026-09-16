@@ -1,0 +1,88 @@
+{
+  "benchmark": "disc",
+  "dataset": "chaksu",
+  "fingerprint": "cc35c89109d599822d34e4f36f7d5640bf27157ea25a3e072403187108be006a",
+  "model": "lunetv2-odc",
+  "summary": {
+    "complete": false,
+    "cup_area_ratio_error": {
+      "mean": -0.0076431000000000025,
+      "median": 0.017267,
+      "n": 10,
+      "spread": 0.06395630150102491
+    },
+    "cup_centre_offset": {
+      "mean": 11.7970425,
+      "median": 12.106138999999999,
+      "n": 10,
+      "spread": 5.2665995534572065
+    },
+    "cup_dice": {
+      "mean": 0.8323845999999999,
+      "median": 0.8252520000000001,
+      "n": 10,
+      "spread": 0.04537008701600648
+    },
+    "cup_height_error": {
+      "mean": -10.3,
+      "median": -9.0,
+      "n": 10,
+      "spread": 13.214007719083563
+    },
+    "cup_outside_its_disc": {
+      "mean": 0.0,
+      "median": 0.0,
+      "n": 10,
+      "spread": 0.0
+    },
+    "cup_radius_error": {
+      "mean": -2.4139711,
+      "median": 0.5111725,
+      "n": 10,
+      "spread": 6.252703482818747
+    },
+    "cup_vertical_ratio_error": {
+      "mean": -0.03209,
+      "median": -0.013250499999999998,
+      "n": 10,
+      "spread": 0.06162396811468732
+    },
+    "device": "cpu",
+    "disc_centre_offset": {
+      "mean": 2.5872562,
+      "median": 2.7319735,
+      "n": 10,
+      "spread": 1.1820818736375074
+    },
+    "disc_dice": {
+      "mean": 0.9579571,
+      "median": 0.954533,
+      "n": 10,
+      "spread": 0.010912480629536073
+    },
+    "disc_height_error": {
+      "mean": -5.7,
+      "median": -5.5,
+      "n": 10,
+      "spread": 5.745432968889291
+    },
+    "disc_radius_error": {
+      "mean": -3.4784903999999996,
+      "median": -3.256681,
+      "n": 10,
+      "spread": 1.998387893695676
+    },
+    "excluded": {},
+    "failed": 0,
+    "outlines": 10,
+    "photographs": 2,
+    "processed": 2,
+    "seconds_per_photograph": 0.8045093328692019,
+    "structures": [
+      "disc",
+      "cup"
+    ],
+    "timed_photographs": 2,
+    "total": 1345
+  }
+}
