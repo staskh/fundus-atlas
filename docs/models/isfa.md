@@ -80,10 +80,21 @@ small, which is the realistic case for a single clinic.
 
 ## 7. Weights
 
-- **Publicly available:** **No.** The `checkpoint/` and `logs/` folders contain only placeholder
-  files. The only committed weights are the ImageNet MobileNetV2 backbone
-  (`pretrained_model/mobilenet_v2-6a65762b.pth`), which is not a trained ISFA model.
-- **Download URL:** None.
+- **Publicly available:** **No.** The repository holds 38 files and exactly one checkpoint, and it
+  is not the model. Checked again on 2026-09-16:
+  - `pretrained_model/` contains one file, `mobilenet_v2-6a65762b.pth`, 9,077,711 bytes. It is the
+    **ImageNet MobileNetV2 backbone**, loaded by `networks/backbone/mobilenet.py` line 126 —
+    `model_zoo.load_url('http://jeff95.me/models/mobilenet_v2-6a65762b.pth', model_dir=...)` —
+    which runs when the backbone is constructed with `pretrained=True`. It is what training starts
+    *from*, not what training produced.
+  - The trained model is loaded elsewhere: `test.py` takes `--model-file`, defaulting to
+    `./logs/Drishti-GS/DGS_weights.tar`. `logs/` contains a one-byte `README.md` and nothing else,
+    as does `checkpoint/`.
+  - No other `.pth`, `.pt`, `.tar` or `.ckpt` exists anywhere in the tree.
+- **Download URL:** None for the model. The backbone's own URL,
+  `http://jeff95.me/models/mobilenet_v2-6a65762b.pth`, is **dead** — it returns 404 as of
+  2026-09-16 — so even the ImageNet initialisation survives only as the copy committed here, and
+  a reader should not mistake that copy for the thing the paper measured.
 - **Format and size:** Not applicable.
 - **Files in an ensemble:** Not applicable.
 
@@ -127,4 +138,4 @@ this page.
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-16
