@@ -40,6 +40,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | [OCULARNet](models/ocularnet.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-b3 encoder | 1024², **only with `--resize`** | 14 public A/V datasets | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
 | [OCULARNet-nano](models/ocularnet-nano.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-a0 encoder, ensemble of 5 | 1024², **only with `--resize`** | The same 14 datasets, five folds | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
 | [VascX artery/vein](models/vascx-artery-vein.md) | Artery against vein | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [Retina-MVP A/V](models/retina-mvp-av.md) | Background, artery, vein | U-Net with a ResNet-34 encoder | 512² → back to original, nearest neighbour | **Unknown — none named** | Yes | Yes, in the repository | **None stated** | — | 2025-12 | 2026-09-16 |
 | [LUNet](models/lunet.md) | Arterioles and venules | U-Net variant, TensorFlow | 1472² | UZLF (Leuven-Haifa) 1444×1444 | Yes | Yes, in the repository | **CC BY-NC 4.0 — non-commercial** | — | 2024-12 | 2026-09-10 |
 | [Big W-Net](models/big-wnet.md) | Artery against vein | W-Net, larger configuration | 512² or 1024², by config | DRIVE-AV, HRF-AV | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
 | [BF-Net](models/bf-net.md) | Artery against vein, by binary-to-multi fusion | GAN-based, main plus branch generator | 720² → back to original | DRIVE-AV, LES-AV, HRF-AV | Yes | Yes, in the repository | GPL-3.0 | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2023-02 | 2026-09-10 |
@@ -180,8 +181,11 @@ IDRID, FGADR, DDR, MESSIDOR and RETLES.
 - [izzudd/retina-segmentation-chase](https://huggingface.co/izzudd/retina-segmentation-chase) — a
   UNet++ whose card leaves dataset and metrics as "[More Information Needed]".
 
-No usable artery/vein model was found on Hugging Face beyond the already-catalogued
-[VascX](models/vascx-artery-vein.md) weights, whose repository name the search terms do not match.
+One further artery/vein model has since been catalogued from Hugging Face:
+[Retina-MVP A/V](models/retina-mvp-av.md), published in 2025-12 with no model card, no licence and
+no statement of what it trained on. Beyond it and the already-catalogued
+[VascX](models/vascx-artery-vein.md) weights — whose repository name the search terms do not
+match — no usable artery/vein model was found.
 Two near-misses by the same author are worth naming so nobody chases them:
 [ClementP/AVSeg](https://huggingface.co/ClementP/AVSeg) announces artery/vein segmentation but
 contains no weights at all, only a licence file, and
