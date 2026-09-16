@@ -3,6 +3,7 @@
 
 import json
 import sys
+import time
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -171,16 +172,22 @@ def _pair(
     done = {row["key"] for row in kept}
     loader.restrict({row["key"] for row in loader.rows} - done)
 
+    timed = runs.Timing()
     if len(loader):
         print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
-        fresh = _outline(adapter, loader, batch)
+        fresh = _outline(adapter, loader, batch, timed)
     else:
         print(f"{adapter.slug} × {slug}: kept — nothing left to measure", flush=True)
         fresh = []
 
     evidence = sorted(kept + fresh, key=lambda row: (row["key"], row["reader"]))
     counts = runs.counts(len({row["key"] for row in evidence}), loader.total, loader.excluded)
-    summary = {**_summarise(evidence, declared["structures"]), "device": declared.get("device")}
+    stored = runs.read(results, NAME, adapter.slug, slug) if kept else None
+    summary = {
+        **_summarise(evidence, declared["structures"]),
+        **runs.kept_timing(stored, timed),
+        "device": declared.get("device"),
+    }
     runs.write(results, NAME, adapter.slug, slug, identity, {**summary, **counts}, evidence)
     return {
         "model": adapter.slug,
@@ -196,10 +203,13 @@ def _pair(
     }
 
 
-def _outline(adapter, loader: DiscCupLoader, batch: int) -> list[dict[str, object]]:
+def _outline(
+    adapter, loader: DiscCupLoader, batch: int, timed: runs.Timing
+) -> list[dict[str, object]]:
     """Every photograph still to be scored, measured against each reader who drew on it."""
     rows = []
     for sample in DataLoader(loader, batch_size=batch, collate_fn=collate, shuffle=False):
+        started = time.perf_counter()
         try:
             answers = adapter.outline(sample["image"], sample["native_side"])
         except Exception as failure:  # a crash is the model's answer to nothing
@@ -207,6 +217,7 @@ def _outline(adapter, loader: DiscCupLoader, batch: int) -> list[dict[str, objec
             note = repr(failure)
         else:
             note = ""
+            timed.record(time.perf_counter() - started, len(sample["key"]))
         for index, key in enumerate(sample["key"]):
             rows.extend(_rows(key, sample, index, answers[index], note))
     return rows
@@ -513,14 +524,16 @@ def index_section(records: list[dict[str, object]]) -> Iterable[str]:
         "overlap can differ by a tenth on the cup-to-disc ratio, which is the number a clinic "
         "acts on; the ratio error is signed, so a positive value means the model reads the ratio "
         "**high**. Every figure is the mean over each reader's own outline, measured in the native "
-        "frame, and a photograph count of the form *n of m* means a run that has not finished."
+        "frame, and a photograph count of the form *n of m* means a run that has not finished. "
+        "**Seconds each** is how long the model itself took per photograph, on the device named in "
+        "its result, once it was loaded — a measurement of this machine as much as of the model."
     )
     yield ""
     yield (
         "| Model | Dataset | Photographs | Outlines | Disc Dice | Cup Dice | "
-        "Disc centre, px | Cup ratio error | Marked |"
+        "Disc centre, px | Cup ratio error | Seconds each | Marked |"
     )
-    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
     for record in records:
         summary = record["summary"]
         done = summary.get("processed", "—")
@@ -532,6 +545,7 @@ def index_section(records: list[dict[str, object]]) -> Iterable[str]:
             f"{_mean(summary, 'disc_dice')} | {_mean(summary, 'cup_dice')} | "
             f"{_mean(summary, 'disc_centre_offset')} | "
             f"{_mean(summary, 'cup_vertical_ratio_error')} | "
+            f"{report.seconds(summary)} | "
             f"{contamination.mark(record['model'], record['dataset'])} |"
         )
     yield ""

@@ -112,17 +112,31 @@ def _docs(
         "a file that holds four hundred leaves all four hundred alone."
     )
     yield ""
-    yield "## 8. The three counts every result carries"
+    yield "## 8. The counts every result carries"
     yield ""
     yield "| Recorded | Means |"
     yield "| --- | --- |"
     yield "| `processed` | how many photographs this model has actually scored |"
     yield "| `total` | how many the benchmark would ask about, after the exclusions of section 4 |"
     yield "| `excluded` | how many those exclusions removed, by reason |"
+    yield (
+        "| `seconds_per_photograph` | how long the model itself took per photograph, on the "
+        "device the result names |"
+    )
+    yield "| `timed_photographs` | how many photographs that timing covers |"
     yield ""
     yield (
         "`processed ≤ total`, and `total + excluded` is what the store holds: a photograph is "
         "either one the benchmark asks about or one it excluded, never both and never neither."
+    )
+    yield ""
+    yield (
+        "The timing covers the model's own call and nothing around it — not reading the "
+        "photograph, not scoring the answer. The batch that loads the weights is left out of it "
+        "whenever there is another batch to average over, and a run that measured nothing keeps "
+        "the timing it already had rather than reporting none. It is **not** part of the "
+        "fingerprint: how fast a model answered does not change what it said, and the same "
+        "weights on another machine would give another number."
     )
     yield ""
     yield "---"
@@ -143,6 +157,12 @@ def pin(upstream: dict[str, object]) -> str:
 
 def number(value: float | None) -> str:
     return "—" if value is None else f"{value:.3f}"
+
+
+def seconds(summary: dict[str, object]) -> str:
+    """How long a model took per photograph, where a run recorded it."""
+    taken = summary.get("seconds_per_photograph")
+    return "—" if taken is None else f"{float(taken):.3f}"
 
 
 def today() -> str:

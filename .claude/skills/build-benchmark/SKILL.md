@@ -186,6 +186,20 @@ it counts — the exclusions of section 2. The three relate as `processed ≤ to
 `total + excluded` is what the store holds: a photograph is either one the benchmark asks about
 or one it excluded, never both and never neither.
 
+**Every result also records how long the model took**, as `seconds_per_photograph` and the
+`timed_photographs` that number covers. A gate that takes a tenth of a second and one that takes
+four are not interchangeable in front of a study of fifty thousand photographs, whatever their
+agreement scores say, so the run measures it rather than leaving a reader to guess.
+
+Three rules keep the number honest. It times **the model's own call and nothing around it** — not
+reading the photograph, not scoring the answer. It **leaves out the batch that loaded the weights**
+whenever there is another batch to average over, because those seconds belong to starting the model
+rather than to measuring a photograph. And it is **never part of the fingerprint**: how fast a model
+answered does not change what it said, so a faster machine must not throw away a stored score. A
+resumed run that measured nothing keeps the timing it already had, and the device it ran on is
+recorded beside it — this measures the machine as much as the model, and the results page must say
+so wherever it quotes one.
+
 **Every per-image row carries the same columns**, including for a photograph the model failed on: a
 file whose columns depend on which photograph came first is not evidence of anything. Every column
 is explained in the benchmark's `-docs.md` page; a column that page does not explain is a bug.

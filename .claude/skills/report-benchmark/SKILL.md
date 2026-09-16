@@ -91,7 +91,11 @@ with it:
 - **the second, whenever it is close**, with the margin. Two models a hundredth apart are not
   ordered by that hundredth;
 - **the caveats that would change the answer**: a contamination mark, a threshold set on other
-  data, a dataset whose reference is assumed rather than published.
+  data, a dataset whose reference is assumed rather than published;
+- **what it costs to run**, from the seconds per photograph the results record, wherever two models
+  are close on agreement. A tenth of a second and four seconds are the same score and different
+  advice, and the reader choosing between them is usually the one with a lot of photographs. Name
+  the device the timing came from: it measures the machine as much as the model.
 
 What is still forbidden is a bare ordering: a column sorted by score with no statement of what the
 score answers, no margin, and no caveat. A recommendation is an argument, and an argument can be

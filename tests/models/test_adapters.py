@@ -147,3 +147,24 @@ def test_every_segmenter_says_which_structures_it_finds(slug: str) -> None:
     assert set(declared["structures"]) <= {"disc", "cup"}
     assert declared["structures"], "a segmenter that finds neither structure is not one"
     assert "resampling" in declared, "how a mask reached the native frame moves every metric"
+
+
+def test_automorph_counts_the_cup_as_part_of_the_disc() -> None:
+    """Its three classes are exclusive; an expert's disc outline is not.
+
+    AutoMorph's network emits background, a disc *ring* and a cup, so the pixels it calls cup are
+    not in its disc class. An ophthalmologist's disc contour contains the cup, so the two are
+    compared only once the ring and the cup are put back together.
+    """
+    adapter = catalogue.load("automorph-disc-cup", device="cpu")
+    probabilities = np.zeros((1, 3, 4, 4), dtype=np.float32)
+    probabilities[0, 0] = 1.0  # background everywhere
+    probabilities[0, :, 1:3, 1:3] = [[[0.0]], [[1.0]], [[0.0]]]  # a ring of disc
+    probabilities[0, :, 2, 2] = [0.0, 0.0, 1.0]  # one cup pixel inside it
+
+    outlined = type(adapter).interpret(probabilities, sides=[4])[0]
+
+    assert outlined.masks["disc"][2, 2], "the cup pixel is inside the disc it sits in"
+    assert outlined.masks["cup"][2, 2]
+    assert outlined.masks["disc"].sum() == 4
+    assert outlined.masks["cup"].sum() == 1

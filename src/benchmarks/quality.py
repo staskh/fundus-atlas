@@ -3,6 +3,7 @@
 
 import json
 import sys
+import time
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -203,20 +204,23 @@ def _pair(
     done = {entry["key"] for entry in kept}
     loader.restrict({row["key"] for row in loader.rows} - done)
 
+    timed = runs.Timing()
     if len(loader):
         print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
-        fresh = _rows(loader, _grade(adapter, loader, batch))
+        fresh = _rows(loader, _grade(adapter, loader, batch, timed))
     else:
         print(f"{adapter.slug} × {slug}: kept, nothing left to measure", flush=True)
         fresh = []
 
     evidence = sorted(kept + fresh, key=lambda entry: entry["key"])
     counts = runs.counts(len(evidence), loader.total, loader.excluded)
+    stored = runs.read(results, NAME, adapter.slug, slug) if kept else None
     summary = {
         **scoring.summarise(
             {entry["key"]: entry["grade"] for entry in evidence},
             [scoring.restored(entry) for entry in evidence],
         ),
+        **runs.kept_timing(stored, timed),
         "device": declared.get("device"),
     }
     runs.write(results, NAME, adapter.slug, slug, identity, {**summary, **counts}, evidence)
@@ -253,11 +257,13 @@ FINGERPRINTED = (
 )
 
 
-def _grade(adapter, loader: QualityLoader, batch: int) -> list:
+def _grade(adapter, loader: QualityLoader, batch: int, timed: runs.Timing) -> list:
     """Every photograph still to be scored, in batches at the model's own grid."""
     graded = []
     for sample in DataLoader(loader, batch_size=batch, collate_fn=collate, shuffle=False):
+        started = time.perf_counter()
         graded.extend(adapter.grade(sample["image"], sample["key"]))
+        timed.record(time.perf_counter() - started, len(sample["key"]))
     return graded
 
 
@@ -486,11 +492,16 @@ def index_section(records: list[dict[str, object]]) -> Iterable[str]:
         "class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash "
         "means the metric has nothing to measure — a dataset whose reference has only one class "
         "supports neither κ nor a ranking — and a photograph count of the form *n of m* means a "
-        "run that has not finished."
+        "run that has not finished. **Seconds each** is how long the model itself took per "
+        "photograph, on the device named in its result, once it was loaded — a measurement of this "
+        "machine as much as of the model."
     )
     yield ""
-    yield ("| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | Marked |")
-    yield "| --- | --- | --- | --- | --- | --- | --- | --- |"
+    yield (
+        "| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | "
+        "Seconds each | Marked |"
+    )
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
     for record in records:
         summary = record["summary"]
         level = summary.get("gradeable", {})
@@ -502,6 +513,7 @@ def index_section(records: list[dict[str, object]]) -> Iterable[str]:
             f"{done} | {report.number(summary.get('coverage'))} | "
             f"{report.number(level.get('accuracy'))} | {report.number(level.get('kappa'))} | "
             f"{report.number(level.get('roc_auc'))} | "
+            f"{report.seconds(summary)} | "
             f"{contamination.mark(record['model'], record['dataset'])} |"
         )
     yield ""

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 import torch
 from conftest import row, write_contours, write_store
 
@@ -214,3 +215,23 @@ def test_the_index_reports_what_a_disc_run_measured(tmp_path: Path) -> None:
     assert "## Disc" in written
     assert "circles" in written
     assert "Disc Dice" in written
+
+
+def test_a_run_records_how_long_the_model_took_per_photograph(tmp_path: Path) -> None:
+    scored = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path)
+    )
+
+    assert scored[0]["summary"]["seconds_per_photograph"] > 0
+    assert scored[0]["summary"]["timed_photographs"] == 2
+
+
+def test_a_run_that_measured_nothing_keeps_the_timing_it_had(tmp_path: Path) -> None:
+    store = a_store(tmp_path)
+    first = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+
+    again = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+
+    assert again[0]["summary"]["seconds_per_photograph"] == pytest.approx(
+        first[0]["summary"]["seconds_per_photograph"]
+    )
