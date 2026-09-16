@@ -1,7 +1,6 @@
 # ABOUTME: The photographs of a disc-and-cup benchmark, with every reader's outline of every
 # ABOUTME: structure, in the native frame the expert drew in.
 
-from pathlib import Path
 
 import numpy as np
 

@@ -3,8 +3,9 @@
 
 from pathlib import Path
 
-from benchmarks.loaders import disc
 from conftest import row, write_contours, write_store
+
+from benchmarks.loaders import disc
 
 
 def a_store(tmp_path: Path, readers=("expert1", "expert2")) -> Path:
