@@ -99,9 +99,7 @@ def a_store(tmp_path: Path, keys: str = "ab") -> Path:
 
 
 def test_a_run_scores_every_photograph_against_every_reader(tmp_path: Path) -> None:
-    scored = disc.run(
-        [Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path)
-    )
+    scored = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
 
     assert scored[0]["summary"]["photographs"] == 2
     assert scored[0]["summary"]["outlines"] == 4, "two photographs, two readers each"
@@ -209,13 +207,9 @@ def test_the_page_saying_how_it_is_run_describes_what_is_measured(tmp_path: Path
 
 
 def test_the_index_reports_what_a_disc_run_measured(tmp_path: Path) -> None:
-    disc.run(
-        [Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path)
-    )
+    disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
 
-    written = report.write_index(
-        results=tmp_path / "results", into=tmp_path / "docs"
-    ).read_text()
+    written = report.write_index(results=tmp_path / "results", into=tmp_path / "docs").read_text()
 
     assert "## Disc" in written
     assert "circles" in written
