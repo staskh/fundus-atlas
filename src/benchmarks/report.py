@@ -68,18 +68,55 @@ def write_results(
     evidence: dict[tuple[str, str], list[dict[str, str]]],
     missing_models: dict[str, str] | None = None,
     missing_datasets: dict[str, str] | None = None,
+    results: Path = runs.RESULTS,
     into: Path = DIRECTORY,
 ) -> Path:
-    """Write the page saying what came out, model by model."""
+    """Write the page saying what came out, model by model.
+
+    Built from **everything in `results/`**, not only from the run that has just finished: a run
+    narrowed to one model or one dataset must not rewrite the page as though the rest had never
+    been measured. The run's own entries are preferred where they overlap, because they are the
+    freshest reading of the same pair.
+    """
     into.mkdir(parents=True, exist_ok=True)
     path = into / f"{benchmark}-results.md"
+    everything = _everything_measured(benchmark, scored, evidence, results)
     path.write_text(
         "\n".join(
-            _results(benchmark, scored, evidence, missing_models or {}, missing_datasets or {})
+            _results(benchmark, *everything, missing_models or {}, missing_datasets or {})
         )
         + "\n"
     )
     return path
+
+
+def _everything_measured(
+    benchmark: str,
+    scored: list[dict[str, object]],
+    evidence: dict[tuple[str, str], list[dict[str, str]]],
+    results: Path,
+) -> tuple[list[dict[str, object]], dict[tuple[str, str], list[dict[str, str]]]]:
+    """Every result this benchmark holds, with the fresh ones in place of their stored copies."""
+    fresh = {(entry["model"], entry["dataset"]): entry for entry in scored}
+    merged = dict(fresh)
+    rows = dict(evidence)
+    for record in _stored(results / benchmark):
+        pair = (record["model"], record["dataset"])
+        if pair in merged:
+            continue
+        summary = record["summary"]
+        merged[pair] = {
+            "model": record["model"],
+            "dataset": record["dataset"],
+            "summary": summary,
+            "counts": {
+                name: summary[name]
+                for name in ("processed", "total", "complete", "excluded")
+                if name in summary
+            },
+        }
+        rows[pair] = runs.rows(results, benchmark, *pair)
+    return list(merged.values()), rows
 
 
 def _docs(

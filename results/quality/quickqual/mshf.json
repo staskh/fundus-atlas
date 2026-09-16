@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "mshf",
-  "fingerprint": "6a533b2d0ce8336757cba0ff2d01f61adca65ab68cb5a8c0b82eb0adde938332",
+  "fingerprint": "89dccecf344714125025537db9a96fdc718cb7aed3536660f2006f69ede521ed",
   "model": "quickqual",
   "summary": {
     "complete": true,
@@ -9,38 +9,38 @@
     "declined": 0,
     "device": "mps",
     "excluded": {
-      "below the size floor": 229,
+      "below the size floor": 237,
       "no reference to score against": 19
     },
     "failed": 0,
     "gate": null,
     "gradeable": {
-      "accuracy": 0.9259927797833934,
-      "discarded_of_not_worth": 0.9803921568627451,
-      "kappa": 0.8486681679480859,
-      "kept_of_worth_measuring": 0.8588709677419355,
-      "photographs": 554,
-      "roc_auc": 0.9839829749103942
+      "accuracy": 0.9230769230769231,
+      "discarded_of_not_worth": 0.979933110367893,
+      "kappa": 0.8430884184308842,
+      "kept_of_worth_measuring": 0.854251012145749,
+      "photographs": 546,
+      "roc_auc": 0.9853154238825776
     },
-    "graded": 554,
-    "photographs": 554,
-    "processed": 554,
+    "graded": 546,
+    "photographs": 546,
+    "processed": 546,
     "reference_grades": [
       "good",
       "bad"
     ],
     "three_class": {
-      "accuracy": 0.8483754512635379,
+      "accuracy": 0.8461538461538461,
       "confusion": {
         "bad": {
-          "bad": 300,
+          "bad": 293,
           "good": 3,
           "usable": 3
         },
         "good": {
-          "bad": 35,
-          "good": 170,
-          "usable": 43
+          "bad": 36,
+          "good": 169,
+          "usable": 42
         },
         "usable": {
           "bad": 0,
@@ -48,17 +48,17 @@
           "usable": 0
         }
       },
-      "kappa_quadratic": 0.8074078756083687,
-      "photographs": 554,
+      "kappa_quadratic": 0.8023783885013344,
+      "photographs": 546,
       "recall": {
-        "bad": 0.9803921568627451,
-        "good": 0.6854838709677419,
+        "bad": 0.979933110367893,
+        "good": 0.6842105263157895,
         "usable": null
       },
       "unused_by_the_reference": [
         "usable"
       ]
     },
-    "total": 554
+    "total": 546
   }
 }

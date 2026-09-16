@@ -313,16 +313,20 @@ def main(asked) -> None:
     models, no_adapter = adapters(wanted_models, asked.device)
     for slug, why in no_adapter.items():
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
-    no_store = missing_datasets(wanted_datasets, root)
+
+    # The documents describe the benchmark, not the command line: a run narrowed to one model or
+    # one dataset must not rewrite them as though the rest had never been measured.
+    declared, missing_adapters = adapters(list(MODELS), asked.device)
+    missing_stores = missing_datasets(list(DATASETS), root)
 
     # The configuration page is written first: it describes the run that is about to happen, so a
     # run that dies halfway still leaves an accurate account of itself.
     if asked.report:
         report.write_docs(
             NAME,
-            configuration(models, wanted_datasets, root),
-            no_adapter,
-            no_store,
+            configuration(declared, list(DATASETS), root),
+            missing_adapters,
+            missing_stores,
             report.QUALITY_COLUMNS,
         )
 
@@ -345,5 +349,5 @@ def main(asked) -> None:
         )
         for entry_ in scored
     }
-    report.write_results(NAME, scored, evidence, no_adapter, no_store)
+    report.write_results(NAME, scored, evidence, missing_adapters, missing_stores)
     report.write_index()

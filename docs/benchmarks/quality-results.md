@@ -12,23 +12,23 @@ The primary question: how often each model agreed with the grade a dataset's own
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | automorph-quality-grader | fives | 800 | 1.000 | 0.853 | 0.494 | 0.973 | out-of-sample |
 | automorph-quality-grader | fqs | 2245 | 1.000 | 0.816 | 0.605 | 0.930 | out-of-sample |
-| automorph-quality-grader | mshf | 554 | 1.000 | 0.924 | 0.845 | 0.983 | out-of-sample |
+| automorph-quality-grader | mshf | 546 | 1.000 | 0.921 | 0.839 | 0.983 | out-of-sample |
 | automorph-quality-grader | papila | 488 | 1.000 | 0.391 | — | — | out-of-sample |
 | fit-quality | fives | 800 | 1.000 | 0.570 | 0.181 | 0.973 | out-of-sample |
 | fit-quality | fqs | 2245 | 1.000 | 0.792 | 0.595 | 0.939 | out-of-sample |
-| fit-quality | mshf | 554 | 1.000 | 0.756 | 0.480 | 0.982 | out-of-sample |
+| fit-quality | mshf | 546 | 1.000 | 0.756 | 0.484 | 0.981 | out-of-sample |
 | fit-quality | papila | 488 | 1.000 | 0.279 | — | — | out-of-sample |
 | quickqual | fives | 800 | 1.000 | 0.843 | 0.471 | 0.969 | out-of-sample |
 | quickqual | fqs | 2245 | 1.000 | 0.824 | 0.639 | 0.909 | out-of-sample |
-| quickqual | mshf | 554 | 1.000 | 0.926 | 0.849 | 0.984 | out-of-sample |
+| quickqual | mshf | 546 | 1.000 | 0.923 | 0.843 | 0.985 | out-of-sample |
 | quickqual | papila | 488 | 1.000 | 0.424 | — | — | out-of-sample |
 | quickqual-meme | fives | 800 | 1.000 | 0.725 | 0.315 | 0.955 | out-of-sample |
 | quickqual-meme | fqs | 2245 | 1.000 | 0.778 | 0.563 | 0.900 | out-of-sample |
-| quickqual-meme | mshf | 554 | 1.000 | 0.841 | 0.671 | 0.957 | out-of-sample |
+| quickqual-meme | mshf | 546 | 1.000 | 0.833 | 0.656 | 0.957 | out-of-sample |
 | quickqual-meme | papila | 488 | 1.000 | 0.527 | — | — | out-of-sample |
 | vascx-quality | fives | 800 | 1.000 | 0.938 | 0.674 | 0.968 | unknown |
 | vascx-quality | fqs | 2245 | 1.000 | 0.808 | 0.582 | 0.928 | unknown |
-| vascx-quality | mshf | 554 | 1.000 | 0.919 | 0.836 | 0.967 | unknown |
+| vascx-quality | mshf | 546 | 1.000 | 0.919 | 0.837 | 0.966 | unknown |
 | vascx-quality | papila | 488 | 1.000 | 0.555 | — | — | unknown |
 
 **Accuracy flatters a model on a dataset where one class dominates.** A grader that keeps everything scores well on a collection that is mostly gradeable while agreeing with nobody about anything. **Cohen's κ** is what is left after chance agreement is taken out, so the two together say what neither says alone, and a wide gap between them is the reading. κ is undefined where a reference has only one class — a dash, never a zero.
@@ -41,23 +41,23 @@ A model that declines a photograph has not got it wrong, and one that crashes on
 | --- | --- | --- | --- | --- |
 | automorph-quality-grader | fives | 800 | 0 | 0 |
 | automorph-quality-grader | fqs | 2245 | 0 | 0 |
-| automorph-quality-grader | mshf | 554 | 0 | 0 |
+| automorph-quality-grader | mshf | 546 | 0 | 0 |
 | automorph-quality-grader | papila | 488 | 0 | 0 |
 | fit-quality | fives | 800 | 0 | 0 |
 | fit-quality | fqs | 2245 | 0 | 0 |
-| fit-quality | mshf | 554 | 0 | 0 |
+| fit-quality | mshf | 546 | 0 | 0 |
 | fit-quality | papila | 488 | 0 | 0 |
 | quickqual | fives | 800 | 0 | 0 |
 | quickqual | fqs | 2245 | 0 | 0 |
-| quickqual | mshf | 554 | 0 | 0 |
+| quickqual | mshf | 546 | 0 | 0 |
 | quickqual | papila | 488 | 0 | 0 |
 | quickqual-meme | fives | 800 | 0 | 0 |
 | quickqual-meme | fqs | 2245 | 0 | 0 |
-| quickqual-meme | mshf | 554 | 0 | 0 |
+| quickqual-meme | mshf | 546 | 0 | 0 |
 | quickqual-meme | papila | 488 | 0 | 0 |
 | vascx-quality | fives | 800 | 0 | 0 |
 | vascx-quality | fqs | 2245 | 0 | 0 |
-| vascx-quality | mshf | 554 | 0 | 0 |
+| vascx-quality | mshf | 546 | 0 | 0 |
 | vascx-quality | papila | 488 | 0 | 0 |
 
 **No model declined a photograph in this run.** Declining is something a model does on its own judgement; where a pipeline refuses a photograph, that refusal belongs to the pipeline, and this benchmark runs the models without the pipelines around them.
@@ -71,42 +71,42 @@ The same photographs, grouped as the dataset groups them. Where a model trained 
 | automorph-quality-grader | fives / main / test | 200 | 0.815 | 0.480 | 0.969 | out-of-sample |
 | automorph-quality-grader | fives / main / train | 600 | 0.865 | 0.497 | 0.973 | out-of-sample |
 | automorph-quality-grader | fqs / main / unspecified | 2245 | 0.816 | 0.605 | 0.930 | out-of-sample |
-| automorph-quality-grader | mshf / cfp / test | 49 | 0.959 | 0.914 | 0.995 | out-of-sample |
-| automorph-quality-grader | mshf / cfp / train | 203 | 0.956 | 0.903 | 0.998 | out-of-sample |
-| automorph-quality-grader | mshf / portable / test | 60 | 0.900 | 0.646 | 0.979 | out-of-sample |
-| automorph-quality-grader | mshf / portable / train | 242 | 0.897 | 0.727 | 0.960 | out-of-sample |
+| automorph-quality-grader | mshf / cfp / test | 48 | 0.958 | 0.911 | 0.995 | out-of-sample |
+| automorph-quality-grader | mshf / cfp / train | 197 | 0.954 | 0.898 | 0.998 | out-of-sample |
+| automorph-quality-grader | mshf / portable / test | 60 | 0.900 | 0.646 | 0.977 | out-of-sample |
+| automorph-quality-grader | mshf / portable / train | 241 | 0.892 | 0.717 | 0.960 | out-of-sample |
 | automorph-quality-grader | papila / main / unspecified | 488 | 0.391 | — | — | out-of-sample |
 | fit-quality | fives / main / test | 200 | 0.540 | 0.188 | 0.967 | out-of-sample |
 | fit-quality | fives / main / train | 600 | 0.580 | 0.176 | 0.975 | out-of-sample |
 | fit-quality | fqs / main / unspecified | 2245 | 0.792 | 0.595 | 0.939 | out-of-sample |
-| fit-quality | mshf / cfp / test | 49 | 0.837 | 0.682 | 0.997 | out-of-sample |
-| fit-quality | mshf / cfp / train | 203 | 0.695 | 0.441 | 0.998 | out-of-sample |
+| fit-quality | mshf / cfp / test | 48 | 0.833 | 0.675 | 0.998 | out-of-sample |
+| fit-quality | mshf / cfp / train | 197 | 0.695 | 0.440 | 0.998 | out-of-sample |
 | fit-quality | mshf / portable / test | 60 | 0.850 | 0.410 | 0.998 | out-of-sample |
-| fit-quality | mshf / portable / train | 242 | 0.769 | 0.262 | 0.946 | out-of-sample |
+| fit-quality | mshf / portable / train | 241 | 0.768 | 0.262 | 0.945 | out-of-sample |
 | fit-quality | papila / main / unspecified | 488 | 0.279 | — | — | out-of-sample |
 | quickqual | fives / main / test | 200 | 0.805 | 0.463 | 0.968 | out-of-sample |
 | quickqual | fives / main / train | 600 | 0.855 | 0.471 | 0.969 | out-of-sample |
 | quickqual | fqs / main / unspecified | 2245 | 0.824 | 0.639 | 0.909 | out-of-sample |
-| quickqual | mshf / cfp / test | 49 | 0.918 | 0.834 | 0.991 | out-of-sample |
-| quickqual | mshf / cfp / train | 203 | 0.951 | 0.893 | 0.997 | out-of-sample |
+| quickqual | mshf / cfp / test | 48 | 0.917 | 0.829 | 0.991 | out-of-sample |
+| quickqual | mshf / cfp / train | 197 | 0.949 | 0.887 | 0.997 | out-of-sample |
 | quickqual | mshf / portable / test | 60 | 0.917 | 0.715 | 0.987 | out-of-sample |
-| quickqual | mshf / portable / train | 242 | 0.909 | 0.767 | 0.966 | out-of-sample |
+| quickqual | mshf / portable / train | 241 | 0.905 | 0.755 | 0.968 | out-of-sample |
 | quickqual | papila / main / unspecified | 488 | 0.424 | — | — | out-of-sample |
 | quickqual-meme | fives / main / test | 200 | 0.720 | 0.354 | 0.956 | out-of-sample |
 | quickqual-meme | fives / main / train | 600 | 0.727 | 0.299 | 0.953 | out-of-sample |
 | quickqual-meme | fqs / main / unspecified | 2245 | 0.778 | 0.563 | 0.900 | out-of-sample |
-| quickqual-meme | mshf / cfp / test | 49 | 0.816 | 0.645 | 0.995 | out-of-sample |
-| quickqual-meme | mshf / cfp / train | 203 | 0.754 | 0.532 | 0.989 | out-of-sample |
-| quickqual-meme | mshf / portable / test | 60 | 0.917 | 0.715 | 0.984 | out-of-sample |
-| quickqual-meme | mshf / portable / train | 242 | 0.901 | 0.761 | 0.970 | out-of-sample |
+| quickqual-meme | mshf / cfp / test | 48 | 0.792 | 0.601 | 0.995 | out-of-sample |
+| quickqual-meme | mshf / cfp / train | 197 | 0.741 | 0.509 | 0.993 | out-of-sample |
+| quickqual-meme | mshf / portable / test | 60 | 0.917 | 0.715 | 0.985 | out-of-sample |
+| quickqual-meme | mshf / portable / train | 241 | 0.896 | 0.751 | 0.969 | out-of-sample |
 | quickqual-meme | papila / main / unspecified | 488 | 0.527 | — | — | out-of-sample |
 | vascx-quality | fives / main / test | 200 | 0.925 | 0.702 | 0.966 | unknown |
 | vascx-quality | fives / main / train | 600 | 0.942 | 0.658 | 0.968 | unknown |
 | vascx-quality | fqs / main / unspecified | 2245 | 0.808 | 0.582 | 0.928 | unknown |
-| vascx-quality | mshf / cfp / test | 49 | 0.939 | 0.870 | 0.997 | unknown |
-| vascx-quality | mshf / cfp / train | 203 | 0.966 | 0.921 | 0.997 | unknown |
-| vascx-quality | mshf / portable / test | 60 | 0.883 | 0.625 | 0.894 | unknown |
-| vascx-quality | mshf / portable / train | 242 | 0.884 | 0.719 | 0.924 | unknown |
+| vascx-quality | mshf / cfp / test | 48 | 0.938 | 0.866 | 0.996 | unknown |
+| vascx-quality | mshf / cfp / train | 197 | 0.964 | 0.916 | 0.997 | unknown |
+| vascx-quality | mshf / portable / test | 60 | 0.883 | 0.601 | 0.889 | unknown |
+| vascx-quality | mshf / portable / train | 241 | 0.888 | 0.727 | 0.922 | unknown |
 | vascx-quality | papila / main / unspecified | 488 | 0.555 | — | — | unknown |
 
 
@@ -124,4 +124,4 @@ And a model agreeing with another model is not evidence that either agrees with 
 
 ---
 
-**Generated by `python -m benchmarks --benchmark quality` on:** 2026-09-15
+**Generated by `python -m benchmarks --benchmark quality` on:** 2026-09-16

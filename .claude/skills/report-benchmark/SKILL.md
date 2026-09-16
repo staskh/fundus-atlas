@@ -43,13 +43,24 @@ this one** — `quality.md`, and one per benchmark thereafter — and you load t
 | --- | --- |
 | Quality | [quality.md](quality.md) |
 
-## 1. Never hand-edit a generated page
+## 1. Both pages describe the benchmark, not the command line
+
+They are generated from **what is on disk and what the benchmark declares**, never from the subset a
+run happened to touch. `--dataset mshf` re-measures one dataset; it must not rewrite either page as
+though the others had never been measured, and it must not report "1 of 1 datasets took part" when
+the benchmark declares six. The run's own results are preferred where they overlap, because they
+are the freshest reading of the same pair — everything else comes from `results/`.
+
+The same rule covers `docs/BENCHMARKS.md`, and for the same reason: running one benchmark must not
+blank another's section.
+
+## 2. Never hand-edit a generated page
 
 Anyone may regenerate one; a hand edit is lost the next time somebody does, and a page that has been
 hand-edited is no longer evidence of anything. The first paragraph of each document says it is
 generated and where its numbers come from. To change what a page says, change the generator.
 
-## 2. `<slug>-docs.md` — how it is configured
+## 3. `<slug>-docs.md` — how it is configured
 
 This is what a reader opens **before** looking at a number. Numbered sections, in this order:
 
@@ -79,7 +90,7 @@ This is what a reader opens **before** looking at a number. Numbered sections, i
 section 6 does not explain is a bug, and so is a model added to the run that section 2 does not
 list. Both come from the code, so both are generated rather than remembered.
 
-## 3. `<slug>-results.md` — what came out
+## 4. `<slug>-results.md` — what came out
 
 **Open with the summary, then descend into the detail.** Numbered sections:
 
@@ -99,7 +110,7 @@ list. Both come from the code, so both are generated rather than remembered.
 A reader arriving from a model page finds that model's rows together; two tables can be read against
 each other because they are ordered alike.
 
-## 4. And one index across every benchmark
+## 5. And one index across every benchmark
 
 `docs/BENCHMARKS.md` is generated as well, from what is on disk rather than from the run that has
 just finished — so running one benchmark cannot blank another's section. It holds one section per
@@ -109,7 +120,7 @@ from the README, so it repeats the two warnings that matter: that a row is compa
 rows carrying the same mark, and that a dash is a metric with nothing to measure rather than a
 score of zero.
 
-## 5. What both documents must always carry
+## 6. What both documents must always carry
 
 - **The contamination mark on every result**, never aggregated away, and `unknown` never written as
   if it were `out-of-sample`.
@@ -122,7 +133,7 @@ score of zero.
 - **A run missing a declared piece says so in its first paragraph** — how many models of how many
   declared, how many datasets of how many — so that nobody reads four models as the whole field.
 
-## 6. What they must never do
+## 7. What they must never do
 
 - **Rank.** A benchmark page is a map, not a leaderboard: no "best", no ordering by score, no bold
   winner. Sort by model and dataset, which is an order nobody can read as a verdict.
@@ -131,7 +142,7 @@ score of zero.
   exist to show.
 - **Explain away a bad number.** If a result needs an argument, the argument goes in the notebook.
 
-## 7. Prose
+## 8. Prose
 
 Written for a clinician or a researcher (`CLAUDE.md` §4.1): every metric expanded on first use, no
 jargon assumed, and the reason a number matters stated before the number. The generators hold those

@@ -105,7 +105,11 @@ def test_the_configuration_page_explains_every_column_of_the_evidence(tmp_path: 
 
 def test_the_results_page_leads_with_model_by_dataset(tmp_path: Path) -> None:
     written = report.write_results(
-        "quality", [scored()], {("quickqual", "fives"): [rows()]}, into=tmp_path
+        "quality",
+        [scored()],
+        {("quickqual", "fives"): [rows()]},
+        results=tmp_path / "none",
+        into=tmp_path,
     ).read_text()
 
     assert written.index("## 1.") < written.index("## 2.")
@@ -120,6 +124,7 @@ def test_the_results_page_says_how_many_of_how_many_ran(tmp_path: Path) -> None:
         {("quickqual", "fives"): [rows()]},
         missing_models={"lunet-quality": "no adapter written"},
         missing_datasets={"eyeq": "no store built"},
+        results=tmp_path / "none",
         into=tmp_path,
     ).read_text()
 
@@ -132,7 +137,11 @@ def test_a_partial_result_says_so(tmp_path: Path) -> None:
     entry["counts"] = {"processed": 20, "total": 488, "complete": False, "excluded": {}}
 
     written = report.write_results(
-        "quality", [entry], {("quickqual", "fives"): [rows()]}, into=tmp_path
+        "quality",
+        [entry],
+        {("quickqual", "fives"): [rows()]},
+        results=tmp_path / "none",
+        into=tmp_path,
     ).read_text()
 
     assert "20 of 488" in written
@@ -147,7 +156,9 @@ def test_the_detail_breaks_a_dataset_into_its_splits(tmp_path: Path) -> None:
         ]
     }
 
-    written = report.write_results("quality", [scored()], evidence, into=tmp_path).read_text()
+    written = report.write_results(
+        "quality", [scored()], evidence, results=tmp_path / "none", into=tmp_path
+    ).read_text()
 
     assert "fives / main / train" in written
     assert "fives / main / test" in written
@@ -164,7 +175,9 @@ def test_a_dataset_whose_splits_carry_different_marks_is_never_only_summarised(
         ]
     }
 
-    written = report.write_results("quality", [entry], evidence, into=tmp_path).read_text()
+    written = report.write_results(
+        "quality", [entry], evidence, results=tmp_path / "none", into=tmp_path
+    ).read_text()
 
     assert "in-sample" in written and "out-of-sample" in written
     assert "splits carry different marks" in written
@@ -181,7 +194,11 @@ def test_every_heading_is_numbered(tmp_path: Path) -> None:
             into=tmp_path,
         ).read_text(),
         report.write_results(
-            "quality", [scored()], {("quickqual", "fives"): [rows()]}, into=tmp_path
+            "quality",
+            [scored()],
+            {("quickqual", "fives"): [rows()]},
+            results=tmp_path / "none",
+            into=tmp_path,
         ).read_text(),
     ):
         headings = [line for line in written.splitlines() if line.startswith("## ")]
@@ -215,7 +232,9 @@ def test_agreement_beyond_chance_is_reported_beside_accuracy(tmp_path: Path) -> 
         ]
     }
 
-    written = report.write_results("quality", [scored()], evidence, into=tmp_path).read_text()
+    written = report.write_results(
+        "quality", [scored()], evidence, results=tmp_path / "none", into=tmp_path
+    ).read_text()
 
     assert "Cohen's κ" in written
     assert "| 1.000 | 1.000 |" in written, "perfect agreement, beyond chance too"
@@ -229,6 +248,49 @@ def test_a_group_with_one_class_has_no_agreement_to_measure(tmp_path: Path) -> N
         ]
     }
 
-    written = report.write_results("quality", [scored()], evidence, into=tmp_path).read_text()
+    written = report.write_results(
+        "quality", [scored()], evidence, results=tmp_path / "none", into=tmp_path
+    ).read_text()
 
     assert "| 1.000 | — | — |" in written, "κ and a ranking both need both classes"
+
+
+def test_a_narrowed_run_does_not_blank_the_datasets_it_did_not_touch(tmp_path: Path) -> None:
+    """Running one dataset must not rewrite the page as though the others had never been measured."""
+    from benchmarks import runs
+
+    for dataset, accuracy in (("fives", 0.9), ("mshf", 0.8)):
+        runs.write(
+            tmp_path / "results",
+            "quality",
+            "quickqual",
+            dataset,
+            "fingerprint",
+            {
+                "photographs": 10,
+                "graded": 10,
+                "declined": 0,
+                "failed": 0,
+                "coverage": 1.0,
+                "processed": 10,
+                "total": 10,
+                "complete": True,
+                "excluded": {},
+                "gradeable": {
+                    "photographs": 10,
+                    "accuracy": accuracy,
+                    "kappa": 0.5,
+                    "roc_auc": 0.9,
+                },
+                "three_class": None,
+                "gate": None,
+            },
+            [rows(key="a")],
+        )
+
+    written = report.write_results(
+        "quality", [scored(dataset="mshf")], {}, results=tmp_path / "results", into=tmp_path
+    ).read_text()
+
+    assert "fives" in written, "a dataset measured earlier still belongs on the page"
+    assert "mshf" in written
