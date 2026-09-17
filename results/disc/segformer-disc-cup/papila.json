@@ -1,0 +1,88 @@
+{
+  "benchmark": "disc",
+  "dataset": "papila",
+  "fingerprint": "df674f57eab2079114f89475d08f37fe4d5997635f77c0f93baf741370a5f57b",
+  "model": "segformer-disc-cup",
+  "summary": {
+    "complete": true,
+    "cup_area_ratio_error": {
+      "mean": 0.057989284922394684,
+      "median": 0.06388150000000001,
+      "n": 902,
+      "spread": 0.0716637849052387
+    },
+    "cup_center_offset": {
+      "mean": 25.145188283446714,
+      "median": 19.751498,
+      "n": 882,
+      "spread": 47.003067541514206
+    },
+    "cup_dice": {
+      "mean": 0.596681725409836,
+      "median": 0.6820495,
+      "n": 976,
+      "spread": 0.28739580949341526
+    },
+    "cup_height_error": {
+      "mean": 38.93197278911565,
+      "median": 39.0,
+      "n": 882,
+      "spread": 46.78989946587266
+    },
+    "cup_outside_its_disc": {
+      "mean": 0.0,
+      "median": 0.0,
+      "n": 882,
+      "spread": 0.0
+    },
+    "cup_radius_error": {
+      "mean": 23.249259778911565,
+      "median": 22.937936,
+      "n": 882,
+      "spread": 22.099575387410468
+    },
+    "cup_vertical_ratio_error": {
+      "mean": 0.08264126303854874,
+      "median": 0.0762835,
+      "n": 882,
+      "spread": 0.09780832613840486
+    },
+    "device": "mps",
+    "disc_center_offset": {
+      "mean": 22.221340442350332,
+      "median": 13.0514475,
+      "n": 902,
+      "spread": 37.69471277143041
+    },
+    "disc_dice": {
+      "mean": 0.8184919415983606,
+      "median": 0.9211579999999999,
+      "n": 976,
+      "spread": 0.2676773744819017
+    },
+    "disc_height_error": {
+      "mean": -5.130820399113082,
+      "median": 8.0,
+      "n": 902,
+      "spread": 94.8546826674304
+    },
+    "disc_radius_error": {
+      "mean": 2.359034354767184,
+      "median": 9.8176305,
+      "n": 902,
+      "spread": 33.899838675147805
+    },
+    "excluded": {},
+    "failed": 0,
+    "outlines": 976,
+    "photographs": 488,
+    "processed": 488,
+    "seconds_per_photograph": 0.24891418270352814,
+    "structures": [
+      "disc",
+      "cup"
+    ],
+    "timed_photographs": 486,
+    "total": 488
+  }
+}

@@ -17,6 +17,7 @@ and you load that file too.
 | Benchmark | Its analysis |
 | --- | --- |
 | Quality | [quality.md](quality.md) |
+| Disc and cup | [disc.md](disc.md) |
 
 ## 1. An existing notebook is extended, never rewritten
 
@@ -76,7 +77,11 @@ numbered heading:
    the dataset said about each, **and with the dataset named beside every one**. Take them from
    each dataset in turn rather than from the pile: a grid drawn from whichever dataset happens to
    have the most failures is a picture of that dataset, not of the benchmark.
-6. **What the benchmark cannot say** — contamination marks that are `unknown` rather than clean,
+6. **What each model costs to run** — the seconds per photograph every result records, beside the
+   device it was measured on. A model twice as slow for a hundredth of agreement is a different
+   proposition at fifty thousand photographs than at fifty, and that trade is invisible in an
+   agreement table. Say plainly that the number measures this machine as much as the model.
+7. **What the benchmark cannot say** — contamination marks that are `unknown` rather than clean,
    ground truths that are not comparable across datasets, and anything the metrics hide.
 
 ## 5. A benchmark may need a second notebook, about the reference

@@ -13,6 +13,11 @@ from pathlib import Path
 #: dataset.
 RESULTS = Path(__file__).resolve().parents[2] / "results"
 
+#: How many photographs a run measures before writing down what it has measured. A pair of a
+#: thousand photographs is hours of work, and a machine that stops at nine hundred must not cost
+#: all of it: a written partial result is what the next run finishes rather than repeats.
+CHECKPOINT = 50
+
 #: Where a run's own record and anything too large to commit is kept.
 RUNS = Path(__file__).resolve().parents[2] / ".atlas_runs"
 
@@ -40,6 +45,45 @@ def counts(processed: int, total: int, excluded: dict[str, int]) -> dict[str, ob
         "total": total,
         "complete": processed >= total,
         "excluded": dict(excluded),
+    }
+
+
+class Timing:
+    """How long a model takes per photograph, once it is loaded.
+
+    The first batch of a run carries the weight loading with it — seconds spent starting the model
+    rather than measuring a photograph — so it is left out whenever there is another batch to
+    average over. A run of one batch is timed with its loading in it, because there is nothing else
+    to time, and its photograph count says how thin that is.
+
+    This is never part of a fingerprint: how fast a model answered does not change what it said.
+    """
+
+    def __init__(self) -> None:
+        self.batches: list[tuple[float, int]] = []
+
+    def record(self, seconds: float, photographs: int) -> None:
+        self.batches.append((seconds, photographs))
+
+    def summary(self) -> dict[str, object]:
+        timed = self.batches[1:] if len(self.batches) > 1 else self.batches
+        photographs = sum(count for _, count in timed)
+        if not photographs:
+            return {}
+        return {
+            "seconds_per_photograph": sum(seconds for seconds, _ in timed) / photographs,
+            "timed_photographs": photographs,
+        }
+
+
+def kept_timing(stored: dict[str, object] | None, timed: Timing) -> dict[str, object]:
+    """This run's timing, or the one already stored where this run measured nothing."""
+    measured = timed.summary()
+    if measured:
+        return measured
+    was = (stored or {}).get("summary", {})
+    return {
+        name: was[name] for name in ("seconds_per_photograph", "timed_photographs") if name in was
     }
 
 

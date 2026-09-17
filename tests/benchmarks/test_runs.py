@@ -103,3 +103,23 @@ def test_the_index_reads_a_partial_result_as_unfinished(tmp_path: Path) -> None:
 
     assert "20 of 488" in written
     assert "Cohen's κ" in written and "0.100" in written
+
+
+def test_timing_leaves_out_the_batch_that_loaded_the_model() -> None:
+    timed = runs.Timing()
+    timed.record(seconds=10.0, photographs=2)  # the first batch loads the weights
+    timed.record(seconds=1.0, photographs=2)
+    timed.record(seconds=3.0, photographs=2)
+
+    assert timed.summary() == {"seconds_per_photograph": 1.0, "timed_photographs": 4}
+
+
+def test_one_batch_is_timed_with_its_loading_because_there_is_nothing_else() -> None:
+    timed = runs.Timing()
+    timed.record(seconds=8.0, photographs=4)
+
+    assert timed.summary() == {"seconds_per_photograph": 2.0, "timed_photographs": 4}
+
+
+def test_a_run_that_measured_nothing_reports_no_timing() -> None:
+    assert runs.Timing().summary() == {}

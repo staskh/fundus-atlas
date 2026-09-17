@@ -10,6 +10,15 @@ from models.utils.grading import BAD, GOOD, USABLE
 SLUGS = catalogue.slugs()
 
 
+def purposes() -> dict[str, str]:
+    """What each adapter is for, since the two kinds answer with different things."""
+    return {slug: catalogue.load(slug, device="cpu").declare()["purpose"] for slug in SLUGS}
+
+
+GRADERS = [slug for slug, purpose in purposes().items() if purpose == "quality"]
+SEGMENTERS = [slug for slug, purpose in purposes().items() if purpose == "disc/cup"]
+
+
 def photograph(size: int) -> np.ndarray:
     """A square with a lit disc in it, dark outside, as a store's photographs are."""
     pixels = np.zeros((size, size, 3), dtype=np.uint8)
@@ -20,18 +29,20 @@ def photograph(size: int) -> np.ndarray:
 
 
 @pytest.mark.parametrize("slug", SLUGS)
-def test_a_prepared_photograph_is_a_three_channel_tensor_at_the_networks_grid(slug: str) -> None:
+def test_a_prepared_photograph_arrives_at_the_networks_grid(slug: str) -> None:
     adapter = catalogue.load(slug, device="cpu")
     declared = adapter.declare()
 
     prepared = adapter.prepare(photograph(declared["grid"]))
 
-    assert prepared.shape == (3, declared["network_grid"], declared["network_grid"])
+    assert prepared.shape[-2:] == (declared["network_grid"], declared["network_grid"])
+    # Three channels for a photograph, six where a model is handed its contrast-enhanced copy too.
+    assert prepared.shape[0] % 3 == 0
     assert prepared.dtype.is_floating_point
 
 
-@pytest.mark.parametrize("slug", SLUGS)
-def test_every_adapter_reads_its_model_into_one_vocabulary(slug: str) -> None:
+@pytest.mark.parametrize("slug", GRADERS)
+def test_every_grader_reads_its_model_into_one_vocabulary(slug: str) -> None:
     adapter = catalogue.load(slug, device="cpu")
     emitted = (
         np.array([[0.7, 0.2, 0.1], [0.05, 0.15, 0.8]])
@@ -127,3 +138,33 @@ def test_automorphalyzer_carries_every_photograph_into_measurement() -> None:
         "measuring everything is a decision, and the one AutoMorphalyzer makes"
     )
     assert "every" in adapter.declare()["gate"].lower()
+
+
+@pytest.mark.parametrize("slug", SEGMENTERS)
+def test_every_segmenter_says_which_structures_it_finds(slug: str) -> None:
+    declared = catalogue.load(slug, device="cpu").declare()
+
+    assert set(declared["structures"]) <= {"disc", "cup"}
+    assert declared["structures"], "a segmenter that finds neither structure is not one"
+    assert "resampling" in declared, "how a mask reached the native frame moves every metric"
+
+
+def test_automorph_counts_the_cup_as_part_of_the_disc() -> None:
+    """Its three classes are exclusive; an expert's disc outline is not.
+
+    AutoMorph's network emits background, a disc *ring* and a cup, so the pixels it calls cup are
+    not in its disc class. An ophthalmologist's disc contour contains the cup, so the two are
+    compared only once the ring and the cup are put back together.
+    """
+    adapter = catalogue.load("automorph-disc-cup", device="cpu")
+    probabilities = np.zeros((1, 3, 4, 4), dtype=np.float32)
+    probabilities[0, 0] = 1.0  # background everywhere
+    probabilities[0, :, 1:3, 1:3] = [[[0.0]], [[1.0]], [[0.0]]]  # a ring of disc
+    probabilities[0, :, 2, 2] = [0.0, 0.0, 1.0]  # one cup pixel inside it
+
+    outlined = type(adapter).interpret(probabilities, sides=[4])[0]
+
+    assert outlined.masks["disc"][2, 2], "the cup pixel is inside the disc it sits in"
+    assert outlined.masks["cup"][2, 2]
+    assert outlined.masks["disc"].sum() == 4
+    assert outlined.masks["cup"].sum() == 1

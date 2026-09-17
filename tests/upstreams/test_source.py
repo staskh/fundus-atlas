@@ -162,3 +162,18 @@ def test_an_upstream_installed_from_a_repository_reports_the_commit_it_came_from
 
 def test_an_upstream_installed_from_a_release_reports_no_commit() -> None:
     assert "commit" not in source.Installed("numpy").provenance()
+
+
+def test_a_folder_of_modules_is_imported_under_a_name_of_ours(tmp_path: Path) -> None:
+    """Two upstreams both call a folder `models`, and so does this repository."""
+    folder = tmp_path / "stage" / "models"
+    folder.mkdir(parents=True)
+    (folder / "shapes.py").write_text("SIDES = 4\n")
+    (folder / "get_model.py").write_text(
+        "from .shapes import SIDES\n\ndef arch():\n    return SIDES\n"
+    )
+
+    imported = source.package("a-stage-of-its-own", folder)
+
+    assert imported.get_model.arch() == 4, "its own relative imports resolve inside it"
+    assert source.package("a-stage-of-its-own", folder) is imported, "imported once"

@@ -1,0 +1,88 @@
+{
+  "benchmark": "disc",
+  "dataset": "chaksu",
+  "fingerprint": "24681c3ed411f51f40eb56cf5ae665b5aab07942e8a23a4615644c0785fab5be",
+  "model": "segformer-disc-cup",
+  "summary": {
+    "complete": true,
+    "cup_area_ratio_error": {
+      "mean": -0.058484989421930866,
+      "median": -0.057014999999999996,
+      "n": 6712,
+      "spread": 0.07700347509719567
+    },
+    "cup_center_offset": {
+      "mean": 16.56756736083395,
+      "median": 13.325612,
+      "n": 6715,
+      "spread": 42.74588558747988
+    },
+    "cup_dice": {
+      "mean": 0.8213672380669144,
+      "median": 0.837107,
+      "n": 6725,
+      "spread": 0.09204768689358822
+    },
+    "cup_height_error": {
+      "mean": -24.93938942665674,
+      "median": -23.0,
+      "n": 6715,
+      "spread": 35.542908389477944
+    },
+    "cup_outside_its_disc": {
+      "mean": 0.0,
+      "median": 0.0,
+      "n": 6712,
+      "spread": 0.0
+    },
+    "cup_radius_error": {
+      "mean": -10.60399991362621,
+      "median": -10.411658,
+      "n": 6715,
+      "spread": 15.395043677380876
+    },
+    "cup_vertical_ratio_error": {
+      "mean": -0.0618033475864124,
+      "median": -0.0583065,
+      "n": 6712,
+      "spread": 0.07944252602146253
+    },
+    "device": "mps",
+    "disc_center_offset": {
+      "mean": 8.67813504126937,
+      "median": 6.034435500000001,
+      "n": 6712,
+      "spread": 40.82202049907132
+    },
+    "disc_dice": {
+      "mean": 0.9580341030943172,
+      "median": 0.964947,
+      "n": 6722,
+      "spread": 0.05451432423432956
+    },
+    "disc_height_error": {
+      "mean": 1.5466328963051252,
+      "median": -1.0,
+      "n": 6712,
+      "spread": 54.62171813809492
+    },
+    "disc_radius_error": {
+      "mean": 0.20611674642431466,
+      "median": 0.44003800000000004,
+      "n": 6712,
+      "spread": 9.247287695564518
+    },
+    "excluded": {},
+    "failed": 0,
+    "outlines": 6725,
+    "photographs": 1345,
+    "processed": 1345,
+    "seconds_per_photograph": 0.2586439185215519,
+    "structures": [
+      "disc",
+      "cup"
+    ],
+    "timed_photographs": 743,
+    "total": 1345
+  }
+}

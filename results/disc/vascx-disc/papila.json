@@ -1,0 +1,45 @@
+{
+  "benchmark": "disc",
+  "dataset": "papila",
+  "fingerprint": "ccc20a944e66f9a26eec49a48ecb0a8306c5474dbc2d9673bbd8f583facce463",
+  "model": "vascx-disc",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "disc_center_offset": {
+      "mean": 9.378249856557378,
+      "median": 7.661440499999999,
+      "n": 976,
+      "spread": 7.015360486906728
+    },
+    "disc_dice": {
+      "mean": 0.9514066475409837,
+      "median": 0.9582664999999999,
+      "n": 976,
+      "spread": 0.02735770194815291
+    },
+    "disc_height_error": {
+      "mean": -4.219262295081967,
+      "median": -5.0,
+      "n": 976,
+      "spread": 21.26850876365247
+    },
+    "disc_radius_error": {
+      "mean": 0.7601995635245908,
+      "median": -0.005164,
+      "n": 976,
+      "spread": 10.481166110856595
+    },
+    "excluded": {},
+    "failed": 0,
+    "outlines": 976,
+    "photographs": 488,
+    "processed": 488,
+    "seconds_per_photograph": 1.3190001759741625,
+    "structures": [
+      "disc"
+    ],
+    "timed_photographs": 484,
+    "total": 488
+  }
+}

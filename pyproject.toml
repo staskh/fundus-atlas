@@ -30,6 +30,23 @@ benchmarks = [
     "retinalysis-inference==0.7.1",
     "retinalysis-fundusprep==1.3.0",
     "retinalysis-vascx @ git+https://github.com/Eyened/retinalysis-vascx@d0cde1c7f9b54718be9b8d4ec871a5849ca6e857",
+    # The SegFormer disc-and-cup model is published as weights on the Hugging Face hub with no code
+    # of its own: `transformers` is the code, and the revision is pinned in the adapter.
+    "transformers>=4.44",
+    # LUNet v2's disc model is published as an ONNX file and nothing else.
+    "onnxruntime>=1.18",
+]
+
+# What the analysis notebooks need to run, kept apart from the benchmark environment so that
+# measuring a model does not require a plotting stack — and declared here rather than installed by
+# hand, so that syncing the environment does not quietly remove it.
+notebooks = [
+    "ipykernel>=6.29",
+    "jupyter-client>=8.6",
+    "matplotlib>=3.9",
+    "nbclient>=0.10",
+    "nbformat>=5.10",
+    "pandas>=2.0",
 ]
 
 [build-system]
@@ -70,3 +87,6 @@ line-length = 100
 # An adapter catches whatever its upstream raises and turns it into a failed prediction: one
 # unreadable photograph must not lose a run of three thousand.
 "src/models/*.py" = ["BLE001"]
+# The same rule one layer up: a benchmark turns whatever a model raises into a failed row rather
+# than letting one photograph end the run.
+"src/benchmarks/*.py" = ["BLE001"]

@@ -23,11 +23,19 @@ TRAINED_ON: dict[str, dict[str, object]] = {
     "quickqual": {"eyeq": ("train",)},
     # docs/models/quickqual-meme.md section 6: the same ten parameters, fitted on the same split.
     "quickqual-meme": {"eyeq": ("train",)},
+    # docs/models/automorph-disc-cup.md section 6: REFUGE and GAMMA.
+    "automorph-disc-cup": {"refuge": ANY_SPLIT, "gamma": ANY_SPLIT},
+    # docs/models/segformer-disc-cup.md section 6: fine-tuned on REFUGE, split not stated.
+    "segformer-disc-cup": {"refuge": ANY_SPLIT},
+    # docs/models/beal.md section 6: REFUGE labelled; Drishti-GS and RIM-ONE as unlabelled target
+    # domains, then tested on them — which is in-sample by any reading this atlas can defend.
+    "beal": {"refuge": ANY_SPLIT, "drishti-gs": ANY_SPLIT, "rim-one-dl": ANY_SPLIT},
 }
 
 #: Models whose training data could not be established from their page. VascX names "more than
-#: fifteen published annotated datasets" without listing them, so no dataset can be cleared.
-UNESTABLISHED = {"vascx-quality"}
+#: fifteen published annotated datasets" without listing them, so no dataset can be cleared;
+#: LUNet v2's page cannot establish what it trained on at all.
+UNESTABLISHED = {"vascx-quality", "vascx-disc", "lunetv2-odc"}
 
 
 def mark(model: str, dataset: str, split: str = "") -> str:

@@ -25,12 +25,20 @@ PREPARATION = source.Installed("retinalysis-fundusprep", version="1.3.0")
 QUALITY_WEIGHTS = "Eyened/vascx:quality/quality.pt"
 
 
-def quality_weights() -> Path:
-    """The published checkpoint, downloaded on first use, without loading it."""
+def model_file(published: str) -> Path:
+    """One of the published checkpoints, downloaded on first use, without loading it.
+
+    :param published: the repository and file, as `Eyened/vascx:disc/disc_july24.pt`.
+    """
     from huggingface_hub import hf_hub_download
 
-    repo, path = QUALITY_WEIGHTS.split(":")
+    repo, path = published.split(":")
     return Path(hf_hub_download(repo_id=repo, filename=path))
+
+
+def quality_weights() -> Path:
+    """The quality checkpoint, downloaded on first use, without loading it."""
+    return model_file(QUALITY_WEIGHTS)
 
 
 def quality_ensemble(device: str = "cpu") -> object:

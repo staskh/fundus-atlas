@@ -1,0 +1,45 @@
+{
+  "benchmark": "disc",
+  "dataset": "grape",
+  "fingerprint": "536ead0501df14b40b82596fcffdaaffd7e2216bb2fd0e90f630982a3008b10c",
+  "model": "vascx-disc",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "disc_center_offset": {
+      "mean": 5.613384133122029,
+      "median": 3.970248,
+      "n": 631,
+      "spread": 6.368519107010678
+    },
+    "disc_dice": {
+      "mean": 0.9214202836767037,
+      "median": 0.934599,
+      "n": 631,
+      "spread": 0.05206283176434089
+    },
+    "disc_height_error": {
+      "mean": 18.26782884310618,
+      "median": 17.0,
+      "n": 631,
+      "spread": 12.6115772615087
+    },
+    "disc_radius_error": {
+      "mean": 9.051928093502378,
+      "median": 7.932552,
+      "n": 631,
+      "spread": 5.680855818688698
+    },
+    "excluded": {},
+    "failed": 0,
+    "outlines": 631,
+    "photographs": 631,
+    "processed": 631,
+    "seconds_per_photograph": 1.1516356329772284,
+    "structures": [
+      "disc"
+    ],
+    "timed_photographs": 627,
+    "total": 631
+  }
+}

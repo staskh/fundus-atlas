@@ -2,6 +2,8 @@
 # ABOUTME: distribution already installed — and the provenance a benchmark run records about it.
 
 import hashlib
+import importlib
+import importlib.util
 import json
 import subprocess
 import sys
@@ -148,3 +150,26 @@ class Installed:
 
 def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def package(name: str, directory: Path) -> object:
+    """Import a folder of modules as a package, under a name of our choosing.
+
+    An upstream stage is a folder rather than a distribution, and the folders collide: AutoMorph's
+    disc stage keeps its architecture in `models/`, which is also what this repository calls its
+    adapters. Binding the folder to a name of ours lets both live in one process, and lets the
+    upstream's own relative imports — `from .res_unet_adrian import UNet` — resolve inside it.
+
+    Every module the folder holds is imported, so that the returned package carries them as
+    attributes whatever order they refer to each other in.
+    """
+    if name in sys.modules:
+        return sys.modules[name]
+    spec = importlib.machinery.ModuleSpec(name, loader=None, is_package=True)
+    bound = importlib.util.module_from_spec(spec)
+    bound.__path__ = [str(directory)]
+    sys.modules[name] = bound
+    for module in sorted(directory.glob("*.py")):
+        if module.stem != "__init__":
+            setattr(bound, module.stem, importlib.import_module(f"{name}.{module.stem}"))
+    return bound

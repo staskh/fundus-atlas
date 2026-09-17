@@ -1,0 +1,88 @@
+{
+  "benchmark": "disc",
+  "dataset": "papila",
+  "fingerprint": "e1e01c55e3403bdce2f136650ae0658139adc32eef99f7bfeecdf73af4bc8d65",
+  "model": "lunetv2-odc",
+  "summary": {
+    "complete": true,
+    "cup_area_ratio_error": {
+      "mean": -0.027257387295081967,
+      "median": -0.023449499999999998,
+      "n": 976,
+      "spread": 0.037624617280358416
+    },
+    "cup_center_offset": {
+      "mean": 15.738914452890793,
+      "median": 13.613532,
+      "n": 934,
+      "spread": 12.09854256274883
+    },
+    "cup_dice": {
+      "mean": 0.7029064774590165,
+      "median": 0.779914,
+      "n": 976,
+      "spread": 0.23563023884185053
+    },
+    "cup_height_error": {
+      "mean": -21.444325481798714,
+      "median": -22.0,
+      "n": 934,
+      "spread": 48.67880355285365
+    },
+    "cup_outside_its_disc": {
+      "mean": 1.2316916488222699e-05,
+      "median": 0.0,
+      "n": 934,
+      "spread": 0.00026588568447451086
+    },
+    "cup_radius_error": {
+      "mean": -12.07391915952891,
+      "median": -11.8671715,
+      "n": 934,
+      "spread": 12.144394199000242
+    },
+    "cup_vertical_ratio_error": {
+      "mean": -0.03350523661670236,
+      "median": -0.0343025,
+      "n": 934,
+      "spread": 0.06526806456311128
+    },
+    "device": "cpu",
+    "disc_center_offset": {
+      "mean": 8.638972726434426,
+      "median": 7.681547500000001,
+      "n": 976,
+      "spread": 5.676671453071038
+    },
+    "disc_dice": {
+      "mean": 0.9355872643442622,
+      "median": 0.9427479999999999,
+      "n": 976,
+      "spread": 0.029460542350156556
+    },
+    "disc_height_error": {
+      "mean": -19.151639344262296,
+      "median": -21.0,
+      "n": 976,
+      "spread": 37.380349518155064
+    },
+    "disc_radius_error": {
+      "mean": -11.062995053278689,
+      "median": -11.120636999999999,
+      "n": 976,
+      "spread": 9.82243008750276
+    },
+    "excluded": {},
+    "failed": 0,
+    "outlines": 976,
+    "photographs": 488,
+    "processed": 488,
+    "seconds_per_photograph": 0.23531847496022595,
+    "structures": [
+      "disc",
+      "cup"
+    ],
+    "timed_photographs": 486,
+    "total": 488
+  }
+}

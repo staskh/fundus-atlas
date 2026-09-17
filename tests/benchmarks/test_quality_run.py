@@ -4,6 +4,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 import torch
 from conftest import row, write_store
 
@@ -226,3 +227,35 @@ def test_a_dataset_with_no_store_is_left_out_of_the_configuration(tmp_path: Path
     configured = quality.configuration([Brightness()], ["fives", "eyeq"], root=a_store(tmp_path))
 
     assert [entry["slug"] for entry in configured["datasets"]] == ["fives"]
+
+
+class Stopped(Brightness):
+    """A model the machine stops part-way through, as an out-of-memory kill does."""
+
+    def __init__(self, after: int = 1) -> None:
+        super().__init__()
+        self.after = after
+        self.batches = 0
+
+    def grade(self, images: torch.Tensor, keys: list[str]) -> list[Grade]:
+        self.batches += 1
+        if self.batches > self.after:
+            raise KeyboardInterrupt("the machine ran out of memory")
+        return super().grade(images, keys)
+
+
+def test_a_run_stopped_part_way_keeps_what_it_had_scored(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(runs, "CHECKPOINT", 1)
+    store = a_store(tmp_path)
+
+    with pytest.raises(KeyboardInterrupt):
+        quality.run([Stopped(after=1)], ["fives"], results=tmp_path / "results", root=store, batch=1)
+
+    stored = runs.read(tmp_path / "results", quality.NAME, "brightness", "fives")
+    assert stored["summary"]["processed"] == 1
+    assert stored["summary"]["complete"] is False
+
+    finished = quality.run([Brightness()], ["fives"], results=tmp_path / "results", root=store)
+    assert finished[0]["measured"] == 2, "only what the kill never reached"

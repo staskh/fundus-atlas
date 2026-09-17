@@ -30,6 +30,7 @@ building or changing that benchmark.
 | Benchmark | Its rules |
 | --- | --- |
 | Quality | [quality.md](quality.md) |
+| Disc and cup | [disc.md](disc.md) |
 
 ## 1. What you produce
 
@@ -184,6 +185,27 @@ the benchmark would not ask, the other says the model would not answer. The word
 it counts — the exclusions of section 2. The three relate as `processed ≤ total`, and
 `total + excluded` is what the store holds: a photograph is either one the benchmark asks about
 or one it excluded, never both and never neither.
+
+**What has been measured is written down before the pair finishes.** A model on a dataset of a
+thousand photographs is hours of work, and a machine that runs out of memory at nine hundred must
+not cost all of it. Every fifty photographs, the run writes the evidence it has, marked incomplete —
+which is exactly the partial result the resume rule above already knows how to finish. The test for
+it is the failure itself: a model the machine stops part-way through, and a second run that measures
+only what the first never reached.
+
+**Every result also records how long the model took**, as `seconds_per_photograph` and the
+`timed_photographs` that number covers. A gate that takes a tenth of a second and one that takes
+four are not interchangeable in front of a study of fifty thousand photographs, whatever their
+agreement scores say, so the run measures it rather than leaving a reader to guess.
+
+Three rules keep the number honest. It times **the model's own call and nothing around it** — not
+reading the photograph, not scoring the answer. It **leaves out the batch that loaded the weights**
+whenever there is another batch to average over, because those seconds belong to starting the model
+rather than to measuring a photograph. And it is **never part of the fingerprint**: how fast a model
+answered does not change what it said, so a faster machine must not throw away a stored score. A
+resumed run that measured nothing keeps the timing it already had, and the device it ran on is
+recorded beside it — this measures the machine as much as the model, and the results page must say
+so wherever it quotes one.
 
 **Every per-image row carries the same columns**, including for a photograph the model failed on: a
 file whose columns depend on which photograph came first is not evidence of anything. Every column
