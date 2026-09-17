@@ -553,3 +553,18 @@ def test_a_rebuilt_store_recovers_an_inferred_scale_without_measuring_it_again(t
     assert stamped == 1
     assert row["um_per_px"] == "8.610000"
     assert row["resolution_source"] == "disc_anchored"
+
+
+def test_a_coloured_artery_vein_map_is_stored_as_class_indices(tmp_path) -> None:
+    """Read as greyscale, red and blue become two grey levels and the classes are gone."""
+    from datasets.utils import av
+
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"})
+    pixels = np.zeros((8, 8, 3), dtype=np.uint8)
+    pixels[2] = (255, 0, 0)
+    pixels[5] = (0, 0, 255)
+
+    labels = build.as_labels(pixels, palette)
+
+    assert labels.shape == (8, 8)
+    assert set(np.unique(labels)) == {0, av.index("artery"), av.index("vein")}

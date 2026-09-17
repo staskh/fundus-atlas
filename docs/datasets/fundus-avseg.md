@@ -1,10 +1,13 @@
 # Fundus-AVSeg
 
 100 photographs from routine clinical work at Shenzhen Eye Hospital with pixel-level artery/vein
-annotation, published in 2025 — which makes it one of the few artery/vein datasets **newer than the
-models in this catalogue**, and therefore one of the few that can evaluate them rather than having
-trained them. It also carries per-image quality labels, which almost nothing else with A/V
-annotation does.
+annotation, published in 2025. It carries per-image quality labels, which almost nothing else with
+artery/vein annotation does, and a permissive licence.
+
+**It is not held out.** An earlier version of this page called it newer than the models catalogued
+here and therefore able to evaluate them; that is wrong. [OCULARNet](../models/ocularnet.md)'s own
+README tabulates Fundus-AVSeg among its training datasets, checked against the repository on
+2026-09-17. Section 6 has what that leaves it good for.
 
 ## 1. What it is
 
@@ -28,6 +31,39 @@ annotation does.
 The archive holds `image/` and `annotation/` folders, the A/V standard as RGB PNGs sharing each
 image's filename stem.
 
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.fundus_avseg                      # downloads and builds 512 and 1024
+uv run python -m datasets.fundus_avseg --sizes 512,768,1024
+uv run python -m datasets.fetch_um_resolution --dataset fundus-avseg
+```
+
+One 213 MB zip from figshare, unattended. It builds 100 photographs with their **artery/vein map**
+as the store's own class indices — background, artery, vein, crossing, uncertain — translated from
+the archive's red, blue, green and white. The authors' `training.txt` and `testing.txt` become the
+`split` column (80 train, 20 test), and `metadata.xlsx` supplies the eye side, the disease and the
+quality grade.
+
+**No vessel layer is built**, deliberately: the dataset's vessel mask is derived from its own
+artery/vein labels rather than drawn independently, so a model scored against both would be scored
+twice against one annotation (section 7). A vessel mask, where one is wanted, is the union of the
+artery, vein, crossing and uncertain classes.
+
+Two dataset-specific columns:
+
+| Column | Meaning |
+| --- | --- |
+| `published_quality` | The authors' own grade, verbatim: `High-quality` or `Low-quality` |
+
+The authors publish no microns-per-pixel scale and state no field angle, so the second command is
+**required** to finish the store: it measures each sensor size separately — 10.012 µm/px for the 79
+square photographs, 6.105 for the 21 large ones.
+
+The store's `subset` column separates the two sensor sizes, `square` and `large`, which is the only
+separator the archive offers: it names a Zeiss VISUCAM and a Canon without saying which photograph
+came from which.
+
 ## 3. The images
 
 Two subcollections, by sensor. The archive does not say which camera took which photograph, and
@@ -38,7 +74,7 @@ states **no field angle for either**, so the sensor size is the only separator a
 | | |
 | --- | --- |
 | Resolution (pixels) | 2656×1992 |
-| Microns per pixel | Unknown — not published |
+| Microns per pixel | Not published. **Inferred: 6.105 µm/px** — from the median optic disc of 21 photographs, [evidence](../../results/um_resolution/fundus-avseg.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Zeiss VISUCAM 200 or Canon (the archive names both, without attributing images) |
 | Field of view | **Not stated** |
 | Centring | Mixed |
@@ -49,7 +85,7 @@ states **no field angle for either**, so the sensor size is the only separator a
 | | |
 | --- | --- |
 | Resolution (pixels) | 1280×1280 |
-| Microns per pixel | Unknown |
+| Microns per pixel | Not published. **Inferred: 10.012 µm/px** — from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/fundus-avseg.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | As above |
 | Field of view | **Not stated** |
 | Centring | Mixed |
@@ -71,11 +107,12 @@ states **no field angle for either**, so the sensor size is the only separator a
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** **None established.** Published after the AutoMorph
-  family's artery/vein model, and absent from [OCULARNet](../models/ocularnet.md)'s and
-  [VascX](../models/vascx-artery-vein.md)'s stated training lists — though VascX's "more than fifteen
-  published datasets" is not enumerated per dataset, so treat that one as unverified rather than
-  confirmed held out.
+- **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
+  [OCULARNet-nano](../models/ocularnet-nano.md) — their shared README lists Fundus-AVSeg with 100
+  images at 1280×1280, so a score for either model on this dataset is **in-sample**. It is held out
+  of [BF-Net](../models/bf-net.md), which the AutoMorph family runs, and of
+  [LUNet](../models/lunet.md). [VascX](../models/vascx-artery-vein.md) enumerates nothing, so it is
+  `unknown` here as everywhere.
 - **Below a model's measuring grid:** No — 1280 and 2656 both sit at or above the grids in
   [MODELS.md](../MODELS.md).
 - **What it can answer:** held-out artery/vein accuracy, stratified by disease and — unusually — by
@@ -90,9 +127,12 @@ states **no field angle for either**, so the sensor size is the only separator a
 
 ## 8. Notes
 
-- Small, but permissively licensed, quality-labelled and genuinely held out — a rare combination,
-  and the reason to prefer it over [RITE](rite.md) or [HRF](hrf.md) for an artery/vein evaluation.
+- Small, permissively licensed and quality-labelled — the quality labels are the rare part, and they
+  make it the one artery/vein dataset here where accuracy can be read against how good the
+  photograph is. It is **not** the held-out dataset this page once claimed: for a genuinely
+  uncontaminated artery/vein evaluation of every model here, [RAV](rav.md) is the candidate, being
+  absent from every stated training list.
 
 ---
 
-**Links, licence and access last checked:** 2026-09-11
+**Links, licence and access last checked:** 2026-09-17

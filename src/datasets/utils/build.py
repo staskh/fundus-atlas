@@ -17,6 +17,7 @@ from PIL import Image
 
 from datasets.utils import (
     archives,
+    av,
     contours,
     crop,
     fov,
@@ -93,6 +94,16 @@ class SourceRecord:
     readings: list[manifest.Reading] = field(default_factory=list)
 
 
+def as_labels(pixels: np.ndarray, palette: "av.Palette") -> np.ndarray:
+    """One published artery/vein map, translated into the store's own class indices.
+
+    A coloured map read as greyscale is not an artery/vein map any more: red and blue arrive as two
+    grey levels that no consumer can tell from a faint vessel. The dataset declares its colours and
+    this is where they are applied, once, before the crop.
+    """
+    return palette.labels(pixels, tolerance=av.TOLERANCE)
+
+
 def run(
     slug: str,
     sources: list,
@@ -104,6 +115,7 @@ def run(
     extra_columns: list[manifest.Column] | None = None,
     skipped: Iterable[str] = (),
     verify: Callable[[Path, dict[str, Path], list[dict[str, str]]], dict] | None = None,
+    palettes: dict[str, "av.Palette"] | None = None,
 ) -> int:
     """Build the store for one dataset.
 
@@ -112,6 +124,8 @@ def run(
         from and its rows. Whatever it returns is written into `build.json`, so that a store says
         not only what it holds but whether anyone looked. It runs before `raw/` is deleted, since
         the point of it is usually to compare the store against what the dataset published.
+    :param palettes: for a layer published as a colour image — an artery/vein map — the dataset's
+        own colours and what each means. A layer without one is read as a single-channel mask.
     :param skipped: subcollections deliberately not built — an ultra-wide-field split, per the
         skill's rule 13.7. Each is warned about here and recorded in `build.json`, because a store
         that is quietly smaller than its dataset is how someone comes to under-count it.
@@ -148,6 +162,7 @@ def run(
         resolution_of=resolution_of,
         fov_strategy=fov_strategy,
         quality_rule=quality_rule,
+        palettes=palettes or {},
         force=args.force,
     )
     finished = done + list(_across(work, waiting, args.jobs, slug, len(records), len(done)))
@@ -335,9 +350,11 @@ def _build_one(
     resolution_of: resolution.Declared,
     fov_strategy: str,
     quality_rule: quality.Rule | None,
+    palettes: dict[str, "av.Palette"] | None = None,
     force: bool = False,
 ) -> dict[str, str]:
     """Crop one image to its field of view, write every size of it, and describe it."""
+    palettes = palettes or {}
     photograph = _handle(record.image, raw)
     image = _read(photograph, "RGB")
     height, width = image.shape[:2]
@@ -358,7 +375,11 @@ def _build_one(
     for name, source in record.maps.items():
         if name == "fov":
             continue
-        frames[name] = crop.apply(_read(_handle(source, raw), "L"), square)
+        if name in palettes:
+            published = as_labels(_read(_handle(source, raw), "RGB"), palettes[name])
+        else:
+            published = _read(_handle(source, raw), "L")
+        frames[name] = crop.apply(published, square)
 
     for size in [paths.NATIVE, *sizes]:
         for name, frame in frames.items():

@@ -112,9 +112,7 @@ def test_a_field_angle_derivation_gives_way_to_a_measured_disc(tmp_path) -> None
 
 def test_a_new_measurement_replaces_the_copy_the_last_one_left(tmp_path) -> None:
     """The JSON is the source of truth, so a re-measurement has to reach the manifest."""
-    store = a_store(
-        tmp_path, [a_row("a", um_per_px="9.999999", resolution_source="disc_anchored")]
-    )
+    store = a_store(tmp_path, [a_row("a", um_per_px="9.999999", resolution_source="disc_anchored")])
 
     stamped = resolution.stamp(store, "chaksu", an_inference(tmp_path, [a_group()]))
 
@@ -128,9 +126,7 @@ def test_a_scale_the_evidence_no_longer_supports_is_withdrawn(tmp_path) -> None:
     MSHF's local2 camera did exactly this: accepted on a partial sample, refused once every draw
     was measured. The manifest cannot go on quoting a figure the evidence has withdrawn.
     """
-    store = a_store(
-        tmp_path, [a_row("a", um_per_px="7.282000", resolution_source="disc_anchored")]
-    )
+    store = a_store(tmp_path, [a_row("a", um_per_px="7.282000", resolution_source="disc_anchored")])
     refused = a_group(accepted=False, note="its discs disagree by more than a tenth")
     refused.pop("um_per_px")
 

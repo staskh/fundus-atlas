@@ -25,6 +25,10 @@ Three things, in this order:
 
 1. **A fetcher module**, `src/datasets/<slug>.py`, with the command-line contract in section 3. The
    slug matches the dataset page's slug exactly: `docs/datasets/hrf.md` ↔ `src/datasets/hrf.py`.
+   Where a slug holds a hyphen, which no module name may, the **module** spells it with an
+   underscore and everything else keeps the slug: `docs/datasets/fundus-avseg.md` ↔
+   `src/datasets/fundus_avseg.py`, run as `python -m datasets.fundus_avseg`, storing into
+   `.atlas_data/fundus-avseg/`, with `SLUG = "fundus-avseg"`.
 2. **Tests**, `tests/datasets/test_<slug>.py`, written **before** the fetcher and run against small
    synthetic fixtures — never against a download. Follow the repository's test-driven rule: a
    failing test first, then only enough code to pass it.
@@ -719,7 +723,23 @@ here means a consumer never resamples twice.
 
 - **Images** with area-averaging when downsizing and Lanczos when upsizing; **masks** with
   **nearest-neighbour only** — a mask interpolated with anything else invents classes that were never
-  annotated. A multi-class artery/vein map is resampled per class, never as an RGB image.
+  annotated.
+- **An artery/vein map is stored as class indices, never as the colours it arrived in.** The store's
+  vocabulary is `utils.av.CLASSES` — background, artery, vein, crossing, uncertain — and every
+  dataset's own palette is **declared** by its fetcher and translated once, before the crop:
+  `palettes={"av": av.Palette({(255, 0, 0): "artery", ...})}` on `build.run`. Three reasons this is
+  not optional. A coloured map read as a greyscale mask becomes two grey levels that no consumer can
+  tell from a faint vessel. No two datasets agree on the colours, and some swap them, so a consumer
+  reading raw RGB would need a per-dataset table anyway. And nearest-neighbour resampling of an
+  index map cannot invent a class, where resampling three colour channels can. A colour the palette
+  does not explain is an **error** naming the colour, never silently background: a map that has
+  grown a class is a thing to look at.
+- **`crossing` and `uncertain` stay their own classes.** Folding them into artery, vein or vessel is
+  a research decision, and the store does not make those. A vessel mask derived from an artery/vein
+  map is their union — `utils.av.vessels` — and it is **not** interchangeable with a vessel mask the
+  dataset drew independently: a model scored against a derived mask is being scored against the
+  artery/vein annotation a second time, which is not corroboration. Where a dataset publishes only a
+  derived vessel mask, the fetcher builds **no** `vessels` layer and the page says why.
 - **Never upsample silently.** When a requested size exceeds the crop, build it, but record a
   `notes` entry on the row and a warning in `build.json`: a Dice measured on an upsampled image is
   not comparable with one measured on a downsampled image, as `docs/datasets/drive.md` explains.
