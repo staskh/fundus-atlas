@@ -106,8 +106,12 @@ def test_what_is_measured_for_one_photograph() -> None:
     assert measured["vessels_dice"] is not None, "arteries and veins together"
     assert measured["artery_cldice"] == pytest.approx(1.0)
     assert set(measured) >= {
-        "artery_dice", "vein_dice", "vessels_dice",
-        "artery_cldice", "vein_cldice", "vessels_cldice",
+        "artery_dice",
+        "vein_dice",
+        "vessels_dice",
+        "artery_cldice",
+        "vein_cldice",
+        "vessels_cldice",
     }
 
 

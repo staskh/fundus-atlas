@@ -160,7 +160,7 @@ def run(
     if done and not args.force and not done["partial"]:
         return _add_sizes(slug, store, args, done)
 
-    layers, provenance = _obtain(sources, store, args)
+    layers, provenance = obtain(store, sources, args)
     raw = next(iter(layers.values()))
     records = discover(layers)
     if args.limit:
@@ -331,7 +331,7 @@ def _add_sizes(slug: str, store: Path, args, done: dict) -> int:
     return 0
 
 
-def _obtain(sources: list, store: Path, args) -> tuple[dict[str, Path], list[dict[str, str]]]:
+def obtain(store: Path, sources: list, args) -> tuple[dict[str, Path], list[dict[str, str]]]:
     """Get the dataset onto disk, however this run was asked to.
 
     :return: where each declared layer ended up, by name, and what to record about it. A tree
@@ -341,7 +341,18 @@ def _obtain(sources: list, store: Path, args) -> tuple[dict[str, Path], list[dic
     raw_dir = store / "raw"
     given = args.raw or args.archive
     if given:
-        where = Path(args.raw) if args.raw else archives.extract(Path(given), raw_dir / "archive")
+        # A source that is read where it lies stays packed, however it arrived. REYIA's archive is
+        # 12 GB and its fetcher addresses members directly; unpacking it because somebody passed
+        # --archive rather than letting it download costs the disk twice for nothing.
+        in_place = sources and all(
+            getattr(source, "extract_it", True) is False for source in sources
+        )
+        if args.raw:
+            where = Path(args.raw)
+        elif in_place:
+            where = Path(given)
+        else:
+            where = archives.extract(Path(given), raw_dir / "archive")
         layers = {source.layer: where for source in sources} or {"local": where}
         return layers, [{"layer": "local", "path": str(given)}]
 

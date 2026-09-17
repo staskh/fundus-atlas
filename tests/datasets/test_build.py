@@ -4,6 +4,7 @@
 import csv
 import json
 import shutil
+import zipfile
 
 import numpy as np
 import pytest
@@ -627,3 +628,34 @@ def test_a_field_of_view_taken_from_a_published_mask_says_so(tmp_path) -> None:
     row = next(iter(manifest.read(store)))
 
     assert row["fov_source"] == "mask", "not 'detected': the dataset drew this one"
+
+
+def test_an_archive_handed_over_is_not_unpacked_when_it_is_read_in_place(tmp_path) -> None:
+    """A source declaring `extract_it=False` is read where it lies, however it was obtained.
+
+    REYIA's archive is 12 GB and its fetcher addresses members directly; unpacking it because it
+    arrived through `--archive` rather than a download costs the disk twice and a minute of wall
+    clock for nothing.
+    """
+    archive = tmp_path / "given.zip"
+    with zipfile.ZipFile(archive, "w") as held:
+        held.writestr("inside/a.txt", b"x")
+    sources = [
+        archives.Source(layer="only", url="", filename="given.zip", extract_it=False, manual=True)
+    ]
+
+    layers, _ = build.obtain(tmp_path / "store", sources, _asked(archive=str(archive)))
+
+    assert layers["only"] == archive, "the archive itself, not a directory of its contents"
+
+
+def _asked(**overrides):
+    """The parsed command line a build reads, with only what these tests set."""
+    return cli.parse(
+        "synthetic",
+        [
+            "--data-root",
+            "unused",
+            *[part for k, v in overrides.items() for part in (f"--{k.replace('_', '-')}", v)],
+        ],
+    )
