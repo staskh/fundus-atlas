@@ -20,7 +20,7 @@ def dice(said: np.ndarray, truth: np.ndarray) -> float | None:
     return 2 * float((said & truth).sum()) / total
 
 
-def centre(mask: np.ndarray) -> tuple[float, float] | None:
+def center(mask: np.ndarray) -> tuple[float, float] | None:
     """Where a shape sits, as the centre of its own area."""
     ys, xs = np.nonzero(mask)
     if not xs.size:
@@ -28,9 +28,9 @@ def centre(mask: np.ndarray) -> tuple[float, float] | None:
     return float(xs.mean()), float(ys.mean())
 
 
-def centre_offset(said: np.ndarray, truth: np.ndarray) -> float | None:
+def center_offset(said: np.ndarray, truth: np.ndarray) -> float | None:
     """How far a prediction's centre is from the expert's, in pixels."""
-    one, other = centre(said), centre(truth)
+    one, other = center(said), center(truth)
     if one is None or other is None:
         return None
     return float(np.hypot(one[0] - other[0], one[1] - other[1]))
@@ -84,6 +84,23 @@ def mask_of(nodes: np.ndarray, shape: tuple[int, int]) -> np.ndarray:
     return mask
 
 
+def described(name: str, mask: np.ndarray) -> dict[str, float | None]:
+    """What one outline actually measures, before anything is compared with anything.
+
+    These are the numbers a study takes away — a disc's width in pixels, where its centre sits —
+    rather than the distance from somebody else's outline, and they are recorded for the model's
+    outline and the expert's alike so that either can be read on its own.
+    """
+    size, middle = extent(mask), center(mask)
+    return {
+        f"{name}_width": size[0] if size else None,
+        f"{name}_height": size[1] if size else None,
+        f"{name}_radius": equivalent_radius(mask),
+        f"{name}_center_x": middle[0] if middle else None,
+        f"{name}_center_y": middle[1] if middle else None,
+    }
+
+
 def measure(said: dict[str, np.ndarray], truth: dict[str, np.ndarray]) -> dict[str, float | None]:
     """Every measurement of one photograph, for one reader, in one dictionary.
 
@@ -98,25 +115,20 @@ def measure(said: dict[str, np.ndarray], truth: dict[str, np.ndarray]) -> dict[s
         mine, theirs = said.get(structure), truth.get(structure)
         if mine is None or theirs is None:
             continue
+        found.update(described(f"said_{structure}", mine))
+        found.update(described(f"truth_{structure}", theirs))
         found[f"{structure}_dice"] = dice(mine, theirs)
-        offset = centre_offset(mine, theirs)
-        found[f"{structure}_centre_offset"] = offset
-        found[f"{structure}_centre_offset_diameters"] = (
+        offset = center_offset(mine, theirs)
+        found[f"{structure}_center_offset"] = offset
+        found[f"{structure}_center_offset_diameters"] = (
             offset / diameter if offset is not None and diameter else None
         )
-        for name, measured in (("width", 0), ("height", 1)):
-            one, other = extent(mine), extent(theirs)
+        for name in ("width", "height", "radius"):
+            one = found[f"said_{structure}_{name}"]
+            other = found[f"truth_{structure}_{name}"]
             found[f"{structure}_{name}_error"] = (
-                one[measured] - other[measured] if one and other else None
+                one - other if one is not None and other is not None else None
             )
-        mine_r, theirs_r = equivalent_radius(mine), equivalent_radius(theirs)
-        found[f"{structure}_radius_error"] = (
-            mine_r - theirs_r if mine_r is not None and theirs_r is not None else None
-        )
-        drawn = extent(theirs)
-        found[f"truth_{structure}_width"] = drawn[0] if drawn else None
-        found[f"truth_{structure}_height"] = drawn[1] if drawn else None
-        found[f"truth_{structure}_radius"] = theirs_r
 
     if {"disc", "cup"} <= set(said) and {"disc", "cup"} <= set(truth):
         for name, ratio in (("vertical", vertical_ratio), ("area", area_ratio)):

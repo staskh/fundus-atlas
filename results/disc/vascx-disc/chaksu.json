@@ -1,12 +1,12 @@
 {
   "benchmark": "disc",
   "dataset": "chaksu",
-  "fingerprint": "8b16d651f1185306d145ea7d2307169e3dfde1ebc88ccc16049229596ef6d88e",
+  "fingerprint": "c9174046ddb153c2f526d11b43492e8da4da53647a0cc47c7432a933185072e0",
   "model": "vascx-disc",
   "summary": {
     "complete": true,
     "device": "mps",
-    "disc_centre_offset": {
+    "disc_center_offset": {
       "mean": 7.154309488908739,
       "median": 5.521194,
       "n": 6717,

@@ -12,18 +12,18 @@ What this repository measured against what experts annotated, on the same images
 
 | Model | Dataset | Photographs | Outlines | Disc Dice | Cup Dice | Disc centre, px | Cup ratio error | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [automorph-disc-cup](models/automorph-disc-cup.md) | chaksu | 2 of 1345 | 10 | 0.970 | 0.862 | 2.197 | -0.167 | 1.168 | out-of-sample |
-| [automorph-disc-cup](models/automorph-disc-cup.md) | grape | 2 of 631 | 2 | 0.941 | 0.708 | 4.587 | 0.027 | 0.247 | out-of-sample |
-| [automorph-disc-cup](models/automorph-disc-cup.md) | papila | 2 of 488 | 4 | 0.796 | 0.759 | 62.310 | 0.067 | 0.241 | out-of-sample |
-| [lunetv2-odc](models/lunetv2-odc.md) | chaksu | 2 of 1345 | 10 | 0.958 | 0.832 | 2.587 | -0.032 | 0.805 | unknown |
-| [lunetv2-odc](models/lunetv2-odc.md) | grape | 2 of 631 | 2 | 0.934 | 0.550 | 6.080 | 0.162 | 0.325 | unknown |
-| [lunetv2-odc](models/lunetv2-odc.md) | papila | 2 of 488 | 4 | 0.939 | 0.891 | 6.453 | -0.005 | 0.293 | unknown |
-| [segformer-disc-cup](models/segformer-disc-cup.md) | chaksu | 2 of 1345 | 10 | 0.971 | 0.811 | 2.161 | -0.073 | 0.653 | out-of-sample |
-| [segformer-disc-cup](models/segformer-disc-cup.md) | grape | 2 of 631 | 2 | 0.911 | 0.583 | 11.260 | 0.117 | 0.238 | out-of-sample |
-| [segformer-disc-cup](models/segformer-disc-cup.md) | papila | 2 of 488 | 4 | 0.947 | 0.890 | 9.270 | 0.017 | 0.202 | out-of-sample |
-| [vascx-disc](models/vascx-disc.md) | chaksu | 2 of 1345 | 10 | 0.971 | — | 2.020 | — | 2.505 | unknown |
-| [vascx-disc](models/vascx-disc.md) | grape | 2 of 631 | 2 | 0.936 | — | 3.524 | — | 1.115 | unknown |
-| [vascx-disc](models/vascx-disc.md) | papila | 2 of 488 | 4 | 0.973 | — | 4.687 | — | 1.109 | unknown |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | chaksu | 1345 | 6725 | 0.895 | 0.753 | 16.886 | -0.061 | 0.281 | out-of-sample |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | grape | 631 | 631 | 0.907 | 0.772 | 6.856 | 0.039 | 0.798 | out-of-sample |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | papila | 488 | 976 | 0.554 | 0.396 | 51.020 | 0.166 | 0.263 | out-of-sample |
+| [lunetv2-odc](models/lunetv2-odc.md) | chaksu | 1345 | 6725 | 0.938 | 0.831 | 7.134 | -0.005 | 0.260 | unknown |
+| [lunetv2-odc](models/lunetv2-odc.md) | grape | 631 | 631 | 0.929 | 0.746 | 6.244 | 0.088 | 0.267 | unknown |
+| [lunetv2-odc](models/lunetv2-odc.md) | papila | 488 | 976 | 0.936 | 0.703 | 8.639 | -0.034 | 0.235 | unknown |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | chaksu | 1345 | 6725 | 0.958 | 0.821 | 8.678 | -0.062 | 0.259 | out-of-sample |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | grape | 631 | 631 | 0.899 | 0.768 | 7.860 | 0.034 | 0.414 | out-of-sample |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | papila | 488 | 976 | 0.818 | 0.597 | 22.221 | 0.083 | 0.249 | out-of-sample |
+| [vascx-disc](models/vascx-disc.md) | chaksu | 1345 | 6725 | 0.954 | — | 7.154 | — | 1.220 | unknown |
+| [vascx-disc](models/vascx-disc.md) | grape | 631 | 631 | 0.921 | — | 5.613 | — | 1.152 | unknown |
+| [vascx-disc](models/vascx-disc.md) | papila | 488 | 976 | 0.951 | — | 9.378 | — | 1.319 | unknown |
 
 Read a dash as *not measured* rather than as zero: a model that finds no cup has no cup row to average.
 
@@ -69,4 +69,4 @@ Neither line is a verdict on the models. Coverage, contamination and the thresho
 
 ---
 
-**Generated:** 2026-09-16
+**Generated:** 2026-09-17

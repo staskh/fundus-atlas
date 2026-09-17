@@ -38,13 +38,13 @@ def test_two_empty_shapes_have_no_overlap_to_measure() -> None:
 
 
 def test_a_centre_is_where_the_shape_is() -> None:
-    found = disc.centre(circle(200, 60, 140, 30))
+    found = disc.center(circle(200, 60, 140, 30))
 
     assert found == pytest.approx((60, 140), abs=0.5)
 
 
 def test_a_shifted_shape_is_offset_by_the_shift() -> None:
-    offset = disc.centre_offset(circle(200, 100, 100, 30), circle(200, 110, 100, 30))
+    offset = disc.center_offset(circle(200, 100, 100, 30), circle(200, 110, 100, 30))
 
     assert offset == pytest.approx(10, abs=0.5)
 
@@ -99,9 +99,27 @@ def test_every_measurement_of_one_pair_comes_back_together() -> None:
     found = disc.measure(said, truth)
 
     assert found["disc_dice"] > 0.9
-    assert found["disc_centre_offset"] == pytest.approx(5, abs=0.5)
+    assert found["disc_center_offset"] == pytest.approx(5, abs=0.5)
     assert found["cup_vertical_ratio_error"] == pytest.approx(0.1, abs=0.02)
     assert found["truth_vertical_ratio"] == pytest.approx(0.5, abs=0.02)
+
+
+def test_what_each_outline_actually_measures_is_recorded_not_only_the_error() -> None:
+    """A study wants the disc's width, not only how far the model was from somebody else's."""
+    said = {"disc": circle(300, 150, 150, 50), "cup": circle(300, 152, 148, 25)}
+    truth = {"disc": circle(300, 150, 150, 40), "cup": circle(300, 150, 150, 20)}
+
+    measured = disc.measure(said, truth)
+
+    assert measured["said_disc_width"] == pytest.approx(101, abs=2)
+    assert measured["said_disc_height"] == pytest.approx(101, abs=2)
+    assert measured["said_disc_radius"] == pytest.approx(50, abs=1)
+    assert measured["said_disc_center_x"] == pytest.approx(150, abs=0.5)
+    assert measured["said_disc_center_y"] == pytest.approx(150, abs=0.5)
+    assert measured["said_cup_center_x"] == pytest.approx(152, abs=0.5)
+    assert measured["said_cup_center_y"] == pytest.approx(148, abs=0.5)
+    assert measured["truth_disc_center_x"] == pytest.approx(150, abs=0.5)
+    assert measured["truth_cup_radius"] == pytest.approx(20, abs=1)
 
 
 def test_the_expert_s_own_size_is_recorded_beside_the_error() -> None:
@@ -117,15 +135,15 @@ def test_the_expert_s_own_size_is_recorded_beside_the_error() -> None:
     assert measured["truth_cup_radius"] == pytest.approx(20, abs=1)
 
 
-def test_the_centre_offset_is_also_given_in_disc_diameters() -> None:
+def test_the_center_offset_is_also_given_in_disc_diameters() -> None:
     """Ten pixels is a different error on a 2,576-pixel photograph and on a 1,444-pixel one."""
     truth = {"disc": circle(300, 150, 150, 50)}
     said = {"disc": circle(300, 160, 150, 50)}
 
     measured = disc.measure(said, truth)
 
-    assert measured["disc_centre_offset"] == pytest.approx(10, abs=0.5)
-    assert measured["disc_centre_offset_diameters"] == pytest.approx(10 / 100, abs=0.01)
+    assert measured["disc_center_offset"] == pytest.approx(10, abs=0.5)
+    assert measured["disc_center_offset_diameters"] == pytest.approx(10 / 100, abs=0.01)
 
 
 def test_a_cup_offset_is_measured_in_the_disc_s_diameters_not_its_own() -> None:
@@ -135,4 +153,4 @@ def test_a_cup_offset_is_measured_in_the_disc_s_diameters_not_its_own() -> None:
 
     measured = disc.measure(said, truth)
 
-    assert measured["cup_centre_offset_diameters"] == pytest.approx(5 / 100, abs=0.01)
+    assert measured["cup_center_offset_diameters"] == pytest.approx(5 / 100, abs=0.01)

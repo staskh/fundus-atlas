@@ -1,12 +1,12 @@
 {
   "benchmark": "disc",
   "dataset": "grape",
-  "fingerprint": "a7f1e7ae725c1622919d0b1a232851047562e1ba50f08d722325f994a11f7d0a",
+  "fingerprint": "536ead0501df14b40b82596fcffdaaffd7e2216bb2fd0e90f630982a3008b10c",
   "model": "vascx-disc",
   "summary": {
     "complete": true,
     "device": "mps",
-    "disc_centre_offset": {
+    "disc_center_offset": {
       "mean": 5.613384133122029,
       "median": 3.970248,
       "n": 631,

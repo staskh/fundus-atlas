@@ -86,25 +86,39 @@ python -m benchmarks --benchmark disc --max-samples 20
 | `reader` | **which expert drew the outline this row is scored against**; a photograph with five readers makes five rows |
 | `native_side` | the side of the native square, in pixels — every measurement below is in it |
 | `outcome` | `graded`, or `failed` with the reason in `note` |
-| `resampling` | how the model's output reached the native frame: probabilities interpolated and then thresholded, or a binary mask resampled nearest |
+| `resampling` | how the model's output reached the native frame: probabilities interpolated and then thresholded, a binary mask resampled nearest, or — where a later run measured new things about outlines an earlier one drew — the note that these came from the kept masks |
 | `disc_dice` | overlap with this reader's disc, 0 to 1 |
 | `cup_dice` | overlap with this reader's cup; absent for a model that finds no cup |
-| `disc_centre_offset` | distance between the two disc centres, in native pixels |
-| `cup_centre_offset` | as above, for the cup |
-| `disc_centre_offset_diameters` | the same distance **in the expert's own disc diameters**, which is the only camera-independent form: ten pixels means one thing on a 2,576-pixel photograph and another on a 1,444-pixel one |
-| `cup_centre_offset_diameters` | the cup's offset, measured in that same disc diameter rather than in the cup's own — the disc is the ruler |
+| `said_disc_width` | **how wide the model's disc is**, in native pixels — a measurement in its own right rather than a distance from somebody else's |
+| `said_disc_height` | how tall the model's disc is |
+| `said_disc_radius` | the radius of a circle of the same area as the model's disc |
+| `said_disc_center_x` | where the model puts the disc's centre, in native pixels from the left |
+| `said_disc_center_y` | and from the top |
+| `said_cup_width` | how wide the model's cup is |
+| `said_cup_height` | how tall |
+| `said_cup_radius` | the radius of a circle of the same area as the model's cup |
+| `said_cup_center_x` | where the model puts the cup's centre |
+| `said_cup_center_y` | and from the top |
+| `disc_center_offset` | distance between the two disc centres, in native pixels |
+| `cup_center_offset` | as above, for the cup |
+| `disc_center_offset_diameters` | the same distance **in the expert's own disc diameters**, which is the only camera-independent form: ten pixels means one thing on a 2,576-pixel photograph and another on a 1,444-pixel one |
+| `cup_center_offset_diameters` | the cup's offset, measured in that same disc diameter rather than in the cup's own — the disc is the ruler |
 | `disc_width_error` | signed: the model's disc width less the reader's, in pixels |
 | `disc_height_error` | signed, likewise |
 | `cup_width_error` | signed, for the cup |
 | `cup_height_error` | signed, for the cup |
 | `disc_radius_error` | signed: the radius of a circle of the same area, less the reader's |
 | `cup_radius_error` | as above, for the cup |
-| `truth_disc_width` | how wide the expert drew the disc, in native pixels — the size every error above is an error of |
+| `truth_disc_width` | how wide **this reader** drew the disc, in native pixels — the size every error above is an error of |
 | `truth_disc_height` | how tall, likewise |
-| `truth_disc_radius` | the radius of a circle of the same area as the expert's disc |
-| `truth_cup_width` | how wide the expert drew the cup |
+| `truth_disc_radius` | the radius of a circle of the same area as the reader's disc |
+| `truth_disc_center_x` | where the reader put the disc's centre |
+| `truth_disc_center_y` | and from the top |
+| `truth_cup_width` | how wide the reader drew the cup |
 | `truth_cup_height` | how tall |
-| `truth_cup_radius` | the radius of a circle of the same area as the expert's cup |
+| `truth_cup_radius` | the radius of a circle of the same area as the reader's cup |
+| `truth_cup_center_x` | where the reader put the cup's centre |
+| `truth_cup_center_y` | and from the top |
 | `said_vertical_ratio` | the model's cup height over its disc height |
 | `truth_vertical_ratio` | this reader's own vertical cup-to-disc ratio |
 | `cup_vertical_ratio_error` | **signed**: the model's vertical ratio less the reader's — the number a referral rests on |

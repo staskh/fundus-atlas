@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 
 from datasets.utils import paths
 from models.utils import catalogue
+from models.utils.outlines import Outlines
 
 from . import contamination, report, runs
 from .loaders.base import CROPS, FLOOR, available, collate
@@ -25,8 +26,10 @@ from .metrics import disc as metrics
 #: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "disc"
 
-#: The benchmark's own version. Changing what is measured, or how, changes this.
-VERSION = 1
+#: The benchmark's own version. Changing what is measured, or how, changes this. Version 2 records
+#: what each outline itself measures — its width, height, radius and centre — beside the errors, and
+#: spells every column `center` rather than `centre`.
+VERSION = 2
 
 #: The datasets this benchmark wants. A name here is intent, not inventory: one whose store is not
 #: built is warned about, recorded, and stepped over.
@@ -162,8 +165,14 @@ def run(
     max_samples: int | None = None,
     random_samples: bool = False,
     seed: int = 0,
+    rescore: bool = False,
 ) -> list[dict[str, object]]:
-    """Score every model on every dataset, measuring only what is missing."""
+    """Score every model on every dataset, measuring only what is missing.
+
+    :param rescore: measure the outlines a previous run kept, instead of drawing them again. What
+        a model drew does not change when what is measured about it does, so a new metric costs a
+        pass over the masks rather than a pass over the networks.
+    """
     started = datetime.now(UTC)
     absent = missing_datasets(datasets, root)
     for slug, why in absent.items():
@@ -190,6 +199,7 @@ def run(
                     random_samples,
                     seed,
                     record or runs.RUNS,
+                    rescore,
                 )
             )
         let_go = getattr(adapter, "release", None)
@@ -210,6 +220,7 @@ def _pair(
     random_samples: bool,
     seed: int,
     keeping: Path,
+    rescore: bool,
 ) -> dict[str, object]:
     """One model on one dataset: keep what still stands, measure what is missing, write it all."""
     loader = DiscCupLoader(
@@ -224,22 +235,27 @@ def _pair(
     declared = adapter.declare()
     store = _store(slug, root)
     loaded = adapter.identity()
-    identity = runs.fingerprint(
+    #: What drew the outlines, and therefore what the kept masks are of. It does not include this
+    #: benchmark's version: changing what is measured about a mask does not change the mask, which
+    #: is what lets a new measurement be taken from the outlines already drawn.
+    drawing = runs.fingerprint(
         {
             "model": {name: declared[name] for name in FINGERPRINTED if name in declared},
             "weights": loaded,
             "store": store,
-            "benchmark": {"name": NAME, "version": VERSION, "floor": FLOOR},
         }
     )
+    identity = runs.fingerprint(
+        {"drawing": drawing, "benchmark": {"name": NAME, "version": VERSION, "floor": FLOOR}}
+    )
 
-    kept = [] if force else runs.measured(results, NAME, adapter.slug, slug, identity)
+    kept = [] if force or rescore else runs.measured(results, NAME, adapter.slug, slug, identity)
     done = {row["key"] for row in kept}
     loader.restrict({row["key"] for row in loader.rows} - done)
-    masks = _masks_for(keeping / NAME / adapter.slug / slug, identity, keep=bool(kept))
+    masks = _masks_for(keeping / NAME / adapter.slug / slug, drawing, keep=bool(kept) or rescore)
 
     timed = runs.Timing()
-    stored = runs.read(results, NAME, adapter.slug, slug) if kept else None
+    stored = runs.read(results, NAME, adapter.slug, slug) if kept or rescore else None
 
     def record_so_far(fresh: list[dict[str, object]]) -> dict[str, object]:
         """Write down everything measured to this point, complete or not."""
@@ -253,7 +269,16 @@ def _pair(
         runs.write(results, NAME, adapter.slug, slug, identity, {**described, **counted}, evidence)
         return {"counts": counted, "summary": described}
 
-    if len(loader):
+    if rescore:
+        print(f"{adapter.slug} × {slug}: measuring {len(loader)} kept outlines afresh", flush=True)
+        fresh = _remeasure(
+            loader,
+            masks,
+            declared["structures"],
+            record_so_far,
+            drawn_by=declared.get("resampling", ""),
+        )
+    elif len(loader):
         print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
         fresh = _outline(adapter, loader, batch, timed, masks, record_so_far)
     else:
@@ -309,6 +334,67 @@ def _outline(
             record_so_far(rows)
             since = 0
     return rows
+
+
+def _remeasure(
+    loader: DiscCupLoader,
+    masks: Path,
+    structures: list[str],
+    record_so_far: Callable[[list[dict[str, object]]], object],
+    drawn_by: str = "",
+) -> list[dict[str, object]]:
+    """Measure the outlines a previous run drew, without asking any model to draw them again."""
+    rows: list[dict[str, object]] = []
+    since, missing = 0, []
+    for index in range(len(loader)):
+        row = loader.rows[index]
+        key, side = row["key"], int(row["crop_side"])
+        drawn = _kept(masks, key, structures, side, drawn_by)
+        if drawn is None:
+            missing.append(key)
+            continue
+        sample = {
+            "key": [key],
+            "subset": [row["subset"]],
+            "split": [row["split"]],
+            "native_side": [side],
+            "outlines": [loader.outlines_of(key)],
+        }
+        rows.extend(_rows(key, sample, 0, drawn, note=""))
+        since += 1
+        if since >= runs.CHECKPOINT:
+            record_so_far(rows)
+            since = 0
+    if missing:
+        raise RuntimeError(
+            f"no kept masks for {len(missing)} of {len(loader)} photographs — a rescore measures "
+            f"what a run drew, so run it without --rescore first (first missing: {missing[0]})"
+        )
+    return rows
+
+
+def _kept(
+    masks: Path, key: str, structures: list[str], side: int, drawn_by: str = ""
+) -> Outlines | None:
+    """One photograph's kept outlines, read back in the frame they were drawn in."""
+    found = {}
+    for structure in structures:
+        path = masks / f"{key}-{structure}.png"
+        if not path.exists():
+            return None
+        with Image.open(path) as mask:
+            found[structure] = np.asarray(mask) > 0
+        if found[structure].shape != (side, side):
+            raise RuntimeError(
+                f"{path} is {found[structure].shape} and the photograph's own frame is "
+                f"{(side, side)}; the store has been rebuilt since these were drawn"
+            )
+    return Outlines(masks=found, resampling=f"{drawn_by}{KEPT}" if drawn_by else KEPT)
+
+
+#: What a rescored row adds to the resampling path its model declares: the outline is the one that
+#: path produced, and only the measuring of it happened later.
+KEPT = ", and these numbers were measured from the outlines that run kept"
 
 
 def _masks_for(directory: Path, identity: str, keep: bool) -> Path:
@@ -401,8 +487,8 @@ def _summarise(rows: list[dict[str, object]], structures: list[str]) -> dict[str
 _MEASURED = (
     "disc_dice",
     "cup_dice",
-    "disc_centre_offset",
-    "cup_centre_offset",
+    "disc_center_offset",
+    "cup_center_offset",
     "disc_height_error",
     "cup_height_error",
     "disc_radius_error",
@@ -472,6 +558,7 @@ def main(asked) -> None:
         root=root,
         batch=asked.batch or BATCH,
         force=asked.force,
+        rescore=asked.rescore,
         max_samples=asked.max_samples,
         random_samples=asked.random_samples,
         seed=asked.seed,
@@ -491,15 +578,27 @@ COLUMNS = {
     "native_side": "the side of the native square, in pixels — every measurement below is in it",
     "outcome": "`graded`, or `failed` with the reason in `note`",
     "resampling": "how the model's output reached the native frame: probabilities interpolated and "
-    "then thresholded, or a binary mask resampled nearest",
+    "then thresholded, a binary mask resampled nearest, or — where a later run measured new things "
+    "about outlines an earlier one drew — the note that these came from the kept masks",
     "disc_dice": "overlap with this reader's disc, 0 to 1",
     "cup_dice": "overlap with this reader's cup; absent for a model that finds no cup",
-    "disc_centre_offset": "distance between the two disc centres, in native pixels",
-    "cup_centre_offset": "as above, for the cup",
-    "disc_centre_offset_diameters": "the same distance **in the expert's own disc diameters**, "
+    "said_disc_width": "**how wide the model's disc is**, in native pixels — a measurement in its "
+    "own right rather than a distance from somebody else's",
+    "said_disc_height": "how tall the model's disc is",
+    "said_disc_radius": "the radius of a circle of the same area as the model's disc",
+    "said_disc_center_x": "where the model puts the disc's centre, in native pixels from the left",
+    "said_disc_center_y": "and from the top",
+    "said_cup_width": "how wide the model's cup is",
+    "said_cup_height": "how tall",
+    "said_cup_radius": "the radius of a circle of the same area as the model's cup",
+    "said_cup_center_x": "where the model puts the cup's centre",
+    "said_cup_center_y": "and from the top",
+    "disc_center_offset": "distance between the two disc centres, in native pixels",
+    "cup_center_offset": "as above, for the cup",
+    "disc_center_offset_diameters": "the same distance **in the expert's own disc diameters**, "
     "which is the only camera-independent form: ten pixels means one thing on a 2,576-pixel "
     "photograph and another on a 1,444-pixel one",
-    "cup_centre_offset_diameters": "the cup's offset, measured in that same disc diameter rather "
+    "cup_center_offset_diameters": "the cup's offset, measured in that same disc diameter rather "
     "than in the cup's own — the disc is the ruler",
     "disc_width_error": "signed: the model's disc width less the reader's, in pixels",
     "disc_height_error": "signed, likewise",
@@ -507,13 +606,17 @@ COLUMNS = {
     "cup_height_error": "signed, for the cup",
     "disc_radius_error": "signed: the radius of a circle of the same area, less the reader's",
     "cup_radius_error": "as above, for the cup",
-    "truth_disc_width": "how wide the expert drew the disc, in native pixels — the size every "
+    "truth_disc_width": "how wide **this reader** drew the disc, in native pixels — the size every "
     "error above is an error of",
     "truth_disc_height": "how tall, likewise",
-    "truth_disc_radius": "the radius of a circle of the same area as the expert's disc",
-    "truth_cup_width": "how wide the expert drew the cup",
+    "truth_disc_radius": "the radius of a circle of the same area as the reader's disc",
+    "truth_disc_center_x": "where the reader put the disc's centre",
+    "truth_disc_center_y": "and from the top",
+    "truth_cup_width": "how wide the reader drew the cup",
     "truth_cup_height": "how tall",
-    "truth_cup_radius": "the radius of a circle of the same area as the expert's cup",
+    "truth_cup_radius": "the radius of a circle of the same area as the reader's cup",
+    "truth_cup_center_x": "where the reader put the cup's centre",
+    "truth_cup_center_y": "and from the top",
     "said_vertical_ratio": "the model's cup height over its disc height",
     "truth_vertical_ratio": "this reader's own vertical cup-to-disc ratio",
     "cup_vertical_ratio_error": "**signed**: the model's vertical ratio less the reader's — the "
@@ -698,7 +801,7 @@ def index_section(records: list[dict[str, object]]) -> Iterable[str]:
             f"| [{record['model']}](models/{record['model']}.md) | {record['dataset']} | "
             f"{done} | {summary.get('outlines', '—')} | "
             f"{_mean(summary, 'disc_dice')} | {_mean(summary, 'cup_dice')} | "
-            f"{_mean(summary, 'disc_centre_offset')} | "
+            f"{_mean(summary, 'disc_center_offset')} | "
             f"{_mean(summary, 'cup_vertical_ratio_error')} | "
             f"{report.seconds(summary)} | "
             f"{contamination.mark(record['model'], record['dataset'])} |"

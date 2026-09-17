@@ -346,3 +346,62 @@ def test_the_next_run_finishes_what_the_kill_left(
 
     assert scored[0]["measured"] == 3, "the three photographs the kill never reached"
     assert scored[0]["counts"]["complete"] is True
+
+
+class Refuses(Circles):
+    """A model that will not draw anything, to prove a rescore never asks it to."""
+
+    def outline(self, images: torch.Tensor, sides: list[int]):
+        raise AssertionError("a rescore must measure the kept masks, not run the model again")
+
+
+def test_a_rescore_measures_the_kept_masks_rather_than_running_the_model(tmp_path: Path) -> None:
+    store = a_store(tmp_path)
+    first = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
+
+    again = disc.run(
+        [Refuses()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=store,
+        record=tmp_path / "runs",
+        rescore=True,
+    )
+
+    assert again[0]["summary"]["disc_dice"] == first[0]["summary"]["disc_dice"]
+    assert again[0]["summary"]["outlines"] == first[0]["summary"]["outlines"]
+
+
+def test_a_rescore_keeps_the_timing_of_the_run_that_drew_the_masks(tmp_path: Path) -> None:
+    """No model ran, so the seconds belong to the run that did draw them."""
+    store = a_store(tmp_path)
+    first = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
+
+    again = disc.run(
+        [Refuses()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=store,
+        record=tmp_path / "runs",
+        rescore=True,
+    )
+
+    assert again[0]["summary"]["seconds_per_photograph"] == pytest.approx(
+        first[0]["summary"]["seconds_per_photograph"]
+    )
+
+
+def test_a_rescore_with_no_masks_says_so_rather_than_measuring_nothing(tmp_path: Path) -> None:
+    with pytest.raises(RuntimeError, match="no kept masks"):
+        disc.run(
+            [Refuses()],
+            ["papila"],
+            results=tmp_path / "results",
+            root=a_store(tmp_path),
+            record=tmp_path / "runs",
+            rescore=True,
+        )

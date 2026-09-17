@@ -39,6 +39,14 @@ def parse(argv: list[str] | None = None) -> Namespace:
         "--force", action="store_true", help="discard what is stored and measure it all again"
     )
     parser.add_argument(
+        "--rescore",
+        action="store_true",
+        help=(
+            "measure again from the outlines a previous run kept, without running any model — for "
+            "a benchmark that has learnt to measure something new about the same masks"
+        ),
+    )
+    parser.add_argument(
         "--no-report", dest="report", action="store_false", help="skip the generated documents"
     )
     return parser.parse_args(argv)
