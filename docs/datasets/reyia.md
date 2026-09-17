@@ -112,7 +112,9 @@ photographs mixes fields of view by a factor of four or more.
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None established directly. But because its
+- **Catalogued models trained on these images:** [RLAD](../models/rlad.md), which comes from the same paper
+  that published REYIA and trains on its ENRICH subcollection. Otherwise none established directly.
+  But because its
   photographs come from datasets that *are* training data for several models here, a REYIA score is
   **partly in-sample for reasons that have nothing to do with REYIA** — which is exactly the trap
   the per-photograph source attribution exists to expose.

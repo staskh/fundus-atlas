@@ -62,6 +62,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Fundus Image Toolbox fovea and disc locator](models/fit-fovea-od.md) | Fovea and disc centres, as points | EfficientNet-B3, multi-task | 350² centre crop (points, no mask) | ADAM, REFUGE, IDRiD | Yes | Yes, in the repository | MIT; weights' own Zenodo record | — | 2026-08 | 2026-09-12 |
 | [VascX fovea](models/vascx-fovea.md) | Fovea location, as a point | U-Net ensemble | 1024² (point, no mask) | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [RLAD](models/rlad.md) | **Synthetic photographs**, conditioned on a vessel, disc/cup and lesion layout — for training data, not measurement | Diffusion transformer (DiT-XL/2), plus three SwinV2 layout segmenters | 512² generated; layout read at up to 2048² | UZLF, GRAPE, MESSIDOR, PAPILA, MAGREB, ENRICH, EyePACS, G1020, IDRiD, ODIR and three more | **No** | Yes, in the repository | **Contradictory**: LICENSE is Apache-2.0, README says CC BY-NC 4.0 | — | 2025-07 | 2026-09-17 |
 | [SuperRetina](models/superretina.md) | Keypoints matching one photograph to another of the same eye | Keypoint detector and descriptor, SuperPoint family | 512² (points and a transform) | See the paper | Yes | Yes, upstream | **None stated**, weights included | — | 2023-02 | 2026-09-12 |
 
 ## 2. How to read this table

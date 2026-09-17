@@ -56,9 +56,10 @@ photographs.
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None established for training. The AutoMorph paper
-  reports IDRiD as the **validation** set for its disc-and-cup model, so it is not fully held out for
-  that model.
+- **Catalogued models trained on these images:** None established for training among the
+  segmentation models. The AutoMorph paper reports IDRiD as the **validation** set for its
+  disc-and-cup model, so it is not fully held out for that model, and [RLAD](../models/rlad.md) trains its
+  generator on IDRiD's lesion training split.
 - **Below a model's measuring grid:** No — far above every grid in [MODELS.md](../MODELS.md).
 - **What it can answer:** disc segmentation at native high resolution on an Indian population, under
   a permissive licence; and, paired with RETA, how much a fourfold downsizing costs a vessel

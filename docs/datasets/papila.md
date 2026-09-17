@@ -94,7 +94,8 @@ stated by the authors rather than inferred.
   [OCULARNet-nano](../models/ocularnet-nano.md) list PAPILA in their training data. It is **held out**
   of the AutoMorph family's disc-and-cup model, which trained on [REFUGE](refuge.md) and
   [GAMMA](gamma.md), and of the
-  [Hugging Face SegFormer](../models/segformer-disc-cup.md), which trained on REFUGE.
+  [Hugging Face SegFormer](../models/segformer-disc-cup.md), which trained on REFUGE. [RLAD](../models/rlad.md)
+  generates from it, so any model augmented with RLAD images has seen these photographs indirectly.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** genuine generalisation for the disc-and-cup models in this catalogue, and
   the human agreement ceiling those models should be read against. Of everything here it is the best
