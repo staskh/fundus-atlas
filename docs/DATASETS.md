@@ -34,7 +34,7 @@ measurement.
 
 **What that inference is worth is measurable, once.** [PAPILA](datasets/papila.md) states a 30°
 field, so a scale follows from the field's diameter without assuming any disc size — and the two
-derivations agree to **8.7%**, its median disc coming out at 1,656 µm against the 1,800 µm assumed.
+derivations agree to **5.8%**, its median disc coming out at 1,702 µm against the 1,800 µm assumed.
 Read every inferred figure in this catalogue as a camera scale good to roughly a tenth, and none of
 them as a per-eye calibration.
 

@@ -180,3 +180,48 @@ def test_a_dataset_that_published_a_scale_is_left_alone(tmp_path: Path) -> None:
 
     assert adapter.asked == [], "a published scale is not re-measured"
     assert not (tmp_path / "um_resolution" / "chaksu.json").exists()
+
+
+class Patchy(Disc):
+    """A model that finds nothing on some photographs, as a real one does."""
+
+    def __init__(self, blind: set[str]) -> None:
+        super().__init__()
+        self.blind = blind
+
+    def outline(self, images: torch.Tensor, sides: list[int], keys: list[str]):
+        drawn = super().outline(images, sides, keys)
+        return [
+            Outlines(masks={}, resampling="found nothing") if key in self.blind else found
+            for key, found in zip(keys, drawn, strict=True)
+        ]
+
+
+def test_a_photograph_the_model_misses_is_replaced_from_the_rest(tmp_path: Path) -> None:
+    """A sample of 32 that measures 21 is a wobblier median than one that measures 32.
+
+    The first MSHF portable group failed its spread gate on a draw where eleven photographs came
+    back without a disc; the same discs pooled sat well inside the gate. Replacement is what keeps
+    the gate measuring the camera rather than the draw.
+    """
+    keys = [f"k{index:02d}" for index in range(40)]
+    store = a_store(tmp_path, [a_row(key) for key in keys])
+    blind = set(keys[:10])
+
+    written = inference.measure(store, "chaksu", Patchy(blind), sample=16)
+
+    group = written["groups"][0]
+    assert group["n_measured"] == 16, "the sample is filled, not merely attempted"
+    assert group["n_drawn"] > 16, "it took more than sixteen draws to measure sixteen"
+    assert not (set(group["keys"]) & blind)
+
+
+def test_a_group_too_small_to_fill_the_sample_uses_what_it_has(tmp_path: Path) -> None:
+    keys = [f"k{index:02d}" for index in range(20)]
+    store = a_store(tmp_path, [a_row(key) for key in keys])
+
+    written = inference.measure(store, "chaksu", Patchy(set(keys[:2])), sample=32)
+
+    group = written["groups"][0]
+    assert group["n_measured"] == 18
+    assert group["n_drawn"] == 20, "every photograph in the group was tried"

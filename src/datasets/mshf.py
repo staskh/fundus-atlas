@@ -4,7 +4,8 @@
 """MSHF fetcher.
 
 One zip from figshare. `Original/` holds the photographs in six groups — four tabletop-camera
-groups and two portable ones — plus 500 ultra-wide-field mosaics, which are **not built**, per the
+groups, built as one `cfp` subset, and two portable ones, built as `local1` and `local2` because
+they are two devices — plus 500 ultra-wide-field mosaics, which are **not built**, per the
 skill's rule 13.7. `AI-use/train` and `AI-use/test` are the authors' split, copies of the same
 photographs under the same names.
 
@@ -54,8 +55,11 @@ GROUPS = {
     "DR-ZJU": ("cfp", "diabetic retinopathy"),
     "Glaucoma": ("cfp", "glaucoma"),
     "Healthy": ("cfp", "healthy"),
-    "Local1": ("portable", ""),
-    "Local2": ("portable", ""),
+    # The deposit's two portable-camera folders are two subsets rather than one. They are separate
+    # devices: measured together their optic discs scatter by 11.4% of the median, wider than one
+    # camera does, and the quality models already read them differently.
+    "Local1": ("local1", ""),
+    "Local2": ("local2", ""),
 }
 
 #: The components each reader scores, as the sheets head them, and the column each column holds.

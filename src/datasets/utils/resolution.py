@@ -18,12 +18,21 @@ INFERRED = Path(__file__).resolve().parents[3] / "results" / "um_resolution"
 #: tolerance, or the photographs a measurement was made from are the ones left without it.
 SIZE_TOLERANCE = 0.10
 
-#: The sources a stamped value may replace. Anything else is somebody's measurement and stands: an
-#: author's figure is never overwritten by our assumption about how big a disc usually is.
-REPLACEABLE = ("", "unknown")
+#: The sources a stamped value may replace. A published figure is never among them: overwriting an
+#: author's measurement with our assumption about how big a disc usually is, is the error this whole
+#: split exists to prevent. A `field_angle` derivation is replaced, because it is also ours and is
+#: the weaker of the two — the angle is what the camera is sold as, the disc is what is in the
+#: photograph. Both are kept: the one that gave way is still on the dataset's page and in
+#: `results/um_resolution/`, which is where the two can be compared.
+#: `disc_anchored` is among them because it is **our own previous copy**: the JSON is the source of
+#: truth, so a re-measurement has to be able to reach the manifest. Without it a `--force` run would
+#: rewrite the evidence and leave every store quoting the numbers it had superseded.
+REPLACEABLE = ("", "unknown", "field_angle", "disc_anchored")
 
-#: How a resolution was arrived at, in the skill's order of preference.
-SOURCES = ("published", "field_angle", "disc_anchored", "inherited", "unknown")
+#: How a resolution was arrived at, in order of preference. An author's own figure first; then a
+#: disc measured on the photographs themselves; then a field angle, which is a nominal
+#: specification multiplied by a constant and never measured on anything.
+SOURCES = ("published", "disc_anchored", "field_angle", "inherited", "unknown")
 
 #: Microns of retina spanned by one degree of field at the posterior pole. An approximation that
 #: ignores eye length and projection, which is why `field_angle` ranks below a published value.
@@ -99,13 +108,18 @@ def stamp(store: Path, slug: str, directory: Path | None = None) -> int:
     the figure without measuring anything again, and leaves one place — the JSON — where the
     derivation can be argued with.
 
-    :returns: how many rows were given a value they did not have.
+    A row whose group has since been refused has its copy **withdrawn**: the JSON is the source of
+    truth in both directions, and a manifest that went on quoting a number the evidence had taken
+    back would be worse than one that never had it.
+
+    :returns: how many rows were given a value they did not have, or had one taken away.
     :raises ValueError: if the scale was measured on a differently built store, since a changed
         crop changes the discs it was measured from.
     """
-    groups = _accepted(slug, directory)
-    if not groups:
+    record = inferred(slug, directory)
+    if not record:
         return 0
+    groups = _accepted(slug, directory)
     built = (
         json.loads((store / "build.json").read_text()) if (store / "build.json").exists() else {}
     )
@@ -127,11 +141,14 @@ def stamp(store: Path, slug: str, directory: Path | None = None) -> int:
         if row.get("resolution_source", "") not in REPLACEABLE:
             continue
         found = _group_of(row, groups)
-        if found is None:
-            continue
-        row["um_per_px"] = f"{float(found['um_per_px']):.6f}"
-        row["resolution_source"] = "disc_anchored"
-        stamped += 1
+        if found is not None:
+            row["um_per_px"] = f"{float(found['um_per_px']):.6f}"
+            row["resolution_source"] = "disc_anchored"
+            stamped += 1
+        elif row.get("resolution_source") == "disc_anchored":
+            row["um_per_px"] = ""
+            row["resolution_source"] = "unknown"
+            stamped += 1
 
     if stamped:
         with open(path, "w", newline="") as f:

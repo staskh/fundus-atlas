@@ -18,6 +18,7 @@ def an_archive(tmp_path, agreed=True):
         "DR-XJU": ["DR-XJU-1.jpg", "DR-XJU-30.jpg"],
         "DR-ZJU": ["DR-ZJU-1.jpg"],
         "Local1": ["Local1-1.jpg"],
+        "Local2": ["Local2-1.jpg"],
         "UWF-mosaic": ["UWF-mosaic-1.jpg"],
     }
 
@@ -46,6 +47,7 @@ def an_archive(tmp_path, agreed=True):
         "DR-XJU-30.jpg": [(0, 1, 1, 1), (0, 1, 1, 1), (0, 1, 1, 1)],
         "DR-ZJU-1.jpg": [(1, 1, 1, 1), (1, 1, 1, 1), (1, 1, 1, 1)],
         "Local1-1.jpg": [(1, 1, 1, 0), (0, 0, 0, 1), (1, 1, 1, 1)],
+        "Local2-1.jpg": [(1, 1, 1, 1), (1, 1, 1, 1), (1, 1, 1, 1)],
         "UWF-mosaic-1.jpg": [(0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)],
     }
     for name, (one, two, three) in readings.items():
@@ -83,9 +85,11 @@ def test_the_ultra_widefield_mosaics_are_not_built(tmp_path):
 
 
 def test_the_device_class_is_the_subset(tmp_path):
+    """The four tabletop groups are one subset; the two portable folders are two devices."""
     found = records(tmp_path)
     assert found["train_dr_xju_1"].subset == "cfp"
-    assert found["train_local1_1"].subset == "portable"
+    assert found["train_local1_1"].subset == "local1"
+    assert found["train_local2_1"].subset == "local2"
 
 
 def test_the_group_carries_the_disease_it_was_collected_for(tmp_path):

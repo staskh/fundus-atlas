@@ -64,7 +64,7 @@ microns of retina to the degree, over each photograph's own detected field, whic
 | | |
 | --- | --- |
 | Resolution (pixels) | 2576×1934, JPEG |
-| Microns per pixel | Not published. **Derived from the stated 30° field: ~3.777 µm/px** (per image, since the field's diameter in pixels varies), which is what this dataset's manifest carries |
+| Microns per pixel | Not published. Two derivations, both this repository's: **3.994 µm/px from the median optic disc** — which is what the manifest carries — and ~3.777 µm/px from the stated 30° field, per image. Section 3.1 compares them |
 | Camera | Topcon TRC-NW400, non-mydriatic |
 | Field of view | 30° |
 | Centring | **Disc-centred** (centred on the papilla) |
@@ -83,16 +83,18 @@ PAPILA both can be computed and compared:
 
 | Derivation | µm/px |
 | --- | --- |
-| From the stated 30° field | 3.777 (median over the 488 photographs) |
-| From the median optic disc, 32 photographs | 4.105 ([evidence](../../results/um_resolution/papila.json)) |
+| From the stated 30° field | 3.777 (median over the 488 photographs; it is per image) |
+| From the median optic disc, 32 photographs | 3.994 ([evidence](../../results/um_resolution/papila.json)) |
 
-**They agree to 8.7%.** Read the other way: if the field angle is right, PAPILA's median disc is
-**1,656 µm** rather than the 1,800 µm the inference assumes — inside the population range for a
+**They agree to 5.8%.** Read the other way: if the field angle is right, PAPILA's median disc is
+**1,702 µm** rather than the 1,800 µm the inference assumes — inside the population range for a
 disc, and a measure of what that assumption is worth everywhere it cannot be checked. Every
 `disc_anchored` figure in this catalogue should be read as good to roughly a tenth.
 
-The field-angle figure is the one PAPILA's manifest carries; the disc-derived one is kept as
-evidence and is not written into it.
+**The manifest carries the disc-derived figure.** Both are this repository's rather than the
+authors', and of the two the disc is measured on these photographs while the field angle is the
+camera's nominal specification multiplied by a constant 300 µm per degree. The field-angle figure
+stays here and in the fetcher, which is what makes this comparison possible at all.
 
 ## 4. Annotations
 

@@ -116,10 +116,18 @@ def measure(
 def _measured(
     store: Path, group: Group, adapter: object, sample: int, seed: int
 ) -> dict[str, object]:
-    """One camera's scale, or the record of why it could not be given one."""
-    drawn = _drawn(group.rows, sample, seed)
-    diameters, keys = [], []
-    for row in drawn:
+    """One camera's scale, or the record of why it could not be given one.
+
+    A photograph the model finds no disc on is **replaced** from the rest of the group rather than
+    simply lost: a sample that set out to measure 32 discs and measured 21 gives a median that
+    wobbles with the draw, and the spread gate then refuses a camera for the luck of it.
+    """
+    order = _drawn(group.rows, len(group.rows), seed)
+    diameters, keys, attempted = [], [], 0
+    for row in order:
+        if len(diameters) >= sample:
+            break
+        attempted += 1
         found = _diameter(store, row, adapter)
         if found is not None:
             diameters.append(found)
@@ -129,8 +137,9 @@ def _measured(
         "subset": group.subset,
         "native_width": group.width,
         "native_height": group.height,
-        "n_drawn": len(drawn),
+        "n_drawn": attempted,
         "n_measured": len(diameters),
+        "n_replaced": attempted - len(diameters),
         "keys": keys,
     }
     if not diameters:
@@ -246,14 +255,16 @@ def run(
             continue
         model = adapter if adapter is not None else _catalogued()
         record = measure(store, slug, model, sample, seed, subset)
-        if not force and _unchanged(slug, where, record):
+        if force or not _unchanged(slug, where, record):
+            where.mkdir(parents=True, exist_ok=True)
+            (where / f"{slug}.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+            written.append(record)
+        else:
             print(f"{slug}: unchanged — kept", file=sys.stderr)
-            continue
-        where.mkdir(parents=True, exist_ok=True)
-        (where / f"{slug}.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+        # Always stamped, even where nothing was measured again: what is committed and what the
+        # manifest carries are two different questions, and only one of them just ran.
         stamped = resolution.stamp(store, slug, where)
         print(f"{slug}: {stamped} rows given a scale", file=sys.stderr)
-        written.append(record)
     return written
 
 

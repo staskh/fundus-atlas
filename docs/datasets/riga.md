@@ -76,7 +76,7 @@ Three subcollections, one per source.
 | | |
 | --- | --- |
 | Resolution (pixels) | Not stated per source in the deposit |
-| Microns per pixel | Not published. **Inferred: 8.624 µm/px** — from the median optic disc of 32 photographs at the 800×800 the deposit distributes, [evidence](../../results/um_resolution/riga.json). It is the scale of **that crop**, not of the photograph it came from (section 7). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 8.765 µm/px** — from the median optic disc of 32 photographs at the 800×800 the deposit distributes, [evidence](../../results/um_resolution/riga.json). It is the scale of **that crop**, not of the photograph it came from (section 7). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Canon CR2, per the paper's description of the BinRushed centre |
 | Field of view | Not stated |
 | Centring | Disc-visible |
@@ -87,7 +87,7 @@ Three subcollections, one per source.
 | | |
 | --- | --- |
 | Resolution (pixels) | Not stated per source |
-| Microns per pixel | Not published. **Inferred: 9.363 µm/px** — from the median optic disc of 32 photographs at the 800×800 the deposit distributes, [evidence](../../results/um_resolution/riga.json). It is the scale of **that crop**, not of the photograph it came from (section 7). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 9.145 µm/px** — from the median optic disc of 32 photographs at the 800×800 the deposit distributes, [evidence](../../results/um_resolution/riga.json). It is the scale of **that crop**, not of the photograph it came from (section 7). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Topcon TRC-50DX, per the paper |
 | Field of view | Not stated |
 | Centring | Disc-visible |
@@ -98,7 +98,7 @@ Three subcollections, one per source.
 | | |
 | --- | --- |
 | Resolution (pixels) | MESSIDOR's natives — 1440×960, 2240×1488, 2304×1536 |
-| Microns per pixel | Not published. **Inferred: 8.515 µm/px** — from the median optic disc of 32 photographs at the 800×800 the deposit distributes, [evidence](../../results/um_resolution/riga.json). It is the scale of **that crop**, not of the photograph it came from (section 7). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 8.465 µm/px** — from the median optic disc of 32 photographs at the 800×800 the deposit distributes, [evidence](../../results/um_resolution/riga.json). It is the scale of **that crop**, not of the photograph it came from (section 7). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Topcon TRC NW6 |
 | Field of view | 45° |
 | Centring | Macula-centred |

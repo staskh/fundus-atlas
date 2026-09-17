@@ -94,6 +94,63 @@ def test_an_inferred_scale_is_copied_into_the_rows_it_was_measured_from(tmp_path
     assert [row["resolution_source"] for row in rows] == ["disc_anchored", "disc_anchored"]
 
 
+def test_a_field_angle_derivation_gives_way_to_a_measured_disc(tmp_path) -> None:
+    """Both are ours, and only one was measured on the photographs themselves.
+
+    A field angle is a nominal specification times a constant microns-per-degree; a disc is
+    measured on the image in front of you. Where both exist, the measurement wins.
+    """
+    store = a_store(tmp_path, [a_row("a", um_per_px="3.777000", resolution_source="field_angle")])
+
+    stamped = resolution.stamp(store, "chaksu", an_inference(tmp_path, [a_group()]))
+
+    row = next(iter(manifest.read(store)))
+    assert stamped == 1
+    assert row["um_per_px"] == "8.610000"
+    assert row["resolution_source"] == "disc_anchored"
+
+
+def test_a_new_measurement_replaces_the_copy_the_last_one_left(tmp_path) -> None:
+    """The JSON is the source of truth, so a re-measurement has to reach the manifest."""
+    store = a_store(
+        tmp_path, [a_row("a", um_per_px="9.999999", resolution_source="disc_anchored")]
+    )
+
+    stamped = resolution.stamp(store, "chaksu", an_inference(tmp_path, [a_group()]))
+
+    assert stamped == 1
+    assert next(iter(manifest.read(store)))["um_per_px"] == "8.610000"
+
+
+def test_a_scale_the_evidence_no_longer_supports_is_withdrawn(tmp_path) -> None:
+    """A group that passed its gate once and fails it now must not leave its number behind.
+
+    MSHF's local2 camera did exactly this: accepted on a partial sample, refused once every draw
+    was measured. The manifest cannot go on quoting a figure the evidence has withdrawn.
+    """
+    store = a_store(
+        tmp_path, [a_row("a", um_per_px="7.282000", resolution_source="disc_anchored")]
+    )
+    refused = a_group(accepted=False, note="its discs disagree by more than a tenth")
+    refused.pop("um_per_px")
+
+    resolution.stamp(store, "chaksu", an_inference(tmp_path, [refused]))
+
+    row = next(iter(manifest.read(store)))
+    assert row["um_per_px"] == ""
+    assert row["resolution_source"] == "unknown"
+
+
+def test_a_withdrawal_leaves_an_authors_own_figure_alone(tmp_path) -> None:
+    store = a_store(tmp_path, [a_row("a", um_per_px="6.0", resolution_source="published")])
+    refused = a_group(accepted=False, note="spread")
+    refused.pop("um_per_px")
+
+    resolution.stamp(store, "chaksu", an_inference(tmp_path, [refused]))
+
+    assert next(iter(manifest.read(store)))["um_per_px"] == "6.0"
+
+
 def test_a_published_scale_is_never_overwritten_by_an_inferred_one(tmp_path) -> None:
     """An author's measurement beats our assumption about how big a disc usually is."""
     store = a_store(tmp_path, [a_row("a", um_per_px="6.000000", resolution_source="published")])

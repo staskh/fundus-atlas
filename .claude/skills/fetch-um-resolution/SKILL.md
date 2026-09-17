@@ -119,9 +119,12 @@ Defaults of record. Changing one is a change to this skill, and it invalidates e
 Procedure, in order:
 
 1. List the group's keys from the store manifest.
-2. Draw 32 (or all, if fewer) with the recorded seed. A photograph the model declines or fails is
-   replaced from the remainder until 32 succeed or the group is exhausted. Record both the draw
-   and the replacements.
+2. Draw 32 (or all, if fewer) with the recorded seed. **A photograph the model declines or fails is
+   replaced from the remainder** until 32 succeed or the group is exhausted; record how many were
+   tried (`n_drawn`) beside how many were measured (`n_measured`). This is not bookkeeping: MSHF's
+   portable camera was once refused on a draw where the model measured 21 of 32 discs and their
+   spread read 11.4%, while the same discs pooled sat at 5.5%. A short sample makes the gate judge
+   the draw rather than the camera.
 3. Measure each accepted disc's equivalent diameter in native pixels.
 4. Compute the median and the median absolute deviation.
 5. If MAD / median ≤ 0.10 **and** at least 16 discs were measured, accept
@@ -189,8 +192,13 @@ The number lives in **two** places, and only one of them is its home.
 exactly two places: this command, straight after it commits the JSON, and a store build, which
 copies from the committed file. **Neither computes anything.** Three rules keep the copy honest:
 
-- **A published or field-angle figure is never overwritten** — only an empty or `unknown` source is
-  replaced.
+- **A published figure is never overwritten.** A `field_angle` figure is, because it is also this
+  repository's and it is the weaker of the two: the angle is what the camera is sold as, the disc is
+  what is in the photograph. A previous `disc_anchored` figure is replaced too — it is this
+  command's own copy, and the JSON is the source of truth.
+- **A withdrawn measurement withdraws its copy.** A group that passed the gate once and fails it now
+  leaves its rows with no scale rather than with the number the evidence has taken back. MSHF's
+  `local2` did exactly that between two runs.
 - **A scale measured on a differently built store is refused**, by comparing the JSON's
   `builder_version` with the store's: a changed crop changes the discs it was measured from.
 - **The grouping tolerance and the stamping tolerance are one constant**
@@ -233,10 +241,10 @@ this command's assumption can be measured against it.
 | Derivation | µm/px |
 | --- | --- |
 | From the stated 30° field | 3.777 (median; it is per image) |
-| From the median optic disc | 4.105 |
+| From the median optic disc | 3.994 |
 
-**The two agree to 8.7%.** Read the other way: if the field angle is right, PAPILA's median disc is
-**1,656 µm** rather than the 1,800 µm assumed here — inside the population range, and the size of
+**The two agree to 5.8%.** Read the other way: if the field angle is right, PAPILA's median disc is
+**1,702 µm** rather than the 1,800 µm assumed here — inside the population range, and the size of
 the error to expect from this method on a dataset with nothing to check it against. Quote a
 `disc_anchored` micron figure with that in mind: it is a camera scale good to roughly a tenth, not
 a calibration.
