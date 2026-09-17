@@ -14,9 +14,17 @@ from torch.utils.data import DataLoader
 from datasets.utils import paths
 from models.utils import catalogue
 
-from . import contamination, report, runs, scoring
+from . import report, runs, scoring
 from .loaders.base import CROPS, FLOOR, available, collate
 from .loaders.quality import QualityLoader
+
+#: What this benchmark asks, in the two sentences the index has room for.
+GOAL = (
+    "**Is this photograph good enough to measure?** Every quality model here is asked that of the "
+    "same photographs, and its answer is compared with the grade the dataset's own readers wrote "
+    "down. A gate that throws away usable photographs costs a study its sample; one that lets bad "
+    "photographs through costs it every biomarker computed from them."
+)
 
 #: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "quality"
@@ -515,106 +523,200 @@ def docs_sections(
     yield ""
 
 
-def index_section(records: list[dict[str, object]]) -> Iterable[str]:
-    """This benchmark's rows of `docs/BENCHMARKS.md`, and what to make of them."""
+def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
+    """This benchmark's entry in the index: one row per model, pooled, and where to start."""
+    pooled = _pooled(records, results)
+    measured = sorted({record["dataset"] for record in records if _has_two_classes(record)})
+    assumed = sorted({record["dataset"] for record in records} - set(measured))
+
     yield (
-        "**Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one "
-        "class dominates; Cohen's κ is what is left after chance agreement is taken out. A dash "
-        "means the metric has nothing to measure — a dataset whose reference has only one class "
-        "supports neither κ nor a ranking — and a photograph count of the form *n of m* means a "
-        "run that has not finished. **Seconds each** is how long the model itself took per "
-        "photograph, on the device named in its result, once it was loaded — a measurement of this "
-        "machine as much as of the model."
+        f"Measured on **{report.datasets_of(records)}**. **Accuracy and κ are read together**: "
+        f"accuracy flatters a model on a dataset where one class dominates, and Cohen's κ is what "
+        f"is left after chance agreement is taken out. Where they disagree, believe κ."
     )
     yield ""
-    yield (
-        "| Model | Dataset | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | "
-        "Seconds each | Marked |"
-    )
-    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
-    for record in records:
-        summary = record["summary"]
-        level = summary.get("gradeable", {})
-        done = summary.get("processed", "—")
-        if not summary.get("complete", True):
-            done = f"{done} of {summary.get('total', '—')}"
+    if assumed:
         yield (
-            f"| [{record['model']}](models/{record['model']}.md) | {record['dataset']} | "
-            f"{done} | {report.number(summary.get('coverage'))} | "
-            f"{report.number(level.get('accuracy'))} | {report.number(level.get('kappa'))} | "
-            f"{report.number(level.get('roc_auc'))} | "
-            f"{report.seconds(summary)} | "
-            f"{contamination.mark(record['model'], record['dataset'])} |"
-        )
-    yield ""
-    yield from _where_to_start(records)
-
-
-def _where_to_start(records: list[dict[str, object]]) -> Iterable[str]:
-    """Which models lead, at which question — because the answer is not the same question twice.
-
-    This is not a ranking. A model is best *at something*, and here the two somethings disagree
-    with each other: the model that orders photographs best is the one that gates worst, because
-    its published threshold sits in the wrong place. Naming the leaders without naming what they
-    lead at would hide exactly that.
-    """
-    by_model: dict[str, list[dict[str, object]]] = {}
-    for record in records:
-        level = record["summary"].get("gradeable", {})
-        if level.get("kappa") is not None:
-            by_model.setdefault(record["model"], []).append(level)
-    if len(by_model) < 2:
-        return
-
-    def average(model: str, metric: str) -> float:
-        levels = by_model[model]
-        return sum(level[metric] for level in levels) / len(levels)
-
-    agreeing = sorted(by_model, key=lambda model: -average(model, "kappa"))
-    ranking = sorted(by_model, key=lambda model: -average(model, "roc_auc"))
-    marks = {
-        model: contamination.mark(model, record["dataset"])
-        for record in records
-        for model in [record["model"]]
-    }
-
-    yield "### Where to start, and what the choice turns on"
-    yield ""
-    yield (
-        "Two questions, and they do not have the same answer. Averaged over the datasets whose "
-        "reference uses both classes:"
-    )
-    yield ""
-    yield (
-        f"- **As they ship**, agreeing with the readers at their own published threshold: "
-        f"**{agreeing[0]}** (κ {average(agreeing[0], 'kappa'):.2f}) and **{agreeing[1]}** "
-        f"(κ {average(agreeing[1], 'kappa'):.2f})."
-        + (
-            f" Note that {agreeing[0]} carries `{marks[agreeing[0]]}`: nobody published what it "
-            f"trained on, so its lead cannot be called clean."
-            if marks.get(agreeing[0]) == contamination.UNKNOWN
-            else ""
-        )
-    )
-    yield (
-        f"- **At ordering photographs**, which is what matters if you will set your own "
-        f"threshold: **{ranking[0]}** (ROC AUC {average(ranking[0], 'roc_auc'):.3f}) and "
-        f"**{ranking[1]}** ({average(ranking[1], 'roc_auc'):.3f})."
-    )
-    yield ""
-    if ranking[0] != agreeing[0]:
-        kept = average(ranking[0], "kept_of_worth_measuring")
-        yield (
-            f"**Those are different models, and that is the finding.** {ranking[0]} separates good "
-            f"photographs from bad ones better than anything else here and then gates on a "
-            f"threshold in the wrong place: it keeps only {kept:.0%} of the photographs the "
-            f"readers called worth measuring. Re-fit that threshold on your own images and it "
-            f"becomes a different proposition; take it as shipped and it throws away "
-            f"{1 - kept:.0%} of what your own readers would have kept."
+            f"The pooled figures cover **{', '.join(measured)}**, whose readers used more than one "
+            f"grade, and the Photographs column counts those. {', '.join(assumed)} is left out of "
+            f"them: every photograph in it is assumed sound, so there is nothing to be right "
+            f"about — what a model does there is a keep-rate, in its own column."
         )
         yield ""
     yield (
-        "Neither line is a verdict on the models. Coverage, contamination and the threshold each "
-        "model happens to ship with all differ, and a dataset with an assumed reference measures "
-        "what a model discards rather than whether it is right. Read the rows."
+        "Each figure is computed over all those photographs **at once** rather than averaged over "
+        "the datasets, which is the harder test: a model whose scores mean different things on "
+        "different cameras loses here and not there."
+    )
+    yield ""
+    yield (
+        "| Model | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | "
+        + (f"{assumed[0].upper()} kept | " if assumed else "")
+        + "Seconds each | Marked |"
+    )
+    yield "| --- | --- | --- | --- | --- | --- | " + ("--- | " if assumed else "") + "--- | --- |"
+    for model, found in sorted(pooled.items(), key=lambda pair: -(pair[1]["kappa"] or -1)):
+        yield (
+            f"| [{model}](models/{model}.md) | {found['photographs']:,} | "
+            f"{report.number(found['coverage'])} | {report.number(found['accuracy'])} | "
+            f"{report.number(found['kappa'])} | {report.number(found['roc_auc'])} | "
+            + (f"{report.number(found['kept_where_assumed'])} | " if assumed else "")
+            + f"{report.number(found['seconds'])} | {report.mark_of(model, records)} |"
+        )
+    yield ""
+    left = report.unfinished(records)
+    if left:
+        yield left
+        yield ""
+    yield from _where_to_start(pooled)
+
+
+def _has_two_classes(record: dict[str, object]) -> bool:
+    """Whether this dataset's readers used more than one grade, so agreement can be scored."""
+    return record["summary"].get("gradeable", {}).get("kappa") is not None
+
+
+def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[str, object]]:
+    """Every model's answers over every dataset at once, scored as one.
+
+    The pooling is done on the **photographs**, not on the per-dataset scores: κ over a pool is not
+    the average of the κ of its parts, and an index that disagreed with its own results page would
+    be worse than no index. So the evidence is read back and scored by the same function the run
+    used. Where a result's evidence cannot be read that way, its own stored scores stand in, and
+    what that costs is said in :func:`_stated`.
+    """
+    found: dict[str, dict[str, object]] = {}
+    for model in sorted({str(record["model"]) for record in records}):
+        mine = [record for record in records if record["model"] == model]
+        truth: dict[str, str] = {}
+        grades, seconds, keeps, stated = [], [], [], []
+        for record in mine:
+            dataset = str(record["dataset"])
+            summary = record["summary"]
+            taken = summary.get("seconds_per_photograph")
+            if taken is not None:
+                seconds.append(float(taken))
+            if not _has_two_classes(record):
+                keeps.append(summary.get("gradeable", {}).get("kept_of_worth_measuring"))
+                continue
+            rows = runs.rows(results, NAME, model, dataset)
+            if rows and all({"grade", "outcome"} <= set(row) for row in rows):
+                for row in rows:
+                    named = {**row, "key": f"{dataset}/{row['key']}"}
+                    truth[named["key"]] = named["grade"]
+                    grades.append(scoring.restored(named))
+            else:
+                stated.append(summary)
+        scored = scoring.summarise(truth, grades) if truth else _stated(stated)
+        level = scored.get("gradeable", {})
+        keeps = [value for value in keeps if value is not None]
+        found[model] = {
+            # The photographs the pooled figures are of, which is not every photograph the model
+            # was given: a dataset with nothing to be right about is counted in its own column.
+            "photographs": len(truth) or sum(summary.get("processed", 0) for summary in stated),
+            "coverage": scored.get("coverage"),
+            "accuracy": level.get("accuracy"),
+            "kappa": level.get("kappa"),
+            "roc_auc": level.get("roc_auc"),
+            "kept_of_worth_measuring": level.get("kept_of_worth_measuring"),
+            "discarded_of_not_worth": level.get("discarded_of_not_worth"),
+            "kept_where_assumed": sum(keeps) / len(keeps) if keeps else None,
+            "seconds": sum(seconds) / len(seconds) if seconds else None,
+        }
+    return found
+
+
+def _stated(summaries: list[dict[str, object]]) -> dict[str, object]:
+    """What the stored results say about themselves, for evidence that cannot be pooled.
+
+    An average of κ is not the κ of the pool, so this is a fallback rather than an equivalent: it
+    is exact for one dataset and an approximation for several, which is why the evidence is read
+    whenever it can be.
+    """
+    if not summaries:
+        return {}
+
+    def across(name: str) -> float | None:
+        values = [
+            summary.get("gradeable", {}).get(name)
+            for summary in summaries
+            if summary.get("gradeable", {}).get(name) is not None
+        ]
+        return sum(values) / len(values) if values else None
+
+    covered = [summary["coverage"] for summary in summaries if summary.get("coverage") is not None]
+    return {
+        "coverage": sum(covered) / len(covered) if covered else None,
+        "gradeable": {
+            name: across(name)
+            for name in (
+                "accuracy",
+                "kappa",
+                "roc_auc",
+                "kept_of_worth_measuring",
+                "discarded_of_not_worth",
+            )
+        },
+    }
+
+
+def _where_to_start(pooled: dict[str, dict[str, object]]) -> Iterable[str]:
+    """Which model to reach for, and at which question — because they are not the same question.
+
+    This is computed from the stored results rather than argued: the argument, with its caveats, is
+    on the results page, and this paragraph exists to point a reader at it.
+    """
+    agreeing = [name for name in pooled if pooled[name]["kappa"] is not None]
+    if not agreeing:
+        return
+    agreeing.sort(key=lambda name: -pooled[name]["kappa"])
+    best = agreeing[0]
+    ranking = sorted(
+        (name for name in pooled if pooled[name]["roc_auc"] is not None),
+        key=lambda name: -pooled[name]["roc_auc"],
+    )
+
+    yield "**Where to start.**"
+    yield ""
+    line = (
+        f"- **As it ships**, agreeing with the readers at its own published threshold: "
+        f"**{best}** (κ {pooled[best]['kappa']:.3f})."
+    )
+    if len(agreeing) > 1:
+        second = agreeing[1]
+        margin = pooled[best]["kappa"] - pooled[second]["kappa"]
+        line += (
+            f" **{second}** is {margin:.3f} behind (κ {pooled[second]['kappa']:.3f}), which is "
+            f"{'close enough that the choice is about which mistake you would rather make' if margin < 0.02 else 'a real gap'}."
+        )
+    yield line
+    if ranking:
+        first = ranking[0]
+        line = (
+            f"- **At ordering photographs**, which is what matters if you will set your own "
+            f"threshold rather than take the one it ships with: **{first}** "
+            f"(ROC AUC {pooled[first]['roc_auc']:.3f})"
+        )
+        if len(ranking) > 1:
+            runner = ranking[1]
+            gap = pooled[first]["roc_auc"] - pooled[runner]["roc_auc"]
+            line += f", with **{runner}** at {pooled[runner]['roc_auc']:.3f}" + (
+                " — too close to order by." if gap < 0.01 else "."
+            )
+        else:
+            line += "."
+        yield line
+        if first != best:
+            kept = pooled[first]["kept_of_worth_measuring"]
+            yield (
+                f"- **Those are different models, and that is the finding.** {first} separates "
+                f"good photographs from bad ones better than anything else here and then gates in "
+                f"the wrong place: it keeps {kept:.0%} of the photographs the readers called worth "
+                f"measuring."
+            )
+    yield ""
+    yield (
+        f"Read [what came out](benchmarks/{NAME}-results.md) before acting on this: coverage, "
+        f"contamination and the threshold each model happens to ship with all differ, and the "
+        f"caveats are there rather than here."
     )

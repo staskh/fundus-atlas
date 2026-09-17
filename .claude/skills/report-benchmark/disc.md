@@ -45,3 +45,12 @@ Written from `notebooks/disc.ipynb`, following `SKILL.md` §4:
   reader** — and on a dataset with one reader, no such statement is available at all.
 - **Where a dataset publishes its own ratio and the contours disagree with it**, that is a finding
   about the dataset, and it belongs on the dataset's page as well as here.
+
+## 8. Its row in the index
+
+`docs/BENCHMARKS.md` carries one row per model, pooled over every reader of every dataset: disc
+Dice, cup Dice, the signed cup-to-disc ratio error, seconds per photograph and the contamination
+mark. Where to start names the best disc and the best ratio **separately** — they are rarely the
+same model — and says plainly when the leader finds no cup at all, since that model cannot produce
+the ratio at any score. A margin inside the ophthalmologists' own disagreement is called that
+rather than ranked.

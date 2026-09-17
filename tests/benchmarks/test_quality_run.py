@@ -251,7 +251,9 @@ def test_a_run_stopped_part_way_keeps_what_it_had_scored(
     store = a_store(tmp_path)
 
     with pytest.raises(KeyboardInterrupt):
-        quality.run([Stopped(after=1)], ["fives"], results=tmp_path / "results", root=store, batch=1)
+        quality.run(
+            [Stopped(after=1)], ["fives"], results=tmp_path / "results", root=store, batch=1
+        )
 
     stored = runs.read(tmp_path / "results", quality.NAME, "brightness", "fives")
     assert stored["summary"]["processed"] == 1

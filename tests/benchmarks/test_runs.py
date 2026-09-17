@@ -101,7 +101,8 @@ def test_the_index_reads_a_partial_result_as_unfinished(tmp_path: Path) -> None:
 
     written = report.write_index(results=tmp_path / "results", into=tmp_path / "docs").read_text()
 
-    assert "20 of 488" in written
+    assert "20 of 488" in written, "an unfinished result says so on the index"
+    assert "Not finished" in written
     assert "Cohen's κ" in written and "0.100" in written
 
 

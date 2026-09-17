@@ -18,10 +18,18 @@ from datasets.utils import paths
 from models.utils import catalogue
 from models.utils.outlines import Outlines
 
-from . import contamination, report, runs
+from . import report, runs
 from .loaders.base import CROPS, FLOOR, available, collate
 from .loaders.disc import DiscCupLoader
 from .metrics import disc as metrics
+
+#: What this benchmark asks, in the two sentences the index has room for.
+GOAL = (
+    "**Where exactly are the optic disc and the cup inside it?** Each model's outline is compared "
+    "with the one an ophthalmologist drew on the same photograph — every ophthalmologist "
+    "separately, never an averaged consensus — and with the cup-to-disc ratio computed from it, "
+    "which is the number a glaucoma referral rests on."
+)
 
 #: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "disc"
@@ -775,41 +783,124 @@ def docs_sections(
     )
 
 
-def index_section(records: list[dict[str, object]]) -> Iterable[str]:
-    """This benchmark's rows of `docs/BENCHMARKS.md`, and what to make of them."""
+def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
+    """This benchmark's entry in the index: one row per model, pooled, and where to start."""
+    pooled = _pooled(records)
     yield (
-        "**A Dice score is read with the errors beside it.** Two models a hundredth apart on "
-        "overlap can differ by a tenth on the cup-to-disc ratio, which is the number a clinic "
-        "acts on; the ratio error is signed, so a positive value means the model reads the ratio "
-        "**high**. Every figure is the mean over each reader's own outline, measured in the native "
-        "frame, and a photograph count of the form *n of m* means a run that has not finished. "
-        "**Seconds each** is how long the model itself took per photograph, on the device named in "
-        "its result, once it was loaded — a measurement of this machine as much as of the model."
+        f"Pooled over **{report.datasets_of(records)}**, one comparison per reader. **Dice** is "
+        f"overlap with the expert's outline, 0 to 1. **Ratio error** is signed: positive means the "
+        f"model reads the cup-to-disc ratio *higher* than the ophthalmologist did, which is the "
+        f"direction that sends people to a clinic. A dash means the model does not find that "
+        f"structure at all."
     )
     yield ""
     yield (
-        "| Model | Dataset | Photographs | Outlines | Disc Dice | Cup Dice | "
-        "Disc centre, px | Cup ratio error | Seconds each | Marked |"
+        "| Model | Photographs | Outlines | Disc Dice | Cup Dice | Ratio error | Seconds each | "
+        "Marked |"
     )
-    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
-    for record in records:
-        summary = record["summary"]
-        done = summary.get("processed", "—")
-        if not summary.get("complete", True):
-            done = f"{done} of {summary.get('total', '—')}"
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- |"
+    for model, found in sorted(pooled.items(), key=lambda pair: -(pair[1]["disc_dice"] or -1)):
         yield (
-            f"| [{record['model']}](models/{record['model']}.md) | {record['dataset']} | "
-            f"{done} | {summary.get('outlines', '—')} | "
-            f"{_mean(summary, 'disc_dice')} | {_mean(summary, 'cup_dice')} | "
-            f"{_mean(summary, 'disc_center_offset')} | "
-            f"{_mean(summary, 'cup_vertical_ratio_error')} | "
-            f"{report.seconds(summary)} | "
-            f"{contamination.mark(record['model'], record['dataset'])} |"
+            f"| [{model}](models/{model}.md) | {found['photographs']:,} | {found['outlines']:,} | "
+            f"{report.number(found['disc_dice'])} | {report.number(found['cup_dice'])} | "
+            f"{report.number(found['cup_vertical_ratio_error'])} | "
+            f"{report.number(found['seconds'])} | {report.mark_of(model, records)} |"
         )
     yield ""
+    left = report.unfinished(records)
+    if left:
+        yield left
+        yield ""
+    yield from _where_to_start(pooled)
+
+
+def _pooled(records: list[dict[str, object]]) -> dict[str, dict[str, object]]:
+    """Every model's measurements over every dataset at once.
+
+    A mean over outlines is exactly the mean of the per-dataset means weighted by how many outlines
+    each holds, so this needs the summaries rather than the evidence — and it agrees with the
+    results page by arithmetic rather than by coincidence.
+    """
+    found: dict[str, dict[str, object]] = {}
+    for model in sorted({str(record["model"]) for record in records}):
+        mine = [record["summary"] for record in records if record["model"] == model]
+        entry: dict[str, object] = {
+            "photographs": sum(summary.get("processed", 0) for summary in mine),
+            "outlines": sum(summary.get("outlines", 0) for summary in mine),
+        }
+        for measurement in ("disc_dice", "cup_dice", "cup_vertical_ratio_error"):
+            weighted = [
+                (summary[measurement]["mean"], summary[measurement]["n"])
+                for summary in mine
+                if isinstance(summary.get(measurement), dict)
+            ]
+            counted = sum(count for _, count in weighted)
+            entry[measurement] = (
+                sum(mean * count for mean, count in weighted) / counted if counted else None
+            )
+        taken = [
+            float(summary["seconds_per_photograph"])
+            for summary in mine
+            if summary.get("seconds_per_photograph") is not None
+        ]
+        entry["seconds"] = sum(taken) / len(taken) if taken else None
+        found[model] = entry
+    return found
+
+
+def _where_to_start(pooled: dict[str, dict[str, object]]) -> Iterable[str]:
+    """Which model to reach for, and at which question.
+
+    Two questions, and they need not have the same answer: the outline that overlaps the expert's
+    best is not necessarily the one whose cup-to-disc ratio is closest to theirs, and the ratio is
+    what anybody acts on. Computed from the stored results; the argument is on the results page.
+    """
+    overlap = [name for name in pooled if pooled[name]["disc_dice"] is not None]
+    if not overlap:
+        return
+    overlap.sort(key=lambda name: -pooled[name]["disc_dice"])
+    best = overlap[0]
+
+    yield "**Where to start.**"
+    yield ""
+    line = f"- **For the disc alone**: **{best}** (Dice {pooled[best]['disc_dice']:.3f})."
+    if len(overlap) > 1:
+        second = overlap[1]
+        margin = pooled[best]["disc_dice"] - pooled[second]["disc_dice"]
+        line += f" **{second}** is {margin:.3f} behind ({pooled[second]['disc_dice']:.3f})" + (
+            ", which is inside the disagreement between two ophthalmologists — the benchmark "
+            "cannot separate them."
+            if margin < 0.015
+            else "."
+        )
+    yield line
+
+    ratio = [name for name in pooled if pooled[name]["cup_vertical_ratio_error"] is not None]
+    if ratio:
+        ratio.sort(key=lambda name: abs(pooled[name]["cup_vertical_ratio_error"]))
+        closest = ratio[0]
+        yield (
+            f"- **For a cup-to-disc ratio**, which is what leaves the building: **{closest}**, "
+            f"whose ratio sits {pooled[closest]['cup_vertical_ratio_error']:+.3f} from the "
+            f"ophthalmologists' on average"
+            + (
+                f", against {pooled[ratio[1]]['cup_vertical_ratio_error']:+.3f} for {ratio[1]}."
+                if len(ratio) > 1
+                else "."
+            )
+        )
+        cups = [name for name in pooled if pooled[name]["cup_dice"] is not None]
+        if best not in cups:
+            yield (
+                f"- **{best} finds no cup at all**, so it cannot produce that ratio at any score. "
+                f"The two rows above answer different questions and a reader needs to know which "
+                f"one they are asking."
+            )
+    yield ""
     yield (
-        "Read a dash as *not measured* rather than as zero: a model that finds no cup has no cup "
-        "row to average."
+        f"A pooled bias near zero can be a model reading high on one dataset and low on another — "
+        f"[what came out](benchmarks/{NAME}-results.md) breaks it apart, and holds the readers' own "
+        f"disagreement, which is the ceiling any of this is read against."
     )
 
 
