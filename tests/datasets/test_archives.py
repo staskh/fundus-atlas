@@ -1,6 +1,7 @@
 # ABOUTME: Tests for obtaining a dataset: a real local git repository, a real zip, no mocks.
 # ABOUTME: Also the rule that a licence needing a human is never automated around.
 
+import hashlib
 import subprocess
 import zipfile
 
@@ -103,3 +104,30 @@ def test_an_archive_that_yields_nothing_is_an_error(tmp_path):
     with pytest.raises(RuntimeError, match="no files"):
         archives.extract(fake, tmp_path / "out")
     assert not (tmp_path / "out").exists()
+
+
+def test_an_archive_already_downloaded_and_verified_is_not_fetched_again(tmp_path) -> None:
+    """A complete local archive means the network is not touched — not even to ask its size.
+
+    Several of these hosts refuse a plain HEAD, so reaching for one when the file is already on
+    disk turns an idempotent re-run into a failure.
+    """
+    archive = tmp_path / "already.zip"
+    archive.write_bytes(b"the dataset")
+    source = archives.Source(
+        layer="x",
+        url="https://example.invalid/already.zip",
+        filename="already.zip",
+        sha256=hashlib.sha256(b"the dataset").hexdigest(),
+        extract_it=False,
+    )
+
+    where, record = source.obtain(tmp_path)
+
+    assert where == archive
+    assert record["sha256"] == source.sha256
+
+
+def test_a_request_says_who_is_asking() -> None:
+    """Mendeley answers 403 to a bare urllib request and 200 to one that names itself."""
+    assert "fundus-atlas" in archives.HEADERS["User-Agent"]

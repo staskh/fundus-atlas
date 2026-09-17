@@ -10,6 +10,12 @@ import numpy as np
 #: the store does not make those.
 CLASSES = ("background", "artery", "vein", "crossing", "uncertain")
 
+#: How far from white a pixel must be before it counts as something somebody drew. Several datasets
+#: publish their annotation as a drawing on a white page rather than as a mask, saved as JPEG, so
+#: every stroke carries a halo of compression around it. The threshold sits well above the halo and
+#: well below the ink: on AVRDB, moving it from 40 to 90 changes the area by about 3%.
+INK = 60
+
 #: How far a published colour may sit from the one a dataset declared and still be taken for it, as
 #: the largest difference on any one channel. Maps come back a shade off when they have been through
 #: an editor or a lossy format; this is wide enough for that and far narrower than the gap between
@@ -87,6 +93,10 @@ class Palette:
             raise ValueError(f"{', '.join(unknown)} is not one of {CLASSES}")
         self.colours = {(0, 0, 0): "background", **colours}
 
+    def masks(self, pixels: np.ndarray, name: str = "av") -> dict[str, np.ndarray]:
+        """The store's binary masks for one published map, translated from this dataset's colours."""
+        return binaries(self.labels(pixels, tolerance=TOLERANCE))
+
     def labels(self, pixels: np.ndarray, tolerance: int = 0) -> np.ndarray:
         """Translate one published map into stored class indices.
 
@@ -111,3 +121,24 @@ class Palette:
                 f"does not explain: {self.colours}"
             )
         return np.take(meanings, nearest).astype(np.uint8).reshape(pixels.shape[:2])
+
+
+class Ink:
+    """An annotation published as a drawing on a page rather than as a mask.
+
+    AVRDB draws its arteries in red and its veins in blue on white, one file each, as JPEG. There is
+    no palette to read: the file already says which vessel it holds, and what is wanted is simply
+    which pixels were drawn on. Anything far enough from the page colour is a stroke.
+
+    :param page: the colour of an undrawn pixel.
+    :param threshold: how far from it, on the channel furthest away, a pixel must sit to count.
+    """
+
+    def __init__(self, page: tuple[int, int, int] = (255, 255, 255), threshold: int = INK) -> None:
+        self.page = page
+        self.threshold = threshold
+
+    def masks(self, pixels: np.ndarray, name: str) -> dict[str, np.ndarray]:
+        """The one mask this file holds, under the name the fetcher asked for it by."""
+        distance = np.abs(pixels.astype(np.int16) - np.array(self.page, dtype=np.int16)).max(axis=2)
+        return {name: _written(distance > self.threshold)}

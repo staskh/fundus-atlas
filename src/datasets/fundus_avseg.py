@@ -192,7 +192,7 @@ def main(argv: list[str] | None = None) -> int:
         quality_rule=QUALITY,
         extra_columns=EXTRA_COLUMNS,
         skipped=SKIPPED,
-        palettes={"av": PALETTE},
+        readers={"av": PALETTE},
     )
 
 

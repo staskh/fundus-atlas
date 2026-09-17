@@ -92,8 +92,12 @@ def test_a_crossing_belongs_to_both_the_artery_and_the_vein() -> None:
     false positive.
     """
     palette = av.Palette(
-        {(255, 0, 0): "artery", (0, 0, 255): "vein", (0, 255, 0): "crossing",
-         (255, 255, 255): "uncertain"}
+        {
+            (255, 0, 0): "artery",
+            (0, 0, 255): "vein",
+            (0, 255, 0): "crossing",
+            (255, 255, 255): "uncertain",
+        }
     )
     labels = palette.labels(coloured())
 
@@ -107,8 +111,12 @@ def test_a_crossing_belongs_to_both_the_artery_and_the_vein() -> None:
 
 def test_the_vessel_mask_holds_every_vessel_including_the_unclassified_ones() -> None:
     palette = av.Palette(
-        {(255, 0, 0): "artery", (0, 0, 255): "vein", (0, 255, 0): "crossing",
-         (255, 255, 255): "uncertain"}
+        {
+            (255, 0, 0): "artery",
+            (0, 0, 255): "vein",
+            (0, 255, 0): "crossing",
+            (255, 255, 255): "uncertain",
+        }
     )
     binaries = av.binaries(palette.labels(coloured()))
 
@@ -123,3 +131,40 @@ def test_the_binaries_are_written_as_the_store_writes_masks() -> None:
     for name, mask in binaries.items():
         assert mask.dtype == np.uint8, name
         assert set(np.unique(mask).tolist()) <= {0, 255}, name
+
+
+def a_drawing() -> np.ndarray:
+    """An annotation drawn dark on a white page, as several datasets publish one."""
+    pixels = np.full((4, 6, 3), 255, dtype=np.uint8)
+    pixels[1, :4] = (237, 27, 36)
+    pixels[2, :4] = (250, 248, 249)
+    return pixels
+
+
+def test_ink_on_a_white_page_is_the_annotation() -> None:
+    drawn = av.Ink()
+
+    masks = drawn.masks(a_drawing(), "artery")
+
+    assert list(masks) == ["artery"]
+    assert masks["artery"][1, :4].all(), "the drawn stroke"
+    assert not masks["artery"][0].any(), "the page"
+    assert not masks["artery"][2].any(), "a compression halo is not a stroke"
+
+
+def test_a_palette_and_an_ink_reader_answer_the_same_way() -> None:
+    """Both say: here are the store's binary masks for this published file."""
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein", (0, 255, 0): "crossing"})
+
+    masks = palette.masks(coloured()[:3], "av")
+
+    assert sorted(masks) == ["artery", "vein", "vessels"]
+    assert masks["artery"].dtype == np.uint8
+
+
+def test_how_dark_counts_as_ink_can_be_said_where_a_dataset_needs_it() -> None:
+    faint = np.full((1, 2, 3), 255, dtype=np.uint8)
+    faint[0, 0] = (200, 200, 200)
+
+    assert av.Ink(threshold=100).masks(faint, "vessels")["vessels"].any() is np.False_
+    assert av.Ink(threshold=40).masks(faint, "vessels")["vessels"][0, 0]

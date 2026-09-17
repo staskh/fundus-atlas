@@ -570,7 +570,7 @@ def test_a_coloured_artery_vein_map_is_stored_as_binary_masks(tmp_path) -> None:
     pixels[2] = (255, 0, 0)
     pixels[5] = (0, 0, 255)
 
-    frames = build.as_masks(pixels, palette)
+    frames = build.as_masks(pixels, palette, "av")
 
     assert frames["artery"][2].all() and not frames["artery"][5].any()
     assert frames["vein"][5].all() and not frames["vein"][2].any()
@@ -592,7 +592,7 @@ def test_an_artery_vein_map_becomes_three_masks(tmp_path) -> None:
     pixels[3] = (0, 0, 255)
     pixels[5] = (0, 255, 0)
 
-    frames = build.as_masks(pixels, palette)
+    frames = build.as_masks(pixels, palette, "av")
 
     assert sorted(frames) == ["artery", "vein", "vessels"]
     assert frames["artery"][5].all() and frames["vein"][5].all(), "the crossing is in both"

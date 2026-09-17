@@ -25,6 +25,14 @@ ATTEMPTS = 6
 PAUSE = 3
 
 
+#: What a request says about itself. A plain `Python-urllib/3` is refused outright by some hosts —
+#: Mendeley answers 403 to one and 200 to a request that names a project and a way to be contacted —
+#: and a host that wants to rate-limit or block this repository should be able to identify it.
+HEADERS = {
+    "User-Agent": "fundus-atlas/0.1 (+https://github.com/staskh/fundus-atlas)",
+}
+
+
 def download(
     url: str,
     path: Path,
@@ -80,17 +88,18 @@ def _with_retries(fetch, url: str, start: int, end: int, attempts: int, pause: f
 
 
 def _range(url: str, start: int, end: int) -> bytes:
-    request = urllib.request.Request(url, headers={"Range": f"bytes={start}-{end}"})
+    request = urllib.request.Request(url, headers={**HEADERS, "Range": f"bytes={start}-{end}"})
     with urllib.request.urlopen(request, timeout=120) as response:
         return response.read()
 
 
 def _size(url: str) -> int:
-    with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=60) as r:
+    head = urllib.request.Request(url, method="HEAD", headers=HEADERS)
+    with urllib.request.urlopen(head, timeout=60) as r:
         length = r.headers.get("Content-Length")
     if length:
         return int(length)
-    request = urllib.request.Request(url, headers={"Range": "bytes=0-0"})
+    request = urllib.request.Request(url, headers={**HEADERS, "Range": "bytes=0-0"})
     with urllib.request.urlopen(request, timeout=60) as r:
         return int(r.headers["Content-Range"].split("/")[-1])
 
@@ -204,8 +213,12 @@ class Source:
             )
         into.mkdir(parents=True, exist_ok=True)
         archive = into / (self.filename or Path(self.url).name)
-        download(self.url, archive)
-        digest = _sha256(archive)
+        # An archive already here and already what was pinned needs no network at all — not even a
+        # HEAD for its size, which some hosts refuse outright.
+        digest = _sha256(archive) if archive.exists() else ""
+        if not (self.sha256 and digest == self.sha256):
+            download(self.url, archive)
+            digest = _sha256(archive)
         if self.sha256 and verify and digest != self.sha256:
             raise ValueError(f"{archive.name} is not the archive recorded for {self.layer}")
         record = {"layer": self.layer, "url": self.url, "sha256": digest}

@@ -17,7 +17,6 @@ from PIL import Image
 
 from datasets.utils import (
     archives,
-    av,
     contours,
     crop,
     fov,
@@ -101,15 +100,16 @@ class SourceRecord:
     readings: list[manifest.Reading] = field(default_factory=list)
 
 
-def as_masks(pixels: np.ndarray, palette: "av.Palette") -> dict[str, np.ndarray]:
-    """One published artery/vein map as the binary masks the store keeps.
+def as_masks(pixels: np.ndarray, reader: object, name: str = "av") -> dict[str, np.ndarray]:
+    """One published annotation as the binary masks the store keeps.
 
     A coloured map read as greyscale is not an artery/vein map any more: red and blue arrive as two
-    grey levels that no consumer can tell from a faint vessel. The dataset declares its colours,
-    they are translated here — once, before the crop — and the result is one file per vessel kind,
-    with a crossing belonging to both.
+    grey levels that no consumer can tell from a faint vessel, and an annotation drawn on a white
+    page read that way is inside out. The dataset declares how its file is to be read, it is
+    translated here — once, before the crop — and the result is one file per vessel kind, with a
+    crossing belonging to both.
     """
-    return av.binaries(palette.labels(pixels, tolerance=av.TOLERANCE))
+    return reader.masks(pixels, name)
 
 
 def run(
@@ -123,7 +123,7 @@ def run(
     extra_columns: list[manifest.Column] | None = None,
     skipped: Iterable[str] = (),
     verify: Callable[[Path, dict[str, Path], list[dict[str, str]]], dict] | None = None,
-    palettes: dict[str, "av.Palette"] | None = None,
+    readers: dict[str, object] | None = None,
 ) -> int:
     """Build the store for one dataset.
 
@@ -132,8 +132,10 @@ def run(
         from and its rows. Whatever it returns is written into `build.json`, so that a store says
         not only what it holds but whether anyone looked. It runs before `raw/` is deleted, since
         the point of it is usually to compare the store against what the dataset published.
-    :param palettes: for a layer published as a colour image — an artery/vein map — the dataset's
-        own colours and what each means. A layer without one is read as a single-channel mask.
+    :param readers: how a layer's published file is to be read, where it is not already a
+        single-channel mask: `av.Palette` for a coloured artery/vein map, `av.Ink` for an annotation
+        drawn on a page. Each answers with the store's own binary masks, so one artery/vein map can
+        become three files and a drawing can become one.
     :param skipped: subcollections deliberately not built — an ultra-wide-field split, per the
         skill's rule 13.7. Each is warned about here and recorded in `build.json`, because a store
         that is quietly smaller than its dataset is how someone comes to under-count it.
@@ -170,7 +172,7 @@ def run(
         resolution_of=resolution_of,
         fov_strategy=fov_strategy,
         quality_rule=quality_rule,
-        palettes=palettes or {},
+        readers=readers or {},
         force=args.force,
     )
     finished = done + list(_across(work, waiting, args.jobs, slug, len(records), len(done)))
@@ -358,11 +360,11 @@ def _build_one(
     resolution_of: resolution.Declared,
     fov_strategy: str,
     quality_rule: quality.Rule | None,
-    palettes: dict[str, "av.Palette"] | None = None,
+    readers: dict[str, object] | None = None,
     force: bool = False,
 ) -> dict[str, str]:
     """Crop one image to its field of view, write every size of it, and describe it."""
-    palettes = palettes or {}
+    readers = readers or {}
     photograph = _handle(record.image, raw)
     image = _read(photograph, "RGB")
     height, width = image.shape[:2]
@@ -383,8 +385,8 @@ def _build_one(
     for name, source in record.maps.items():
         if name == "fov":
             continue
-        if name in palettes:
-            drawn_as = as_masks(_read(_handle(source, raw), "RGB"), palettes[name])
+        if name in readers:
+            drawn_as = readers[name].masks(_read(_handle(source, raw), "RGB"), name)
         else:
             drawn_as = {name: _read(_handle(source, raw), "L")}
         for kind, published in drawn_as.items():
