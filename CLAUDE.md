@@ -84,16 +84,20 @@ Skills that exist today:
 - **5.6** `document-dataset` — cataloguing a dataset: the page structure in `docs/datasets/` and the
   columns of the `docs/DATASETS.md` summary table.
 - **5.7** `fetch-dataset` — building a dataset fetcher: the command-line contract, the store layout,
-  the manifest schema, how resolution is inferred when a dataset publishes none, and the `How to
-  fetch` subsection every fetcher adds to its dataset page.
-- **5.8** `add-upstream` — bringing in somebody else's repository: pinned install or pinned clone,
+  the manifest schema, how a published (or inherited, or field-angle) resolution is recorded, and
+  the `How to fetch` subsection every fetcher adds to its dataset page. A dataset that published
+  no scale is unfinished until `fetch-um-resolution` has been run.
+- **5.8** `fetch-um-resolution` — inferring a camera-level microns-per-pixel scale from the
+  median optic disc of a sampled subcollection, when the authors published none: the command,
+  the grouping, the spread gate, and the JSON committed under `results/um_resolution/`.
+- **5.9** `add-upstream` — bringing in somebody else's repository: pinned install or pinned clone,
   patches, imports, and the provenance a run records.
-- **5.9** `add-model` — the adapter that lets a benchmark run one catalogued model: what it must
+- **5.10** `add-model` — the adapter that lets a benchmark run one catalogued model: what it must
   declare, what it must not do, and the page it must match.
-- **5.10** `build-benchmark` — a benchmark: what it runs on, its loaders, metrics, and the
+- **5.11** `build-benchmark` — a benchmark: what it runs on, its loaders, metrics, and the
   fingerprint that keeps a re-run cheap.
-- **5.11** `analyse-benchmark` — the notebook every benchmark gets: what its analysis must show.
-- **5.12** `report-benchmark` — the two documents a run generates — how the benchmark is configured,
+- **5.12** `analyse-benchmark` — the notebook every benchmark gets: what its analysis must show.
+- **5.13** `report-benchmark` — the two documents a run generates — how the benchmark is configured,
   and what came out — and the rule that both are generated rather than written.
 
 The three benchmark skills each hold the rules common to every benchmark, and **a file per
@@ -135,7 +139,8 @@ the authority on it:
 - `src/models/<slug>.py` — one adapter per catalogued **model**, matching `docs/models/<slug>.md`.
   Five models from one repository are five adapters and one upstream.
 - `src/benchmarks/` — one module per benchmark, its loaders, its scorer and its report writer.
-- `results/` — per-image scores, committed: a summary table is a claim and these are its evidence.
+- `results/` — committed evidence: per-image benchmark scores, and inferred camera scales under
+  `results/um_resolution/` for datasets that published no microns-per-pixel figure.
 - `notebooks/` — one analysis notebook per benchmark.
 
 Tests are in `tests/`, mirroring `src/`, and run against synthetic fixtures rather than downloads.

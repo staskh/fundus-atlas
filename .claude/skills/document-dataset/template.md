@@ -53,7 +53,7 @@ provenance:>
 | | |
 | --- | --- |
 | Resolution (pixels) | <every distinct size> |
-| Microns per pixel | <value, or `Unknown` — most datasets do not publish it> |
+| Microns per pixel | <published value; or inferred from `results/um_resolution/<slug>.json`, named as inferred; or `Unknown`> |
 | Camera | <make and model> |
 | Field of view | <degrees> |
 | Centring | <disc-centred / macula-centred / mixed> |

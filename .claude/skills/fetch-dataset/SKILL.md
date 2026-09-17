@@ -1,6 +1,6 @@
 ---
 name: fetch-dataset
-description: Build a fetcher that downloads a catalogued fundus dataset, normalises it into the standard store at several rescalings, writes the manifest, and records how to fetch it in the dataset's own page. Use when adding or changing anything under src/datasets/.
+description: Build a fetcher that downloads a catalogued fundus dataset, normalises it into the standard store at several rescalings, writes the manifest, and records how to fetch it in the dataset's own page. A dataset with no published microns-per-pixel scale is unfinished until `fetch_um_resolution` has been run. Use when adding or changing anything under src/datasets/.
 ---
 
 # Fetching a dataset
@@ -195,7 +195,7 @@ consumer can then read any store without special-casing. Missing values are empt
 | `crop_x0`, `crop_y0`, `crop_side` | int | The square crop, in native pixels. `crop_x0`/`crop_y0` may be **negative** and the square may extend past the image: the source is pasted into a square canvas rather than sliced from it — section 9 |
 | `pad_fraction` | float | Fraction of the square canvas with no source behind it. `0.0` when the crop fitted inside the image; a large value means much of the frame is invented |
 | `um_per_px` | float | Native resolution in **microns per pixel**, empty when unknown — section 8 |
-| `resolution_source` | str | `published`, `field_angle`, `disc_anchored`, `inherited`, or `unknown` |
+| `resolution_source` | str | `published`, `field_angle`, `inherited`, or `unknown`. A disc-median inference is **not** this column: it lives in `results/um_resolution/` — section 8 |
 | `maps` | str | Semicolon-separated list of what this row has: `vessels`, `av`, `fov`, `disc`, `cup` — the last two meaning contours in `contours/<key>.csv`, not a raster. Example: `vessels;fov;disc;cup` |
 | `readers` | str | Semicolon-separated ids of every annotator who contributed anything to this image — a contour, a grade, or both: `expert1;expert2`. Empty where the dataset publishes one opinion and does not name who held it |
 | `multi_reader` | str | Semicolon-separated names of the fields for which `labels.csv` holds more than one opinion: `quality;disease`. Empty for the common case — section 5.1 |
@@ -496,6 +496,9 @@ the provenance tables (`### 2.3 How to fetch` where the page has 2.1 and 2.2). I
   to pass `--archive`.
 - **Anything peculiar** to this dataset that a person running it will hit: an archive format needing
   an external tool, a legacy spreadsheet, a mask palette, a file that must be skipped.
+- **The microns-per-pixel scale**, if the authors published none: the `How to fetch` subsection
+  names `python -m datasets.fetch_um_resolution` as a required follow-on, and says which
+  subcollections it covers. Section 8.
 
 Keep it to what someone running the command needs. The *provenance* — citation, licence, home page —
 is already in the tables above it and must not be repeated.
@@ -506,31 +509,48 @@ Every physical measurement is a pixel count times a scale, and a wrong scale pro
 are wrong but plausible — nothing errors. Most catalogued datasets publish no scale at all, so
 inference has to be systematic, visible and correctable.
 
-**Where it lives.** `src/datasets/utils/resolution.py` holds one declared entry per dataset, and per
-*subset* where a dataset's subcollections differ (Chákṣu's three cameras, LES-AV's one 45° image among
-21 at 30°). The values are written in code, reviewed like code, and each carries its derivation as a
-comment. A store's `manifest.csv` copies the value and its source into every row, so a consumer never
-has to look it up and can always see where it came from.
+**Where a published value lives.** `src/datasets/utils/resolution.py` holds one declared entry per
+dataset, and per *subset* where a dataset's subcollections differ (Chákṣu's three cameras, LES-AV's
+one 45° image among 21 at 30°). The values are written in code, reviewed like code, and each
+carries its derivation as a comment. A store's `manifest.csv` copies the value and its source into
+every row, so a consumer never has to look it up and can always see where it came from.
 
-**The four sources, in order of preference:**
+**The sources, in order of preference:**
 
 1. **`published`** — the dataset or its paper states microns or millimetres per pixel. Use it,
-   converting to microns.
-2. **`field_angle`** — the dataset states a field of view. At the posterior pole a degree of field is
-   about **300 µm** of retina, so `um_per_px = 300 * degrees / fov_diameter_px`. State the assumption
-   in the comment; it is an approximation that ignores eye length and projection. **This one is per
-   image, not per dataset**, because the field's diameter in pixels differs from photograph to
-   photograph: declare `Declared(um_per_px=None, source="field_angle", degrees=30, note=...)` and
-   the value is computed from each row's own fitted field as the manifest is written.
-3. **`disc_anchored`** — no field angle, but the dataset (or a reader) marks the optic disc. A real
-   optic disc is about **1800 µm** across, so `um_per_px = 1800 / disc_diameter_px`. Prefer this to a
-   guessed field angle: it is anchored on the eye rather than on the camera.
-4. **`inherited`** — the photographs are another dataset's, so the scale is too. RITE inherits DRIVE's;
-   RETA inherits IDRiD's **divided by the resize factor**, because RETA ships a 1024-pixel rendition
-   of a 4288-pixel original.
+   converting to microns. Do **not** run `fetch_um_resolution` over a published scale: that would
+   replace an author's figure with an assumption about disc size.
+2. **`inherited`** — the photographs are another dataset's, so the scale is too. RITE inherits
+   DRIVE's; RETA inherits IDRiD's **divided by the resize factor**, because RETA ships a
+   1024-pixel rendition of a 4288-pixel original. If the parent has no published scale, infer on
+   the parent (or on this store, with the resize applied) — do not infer twice and disagree.
+3. **`field_angle`** — the dataset states a field of view and nothing else. At the posterior pole
+   a degree of field is about **300 µm** of retina, so
+   `um_per_px = 300 * degrees / fov_diameter_px`. State the assumption in the comment; it is an
+   approximation that ignores eye length and projection. **This one is per image, not per
+   dataset**, because the field's diameter in pixels differs from photograph to photograph:
+   declare `Declared(um_per_px=None, source="field_angle", degrees=30, note=...)` and the value is
+   computed from each row's own fitted field as the manifest is written. A field angle in the
+   store does **not** exempt the fetcher from `fetch_um_resolution`: biomarkers that need a
+   camera-level scale still read the committed disc-median file, and the two figures sitting
+   beside each other is how a bad inference gets noticed.
+4. **`unknown`** — nothing published, no inheritance, no stated field. Leave `um_per_px` empty in
+   the manifest. A consumer then reports pixels, which is honest, rather than microns, which is
+   not. **Never invent a plausible number to fill the column.**
 
-And the fifth case: **`unknown`**. Leave `um_per_px` empty. A consumer then reports pixels, which is
-honest, rather than microns, which is not. **Never invent a plausible number to fill the column.**
+**When there is no published scale, the fetcher is not finished until `fetch_um_resolution` has
+run.** That is a separate command, not a step inside `python -m datasets.<slug>`: the store build
+must not load a disc model, and the inferred figure must not be silently written into
+`manifest.csv`. The command samples photographs that share a subset and a native size — 10%
+tolerance on width and height, per the `fetch-um-resolution` skill, section 4 — measures the
+disc with [lunetv2-odc](../../docs/models/lunetv2-odc.md), and writes one camera-level
+`um_per_px` to `results/um_resolution/` when the discs agree closely enough. Re-run it whenever
+the store, the model, or the sampling contract changes — a stale JSON is a wrong millimetre scale
+on every biomarker that trusts it.
+
+The contract — sample size, the 1.8 mm typical disc, the spread gate, the JSON schema, what a
+biomarker may do with the number — is the `fetch-um-resolution` skill. Load that skill before
+adding or changing the command, its results, or a consumer of them.
 
 **From native to any size.** One pixel at a built size spans `crop_side / size` native pixels, so:
 
@@ -538,8 +558,10 @@ honest, rather than microns, which is not. **Never invent a plausible number to 
 um_per_px_at(size) = um_per_px * crop_side / size
 ```
 
-`crop_side` varies per image, so this is per row, not per dataset — which is why the manifest records
-the crop. `utils/resolution.py` exposes exactly this as a function; no consumer recomputes it.
+`crop_side` varies per image, so this is per row, not per dataset — which is why the manifest
+records the crop. `utils/resolution.py` exposes exactly this as a function; no consumer recomputes
+it. An inferred camera scale from `results/um_resolution/` is a native `um_per_px` and scales the
+same way.
 
 ## 9. Field of view: a true crop and paste, not a redrawn circle
 

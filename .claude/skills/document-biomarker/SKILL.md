@@ -55,7 +55,12 @@ Use `template.md` verbatim and keep its section numbering.
    dimensionless ratio), and whether the number depends on:
    - **the pixel grid** the segmentation was produced on (see the grid field on each model page —
      a width in pixels means nothing without it);
-   - **a physical scale** (camera resolution in microns per pixel, or a disc-diameter normalisation);
+   - **a physical scale** (camera resolution in microns per pixel, or a disc-diameter
+     normalisation). These are different operations. A published `um_per_px` in the store comes
+     first. If the authors published none, a camera-level scale from
+     `results/um_resolution/<slug>.json` (the `fetch-um-resolution` skill) is the next source —
+     one number for the device, from that subset's median disc. Expressing a zone in *this
+     photograph's* disc diameters is a per-eye ruler and does not yield millimetres.
    - **the field of view**, which changes how much retina is inside the frame.
    Say explicitly whether the biomarker is scale-invariant. A dimensionless ratio usually is; a
    width, area or length usually is not.

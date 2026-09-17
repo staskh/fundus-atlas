@@ -63,7 +63,9 @@ Use `template.md` verbatim and keep its section numbering.
    **Where a fetcher exists, section 2 ends with a `How to fetch` subsection** — the command, what it
    downloads, what it builds, what needs a human, and anything peculiar a person running it will hit.
    The `fetch-dataset` skill defines its shape; keep it to what someone running the command needs,
-   since the provenance is already in the tables above it.
+   since the provenance is already in the tables above it. A dataset that published no
+   microns-per-pixel scale also names `python -m datasets.fetch_um_resolution` as a required
+   follow-on.
 
 3. **The images** — the physical facts about the pixels. **Where a dataset has well-defined
    subcollections — different cameras, different acquisition sites, a challenge's separate training
@@ -75,9 +77,15 @@ Use `template.md` verbatim and keep its section numbering.
    - **Count**, and how it splits by class or by acquisition site.
    - **Resolution in pixels**, every distinct size present. Where a dataset mixes sizes, list them;
      do not average.
-   - **Microns per pixel**, where the dataset or its paper publishes it, or the information needed
-     to derive it. This is the only route from a pixel measurement to a physical one, so record it
-     when available and record `Unknown` when not — most datasets do not publish it.
+   - **Microns per pixel**, where the dataset or its paper publishes it — this is the only route
+     from a pixel measurement to a physical one that does not rest on an assumption. Record the
+     published figure when there is one. Most datasets do not publish it. An inferred camera-level
+     scale then comes from `python -m datasets.fetch_um_resolution` (the `fetch-um-resolution`
+     skill): the median disc of a sampled subcollection, assumed 1.8 mm, kept only when the discs
+     agree closely enough. Write that figure on the page as **inferred**, never as published, and
+     point at `results/um_resolution/<slug>.json`. Do not then quote disc sizes in millimetres from
+     that scale — the median disc has been defined to be 1.8 mm. Repeat the row per subcollection
+     when cameras or pixel sizes differ.
    - **Camera and equipment** — the make and model, and the acquisition site where stated.
    - **Field of view** in degrees. A 30°, 45° and 200° photograph of the same eye contain different
      proportions of central and peripheral retina, so this decides which datasets can be pooled.
