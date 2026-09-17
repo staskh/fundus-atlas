@@ -130,7 +130,11 @@ never softened into a maybe.
 
 ## 4. The summary table
 
-`docs/DATASETS.md` holds one row per dataset, sorted by image count with the largest first. The
+`docs/DATASETS.md` holds one row per dataset, **sorted alphabetically by the dataset's own name**,
+ignoring the `←` and modality markers that follow it — a reader arriving at the summary table has a
+name in hand and needs to find its row. The regrouped lists further down the page (quality,
+artery/vein, disc and cup, disease) are **sorted by image count, largest first** instead: nobody
+scans those for a name, they scan them for a collection big enough to be worth the trouble. The
 columns are:
 
 | Column | Content |
