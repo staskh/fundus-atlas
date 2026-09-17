@@ -11,18 +11,20 @@ against what it actually does, and measures them on the same terms.
 
 ## 1. What is catalogued here
 
-1. **Datasets** — the public collections of fundus photographs: who owns each one, the license it
-   carries, and what has actually been annotated in it.
-2. **Segmentation models** — software that traces anatomy in a photograph: the blood vessels,
-   arteries as distinct from veins, and the optic disc and cup.
-3. **Biomarker calculations** — methods that turn those tracings into numbers, such as vessel width
-   and CRAE.
-4. **Projects** — publicly available pipelines that combine several models and calculations into one
-   end-to-end run, from photograph to table of numbers.
-5. **Comparisons** — the same measurements applied on the same terms, so results from different
-   papers and different projects can be read side by side.
-6. **Checks** — the quality gates that decide whether a tracing is good enough to trust the numbers
-   derived from it.
+1. **[Datasets](docs/DATASETS.md)** — the public collections of fundus photographs: who owns each
+   one, the license it carries, and what has actually been annotated in it.
+2. **[Segmentation models](docs/MODELS.md)** — software that traces anatomy in a photograph: the
+   blood vessels, arteries as distinct from veins, and the optic disc and cup.
+3. **[Biomarker calculations](docs/BIOMARKERS.md)** — methods that turn those tracings into numbers,
+   such as vessel width and CRAE.
+4. **[Projects](docs/PROJECTS.md)** — publicly available pipelines that combine several models and
+   calculations into one end-to-end run, from photograph to table of numbers.
+5. **[Comparisons](docs/BENCHMARKS.md)** — the same measurements applied on the same terms, so
+   results from different papers and different projects can be read side by side.
+6. **[Checks](docs/benchmarks/quality-results.md)** — the quality gates that decide whether a
+   tracing is good enough to trust the numbers derived from it.
+
+Each of those is one summary table with a page behind every row. The measurements live in section 4.
 
 ## 2. What this project is not
 

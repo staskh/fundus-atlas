@@ -21,8 +21,12 @@ decides what any comparison in [MODELS.md](MODELS.md) is worth.
 
 ## 1. Summary
 
-Sorted by image count, largest first. Two markers in the Dataset column: **←** means the photographs
-come from another dataset, named after the arrow (section 2 has the detail); **(SLO)**, **(IR)**,
+Sorted alphabetically, so a dataset can be found by name; the lists in 1.1–1.4 are sorted by image
+count, largest first, because there the question is which collection is big enough to be worth the
+trouble.
+
+Two markers in the Dataset column: **←** means the photographs come from another dataset, named
+after the arrow (section 2 has the detail); **(SLO)**, **(IR)**,
 **+UWF**, **+OCT**, **+surgical** and **(dual-modal)** mean the collection is wholly or partly not
 standard colour fundus photography (section 3). The date each page's links and licence were last
 checked is on the page itself.
@@ -47,51 +51,51 @@ labelled.
 
 | Dataset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Images | Resolution | Year | Quality | Vessels | A/V | Disc | Cup | Disease | Other labels | Licence | Down |
 | :------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [EyeQ](datasets/eyeq.md) ← EyePACS | 28,792 | **highly mixed** — many devices | 2019 | ✅ Good / Usable / Reject | — | — | — | — | ✅ DR 0–4, from EyePACS | — | labels **not stated**; images under EyePACS competition terms | 🟡 |
-| [BRSET](datasets/brset.md) | 16,266 | mixed | 2024 | ✅ focus / illumination / field / artefacts | — | — | — | — | ✅ multi-label + DR grades | anatomical flags, **demographics** | PhysioNet credentialed licence + DUA | ⛔ |
-| [mBRSET](datasets/mbrset.md) | 5,164 | mixed, handheld | 2024 | ✅ | — | — | — | — | ✅ DR | demographics | PhysioNet credentialed licence + DUA | ⛔ |
-| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 (+256 UWF) | six sizes, 1592–2232 px; **dual view per eye** | 2020 | ✅ arbitrated, + artefact / clarity / field | — | — | — | — | ✅ DR, per image and per patient | dual-view pairing | **CC BY-SA 4.0** — share-alike | ✅ |
-| [FQS](datasets/fqs.md) | 2,246 | ~1942×1942 originals, plus a 1024×1024 copy | 2025 | ✅ **continuous 0–100 ×6 doctors** + three-class ×3 graders | — | — | — | — | — | ten cross-validation folds | **CC BY 4.0** | ✅ |
-| [Chákṣu](datasets/chaksu.md) | 1,345 | 2448×3264 **portrait**, 2048×1536, 1920×1440 | 2023 | — | — | — | ✅ **×5 experts** | ✅ **×5 experts** | ✅ glaucoma, **×5 independent decisions** | three cameras incl. handheld | **CC BY 4.0** | ✅ |
-| [MSHF](datasets/mshf.md) +UWF | 1,302 | mixed by device | 2023 | ✅ **×3 readers**, illumination / clarity / contrast / overall | — | — | — | — | ✅ DR, glaucoma, healthy | camera class per image | **CC BY 4.0** | ✅ |
-| [REFUGE / REFUGE2](datasets/refuge.md) | 1,200 / 2,000 | mixed — 2124×2056, 1634×1634, + | 2020 | — | — | — | ✅ consensus | ✅ consensus | ✅ glaucoma | fovea coordinate | research and educational, challenge terms | 🟡 |
 | [ADAM](datasets/adam.md) | 1,200 | 2124×2056 (824), 1444×1444 (376) | 2022 | — | — | — | ✅ masks, **some blank** | — | ✅ AMD / non-AMD | fovea coordinates; lesion masks — drusen, exudates, haemorrhages, scars | not stated | 🟡 |
-| [MESSIDOR](datasets/messidor.md) | 1,200 | 1440×960, 2240×1488, 2304×1536 | 2014 | — | — | — | — | — | ✅ DR 0–3 and macular-oedema risk 0–2 | — | research and educational use, ADCIS agreement | 🟡 |
-| [G1020](datasets/g1020.md) | 1,020 | mixed — **41 sizes**, 1944×2108 to 2426×3007 | 2020 | — | — | — | ✅ | ✅ (791 of 1,020) | ✅ glaucoma 296 / normal 724 | vertical CDR, ISNT rim widths, disc box | research only, no standard grant | 🟡 |
-| [FIVES](datasets/fives.md) | 800 | 2048×2048 | 2022 | ✅ illumination / blur / contrast | ✅ consensus | — | — | — | ✅ AMD / DR / glaucoma / normal | — | **CC BY 4.0** | ✅ |
-| [RIGA](datasets/riga.md) ← MESSIDOR | 750 | mixed — three sources | 2018 | — | — | — | ✅ **×6 ophthalmologists** | ✅ **×6 ophthalmologists** | — | each annotator's CDR; RIGA+ domain splits | **CC BY-NC 4.0** | 🟡 |
-| [ORIGA](datasets/origa.md) | 650 | 2048 tall, 2426–2616 wide | 2010 | — | — | — | ✅ | ✅ | ✅ glaucoma 168 / normal 482 | **published expert CDR**, eye side | research use, request-based | 🟡 |
-| [GRAPE](datasets/grape.md) | 631 | full frames; **contours on an ROI crop** | 2023 | — | — | — | ✅ | ✅ | ✅ glaucoma, **longitudinal** | visual fields, OCT, IOP, visit dates | **CC BY 4.0** | ✅ |
-| [REYIA](datasets/reyia.md) ← 9 sources | 589 | mixed, by source | 2025 | — | — | ✅ | — | — | mixed, by source | per-image source attribution | MIT on the compilation; **sources stricter** | ⛔ |
-| [IDRiD](datasets/idrid.md) | 516 | 4288×2848 | 2018 | — | — | — | ✅ (81 of 516) | — | ✅ DR 0–4 and macular oedema 0–2 | four lesion classes, fovea | **CC BY 4.0** | ✅ |
-| [PAPILA](datasets/papila.md) | 488 | 2576×1934 | 2022 | — | — | — | ✅ ×2 experts | ✅ ×2 experts | ✅ healthy / suspect / glaucoma | full clinical record per eye | GPL-3.0 or later | ✅ |
-| [RIM-ONE DL](datasets/rim-one-dl.md) ← r1–r3 | 485 | not stated by the distributor | 2020 | — | — | — | ✅ | ✅ | ✅ normal 313 / glaucoma 172 | **hospital-based split** | research and educational use | ✅ |
-| [GAMMA](datasets/gamma.md) +OCT | 300 pairs, ~100 labelled | mixed | 2023 | — | — | — | ✅ | ✅ | ✅ normal / early / progressive glaucoma | fovea, paired OCT volume | challenge terms, research use | 🟡 |
-| [FunPiQ](datasets/funpiq.md) ← EyeQ, BRSET, mBRSET | 300 | mixed, by source | 2026 | ✅ **pixel-level** degraded-region masks | — | — | — | — | — | — | annotations per Zenodo record; **images inherit PhysioNet terms** | ⛔ |
-| [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | 1444×1444 | 2024 | ✅ automated score | — | ✅ **×2 readers** (junior + senior correction) | — | — | ✅ glaucoma, three categories | age, sex, **12 published vessel measurements** | custom, **non-commercial**, signed agreement | ⛔ |
-| [DRIMDB](datasets/drimdb.md) | 216 | unknown | 2014 | ✅ good / bad / **outlier** | — | — | — | — | — | the outlier class: images that are not fundus photographs | not stated | ✅ |
-| [RAV](datasets/rav.md) | 206 | 1024×1024 (**authors' crop and resize**) | 2025 | ✅ mixed by design | — | ✅ | — | — | — | Rotterdam Study population cohort | **CC BY-NC 4.0 per the README; CC0 per the record — contradictory** | ✅ |
-| [UoA-DR](datasets/uoa-dr.md) | 200 | 2124×2056 | — | — | ✅ | — | ✅ boundary **and centre** | — | ✅ DR severity | **fovea centre** | custom signed agreement | ⛔ |
-| [MAPLES-DR](datasets/maples-dr.md) ← MESSIDOR | 198 | MESSIDOR natives; **labels drawn at 1500×1500** | 2024 | — | ✅ | — | ✅ | ✅ (192 of 198) | ✅ regraded DR and macular oedema | six lesion classes, macula | **CC BY 4.0** labels; images research-only | 🟡 |
-| [Drishti-GS](datasets/drishti-gs.md) | 101 | ~2896×1944 | 2015 | — | — | — | ✅ ×4 experts, **soft maps** | ✅ ×4 experts, soft maps | ✅ glaucoma | CDR, notching | "free to use" — not a standard licence | 🟡 |
 | [AVRDB](datasets/avrdb.md) | 100 | 1504×1000 | 2020 | — | ✅ | ✅ | ✅ optic nerve head | — | ✅ hypertensive retinopathy, papilloedema | **published AVR per image**, exudates, cotton-wool spots | **CC BY 4.0** | ✅ |
-| [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | 2656×1992 (21), 1280×1280 (79) | 2025 | ✅ high / low | ✅ derived from A/V | ✅ | — | — | ✅ four classes | eye side | **CC BY 4.0** | ✅ |
-| [RETA](datasets/reta.md) ← IDRiD, resized | 81 — **54 masks public** | 1024×1024 | 2022 | — | ✅ | — | — | — | — | inter- and intra-annotator disambiguation record | **CC BY 4.0** | ✅ |
-| [FOVEA](datasets/fovea-dataset.md) +surgical | 80 (40 eyes ×2) | 1934×1960 and 1080×1920 | 2025 | — | ✅ **×2 readers** | — | ✅ **×2 readers** | — | — | paired preoperative / surgical-microscope views | **CC BY-NC-ND 4.0** — no derivatives | ✅ |
-| [VICAVR](datasets/vicavr.md) | 58 | 768×584 | — | — | — | ✅ **×3 experts** | — | — | — | **published calibres at several radii** | research use, no standard licence | ⛔ |
-| [GAVE](datasets/gave.md) | 50 | 1536×1024 | 2025 | — | ✅ | ✅ | — | — | — | — | **CC BY 4.0** | ❓ |
-| [HRF](datasets/hrf.md) *(three annotation layers)* | 45 | 3504×2336 | 2013 | — | ✅ | ✅ via HRF-AV | ✅ centres ×2 experts; contours via HRF-Seg+ | ✅ via HRF-Seg+ (40 of 45) | ✅ healthy / glaucoma / DR | field-of-view masks | CC BY 4.0 images; **layers vary, one unknown** | ✅ |
-| [RITE](datasets/rite.md) ← DRIVE | 40 | 565×584 | 2013 | — | ✅ (differs from DRIVE's) | ✅ | — | — | — | overlap and uncertain vessel classes | research use, citation required | ⛔ |
-| [DRIVE](datasets/drive.md) | 40 | 565×584 | 2004 | — | ✅ + **second observer** on the test split | — | — | — | ✅ 7 of 40 with mild DR | field-of-view masks | research use, registration terms | 🟡 |
-| [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | 2392×2048 | 2011 | — | ✅ | AVR only, ×2 experts | ✅ | — | — | **published AVR per image** (IVAN) | research use; **redistribution prohibited** | ✅ |
-| [RAVIR](datasets/ravir.md) **(IR)** | 36 | 768×768 | 2022 | — | — | ✅ | — | — | ✅ DR, hypertensive retinopathy | test masks withheld | usage protocol, not a standard grant | 🟡 |
-| [IOSTAR](datasets/iostar.md) **(SLO)** | 30 | 1024×1024 | 2016 | — | ✅ | ✅ | ✅ | — | — | **vessel junctions** — bifurcations and crossovers | research use | ⛔ |
-| [DualModal2019](datasets/dualmodal2019.md) **(dual-modal)** | 30 | 1024×1024 | 2019 | — | — | ✅ | — | — | — | same eyes imaged two ways | **not stated** | 🟡 |
-| [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | 3900×3072 | 2015 | — | — | ✅ **×2 raters** | — | — | ✅ healthy / AMD | **vascular graph annotations** | research and educational use; **redistribution prohibited** | ✅ |
+| [BRSET](datasets/brset.md) | 16,266 | mixed | 2024 | ✅ focus / illumination / field / artefacts | — | — | — | — | ✅ multi-label + DR grades | anatomical flags, **demographics** | PhysioNet credentialed licence + DUA | ⛔ |
+| [Chákṣu](datasets/chaksu.md) | 1,345 | 2448×3264 **portrait**, 2048×1536, 1920×1440 | 2023 | — | — | — | ✅ **×5 experts** | ✅ **×5 experts** | ✅ glaucoma, **×5 independent decisions** | three cameras incl. handheld | **CC BY 4.0** | ✅ |
 | [CHASE-DB1](datasets/chase-db1.md) | 28 | 1280×960 distributor / 999×960 as circulated | 2012 | — | ✅ **×2 observers** | — | — | — | — | paediatric, multi-ethnic, hand-held camera | **not established** | ✅ |
+| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 (+256 UWF) | six sizes, 1592–2232 px; **dual view per eye** | 2020 | ✅ arbitrated, + artefact / clarity / field | — | — | — | — | ✅ DR, per image and per patient | dual-view pairing | **CC BY-SA 4.0** — share-alike | ✅ |
+| [DRIMDB](datasets/drimdb.md) | 216 | unknown | 2014 | ✅ good / bad / **outlier** | — | — | — | — | — | the outlier class: images that are not fundus photographs | not stated | ✅ |
+| [Drishti-GS](datasets/drishti-gs.md) | 101 | ~2896×1944 | 2015 | — | — | — | ✅ ×4 experts, **soft maps** | ✅ ×4 experts, soft maps | ✅ glaucoma | CDR, notching | "free to use" — not a standard licence | 🟡 |
+| [DRIVE](datasets/drive.md) | 40 | 565×584 | 2004 | — | ✅ + **second observer** on the test split | — | — | — | ✅ 7 of 40 with mild DR | field-of-view masks | research use, registration terms | 🟡 |
+| [DualModal2019](datasets/dualmodal2019.md) **(dual-modal)** | 30 | 1024×1024 | 2019 | — | — | ✅ | — | — | — | same eyes imaged two ways | **not stated** | 🟡 |
+| [EyeQ](datasets/eyeq.md) ← EyePACS | 28,792 | **highly mixed** — many devices | 2019 | ✅ Good / Usable / Reject | — | — | — | — | ✅ DR 0–4, from EyePACS | — | labels **not stated**; images under EyePACS competition terms | 🟡 |
+| [FIVES](datasets/fives.md) | 800 | 2048×2048 | 2022 | ✅ illumination / blur / contrast | ✅ consensus | — | — | — | ✅ AMD / DR / glaucoma / normal | — | **CC BY 4.0** | ✅ |
+| [FOVEA](datasets/fovea-dataset.md) +surgical | 80 (40 eyes ×2) | 1934×1960 and 1080×1920 | 2025 | — | ✅ **×2 readers** | — | ✅ **×2 readers** | — | — | paired preoperative / surgical-microscope views | **CC BY-NC-ND 4.0** — no derivatives | ✅ |
+| [FQS](datasets/fqs.md) | 2,246 | ~1942×1942 originals, plus a 1024×1024 copy | 2025 | ✅ **continuous 0–100 ×6 doctors** + three-class ×3 graders | — | — | — | — | — | ten cross-validation folds | **CC BY 4.0** | ✅ |
+| [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | 2656×1992 (21), 1280×1280 (79) | 2025 | ✅ high / low | ✅ derived from A/V | ✅ | — | — | ✅ four classes | eye side | **CC BY 4.0** | ✅ |
+| [FunPiQ](datasets/funpiq.md) ← EyeQ, BRSET, mBRSET | 300 | mixed, by source | 2026 | ✅ **pixel-level** degraded-region masks | — | — | — | — | — | — | annotations per Zenodo record; **images inherit PhysioNet terms** | ⛔ |
+| [G1020](datasets/g1020.md) | 1,020 | mixed — **41 sizes**, 1944×2108 to 2426×3007 | 2020 | — | — | — | ✅ | ✅ (791 of 1,020) | ✅ glaucoma 296 / normal 724 | vertical CDR, ISNT rim widths, disc box | research only, no standard grant | 🟡 |
+| [GAMMA](datasets/gamma.md) +OCT | 300 pairs, ~100 labelled | mixed | 2023 | — | — | — | ✅ | ✅ | ✅ normal / early / progressive glaucoma | fovea, paired OCT volume | challenge terms, research use | 🟡 |
+| [GAVE](datasets/gave.md) | 50 | 1536×1024 | 2025 | — | ✅ | ✅ | — | — | — | — | **CC BY 4.0** | ❓ |
+| [GRAPE](datasets/grape.md) | 631 | full frames; **contours on an ROI crop** | 2023 | — | — | — | ✅ | ✅ | ✅ glaucoma, **longitudinal** | visual fields, OCT, IOP, visit dates | **CC BY 4.0** | ✅ |
+| [HRF](datasets/hrf.md) *(three annotation layers)* | 45 | 3504×2336 | 2013 | — | ✅ | ✅ via HRF-AV | ✅ centres ×2 experts; contours via HRF-Seg+ | ✅ via HRF-Seg+ (40 of 45) | ✅ healthy / glaucoma / DR | field-of-view masks | CC BY 4.0 images; **layers vary, one unknown** | ✅ |
+| [IDRiD](datasets/idrid.md) | 516 | 4288×2848 | 2018 | — | — | — | ✅ (81 of 516) | — | ✅ DR 0–4 and macular oedema 0–2 | four lesion classes, fovea | **CC BY 4.0** | ✅ |
+| [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | 2392×2048 | 2011 | — | ✅ | AVR only, ×2 experts | ✅ | — | — | **published AVR per image** (IVAN) | research use; **redistribution prohibited** | ✅ |
+| [IOSTAR](datasets/iostar.md) **(SLO)** | 30 | 1024×1024 | 2016 | — | ✅ | ✅ | ✅ | — | — | **vessel junctions** — bifurcations and crossovers | research use | ⛔ |
 | [LES-AV](datasets/les-av.md) | 22 | 1444×1620 (21), 1958×2196 (1) | 2018 | — | ✅ derived from A/V | ✅ | — | — | ✅ **glaucoma subtypes** | blood pressure, heart rate, IOP | research only, **no commercial use** | ✅ |
+| [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | 1444×1444 | 2024 | ✅ automated score | — | ✅ **×2 readers** (junior + senior correction) | — | — | ✅ glaucoma, three categories | age, sex, **12 published vessel measurements** | custom, **non-commercial**, signed agreement | ⛔ |
+| [MAPLES-DR](datasets/maples-dr.md) ← MESSIDOR | 198 | MESSIDOR natives; **labels drawn at 1500×1500** | 2024 | — | ✅ | — | ✅ | ✅ (192 of 198) | ✅ regraded DR and macular oedema | six lesion classes, macula | **CC BY 4.0** labels; images research-only | 🟡 |
+| [mBRSET](datasets/mbrset.md) | 5,164 | mixed, handheld | 2024 | ✅ | — | — | — | — | ✅ DR | demographics | PhysioNet credentialed licence + DUA | ⛔ |
+| [MESSIDOR](datasets/messidor.md) | 1,200 | 1440×960, 2240×1488, 2304×1536 | 2014 | — | — | — | — | — | ✅ DR 0–3 and macular-oedema risk 0–2 | — | research and educational use, ADCIS agreement | 🟡 |
+| [MSHF](datasets/mshf.md) +UWF | 1,302 | mixed by device | 2023 | ✅ **×3 readers**, illumination / clarity / contrast / overall | — | — | — | — | ✅ DR, glaucoma, healthy | camera class per image | **CC BY 4.0** | ✅ |
+| [ORIGA](datasets/origa.md) | 650 | 2048 tall, 2426–2616 wide | 2010 | — | — | — | ✅ | ✅ | ✅ glaucoma 168 / normal 482 | **published expert CDR**, eye side | research use, request-based | 🟡 |
+| [PAPILA](datasets/papila.md) | 488 | 2576×1934 | 2022 | — | — | — | ✅ ×2 experts | ✅ ×2 experts | ✅ healthy / suspect / glaucoma | full clinical record per eye | GPL-3.0 or later | ✅ |
+| [RAV](datasets/rav.md) | 206 | 1024×1024 (**authors' crop and resize**) | 2025 | ✅ mixed by design | — | ✅ | — | — | — | Rotterdam Study population cohort | **CC BY-NC 4.0 per the README; CC0 per the record — contradictory** | ✅ |
+| [RAVIR](datasets/ravir.md) **(IR)** | 36 | 768×768 | 2022 | — | — | ✅ | — | — | ✅ DR, hypertensive retinopathy | test masks withheld | usage protocol, not a standard grant | 🟡 |
+| [REFUGE / REFUGE2](datasets/refuge.md) | 1,200 / 2,000 | mixed — 2124×2056, 1634×1634, + | 2020 | — | — | — | ✅ consensus | ✅ consensus | ✅ glaucoma | fovea coordinate | research and educational, challenge terms | 🟡 |
+| [RETA](datasets/reta.md) ← IDRiD, resized | 81 — **54 masks public** | 1024×1024 | 2022 | — | ✅ | — | — | — | — | inter- and intra-annotator disambiguation record | **CC BY 4.0** | ✅ |
+| [REYIA](datasets/reyia.md) ← 9 sources | 589 | mixed, by source | 2025 | — | — | ✅ | — | — | mixed, by source | per-image source attribution | MIT on the compilation; **sources stricter** | ⛔ |
+| [RIGA](datasets/riga.md) ← MESSIDOR | 750 | mixed — three sources | 2018 | — | — | — | ✅ **×6 ophthalmologists** | ✅ **×6 ophthalmologists** | — | each annotator's CDR; RIGA+ domain splits | **CC BY-NC 4.0** | 🟡 |
+| [RIM-ONE DL](datasets/rim-one-dl.md) ← r1–r3 | 485 | not stated by the distributor | 2020 | — | — | — | ✅ | ✅ | ✅ normal 313 / glaucoma 172 | **hospital-based split** | research and educational use | ✅ |
+| [RITE](datasets/rite.md) ← DRIVE | 40 | 565×584 | 2013 | — | ✅ (differs from DRIVE's) | ✅ | — | — | — | overlap and uncertain vessel classes | research use, citation required | ⛔ |
 | [STARE](datasets/stare.md) | 20 (vessel subset of 397) | 700×605 | 2000 | — | ✅ **×2 observers** | — | — | — | ✅ 10 of 20 with pathology | — | **not stated** | ✅ |
 | [UNAF](datasets/unaf.md) | 15 | 1444×1444 as redistributed | 2024 | — | — | ✅ | — | — | ✅ DR | Paraguay — geographic coverage | **not established** | ❓ |
+| [UoA-DR](datasets/uoa-dr.md) | 200 | 2124×2056 | — | — | ✅ | — | ✅ boundary **and centre** | — | ✅ DR severity | **fovea centre** | custom signed agreement | ⛔ |
+| [VICAVR](datasets/vicavr.md) | 58 | 768×584 | — | — | — | ✅ **×3 experts** | — | — | — | **published calibres at several radii** | research use, no standard licence | ⛔ |
+| [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | 3900×3072 | 2015 | — | — | ✅ **×2 raters** | — | — | ✅ healthy / AMD | **vascular graph annotations** | research and educational use; **redistribution prohibited** | ✅ |
 
 ### 1.1 Quality of the photograph
 
@@ -105,8 +109,8 @@ image itself.
 | [EyeQ](datasets/eyeq.md) ← EyePACS | 28,792 | Three levels: Good / Usable / Reject | Graded by the EyeQ authors |
 | [BRSET](datasets/brset.md) | 16,266 | Four separate flags: focus, illumination, image field, artefacts — not one overall grade | Per photograph |
 | [mBRSET](datasets/mbrset.md) | 5,164 | Quality assessment per photograph, on handheld cameras | Per photograph |
-| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 | Overall (good enough to diagnose / not) plus artefact, clarity and field-definition subscores | Two ophthalmologists, confirmed or revised by a senior third. **Only the arbitrated result is published**, so the readers cannot be compared |
 | [FQS](datasets/fqs.md) | 2,246 | A **continuous 0–100** score and a three-class grade (good / usable / reject) | Score: **six doctors, kept separate**. Class: **three graders, kept separate** |
+| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 | Overall (good enough to diagnose / not) plus artefact, clarity and field-definition subscores | Two ophthalmologists, confirmed or revised by a senior third. **Only the arbitrated result is published**, so the readers cannot be compared |
 | [MSHF](datasets/mshf.md) +UWF | 1,302 | Four binary components: illumination, clarity, contrast, overall | **Three readers, kept separate** as well as merged |
 | [FIVES](datasets/fives.md) | 800 | Illumination, blur and contrast | Graded per photograph |
 | [FunPiQ](datasets/funpiq.md) ← EyeQ, BRSET, mBRSET | 300 | **Pixel-level** masks of the degraded regions — which part of the image is unusable, not only how bad the whole frame is. The only such annotation here | Under a board-certified ophthalmologist |

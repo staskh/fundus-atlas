@@ -163,6 +163,32 @@ kept runs from 0.279 to 0.555. The black bands of its square crop are not the ca
 and handing the model the photograph's own rectangle instead makes the rejection *worse*, because
 the square is the familiar shape for models fitted on screening photographs.
 
+### 4.6 A model's score does not mean the same thing on two datasets
+
+Every model's ability to *order* photographs looks better one dataset at a time than it does across
+all three at once. Averaging each dataset's own area under the ROC curve, against computing it over
+the 3,591 photographs pooled:
+
+| Model | Averaged per dataset | Pooled over all three | Lost |
+| --- | --- | --- | --- |
+| automorph-quality-grader | 0.962 | 0.925 | **0.037** |
+| fit-quality | 0.964 | 0.940 | 0.024 |
+| quickqual | 0.954 | 0.932 | 0.022 |
+| quickqual-meme | 0.937 | 0.915 | 0.022 |
+| vascx-quality | 0.954 | **0.942** | **0.012** |
+
+The pooled figure is the harder and more useful test: it asks whether a confidence of 0.6 means the
+same thing on FIVES as on MSHF. For every model it does not, and the ordering changes — averaged per
+dataset, **fit-quality** ranks best; pooled, **vascx-quality** does, with fit-quality two
+thousandths behind and the two indistinguishable.
+
+That is the same fact as section 2 seen from another angle. A model whose scores shift between
+collections cannot carry one threshold across them, which is exactly why fit-quality's published
+threshold discards two usable photographs in five here. **The index in
+[docs/BENCHMARKS.md](../BENCHMARKS.md) quotes the pooled figures**, so its "at ordering
+photographs" line names vascx-quality where an earlier version of this page named fit-quality; both
+numbers are above, and neither model is clearly ahead of the other at it.
+
 ## 5. Which model to use
 
 **QuickQual**, for a general-purpose gate — and **VascX quality** is within a hundredth of it, so
@@ -182,8 +208,9 @@ the choice between them is about which mistake you would rather make than about 
   replace it.
 - **The toolbox ensemble** should not be used at its published threshold: it discards two usable
   photographs in five. It ranks photographs about as well as anything here — its area under the ROC
-  curve is 0.94 to 0.98 — so **re-fit the threshold on your own images** and it becomes a different
-  proposition.
+  curve is 0.94 to 0.98 within a dataset, though 0.940 once the datasets are pooled (section 4.6) —
+  so **re-fit the threshold on your own images**, on images from your own cameras, and it becomes a
+  different proposition.
 - **QuickQual-MEME** is the one to avoid unless you need its size: it is strictly behind its own
   three-class sibling on every dataset, for the same backbone and one extra matrix multiply.
 

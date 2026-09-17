@@ -52,3 +52,12 @@ Written from `notebooks/quality.ipynb`, following `SKILL.md` §4:
 - **Where the readers of a dataset agree with each other less than a model agrees with their
   consensus**, the benchmark is measuring reproduction of a committee. `notebooks/quality-humans.ipynb`
   is where that ceiling is measured, and the results page cites it rather than restating it.
+
+## 4. Its row in the index
+
+`docs/BENCHMARKS.md` carries one row per model, pooled over the datasets whose readers used more
+than one grade — accuracy, Cohen's κ and the area under the ROC curve computed over those
+photographs at once — plus a keep-rate column for any dataset whose reference is **assumed** rather
+than published, which supports no agreement score. Where to start names the best κ and the second
+whenever it is within about 0.02, and separately the best at ordering photographs, because those are
+different questions with different answers.

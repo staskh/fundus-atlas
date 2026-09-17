@@ -87,7 +87,8 @@ from the datasets in section 5.
 ## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
-  [OCULARNet-nano](../models/ocularnet-nano.md), via MESSIDOR-AV.
+  [OCULARNet-nano](../models/ocularnet-nano.md), via MESSIDOR-AV; and [RLAD](../models/rlad.md), which
+  generates from it.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** disease-graded appearance at three sensor sizes from one camera family —
   and, through its derivatives, several annotation protocols on identical pixels, which is a rare

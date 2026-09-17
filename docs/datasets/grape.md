@@ -83,8 +83,8 @@ them. The mapping has to be carried, not assumed.
 ## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
-  [OCULARNet-nano](../models/ocularnet-nano.md) list GRAPE in their training data. Held out of the
-  AutoMorph family.
+  [OCULARNet-nano](../models/ocularnet-nano.md) list GRAPE in their training data, and [RLAD](../models/rlad.md)
+  generates from it. Held out of the AutoMorph family.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** the only longitudinal question available here — whether a biomarker moves
   in the same eye over time, and whether that movement tracks the visual field. Cross-sectional
