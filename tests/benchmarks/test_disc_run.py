@@ -285,3 +285,64 @@ def test_a_kept_mask_is_in_the_frame_the_expert_drew_in(tmp_path: Path) -> None:
 
     with Image.open(tmp_path / "runs" / "disc" / "circles" / "papila" / "a-disc.png") as mask:
         assert mask.size == (1024, 1024), "native, not the 512 grid the model read"
+
+
+class Interrupted(Circles):
+    """A model the machine stops part-way through, as an out-of-memory kill does."""
+
+    def __init__(self, after: int = 1) -> None:
+        super().__init__()
+        self.after = after
+        self.batches = 0
+
+    def outline(self, images: torch.Tensor, sides: list[int]):
+        self.batches += 1
+        if self.batches > self.after:
+            raise KeyboardInterrupt("the machine ran out of memory")
+        return super().outline(images, sides)
+
+
+def test_a_run_stopped_part_way_keeps_what_it_had_measured(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A pair of a thousand photographs must not lose a night's work to a kill at nine hundred."""
+    monkeypatch.setattr(disc, "CHECKPOINT", 1)
+    store = a_store(tmp_path, keys="abcd")
+
+    with pytest.raises(KeyboardInterrupt):
+        disc.run(
+            [Interrupted(after=1)],
+            ["papila"],
+            results=tmp_path / "results",
+            root=store,
+            batch=1,
+            record=tmp_path / "runs",
+        )
+
+    stored = runs.read(tmp_path / "results", disc.NAME, "circles", "papila")
+    assert stored["summary"]["processed"] == 1
+    assert stored["summary"]["complete"] is False
+    assert len(runs.rows(tmp_path / "results", disc.NAME, "circles", "papila")) == 2
+
+
+def test_the_next_run_finishes_what_the_kill_left(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(disc, "CHECKPOINT", 1)
+    store = a_store(tmp_path, keys="abcd")
+    with pytest.raises(KeyboardInterrupt):
+        disc.run(
+            [Interrupted(after=1)],
+            ["papila"],
+            results=tmp_path / "results",
+            root=store,
+            batch=1,
+            record=tmp_path / "runs",
+        )
+
+    scored = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
+
+    assert scored[0]["measured"] == 3, "the three photographs the kill never reached"
+    assert scored[0]["counts"]["complete"] is True

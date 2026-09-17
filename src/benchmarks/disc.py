@@ -5,7 +5,7 @@ import json
 import shutil
 import sys
 import time
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -86,6 +86,12 @@ WORTH_FETCHING = (
         "direct",
     ),
 )
+
+#: How many photographs are measured before what has been measured is written down. A pair of a
+#: thousand photographs is hours of work, and a machine that runs out of memory at nine hundred
+#: must not cost all of it: a written partial result is what the next run finishes rather than
+#: repeats.
+CHECKPOINT = 50
 
 #: How many photographs go to the model at once. Lower than the quality benchmark's: these models
 #: work at 512 or 1024 and their outputs are resampled to native, which is where the memory goes.
@@ -239,22 +245,29 @@ def _pair(
     masks = _masks_for(keeping / NAME / adapter.slug / slug, identity, keep=bool(kept))
 
     timed = runs.Timing()
+    stored = runs.read(results, NAME, adapter.slug, slug) if kept else None
+
+    def record_so_far(fresh: list[dict[str, object]]) -> dict[str, object]:
+        """Write down everything measured to this point, complete or not."""
+        evidence = sorted(kept + fresh, key=lambda row: (row["key"], row["reader"]))
+        counted = runs.counts(len({row["key"] for row in evidence}), loader.total, loader.excluded)
+        described = {
+            **_summarise(evidence, declared["structures"]),
+            **runs.kept_timing(stored, timed),
+            "device": declared.get("device"),
+        }
+        runs.write(results, NAME, adapter.slug, slug, identity, {**described, **counted}, evidence)
+        return {"counts": counted, "summary": described}
+
     if len(loader):
         print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
-        fresh = _outline(adapter, loader, batch, timed, masks)
+        fresh = _outline(adapter, loader, batch, timed, masks, record_so_far)
     else:
         print(f"{adapter.slug} × {slug}: kept — nothing left to measure", flush=True)
         fresh = []
 
-    evidence = sorted(kept + fresh, key=lambda row: (row["key"], row["reader"]))
-    counts = runs.counts(len({row["key"] for row in evidence}), loader.total, loader.excluded)
-    stored = runs.read(results, NAME, adapter.slug, slug) if kept else None
-    summary = {
-        **_summarise(evidence, declared["structures"]),
-        **runs.kept_timing(stored, timed),
-        "device": declared.get("device"),
-    }
-    runs.write(results, NAME, adapter.slug, slug, identity, {**summary, **counts}, evidence)
+    written = record_so_far(fresh)
+    counts, summary = written["counts"], written["summary"]
     return {
         "model": adapter.slug,
         "dataset": slug,
@@ -270,10 +283,20 @@ def _pair(
 
 
 def _outline(
-    adapter, loader: DiscCupLoader, batch: int, timed: runs.Timing, masks: Path
+    adapter,
+    loader: DiscCupLoader,
+    batch: int,
+    timed: runs.Timing,
+    masks: Path,
+    record_so_far: Callable[[list[dict[str, object]]], object],
 ) -> list[dict[str, object]]:
-    """Every photograph still to be scored, measured against each reader who drew on it."""
+    """Every photograph still to be scored, measured against each reader who drew on it.
+
+    What has been measured is written down every :data:`CHECKPOINT` photographs, so that a run the
+    machine stops part-way through is one the next run finishes rather than starts again.
+    """
     rows = []
+    since = 0
     for sample in DataLoader(loader, batch_size=batch, collate_fn=collate, shuffle=False):
         started = time.perf_counter()
         try:
@@ -287,6 +310,10 @@ def _outline(
         for index, key in enumerate(sample["key"]):
             _keep(masks, key, answers[index])
             rows.extend(_rows(key, sample, index, answers[index], note))
+        since += len(sample["key"])
+        if since >= CHECKPOINT:
+            record_so_far(rows)
+            since = 0
     return rows
 
 
