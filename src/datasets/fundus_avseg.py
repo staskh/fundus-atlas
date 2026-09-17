@@ -6,11 +6,13 @@
 One zip from figshare: `images/` and `annotation/` sharing a filename, a metadata spreadsheet, and
 the authors' `training.txt` and `testing.txt`. The artery/vein map is an RGB image — red artery,
 blue vein, green where the two cross, white where the annotator could not tell — and is stored as
-the class indices of `utils.av` so that every artery/vein dataset in this store reads alike.
+the binary masks of `utils.av`: `artery`, `vein` and their union `vessels`, at native resolution
+only, with a crossing belonging to both vessels.
 
-**No vessel layer is built.** The dataset's vessel mask is derived from its own artery/vein labels
-rather than drawn independently, so storing it would let a model be scored twice against one
-annotation and the second score be mistaken for corroboration.
+**The `vessels` mask here is derived**, being the union of the classes above rather than an
+independent tracing. This dataset publishes no independent one either — its own vessel mask is
+derived the same way — so a model scored against both is scored twice against one annotation, and
+the second score is not corroboration.
 
 The module is `fundus_avseg` while the slug is `fundus-avseg`: a module name cannot hold a hyphen,
 and the store, the page and the manifest all use the slug.

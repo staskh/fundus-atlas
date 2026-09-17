@@ -37,7 +37,14 @@ BUILDER_VERSION = 6
 
 #: The maps a store can hold, in the order they appear in the `maps` column. `disc` and `cup` mean
 #: polygons in `contours/<key>.csv`, never a raster.
-LAYERS = ("vessels", "av", "fov", "disc", "cup")
+LAYERS = ("artery", "vein", "vessels", "fov", "disc", "cup")
+
+#: The layers that exist at every built size. Everything else an annotator drew is written at
+#: **native and nowhere else**: a benchmark measures in the frame the annotation was made in — the
+#: disc benchmark already does — so a resized copy of a ground truth is a file nothing reads and a
+#: second thing that can fall out of step with the first. The photograph is resized because that is
+#: what a model is given; the answer is compared where it was drawn.
+EVERY_SIZE = ("images", "fov")
 
 #: The layers that live in `contours/<key>.csv` as polygons rather than in a directory of rasters.
 OUTLINED = ("disc", "cup")
@@ -94,14 +101,15 @@ class SourceRecord:
     readings: list[manifest.Reading] = field(default_factory=list)
 
 
-def as_labels(pixels: np.ndarray, palette: "av.Palette") -> np.ndarray:
-    """One published artery/vein map, translated into the store's own class indices.
+def as_masks(pixels: np.ndarray, palette: "av.Palette") -> dict[str, np.ndarray]:
+    """One published artery/vein map as the binary masks the store keeps.
 
     A coloured map read as greyscale is not an artery/vein map any more: red and blue arrive as two
-    grey levels that no consumer can tell from a faint vessel. The dataset declares its colours and
-    this is where they are applied, once, before the crop.
+    grey levels that no consumer can tell from a faint vessel. The dataset declares its colours,
+    they are translated here — once, before the crop — and the result is one file per vessel kind,
+    with a crossing belonging to both.
     """
-    return palette.labels(pixels, tolerance=av.TOLERANCE)
+    return av.binaries(palette.labels(pixels, tolerance=av.TOLERANCE))
 
 
 def run(
@@ -376,13 +384,16 @@ def _build_one(
         if name == "fov":
             continue
         if name in palettes:
-            published = as_labels(_read(_handle(source, raw), "RGB"), palettes[name])
+            drawn_as = as_masks(_read(_handle(source, raw), "RGB"), palettes[name])
         else:
-            published = _read(_handle(source, raw), "L")
-        frames[name] = crop.apply(published, square)
+            drawn_as = {name: _read(_handle(source, raw), "L")}
+        for kind, published in drawn_as.items():
+            frames[kind] = crop.apply(published, square)
 
     for size in [paths.NATIVE, *sizes]:
         for name, frame in frames.items():
+            if size != paths.NATIVE and name not in EVERY_SIZE:
+                continue
             out = paths.layer(store, size, name)
             out.mkdir(parents=True, exist_ok=True)
             written = out / f"{record.key}.png"

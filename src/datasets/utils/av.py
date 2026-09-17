@@ -40,6 +40,36 @@ def vessels(labels: np.ndarray) -> np.ndarray:
     return np.isin(labels, [index(name) for name in VESSEL])
 
 
+#: What a store holds for an artery/vein dataset: one binary mask per vessel kind, plus the union.
+#: They are separate files rather than one label map because that is what every consumer wants —
+#: a model predicts an artery mask, and scoring it is a comparison of two binary images.
+BINARIES = ("artery", "vein", "vessels")
+
+
+def binaries(labels: np.ndarray) -> dict[str, np.ndarray]:
+    """One published artery/vein map as the masks the store keeps.
+
+    **A crossing belongs to both.** Where an artery passes over a vein the projection is both
+    vessels at once, not a third kind: withholding those pixels from the artery mask would score a
+    model's correct artery as a false positive, and a model cannot be asked to reproduce an
+    ambiguity of projection.
+
+    `vessels` is every vessel pixel, including the ones the annotator could not classify. It is a
+    **derived** mask wherever the dataset did not draw one independently, and the two are not
+    interchangeable — see the `fetch-dataset` skill, section 12.
+    """
+    return {
+        "artery": _written(of(labels, "artery") | of(labels, "crossing")),
+        "vein": _written(of(labels, "vein") | of(labels, "crossing")),
+        "vessels": _written(vessels(labels)),
+    }
+
+
+def _written(mask: np.ndarray) -> np.ndarray:
+    """A binary mask as the store writes one: 0 or 255, one channel."""
+    return np.where(mask, 255, 0).astype(np.uint8)
+
+
 class Palette:
     """One dataset's colours, and what each of them means.
 

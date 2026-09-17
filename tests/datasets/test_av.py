@@ -82,3 +82,44 @@ def test_the_vessels_of_an_artery_vein_map_are_its_classes_together() -> None:
 
     assert av.vessels(labels).sum() == 12, "artery, vein and crossing are all vessel"
     assert av.of(labels, "artery").sum() == 4
+
+
+def test_a_crossing_belongs_to_both_the_artery_and_the_vein() -> None:
+    """Where the two vessels cross, the pixel is artery and vein at once.
+
+    A projection of two vessels one over the other is not a third kind of vessel; scoring a model's
+    artery mask against a ground truth that withheld those pixels would count a correct artery as a
+    false positive.
+    """
+    palette = av.Palette(
+        {(255, 0, 0): "artery", (0, 0, 255): "vein", (0, 255, 0): "crossing",
+         (255, 255, 255): "uncertain"}
+    )
+    labels = palette.labels(coloured())
+
+    binaries = av.binaries(labels)
+
+    assert binaries["artery"][0].all() and binaries["artery"][2].all(), "artery plus crossing"
+    assert binaries["vein"][1].all() and binaries["vein"][2].all(), "vein plus crossing"
+    assert not binaries["artery"][1].any()
+    assert not binaries["vein"][0].any()
+
+
+def test_the_vessel_mask_holds_every_vessel_including_the_unclassified_ones() -> None:
+    palette = av.Palette(
+        {(255, 0, 0): "artery", (0, 0, 255): "vein", (0, 255, 0): "crossing",
+         (255, 255, 255): "uncertain"}
+    )
+    binaries = av.binaries(palette.labels(coloured()))
+
+    assert binaries["vessels"][:4].all(), "artery, vein, crossing and uncertain are all vessel"
+    assert not binaries["artery"][3].any(), "an unclassified vessel is neither artery nor vein"
+
+
+def test_the_binaries_are_written_as_the_store_writes_masks() -> None:
+    palette = av.Palette({(255, 0, 0): "artery"})
+    binaries = av.binaries(palette.labels(coloured()[:1]))
+
+    for name, mask in binaries.items():
+        assert mask.dtype == np.uint8, name
+        assert set(np.unique(mask).tolist()) <= {0, 255}, name

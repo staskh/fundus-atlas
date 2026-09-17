@@ -39,16 +39,23 @@ uv run python -m datasets.fundus_avseg --sizes 512,768,1024
 uv run python -m datasets.fetch_um_resolution --dataset fundus-avseg
 ```
 
-One 213 MB zip from figshare, unattended. It builds 100 photographs with their **artery/vein map**
-as the store's own class indices — background, artery, vein, crossing, uncertain — translated from
-the archive's red, blue, green and white. The authors' `training.txt` and `testing.txt` become the
+One 213 MB zip from figshare, unattended. It builds 100 photographs with their **artery/vein map** as
+three binary masks at native resolution — `artery`, `vein`, and `vessels` for their union —
+translated from the archive's red, blue, green and white. **A crossing is in both the artery and the
+vein mask**, being one vessel over another rather than a third kind; the 
+white pixels, where the annotator marked a vessel without saying which kind, are in `vessels` and in
+neither of the others.
+
+The annotations are written at **native only**. The photograph and its field-of-view mask are
+resized to 512 and 1024 because that is what a model is handed; the answer is scored in the frame
+the annotator drew in. The authors' `training.txt` and `testing.txt` become the
 `split` column (80 train, 20 test), and `metadata.xlsx` supplies the eye side, the disease and the
 quality grade.
 
-**No vessel layer is built**, deliberately: the dataset's vessel mask is derived from its own
-artery/vein labels rather than drawn independently, so a model scored against both would be scored
-twice against one annotation (section 7). A vessel mask, where one is wanted, is the union of the
-artery, vein, crossing and uncertain classes.
+**The `vessels` mask is derived**, being that union rather than an independent tracing — which is
+also true of the vessel mask the dataset itself publishes (section 7). A model scored against both
+it and the artery/vein masks has been scored twice against one annotation, and the second score is
+not corroboration.
 
 Two dataset-specific columns:
 

@@ -51,15 +51,16 @@ is a cache, rebuildable from the sources named in `build.json`.
   manifest.csv          one row per image — section 5
   labels.csv            per-reader grades, only where a dataset publishes more than one — section 5.1
   raw/                  the untouched download — deleted after the build unless --keep-raw
-  native/               field-of-view crop at full resolution
+  native/               field-of-view crop at full resolution — and the only place annotations live
     images/<key>.png
-    vessels/<key>.png   only the maps this dataset actually publishes
-    av/<key>.png
+    artery/<key>.png    only the maps this dataset actually publishes — section 12
+    vein/<key>.png
+    vessels/<key>.png
     fov/<key>.png       the transported field-of-view mask — section 9
     contours/<key>.csv  optic disc and cup as polygons, not rasters — section 10
-  512/                  the same tree, recomputed — one directory per requested size
+  512/                  the photograph and its field, recomputed — one directory per size
     images/<key>.png
-    ...
+    fov/<key>.png
   1024/
     ...
 ```
@@ -70,11 +71,15 @@ Rules that make the store uniform:
   an enumeration index — a key must survive a partial rebuild and mean the same thing next year.
   Lowercase, `[a-z0-9_]`, with the published split in it where the dataset has one:
   `training_21`, `test_04`, `image13`.
-- **Every map a dataset publishes is built at every requested size**, contours included — they are
-  scaled from the native frame, never re-traced per size (section 10). Do not decide that a disc mask
-  "belongs at 512": the grid belongs to the *model* being evaluated, not to the dataset, and the
-  atlas evaluates models with grids from 256 to 1472 (see `docs/MODELS.md`). A fetcher that builds
-  one size forces every consumer to resample, which is the thing the store exists to prevent.
+- **The photograph and its field of view are built at every requested size; an annotation is built
+  at native and nowhere else.** The grid belongs to the *model* being evaluated — the atlas runs
+  models with grids from 256 to 1472 — so the photograph is resized because that is what a model is
+  handed. The annotation is not, because **every benchmark scores in the frame the annotator drew
+  in**: the disc benchmark carries a model's output back to native before measuring anything, and
+  the artery/vein one does the same. A resized ground truth is then a file nothing reads and a
+  second copy that can fall out of step with the first. Contours are the exception that proves it —
+  they are cheap, exact under scaling, and useful for drawing a figure at a model's own grid, so
+  they are still written per size (section 10).
 - **`native/` is the derivation reference, and must be sufficient to build any future size on its
   own** — no network, no archive. Everything else in the store is a function of it.
 - **`native/` is always built, and is not optional.** It is the reference every resampled size is
@@ -724,22 +729,26 @@ here means a consumer never resamples twice.
 - **Images** with area-averaging when downsizing and Lanczos when upsizing; **masks** with
   **nearest-neighbour only** — a mask interpolated with anything else invents classes that were never
   annotated.
-- **An artery/vein map is stored as class indices, never as the colours it arrived in.** The store's
-  vocabulary is `utils.av.CLASSES` — background, artery, vein, crossing, uncertain — and every
-  dataset's own palette is **declared** by its fetcher and translated once, before the crop:
-  `palettes={"av": av.Palette({(255, 0, 0): "artery", ...})}` on `build.run`. Three reasons this is
-  not optional. A coloured map read as a greyscale mask becomes two grey levels that no consumer can
-  tell from a faint vessel. No two datasets agree on the colours, and some swap them, so a consumer
-  reading raw RGB would need a per-dataset table anyway. And nearest-neighbour resampling of an
-  index map cannot invent a class, where resampling three colour channels can. A colour the palette
-  does not explain is an **error** naming the colour, never silently background: a map that has
-  grown a class is a thing to look at.
-- **`crossing` and `uncertain` stay their own classes.** Folding them into artery, vein or vessel is
-  a research decision, and the store does not make those. A vessel mask derived from an artery/vein
-  map is their union — `utils.av.vessels` — and it is **not** interchangeable with a vessel mask the
-  dataset drew independently: a model scored against a derived mask is being scored against the
-  artery/vein annotation a second time, which is not corroboration. Where a dataset publishes only a
-  derived vessel mask, the fetcher builds **no** `vessels` layer and the page says why.
+- **An artery/vein map is stored as separate binary masks, never as the colours it arrived in.**
+  Three files at native: `artery`, `vein`, and `vessels` for their union. Every dataset's own palette
+  is **declared** by its fetcher and translated once, before the crop:
+  `palettes={"av": av.Palette({(255, 0, 0): "artery", ...})}` on `build.run`. The reasons: a coloured
+  map read as a greyscale mask becomes grey levels no consumer can tell from a faint vessel; no two
+  datasets agree on the colours and some swap them; and what a consumer actually wants is what a
+  model actually predicts — a binary artery mask, scored against a binary artery mask. A colour the
+  palette does not explain is an **error** naming the colour, never silently background: a map that
+  has grown a class is a thing to look at.
+- **A crossing belongs to both vessels.** Where an artery passes over a vein, the pixel is in the
+  artery mask *and* the vein mask. It is a projection of two vessels, not a third kind of vessel,
+  and withholding those pixels from one of the masks would score a model's correct artery as a false
+  positive for an ambiguity no model can be asked to reproduce.
+- **A vessel the annotator could not classify is in `vessels` and in neither of the other two.**
+  Folding it into artery or vein would be inventing a judgement the annotator declined to make.
+- **A derived `vessels` mask is not an independent annotation.** Where a dataset publishes its own
+  vessel tracing, that is what `vessels` holds and it can be scored on its own terms. Where the union
+  is all there is, the page says so: a model scored against both the artery/vein maps and a vessel
+  mask derived from them has been scored twice against one annotation, and the second score is not
+  corroboration.
 - **Never upsample silently.** When a requested size exceeds the crop, build it, but record a
   `notes` entry on the row and a warning in `build.json`: a Dice measured on an upsampled image is
   not comparable with one measured on a downsampled image, as `docs/datasets/drive.md` explains.

@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from datasets.utils import archives, build, cli, contours, fov, manifest, quality, resolution
+from datasets.utils import archives, av, build, cli, contours, fov, manifest, quality, resolution
 
 
 def a_dataset(tmp_path):
@@ -57,11 +57,19 @@ def build_it(tmp_path, *argv):
     return tmp_path / "store" / "synthetic"
 
 
-def test_every_layer_is_written_at_native_and_at_each_size(tmp_path):
+def test_the_photograph_and_its_field_are_written_at_every_size(tmp_path):
     store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
     for size in ("native", "64"):
-        for layer in ("images", "vessels", "fov"):
+        for layer in ("images", "fov"):
             assert (store / size / layer / "a.png").exists()
+
+
+def test_an_annotation_is_written_at_native_and_nowhere_else(tmp_path):
+    """A benchmark measures in the frame the annotator drew in, so a resized copy reads to nobody."""
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
+
+    assert (store / "native" / "vessels" / "a.png").exists()
+    assert not (store / "64" / "vessels").exists()
 
 
 def test_a_size_is_square_and_native_is_the_crop(tmp_path):
@@ -555,16 +563,37 @@ def test_a_rebuilt_store_recovers_an_inferred_scale_without_measuring_it_again(t
     assert row["resolution_source"] == "disc_anchored"
 
 
-def test_a_coloured_artery_vein_map_is_stored_as_class_indices(tmp_path) -> None:
+def test_a_coloured_artery_vein_map_is_stored_as_binary_masks(tmp_path) -> None:
     """Read as greyscale, red and blue become two grey levels and the classes are gone."""
-    from datasets.utils import av
-
     palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"})
     pixels = np.zeros((8, 8, 3), dtype=np.uint8)
     pixels[2] = (255, 0, 0)
     pixels[5] = (0, 0, 255)
 
-    labels = build.as_labels(pixels, palette)
+    frames = build.as_masks(pixels, palette)
 
-    assert labels.shape == (8, 8)
-    assert set(np.unique(labels)) == {0, av.index("artery"), av.index("vein")}
+    assert frames["artery"][2].all() and not frames["artery"][5].any()
+    assert frames["vein"][5].all() and not frames["vein"][2].any()
+
+
+def test_ground_truth_is_written_at_native_and_nowhere_else(tmp_path) -> None:
+    """Every score is measured in the frame the annotator drew in, so a resized copy of an
+    annotation is a file nothing reads and a second thing to keep consistent."""
+    assert build.EVERY_SIZE == ("images", "fov")
+    assert "artery" not in build.EVERY_SIZE and "vessels" not in build.EVERY_SIZE
+
+
+def test_an_artery_vein_map_becomes_three_masks(tmp_path) -> None:
+    from datasets.utils import av
+
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein", (0, 255, 0): "crossing"})
+    pixels = np.zeros((8, 8, 3), dtype=np.uint8)
+    pixels[1] = (255, 0, 0)
+    pixels[3] = (0, 0, 255)
+    pixels[5] = (0, 255, 0)
+
+    frames = build.as_masks(pixels, palette)
+
+    assert sorted(frames) == ["artery", "vein", "vessels"]
+    assert frames["artery"][5].all() and frames["vein"][5].all(), "the crossing is in both"
+    assert frames["vessels"][[1, 3, 5]].all()
