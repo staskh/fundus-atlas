@@ -195,7 +195,7 @@ consumer can then read any store without special-casing. Missing values are empt
 | `crop_x0`, `crop_y0`, `crop_side` | int | The square crop, in native pixels. `crop_x0`/`crop_y0` may be **negative** and the square may extend past the image: the source is pasted into a square canvas rather than sliced from it — section 9 |
 | `pad_fraction` | float | Fraction of the square canvas with no source behind it. `0.0` when the crop fitted inside the image; a large value means much of the frame is invented |
 | `um_per_px` | float | Native resolution in **microns per pixel**, empty when unknown — section 8 |
-| `resolution_source` | str | `published`, `field_angle`, `inherited`, or `unknown`. A disc-median inference is **not** this column: it lives in `results/um_resolution/` — section 8 |
+| `resolution_source` | str | `published`, `field_angle`, `disc_anchored`, `inherited`, or `unknown`, in that order of preference — section 8. A `disc_anchored` value is **stamped** from `results/um_resolution/`, never computed during a build |
 | `maps` | str | Semicolon-separated list of what this row has: `vessels`, `av`, `fov`, `disc`, `cup` — the last two meaning contours in `contours/<key>.csv`, not a raster. Example: `vessels;fov;disc;cup` |
 | `readers` | str | Semicolon-separated ids of every annotator who contributed anything to this image — a contour, a grade, or both: `expert1;expert2`. Empty where the dataset publishes one opinion and does not name who held it |
 | `multi_reader` | str | Semicolon-separated names of the fields for which `labels.csv` holds more than one opinion: `quality;disease`. Empty for the common case — section 5.1 |

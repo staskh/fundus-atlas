@@ -71,7 +71,7 @@ bounding square takes another 0.9% off the sides of what did survive.
 | | |
 | --- | --- |
 | Resolution (pixels) | DR-XJU 412×310 to 555×419; DR-ZJU 1924×1556 and 3216×2136; Glaucoma and Healthy 1534×1534 |
-| Microns per pixel | Unknown |
+| Microns per pixel | Not published. **Inferred, per size**: 1534² → **7.972 µm/px**; 1924×1556 → **8.086**; 3216×2136 → **5.803**; 555×418 → **31.104**; 412×310 → **42.847**, each from the median optic disc of a sample, [evidence](../../results/um_resolution/mshf.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Kowa at 45° and Topcon TRC-NW8 at 50°, per the authors' device list |
 | Field of view | 45° and 50° |
 | Centring | Mixed |
@@ -82,7 +82,7 @@ bounding square takes another 0.9% off the sides of what did survive.
 | | |
 | --- | --- |
 | Resolution (pixels) | 2560×1920, but for one photograph at 1705×1705 |
-| Microns per pixel | Unknown |
+| Microns per pixel | Not published, and **not inferred**: the discs of a 32-photograph sample disagreed by 11.4% of their median, wider than the tenth this atlas accepts as one camera, so these photographs carry no scale at all ([evidence](../../results/um_resolution/mshf.json)). The handheld camera behaves unlike the tabletop one in the [quality benchmark](../benchmarks/quality-results.md) too |
 | Camera | A handheld device (DEC200 class) at 60° |
 | Field of view | 60° |
 | Centring | Mixed |

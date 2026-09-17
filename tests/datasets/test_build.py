@@ -1,6 +1,7 @@
 # ABOUTME: End-to-end test of a build, on a synthetic two-image dataset written to disk.
 # ABOUTME: Real files, real PNGs, real manifest — the only thing not real is the retina.
 
+import csv
 import json
 import shutil
 
@@ -503,3 +504,52 @@ def test_a_traced_outline_can_be_drawn_back_into_the_mask_it_came_from():
     redrawn = contours.rasterise(contours.trace(mask), mask.shape)
     overlap = (redrawn & (mask > 0)).sum() / (redrawn | (mask > 0)).sum()
     assert overlap > 0.98
+
+
+def test_a_rebuilt_store_recovers_an_inferred_scale_without_measuring_it_again(tmp_path) -> None:
+    """The measurement is committed; the store is a cache, and a build reads one into the other."""
+    from datasets.utils import resolution
+
+    store = tmp_path / "chaksu"
+    (store).mkdir(parents=True)
+    with open(store / manifest.MANIFEST, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(manifest.CORE_COLUMNS), restval="")
+        writer.writeheader()
+        writer.writerow(
+            {
+                "key": "a",
+                "subset": "main",
+                "native_width": "1920",
+                "native_height": "1440",
+                "crop_side": "1400",
+                "um_per_px": "",
+                "resolution_source": "unknown",
+            }
+        )
+    (store / "build.json").write_text(json.dumps({"builder_version": build.BUILDER_VERSION}))
+    directory = tmp_path / "um_resolution"
+    directory.mkdir()
+    (directory / "chaksu.json").write_text(
+        json.dumps(
+            {
+                "dataset": "chaksu",
+                "builder_version": build.BUILDER_VERSION,
+                "groups": [
+                    {
+                        "subset": "main",
+                        "native_width": 1920,
+                        "native_height": 1440,
+                        "accepted": True,
+                        "um_per_px": 8.61,
+                    }
+                ],
+            }
+        )
+    )
+
+    stamped = resolution.stamp(store, "chaksu", directory)
+
+    row = next(iter(manifest.read(store)))
+    assert stamped == 1
+    assert row["um_per_px"] == "8.610000"
+    assert row["resolution_source"] == "disc_anchored"

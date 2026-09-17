@@ -61,7 +61,7 @@ uv run python -m datasets.fqs --sizes 512,720,1024     # any sizes a model needs
 | | |
 | --- | --- |
 | Resolution (pixels) | About **1942×1942** in `full_size_images/`, and 1024×1024 in the `images/` copy |
-| Microns per pixel | Unknown |
+| Microns per pixel | Not published. **Inferred: 6.310 µm/px** — from the median optic disc of 31 photographs, [evidence](../../results/um_resolution/fqs.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Not stated |
 | Field of view | Not stated |
 | Centring | Mixed |

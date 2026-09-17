@@ -28,22 +28,28 @@ contract for the run itself, the JSON it commits, and what a biomarker may do wi
 
 1. **The command**, `uv run python -m datasets.fetch_um_resolution`, with the contract in section 3.
    The module is `src/datasets/fetch_um_resolution.py`. It is **not** a step inside
-   `python -m datasets.<slug>`: a store build must not load a disc model, and an inferred figure
-   must not be silently written into `manifest.csv`.
+   `python -m datasets.<slug>`: a store build must not load a disc model.
 2. **One committed JSON per dataset**, `results/um_resolution/<slug>.json`, with one entry per
    group (section 4). A summary table is a claim and this file is its evidence — the same rule as
    `results/` for benchmarks.
-3. **Tests** against synthetic discs of known size, never against a download, in
+3. **The stamp into the manifest**, by `datasets.utils.resolution.stamp` — see section 9.
+4. **Tests** against synthetic discs of known size, never against a download, in
    `tests/datasets/test_fetch_um_resolution.py`.
 
 Load this skill before adding or changing any of those.
 
 ## 2. When it runs, and when it must run again
 
-Run it for every catalogued dataset whose declared resolution source is not `published`. A
-dataset that published a scale is exempt: replacing an author's figure with an assumption about
-disc size is the error this split exists to prevent. Inheritance follows the parent; do not infer
-twice and disagree.
+Run it for every catalogued dataset whose declared resolution source is not `published`. A dataset
+that published a scale is exempt: replacing an author's figure with an assumption about disc size
+is the error this split exists to prevent. Inheritance follows the parent; do not infer twice and
+disagree.
+
+**Measuring and writing down are different questions.** A store whose scale this repository derived
+from a stated field angle is still measured — two independent derivations disagreeing is worth
+knowing, and section 10 is what that check found — but the figure is not written into its manifest,
+because `field_angle` outranks `disc_anchored`. Measure anything that is not `published`; stamp only
+rows whose source is empty or `unknown`.
 
 A fetcher that built a store with no published scale is **unfinished** until this command has
 produced a current JSON for that slug, or has recorded, in the same JSON, that a group could not
@@ -136,6 +142,7 @@ failed the gate into a dataset-level number.
   "dataset": "chaksu",
   "typical_disc_um": 1800,
   "model": "lunetv2-odc",
+  "builder_version": 6,
   "n_requested": 32,
   "seed": 0,
   "spread_gate": 0.10,
@@ -160,21 +167,52 @@ failed the gate into a dataset-level number.
 ```
 
 `keys` are the photographs actually measured, so a number in a paper can be traced to the
-outlines. Nothing in this file is a photograph.
+outlines. `builder_version` is the store those discs were measured on, and a stamp into a store
+built under another one is refused (section 7). Nothing in this file is a photograph.
 
 A group that was not accepted still occupies a row: `accepted` is false, `um_per_px` is absent,
 and `note` says why. Omitting the row would look like the group had not been tried.
 
-## 7. What a biomarker may and may not do with it
+## 7. What the manifest carries, and who puts it there
+
+The number lives in **two** places, and only one of them is its home.
+
+- **`results/um_resolution/<slug>.json` is the measurement**, committed, with the provenance no CSV
+  cell has room for: which model, which photographs, which gate, and a fingerprint of the facts
+  behind it.
+- **`manifest.csv` carries a copy**, in the `um_per_px` and `resolution_source` columns it already
+  has, so that a consumer reads one file rather than joining two and re-implementing the group
+  match. `resolution_source` is then `disc_anchored`, which is what tells a reader the figure is
+  ours rather than an author's.
+
+`datasets.utils.resolution.stamp` is the only thing that writes that copy, and it is called from
+exactly two places: this command, straight after it commits the JSON, and a store build, which
+copies from the committed file. **Neither computes anything.** Three rules keep the copy honest:
+
+- **A published or field-angle figure is never overwritten** — only an empty or `unknown` source is
+  replaced.
+- **A scale measured on a differently built store is refused**, by comparing the JSON's
+  `builder_version` with the store's: a changed crop changes the discs it was measured from.
+- **The grouping tolerance and the stamping tolerance are one constant**
+  (`resolution.SIZE_TOLERANCE`). They were briefly two, and the photographs whose discs made a
+  measurement possible were the ones left without it.
+
+A rebuilt store therefore comes back with the column filled and nothing re-measured, which is the
+whole reason the measurement is committed rather than cached.
+
+## 8. What a biomarker may and may not do with it
 
 Load `document-biomarker` as well. The rule here is only the scale:
 
-- **Published first.** If the store's `resolution_source` is `published`, use `um_per_px` from
-  the manifest. Do not override it with this JSON.
-- **Then this file.** If there is no published scale, use `um_per_px` from the matching accepted
-  group. Scale to the working size with `um_per_px_at` from `datasets.utils.resolution`.
-- **Otherwise pixels.** A missing file, a group that failed the gate, or a photograph that
-  matches no group: report pixels. Never invent a number to fill the gap.
+- **Read `resolution_source` before `um_per_px`.** The manifest carries both, and the source is
+  what says whether the number is an author's measurement, a field-angle derivation, or this
+  repository's disc assumption. A pipeline that reads the value and ignores the source is the
+  failure this column exists to prevent.
+- **Use `um_per_px` from the manifest**, whatever its source, scaled to the working size with
+  `um_per_px_at` from `datasets.utils.resolution`. The JSON is where to look for *how* a
+  `disc_anchored` figure was arrived at, not where to read it from.
+- **An empty `um_per_px` means pixels.** A group that failed its gate leaves its photographs with
+  no scale, which is honest; never invent a number to fill the gap.
 
 It **may** convert other measurements — vessel width, lesion size, disc–fovea distance — into
 microns for that camera.
@@ -186,7 +224,27 @@ It is a typical scale for the camera, not a per-eye millimetre calibration. Axia
 changes magnification. A high-myopia or paediatric subset will bias the 1,800 µm assumption; a
 glaucoma clinic usually will not, because glaucoma changes the cup, not the disc diameter.
 
-## 8. Where this is documented for a reader
+## 9. What the method is worth
+
+[PAPILA](../../docs/datasets/papila.md) is the one place this can be checked: its authors state a
+30° field, so a scale follows from the field diameter without any assumption about disc size, and
+this command's assumption can be measured against it.
+
+| Derivation | µm/px |
+| --- | --- |
+| From the stated 30° field | 3.777 (median; it is per image) |
+| From the median optic disc | 4.105 |
+
+**The two agree to 8.7%.** Read the other way: if the field angle is right, PAPILA's median disc is
+**1,656 µm** rather than the 1,800 µm assumed here — inside the population range, and the size of
+the error to expect from this method on a dataset with nothing to check it against. Quote a
+`disc_anchored` micron figure with that in mind: it is a camera scale good to roughly a tenth, not
+a calibration.
+
+Re-run this comparison whenever the typical disc, the disc model or the gate changes, and record
+what it becomes.
+
+## 10. Where this is documented for a reader
 
 - **`docs/DATASETS.md`** — that most datasets publish no scale, and that inference is per camera
   from the typical disc, with evidence in `results/um_resolution/`.

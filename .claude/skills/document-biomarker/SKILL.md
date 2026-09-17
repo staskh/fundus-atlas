@@ -56,11 +56,16 @@ Use `template.md` verbatim and keep its section numbering.
    - **the pixel grid** the segmentation was produced on (see the grid field on each model page —
      a width in pixels means nothing without it);
    - **a physical scale** (camera resolution in microns per pixel, or a disc-diameter
-     normalisation). These are different operations. A published `um_per_px` in the store comes
-     first. If the authors published none, a camera-level scale from
-     `results/um_resolution/<slug>.json` (the `fetch-um-resolution` skill) is the next source —
-     one number for the device, from that subset's median disc. Expressing a zone in *this
-     photograph's* disc diameters is a per-eye ruler and does not yield millimetres.
+     normalisation). These are different operations. The store's manifest carries `um_per_px` and,
+     beside it, `resolution_source` saying where that figure came from — `published` (the authors'
+     own), `field_angle` or `disc_anchored` (this repository's, the second inferred from a subset's
+     median disc by the `fetch-um-resolution` skill), or `unknown`, which means pixels. **Read the
+     source, not only the value**: a page that quotes microns without saying which of those it
+     rests on is quoting an assumption as a measurement, and a `disc_anchored` figure is good to
+     roughly a tenth. `results/um_resolution/<slug>.json` is where to see how one was arrived at.
+     Expressing a zone in *this photograph's* disc diameters is a per-eye ruler and does not yield
+     millimetres — and a disc size in millimetres must never be reported off a `disc_anchored`
+     scale, since that scale was made by assuming one.
    - **the field of view**, which changes how much retina is inside the frame.
    Say explicitly whether the biomarker is scale-invariant. A dimensionless ratio usually is; a
    width, area or length usually is not.

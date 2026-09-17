@@ -28,8 +28,15 @@ from the typical optic disc (about 1.8 mm across), one number per subcollection 
 that share a device and a similar pixel size. A sample of those photographs is outlined with
 [LUNet v2's disc segmenter](models/lunetv2-odc.md), and the median disc is kept only when the
 discs agree closely enough to trust as one camera. The evidence is committed under
-[`results/um_resolution/`](../results/um_resolution/); a biomarker uses it only when the dataset
-published no scale of its own.
+[`results/um_resolution/`](../results/um_resolution/), and the figure is copied into the store's
+manifest, where `resolution_source` says `disc_anchored` so that nobody mistakes it for an author's
+measurement.
+
+**What that inference is worth is measurable, once.** [PAPILA](datasets/papila.md) states a 30°
+field, so a scale follows from the field's diameter without assuming any disc size — and the two
+derivations agree to **8.7%**, its median disc coming out at 1,656 µm against the 1,800 µm assumed.
+Read every inferred figure in this catalogue as a camera scale good to roughly a tenth, and none of
+them as a per-eye calibration.
 
 ## 1. Summary
 

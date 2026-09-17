@@ -164,6 +164,10 @@ def run(
         readings.extend(record.readings)
 
     manifest.write(store, rows, extra_columns, readings)
+    # A camera scale inferred from the typical disc is committed in the repository rather than in
+    # this cache, so a rebuilt store recovers it by copying rather than by running a model. Nothing
+    # here measures anything: `fetch_um_resolution` does that, once, and this reads what it wrote.
+    _stamp_inferred(store, slug)
     checked = None
     if verify is not None:
         print(f"{slug}: checking the store against what the dataset published", file=sys.stderr)
@@ -496,6 +500,17 @@ def _scale(um_per_px: float | None) -> str:
 def _resize(layer: str, frame: np.ndarray, size: int) -> np.ndarray:
     """Photographs are interpolated; every other layer is a set of labels and is not."""
     return resample.photograph(frame, size) if layer == "images" else resample.mask(frame, size)
+
+
+def _stamp_inferred(store: Path, slug: str) -> None:
+    """Copy this dataset's committed camera scale into the rows it was measured from, if any."""
+    try:
+        stamped = resolution.stamp(store, slug)
+    except ValueError as stale:
+        print(f"warning: {stale}", file=sys.stderr)
+        return
+    if stamped:
+        print(f"{slug}: {stamped} rows carry the inferred camera scale", file=sys.stderr)
 
 
 def _write_build_json(store, args, provenance, images, warnings, checked=None) -> None:
