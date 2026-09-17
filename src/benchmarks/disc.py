@@ -87,12 +87,6 @@ WORTH_FETCHING = (
     ),
 )
 
-#: How many photographs are measured before what has been measured is written down. A pair of a
-#: thousand photographs is hours of work, and a machine that runs out of memory at nine hundred
-#: must not cost all of it: a written partial result is what the next run finishes rather than
-#: repeats.
-CHECKPOINT = 50
-
 #: How many photographs go to the model at once. Lower than the quality benchmark's: these models
 #: work at 512 or 1024 and their outputs are resampled to native, which is where the memory goes.
 BATCH = 4
@@ -292,8 +286,8 @@ def _outline(
 ) -> list[dict[str, object]]:
     """Every photograph still to be scored, measured against each reader who drew on it.
 
-    What has been measured is written down every :data:`CHECKPOINT` photographs, so that a run the
-    machine stops part-way through is one the next run finishes rather than starts again.
+    What has been measured is written down every :data:`runs.CHECKPOINT` photographs, so that a run
+    the machine stops part-way through is one the next run finishes rather than starts again.
     """
     rows = []
     since = 0
@@ -311,7 +305,7 @@ def _outline(
             _keep(masks, key, answers[index])
             rows.extend(_rows(key, sample, index, answers[index], note))
         since += len(sample["key"])
-        if since >= CHECKPOINT:
+        if since >= runs.CHECKPOINT:
             record_so_far(rows)
             since = 0
     return rows

@@ -306,7 +306,7 @@ def test_a_run_stopped_part_way_keeps_what_it_had_measured(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A pair of a thousand photographs must not lose a night's work to a kill at nine hundred."""
-    monkeypatch.setattr(disc, "CHECKPOINT", 1)
+    monkeypatch.setattr(runs, "CHECKPOINT", 1)
     store = a_store(tmp_path, keys="abcd")
 
     with pytest.raises(KeyboardInterrupt):
@@ -328,7 +328,7 @@ def test_a_run_stopped_part_way_keeps_what_it_had_measured(
 def test_the_next_run_finishes_what_the_kill_left(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(disc, "CHECKPOINT", 1)
+    monkeypatch.setattr(runs, "CHECKPOINT", 1)
     store = a_store(tmp_path, keys="abcd")
     with pytest.raises(KeyboardInterrupt):
         disc.run(

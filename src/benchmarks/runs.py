@@ -13,6 +13,11 @@ from pathlib import Path
 #: dataset.
 RESULTS = Path(__file__).resolve().parents[2] / "results"
 
+#: How many photographs a run measures before writing down what it has measured. A pair of a
+#: thousand photographs is hours of work, and a machine that stops at nine hundred must not cost
+#: all of it: a written partial result is what the next run finishes rather than repeats.
+CHECKPOINT = 50
+
 #: Where a run's own record and anything too large to commit is kept.
 RUNS = Path(__file__).resolve().parents[2] / ".atlas_runs"
 

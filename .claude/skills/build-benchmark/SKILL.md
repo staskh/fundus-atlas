@@ -186,6 +186,13 @@ it counts — the exclusions of section 2. The three relate as `processed ≤ to
 `total + excluded` is what the store holds: a photograph is either one the benchmark asks about
 or one it excluded, never both and never neither.
 
+**What has been measured is written down before the pair finishes.** A model on a dataset of a
+thousand photographs is hours of work, and a machine that runs out of memory at nine hundred must
+not cost all of it. Every fifty photographs, the run writes the evidence it has, marked incomplete —
+which is exactly the partial result the resume rule above already knows how to finish. The test for
+it is the failure itself: a model the machine stops part-way through, and a second run that measures
+only what the first never reached.
+
 **Every result also records how long the model took**, as `seconds_per_photograph` and the
 `timed_photographs` that number covers. A gate that takes a tenth of a second and one that takes
 four are not interchangeable in front of a study of fifty thousand photographs, whatever their

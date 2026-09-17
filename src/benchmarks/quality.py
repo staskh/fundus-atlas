@@ -4,7 +4,7 @@
 import json
 import sys
 import time
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -205,25 +205,41 @@ def _pair(
     loader.restrict({row["key"] for row in loader.rows} - done)
 
     timed = runs.Timing()
+    stored = runs.read(results, NAME, adapter.slug, slug) if kept else None
+
+    def record_so_far(fresh: list[dict[str, object]]) -> dict[str, object]:
+        """Write down everything scored to this point, complete or not."""
+        evidence = sorted(kept + fresh, key=lambda entry: entry["key"])
+        counted = runs.counts(len(evidence), loader.total, loader.excluded)
+        described = {
+            **scoring.summarise(
+                {entry["key"]: entry["grade"] for entry in evidence},
+                [scoring.restored(entry) for entry in evidence],
+            ),
+            **runs.kept_timing(stored, timed),
+            "device": declared.get("device"),
+        }
+        runs.write(results, NAME, adapter.slug, slug, identity, {**described, **counted}, evidence)
+        return {"counts": counted, "summary": described, "evidence": evidence}
+
     if len(loader):
         print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
-        fresh = _rows(loader, _grade(adapter, loader, batch, timed))
+        fresh = _rows(
+            loader,
+            _grade(
+                adapter,
+                loader,
+                batch,
+                timed,
+                lambda graded: record_so_far(_rows(loader, graded)),
+            ),
+        )
     else:
         print(f"{adapter.slug} × {slug}: kept, nothing left to measure", flush=True)
         fresh = []
 
-    evidence = sorted(kept + fresh, key=lambda entry: entry["key"])
-    counts = runs.counts(len(evidence), loader.total, loader.excluded)
-    stored = runs.read(results, NAME, adapter.slug, slug) if kept else None
-    summary = {
-        **scoring.summarise(
-            {entry["key"]: entry["grade"] for entry in evidence},
-            [scoring.restored(entry) for entry in evidence],
-        ),
-        **runs.kept_timing(stored, timed),
-        "device": declared.get("device"),
-    }
-    runs.write(results, NAME, adapter.slug, slug, identity, {**summary, **counts}, evidence)
+    written = record_so_far(fresh)
+    counts, summary, evidence = written["counts"], written["summary"], written["evidence"]
     return {
         "model": adapter.slug,
         "dataset": slug,
@@ -257,13 +273,27 @@ FINGERPRINTED = (
 )
 
 
-def _grade(adapter, loader: QualityLoader, batch: int, timed: runs.Timing) -> list:
-    """Every photograph still to be scored, in batches at the model's own grid."""
-    graded = []
+def _grade(
+    adapter,
+    loader: QualityLoader,
+    batch: int,
+    timed: runs.Timing,
+    record_so_far: Callable[[list], object],
+) -> list:
+    """Every photograph still to be scored, in batches at the model's own grid.
+
+    What has been scored is written down every :data:`runs.CHECKPOINT` photographs, so that a run
+    the machine stops part-way through is one the next run finishes rather than starts again.
+    """
+    graded, since = [], 0
     for sample in DataLoader(loader, batch_size=batch, collate_fn=collate, shuffle=False):
         started = time.perf_counter()
         graded.extend(adapter.grade(sample["image"], sample["key"]))
         timed.record(time.perf_counter() - started, len(sample["key"]))
+        since += len(sample["key"])
+        if since >= runs.CHECKPOINT:
+            record_so_far(graded)
+            since = 0
     return graded
 
 
