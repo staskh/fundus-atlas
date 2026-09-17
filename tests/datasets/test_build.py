@@ -12,7 +12,7 @@ from PIL import Image
 from datasets.utils import archives, av, build, cli, contours, fov, manifest, quality, resolution
 
 
-def a_dataset(tmp_path):
+def a_dataset(tmp_path, fov=False):
     raw = tmp_path / "raw"
     raw.mkdir()
     for key, cx in (("a", 150), ("b", 160)):
@@ -23,6 +23,10 @@ def a_dataset(tmp_path):
         vessels = np.zeros((300, 300), dtype=np.uint8)
         vessels[145:155, 100:200] = 255
         Image.fromarray(vessels).save(raw / f"{key}_vessels.png")
+        if fov:
+            field = np.zeros((300, 300), dtype=np.uint8)
+            field[(xx - cx) ** 2 + (yy - 150) ** 2 <= 100**2] = 255
+            Image.fromarray(field).save(raw / f"{key}_fov.png")
     return raw
 
 
@@ -32,7 +36,10 @@ def discover(layers):
         build.SourceRecord(
             key=key,
             image=raw / f"{key}.png",
-            maps={"vessels": raw / f"{key}_vessels.png"},
+            maps={
+                "vessels": raw / f"{key}_vessels.png",
+                **({"fov": raw / f"{key}_fov.png"} if (raw / f"{key}_fov.png").exists() else {}),
+            },
             patient=f"p{key}",
             eye="od",
             extras={"artifact": "0"},
@@ -41,7 +48,7 @@ def discover(layers):
     ]
 
 
-def build_it(tmp_path, *argv):
+def build_it(tmp_path, *argv, fov_from_mask=False):
     args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", *argv])
     build.run(
         slug="synthetic",
@@ -49,7 +56,7 @@ def build_it(tmp_path, *argv):
         discover=discover,
         resolution_of=resolution.Declared(5.0, "published", "stated in the paper"),
         args=args,
-        fov_strategy=fov.DETECT,
+        fov_strategy=fov.FROM_MASK if fov_from_mask else fov.DETECT,
         quality_rule=quality.FromComponents({"artifact": "0"}),
         extra_columns=[manifest.Column("artifact", "0 is best")],
         skipped=["an ultra-wide-field split"],
@@ -597,3 +604,26 @@ def test_an_artery_vein_map_becomes_three_masks(tmp_path) -> None:
     assert sorted(frames) == ["artery", "vein", "vessels"]
     assert frames["artery"][5].all() and frames["vein"][5].all(), "the crossing is in both"
     assert frames["vessels"][[1, 3, 5]].all()
+
+
+def test_a_published_mask_is_never_replaced_by_a_derived_one(tmp_path) -> None:
+    """HRF draws its vessels by hand and a second group separated its arteries years later.
+
+    Expanding the artery/vein map produces a `vessels` union too, and letting that overwrite the
+    hand-drawn gold standard would turn two independent annotations into one measured twice.
+    """
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"})
+    drawn = build.as_masks(np.zeros((4, 4, 3), dtype=np.uint8), palette, "av")
+
+    assert "vessels" in drawn, "the union is produced"
+    assert build.published_wins({"vessels", "fov"}, drawn) == {"artery", "vein"}, (
+        "and dropped where the dataset published its own"
+    )
+
+
+def test_a_field_of_view_taken_from_a_published_mask_says_so(tmp_path) -> None:
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path, fov=True)), fov_from_mask=True)
+
+    row = next(iter(manifest.read(store)))
+
+    assert row["fov_source"] == "mask", "not 'detected': the dataset drew this one"

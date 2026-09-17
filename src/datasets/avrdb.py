@@ -101,8 +101,11 @@ def discover(layers: dict[str, Path]) -> list[build.SourceRecord]:
     for stem in sorted(held):
         files = held[stem]
         photograph = next(
-            (member for name, member in files.items() if "--" not in name
-             and name.lower().endswith((".jpg", ".jpeg"))),
+            (
+                member
+                for name, member in files.items()
+                if "--" not in name and name.lower().endswith((".jpg", ".jpeg"))
+            ),
             None,
         )
         if photograph is None:

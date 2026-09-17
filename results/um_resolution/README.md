@@ -12,9 +12,11 @@ accepted group here, with `resolution_source` set to `disc_anchored`, so a consu
 rather than joining two — and a rebuilt store recovers the figure without measuring anything again.
 A published or field-angle figure is never overwritten.
 
-**What it is worth:** on [PAPILA](../../docs/datasets/papila.md), the one dataset here whose stated
-field angle gives an independent scale, the two derivations agree to **5.8%** — its median disc
-measures 1,702 µm under the field-angle scale, against the 1,800 µm assumed here. Treat a figure
-from this directory as a camera scale good to roughly a tenth, not a calibration.
+**What it is worth:** two datasets state a field angle, which gives an independent scale. On
+[PAPILA](../../docs/datasets/papila.md) the two derivations agree to **5.8%**; on
+[HRF](../../docs/datasets/hrf.md) they differ by **21%** — under HRF's stated 45° its median disc
+would be 1,490 µm rather than the 1,800 µm assumed here, and under the disc figure its field would
+span 54°. Treat a figure from this directory as a camera scale good to somewhere between a
+twentieth and a fifth, never as a calibration.
 
 Nothing here is a photograph.

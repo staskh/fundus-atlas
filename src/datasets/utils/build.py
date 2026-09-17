@@ -7,7 +7,7 @@ import multiprocessing
 import shutil
 import sys
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path
@@ -110,6 +110,16 @@ def as_masks(pixels: np.ndarray, reader: object, name: str = "av") -> dict[str, 
     crossing belonging to both.
     """
     return reader.masks(pixels, name)
+
+
+def published_wins(declared: set[str], derived: dict[str, np.ndarray]) -> set[str]:
+    """Which of a reader's masks to keep, given what the dataset published in its own right.
+
+    Expanding an artery/vein map yields a vessel union as well, and where the dataset drew its own
+    vessels — HRF did, by hand, years before anyone separated its arteries — the union must not
+    replace it. Two independent annotations are worth more than one of them measured twice.
+    """
+    return {kind for kind in derived if kind not in declared}
 
 
 def run(
@@ -374,7 +384,9 @@ def _build_one(
         footprint = np.full(image.shape[:2], 255, dtype=np.uint8)
     elif fov_strategy == fov.FROM_MASK and "fov" in record.maps:
         published = _read(_handle(record.maps["fov"], raw), "L")
-        circle = fov.detect(np.dstack([published] * 3))
+        # The geometry is fitted to the dataset's own mask, so the row says `mask` rather than
+        # `detected`: what was found is theirs, and only the circle through it is ours.
+        circle = replace(fov.detect(np.dstack([published] * 3)), source=fov.FROM_MASK)
         footprint = np.where(published > 0, 255, 0).astype(np.uint8)
     else:
         circle = fov.detect(image)
@@ -387,10 +399,11 @@ def _build_one(
             continue
         if name in readers:
             drawn_as = readers[name].masks(_read(_handle(source, raw), "RGB"), name)
+            drawn_as = {kind: drawn_as[kind] for kind in published_wins(set(record.maps), drawn_as)}
         else:
             drawn_as = {name: _read(_handle(source, raw), "L")}
-        for kind, published in drawn_as.items():
-            frames[kind] = crop.apply(published, square)
+        for kind, found in drawn_as.items():
+            frames[kind] = crop.apply(found, square)
 
     for size in [paths.NATIVE, *sizes]:
         for name, frame in frames.items():

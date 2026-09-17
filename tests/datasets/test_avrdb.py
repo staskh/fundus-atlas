@@ -45,14 +45,17 @@ def an_archive(
             archive.writestr(f"{here}.JPG", a_photograph())
             named = {name: spelling.get(name, name) for name in ("arteries", "veins", "vessels")}
             if drop != "arteries":
-                archive.writestr(f"{here}--{named['arteries']}.jpg",
-                                 a_drawing((237, 27, 36), slice(10, 14)))
+                archive.writestr(
+                    f"{here}--{named['arteries']}.jpg", a_drawing((237, 27, 36), slice(10, 14))
+                )
             if drop != "veins":
-                archive.writestr(f"{here}--{named['veins']}.jpg",
-                                 a_drawing((45, 49, 146), slice(12, 16)))
+                archive.writestr(
+                    f"{here}--{named['veins']}.jpg", a_drawing((45, 49, 146), slice(12, 16))
+                )
             if drop != "vessels":
-                archive.writestr(f"{here}--{named['vessels']}.jpg",
-                                 a_drawing((35, 31, 32), slice(10, 16)))
+                archive.writestr(
+                    f"{here}--{named['vessels']}.jpg", a_drawing((35, 31, 32), slice(10, 16))
+                )
             archive.writestr(f"{here}--both.jpg", a_photograph())
             archive.writestr(f"{here}.ai", b"%PDF-1.5 not an annotation")
     return path
@@ -120,8 +123,12 @@ def test_a_drawing_filed_under_another_photographs_name_is_still_found(tmp_path:
     with zipfile.ZipFile(path, "a") as archive:
         archive.writestr("AV/IM000168/IM000168.JPG", a_photograph())
         archive.writestr("AV/IM000168/IM000999--veins.jpg", a_drawing((45, 49, 146), slice(12, 16)))
-        archive.writestr("AV/IM000168/IM000168--arteries.jpg", a_drawing((237, 27, 36), slice(10, 14)))
-        archive.writestr("AV/IM000168/IM000168--vessels.jpg", a_drawing((35, 31, 32), slice(10, 16)))
+        archive.writestr(
+            "AV/IM000168/IM000168--arteries.jpg", a_drawing((237, 27, 36), slice(10, 14))
+        )
+        archive.writestr(
+            "AV/IM000168/IM000168--vessels.jpg", a_drawing((35, 31, 32), slice(10, 16))
+        )
 
     found = {record.key: record for record in avrdb.discover({avrdb.SLUG: path})}
 

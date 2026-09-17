@@ -64,14 +64,14 @@ def test_a_palette_naming_a_class_that_does_not_exist_is_refused() -> None:
         av.Palette({(255, 0, 0): "capillary"})
 
 
-def test_nearly_black_is_treated_as_the_colour_it_is_closest_to() -> None:
-    """Published maps are saved as JPEG or through editors, so colours arrive a shade off."""
+def test_a_colour_a_shade_off_is_treated_as_the_one_it_came_from() -> None:
+    """Published maps are saved through editors and lossy formats, so colours arrive a shade off."""
     palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"})
     pixels = np.zeros((1, 3, 3), dtype=np.uint8)
     pixels[0, 0] = (250, 4, 6)
     pixels[0, 1] = (3, 2, 251)
 
-    labels = palette.labels(pixels, tolerance=12)
+    labels = palette.labels(pixels)
 
     assert list(labels[0]) == [1, 2, 0]
 
@@ -168,3 +168,54 @@ def test_how_dark_counts_as_ink_can_be_said_where_a_dataset_needs_it() -> None:
 
     assert av.Ink(threshold=100).masks(faint, "vessels")["vessels"].any() is np.False_
     assert av.Ink(threshold=40).masks(faint, "vessels")["vessels"][0, 0]
+
+
+def test_an_anti_aliased_stroke_is_read_as_the_colour_it_fades_from() -> None:
+    """Three of HRF-AV's 45 maps were saved with anti-aliased strokes, so their edges run the whole
+    ramp from a class colour down to the background: (60, 60, 217), (60, 60, 158), (22, 22, 253).
+
+    A pixel is therefore read as the class whose ramp it lies on, not as the colour it is nearest:
+    a flat distance either refuses half the ramp or swallows colours nobody declared.
+    """
+    ramp = np.array([[[60, 60, 217], [60, 60, 158], [0, 0, 40], [253, 22, 22]]], dtype=np.uint8)
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"}, tolerance=64)
+
+    masks = palette.masks(ramp)
+
+    assert list(masks["vein"][0] > 0) == [True, True, True, False], "blue, all the way down"
+    assert masks["artery"][0, 3]
+
+
+def test_a_pixel_nearer_the_background_than_any_stroke_is_background() -> None:
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"}, tolerance=64)
+
+    masks = palette.masks(np.array([[[43, 43, 43], [2, 2, 2]]], dtype=np.uint8))
+
+    assert not masks["vessels"].any(), "grey is equally far from every ramp, so it is the page"
+
+
+def test_a_colour_on_no_ones_ramp_is_still_refused() -> None:
+    """The guard is what catches a map that has grown a class — white, say, for uncertain.
+
+    It survives a widened tolerance: white sits 255 off every ramp a red-and-blue palette declares.
+    """
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"}, tolerance=64)
+
+    with pytest.raises(ValueError, match="255, 255, 255"):
+        palette.masks(np.array([[[255, 255, 255]]], dtype=np.uint8))
+
+
+def test_with_the_guard_open_a_grey_falls_to_the_background() -> None:
+    """HRF-AV's three anti-aliased maps need every pixel assigned rather than any refused.
+
+    A grey is equally far from every ramp, so it lands on the background — which is what a stray
+    pixel between two strokes should be — while a blend still lands on the colour it came from.
+    """
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"}, tolerance=256)
+
+    masks = palette.masks(
+        np.array([[[231, 231, 231], [74, 74, 74], [60, 60, 217], [253, 22, 22]]], dtype=np.uint8)
+    )
+
+    assert list(masks["vessels"][0] > 0) == [False, False, True, True]
+    assert masks["vein"][0, 2] and masks["artery"][0, 3]

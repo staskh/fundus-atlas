@@ -10,17 +10,17 @@ import numpy as np
 #: the store does not make those.
 CLASSES = ("background", "artery", "vein", "crossing", "uncertain")
 
+#: How far off a declared colour's ramp a pixel may sit and still be taken for it. A map saved
+#: without loss needs none of this; one that has been through an editor or a lossy format arrives a
+#: shade off, and this is how much of that is tolerated before a colour counts as one nobody
+#: declared.
+TOLERANCE = 12
+
 #: How far from white a pixel must be before it counts as something somebody drew. Several datasets
 #: publish their annotation as a drawing on a white page rather than as a mask, saved as JPEG, so
 #: every stroke carries a halo of compression around it. The threshold sits well above the halo and
 #: well below the ink: on AVRDB, moving it from 40 to 90 changes the area by about 3%.
 INK = 60
-
-#: How far a published colour may sit from the one a dataset declared and still be taken for it, as
-#: the largest difference on any one channel. Maps come back a shade off when they have been through
-#: an editor or a lossy format; this is wide enough for that and far narrower than the gap between
-#: any two classes in the palettes catalogued here.
-TOLERANCE = 12
 
 #: The classes that are vessel, whatever kind. A vessel map derived here is exactly their union.
 VESSEL = ("artery", "vein", "crossing", "uncertain")
@@ -85,9 +85,17 @@ class Palette:
     :data:`CLASSES` so that every store reads alike.
 
     :param colours: RGB tuple to class name. Black is background and need not be declared.
+    :param tolerance: how far a pixel may sit from a declared colour and still be taken for it, on
+        the channel furthest away. The default suits a map saved without loss; a dataset whose
+        strokes are anti-aliased declares its own. It cannot move a pixel to the wrong class, since
+        the colours a palette declares are separated by 255 on some channel — it can only decide
+        whether an edge pixel is refused or assigned.
     """
 
-    def __init__(self, colours: dict[tuple[int, int, int], str]) -> None:
+    def __init__(
+        self, colours: dict[tuple[int, int, int], str], tolerance: int = TOLERANCE
+    ) -> None:
+        self.tolerance = tolerance
         unknown = sorted({name for name in colours.values() if name not in CLASSES})
         if unknown:
             raise ValueError(f"{', '.join(unknown)} is not one of {CLASSES}")
@@ -95,30 +103,44 @@ class Palette:
 
     def masks(self, pixels: np.ndarray, name: str = "av") -> dict[str, np.ndarray]:
         """The store's binary masks for one published map, translated from this dataset's colours."""
-        return binaries(self.labels(pixels, tolerance=TOLERANCE))
+        return binaries(self.labels(pixels, tolerance=self.tolerance))
 
-    def labels(self, pixels: np.ndarray, tolerance: int = 0) -> np.ndarray:
+    def labels(self, pixels: np.ndarray, tolerance: int | None = None) -> np.ndarray:
         """Translate one published map into stored class indices.
 
-        :param tolerance: how far a pixel may sit from a declared colour and still be taken for it,
-            as the largest difference on any one channel — the same measure `utils.fov` uses for the
-            surround. Published maps come back a shade off when they have been through an editor or
-            a lossy format; anything further away is a colour nobody declared.
-        :raises ValueError: on a colour this palette does not explain, naming it. A map that has
-            grown a class is a thing to look at rather than to quietly call background.
-        """
-        flat = pixels.reshape(-1, 3).astype(np.int16)
-        declared = np.array(list(self.colours), dtype=np.int16)
-        meanings = [index(name) for name in self.colours.values()]
+        A pixel is read as **the class whose ramp it lies on**: the segment from the background
+        colour to that class's own. Maps saved with anti-aliased strokes have edges running the
+        whole length of such a ramp — HRF-AV's blue strokes fade through (60, 60, 217) and
+        (60, 60, 158) — and a flat distance from the declared colour either refuses half of every
+        edge or is loosened until it swallows colours nobody declared. Distance off the ramp is
+        what :data:`TOLERANCE` measures.
 
-        distance = np.abs(flat[:, None, :] - declared[None, :, :]).max(axis=2)
-        nearest = distance.argmin(axis=1)
-        found = distance[np.arange(len(flat)), nearest]
+        :raises ValueError: on a colour lying off every ramp, naming it. A map that has grown a
+            class is a thing to look at rather than to quietly call background.
+        """
+        tolerance = self.tolerance if tolerance is None else tolerance
+        flat = pixels.reshape(-1, 3).astype(np.float64)
+        background = np.array(_named(self.colours, "background"), dtype=np.float64)
+        drawn = [(colour, name) for colour, name in self.colours.items() if name != "background"]
+
+        # Distance to the background itself, and to each class's ramp from it.
+        offsets = [np.abs(flat - background).max(axis=1)]
+        meanings = [index("background")]
+        for colour, name in drawn:
+            direction = np.array(colour, dtype=np.float64) - background
+            along = ((flat - background) @ direction) / max(float(direction @ direction), 1e-9)
+            on_ramp = background + np.clip(along, 0.0, 1.0)[:, None] * direction
+            offsets.append(np.abs(flat - on_ramp).max(axis=1))
+            meanings.append(index(name))
+
+        off = np.vstack(offsets)
+        nearest = off.argmin(axis=0)
+        found = off[nearest, np.arange(off.shape[1])]
         if (found > tolerance).any():
             colour = flat[np.argmax(found > tolerance)]
             raise ValueError(
-                f"the map holds ({', '.join(str(int(v)) for v in colour)}), which this palette "
-                f"does not explain: {self.colours}"
+                f"the map holds ({', '.join(str(int(v)) for v in colour)}), which lies off every "
+                f"ramp this palette declares: {self.colours}"
             )
         return np.take(meanings, nearest).astype(np.uint8).reshape(pixels.shape[:2])
 
@@ -142,3 +164,11 @@ class Ink:
         """The one mask this file holds, under the name the fetcher asked for it by."""
         distance = np.abs(pixels.astype(np.int16) - np.array(self.page, dtype=np.int16)).max(axis=2)
         return {name: _written(distance > self.threshold)}
+
+
+def _named(colours: dict[tuple[int, int, int], str], wanted: str) -> tuple[int, int, int]:
+    """The colour a palette gives one class, for the background it always declares."""
+    for colour, name in colours.items():
+        if name == wanted:
+            return colour
+    return (0, 0, 0)
