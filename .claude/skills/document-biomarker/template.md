@@ -42,7 +42,7 @@ convention where implementations differ.>
 
 - **Unit as computed:** <pixels / microns / degrees / dimensionless>
 - **Depends on the pixel grid:** <Yes/No — and which model grid produced the mask>
-- **Depends on a physical scale:** <Yes/No — microns per pixel, or disc-diameter normalisation>
+- **Depends on a physical scale:** <Yes/No — published µm/px, else `results/um_resolution/`, else this photograph's disc as a ruler; say which>
 - **Depends on field of view:** <Yes/No>
 - **Scale-invariant:** <Yes/No>
 

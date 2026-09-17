@@ -30,7 +30,7 @@ no weights are published** (section 7), so nothing here is measurable and nothin
 
 - **Code:** the `LICENSE` file is the **Apache License 2.0** — permissive, commercial use allowed.
 - **README:** "This project is licensed under the Creative Commons Attribution-NonCommercial 4.0
-  International License, [see LICENSE file](LICENSE), **which prohibits commercial use**" — pointing
+  International License, see LICENSE file, **which prohibits commercial use**" — pointing
   at that same Apache file, which prohibits no such thing.
 - **Model weights:** not published, so no licence applies to anything downloadable.
 

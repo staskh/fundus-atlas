@@ -101,7 +101,13 @@ def a_store(tmp_path: Path, keys: str = "ab") -> Path:
 
 
 def test_a_run_scores_every_photograph_against_every_reader(tmp_path: Path) -> None:
-    scored = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
+    scored = disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
+    )
 
     assert scored[0]["summary"]["photographs"] == 2
     assert scored[0]["summary"]["outlines"] == 4, "two photographs, two readers each"
@@ -109,7 +115,13 @@ def test_a_run_scores_every_photograph_against_every_reader(tmp_path: Path) -> N
 
 
 def test_the_evidence_names_the_reader_each_row_is_scored_against(tmp_path: Path) -> None:
-    disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
+    disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
+    )
 
     evidence = runs.rows(tmp_path / "results", disc.NAME, "circles", "papila")
 
@@ -124,7 +136,13 @@ def test_the_evidence_names_the_reader_each_row_is_scored_against(tmp_path: Path
 
 
 def test_the_measurements_are_made_in_the_frame_the_expert_drew_in(tmp_path: Path) -> None:
-    disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
+    disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
+    )
 
     evidence = runs.rows(tmp_path / "results", disc.NAME, "circles", "papila")
 
@@ -135,7 +153,11 @@ def test_the_measurements_are_made_in_the_frame_the_expert_drew_in(tmp_path: Pat
 
 def test_a_model_that_falls_over_is_recorded_rather_than_dropped(tmp_path: Path) -> None:
     scored = disc.run(
-        [Circles(fails=True)], ["papila"], results=tmp_path / "results", root=a_store(tmp_path)
+        [Circles(fails=True)],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
     )
 
     evidence = runs.rows(tmp_path / "results", disc.NAME, "circles", "papila")
@@ -147,18 +169,31 @@ def test_a_model_that_falls_over_is_recorded_rather_than_dropped(tmp_path: Path)
 
 def test_a_second_run_measures_nothing_that_is_already_complete(tmp_path: Path) -> None:
     store = a_store(tmp_path)
-    disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+    disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
 
-    scored = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+    scored = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
 
     assert scored[0]["measured"] == 0
 
 
 def test_a_sampled_run_is_finished_rather_than_repeated(tmp_path: Path) -> None:
     store = a_store(tmp_path)
-    disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store, max_samples=1)
+    disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=store,
+        max_samples=1,
+        record=tmp_path / "runs",
+    )
 
-    scored = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+    scored = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
 
     assert scored[0]["measured"] == 1, "only the photograph that was missing"
     assert scored[0]["counts"]["complete"] is True
@@ -166,9 +201,17 @@ def test_a_sampled_run_is_finished_rather_than_repeated(tmp_path: Path) -> None:
 
 def test_changed_weights_throw_away_what_was_measured(tmp_path: Path) -> None:
     store = a_store(tmp_path)
-    disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+    disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
 
-    scored = disc.run([Circles(radius=0.3)], ["papila"], results=tmp_path / "results", root=store)
+    scored = disc.run(
+        [Circles(radius=0.3)],
+        ["papila"],
+        results=tmp_path / "results",
+        root=store,
+        record=tmp_path / "runs",
+    )
 
     assert scored[0]["measured"] == 2
 
@@ -209,7 +252,13 @@ def test_the_page_saying_how_it_is_run_describes_what_is_measured(tmp_path: Path
 
 
 def test_the_index_reports_what_a_disc_run_measured(tmp_path: Path) -> None:
-    disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
+    disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
+    )
 
     written = report.write_index(results=tmp_path / "results", into=tmp_path / "docs").read_text()
 
@@ -219,7 +268,13 @@ def test_the_index_reports_what_a_disc_run_measured(tmp_path: Path) -> None:
 
 
 def test_a_run_records_how_long_the_model_took_per_photograph(tmp_path: Path) -> None:
-    scored = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=a_store(tmp_path))
+    scored = disc.run(
+        [Circles()],
+        ["papila"],
+        results=tmp_path / "results",
+        root=a_store(tmp_path),
+        record=tmp_path / "runs",
+    )
 
     assert scored[0]["summary"]["seconds_per_photograph"] > 0
     assert scored[0]["summary"]["timed_photographs"] == 2
@@ -227,9 +282,13 @@ def test_a_run_records_how_long_the_model_took_per_photograph(tmp_path: Path) ->
 
 def test_a_run_that_measured_nothing_keeps_the_timing_it_had(tmp_path: Path) -> None:
     store = a_store(tmp_path)
-    first = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+    first = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
 
-    again = disc.run([Circles()], ["papila"], results=tmp_path / "results", root=store)
+    again = disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
 
     assert again[0]["summary"]["seconds_per_photograph"] == pytest.approx(
         first[0]["summary"]["seconds_per_photograph"]

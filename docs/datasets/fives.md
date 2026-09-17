@@ -39,7 +39,7 @@ one carrying the quality spreadsheet.
 | | |
 | --- | --- |
 | Resolution (pixels) | 2048×2048, PNG |
-| Microns per pixel | Unknown — not published |
+| Microns per pixel | Not published. **Inferred: 6.270 µm/px** — from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/fives.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Topcon TRC-NW8, tabletop non-mydriatic |
 | Field of view | 50° |
 | Centring | Macula-centred |

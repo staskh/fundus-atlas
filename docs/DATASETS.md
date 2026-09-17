@@ -1,11 +1,12 @@
 # Datasets
 
 Published collections of colour-fundus photographs. Each row links to a detail page recording what
-the images are — camera, resolution, field of view, microns per pixel where anyone published it —
+the images are — camera, resolution, field of view, microns per pixel where anyone published it
+or where this catalogue inferred it —
 what is annotated and by how many readers, whose photographs the collection reuses, its licence, and
 whether it can be downloaded directly.
 
-Three things about this catalogue are worth reading before the table.
+Four things about this catalogue are worth reading before the table.
 
 **Every licence is different, and several are not stated at all.** A public download is not
 permission to redistribute or to use commercially. The Licence column records what the distributor
@@ -18,6 +19,24 @@ where the reused copies were resized — a resized copy is a different set of pi
 **A dataset a model trained on cannot measure that model.** Each detail page names the catalogued
 models trained on its images, so a score can be read as in-sample or held out. That single fact
 decides what any comparison in [MODELS.md](MODELS.md) is worth.
+
+**Most datasets do not say how many microns of retina a pixel covers.** Without that figure, a
+vessel width or a lesion size in pixels cannot be turned into millimetres, and numbers from two
+cameras cannot be read against each other. Where the authors published a scale, the detail page
+records it. Where they did not — the majority — this catalogue infers a **camera-level** scale
+from the typical optic disc (about 1.8 mm across), one number per subcollection of photographs
+that share a device and a similar pixel size. A sample of those photographs is outlined with
+[LUNet v2's disc segmenter](models/lunetv2-odc.md), and the median disc is kept only when the
+discs agree closely enough to trust as one camera. The evidence is committed under
+[`results/um_resolution/`](../results/um_resolution/), and the figure is copied into the store's
+manifest, where `resolution_source` says `disc_anchored` so that nobody mistakes it for an author's
+measurement.
+
+**What that inference is worth is measurable, once.** [PAPILA](datasets/papila.md) states a 30°
+field, so a scale follows from the field's diameter without assuming any disc size — and the two
+derivations agree to **5.8%**, its median disc coming out at 1,702 µm against the 1,800 µm assumed.
+Read every inferred figure in this catalogue as a camera scale good to roughly a tenth, and none of
+them as a per-eye calibration.
 
 ## 1. Summary
 
@@ -281,11 +300,15 @@ These look like fundus datasets in a file browser and cannot be pooled with them
   dataset's images and its annotations arrive by different routes, the column shows the **harder** of
   the two: [FunPiQ](datasets/funpiq.md)'s annotations download freely but its photographs need
   PhysioNet credentialing, so it is marked ⛔.
-- **Not in this table, on the detail pages instead:** camera and field of view, microns per pixel,
-  the full download route, the describing paper, and inheritance. Each
-  of those is a per-subcollection or per-annotation-layer fact that one cell would misrepresent —
-  a dataset annotated by three institutions has three papers, three downloads and possibly three
-  licences.
+- **Microns per pixel is not a column**, because most datasets never published it and because an
+  inferred figure is a per-camera fact, not a per-dataset one. The detail page records a published
+  scale when there is one. An inferred scale — the median disc of a sampled subcollection, assumed
+  1.8 mm — lives in `results/um_resolution/` and is labelled as inferred. Do not read disc sizes
+  in millimetres off that scale: by construction the group's median disc *is* 1.8 mm.
+- **Not in this table, on the detail pages instead:** camera and field of view, the full download
+  route, the describing paper, and inheritance. Each of those is a per-subcollection or
+  per-annotation-layer fact that one cell would misrepresent — a dataset annotated by three
+  institutions has three papers, three downloads and possibly three licences.
 - **Known defects** are not in this table either. Every detail page carries a section 7 for errors
   in the distribution itself — mislabelled files, counts that disagree with the paper, annotations
   that do not match their own description.
@@ -298,4 +321,6 @@ These look like fundus datasets in a file browser and cannot be pooled with them
 Dataset pages follow a fixed structure so they can be read against each other. Load the
 `document-dataset` skill, which defines that structure and this table's columns, before adding or
 changing an entry. A change to a row's Quality, A/V, Disc, Cup or Disease cell also updates the
-matching regroup in sections 1.1–1.4.
+matching regroup in sections 1.1–1.4. A fetcher for a dataset that published no microns-per-pixel
+figure must also run `python -m datasets.fetch_um_resolution` (the `fetch-dataset` and
+`fetch-um-resolution` skills).

@@ -55,7 +55,7 @@ uv run python -m datasets.grape --sizes 512,720,1024     # any sizes a model nee
 | | |
 | --- | --- |
 | Resolution (pixels) | Full frames as captured by the camera; the contour coordinates live in a crop's coordinate system |
-| Microns per pixel | Unknown — not published |
+| Microns per pixel | Not published. **Inferred, per size**: 2136² → **5.951 µm/px**; 1611² → **7.322 µm/px**, each from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/grape.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Topcon TRC-NW8 |
 | Field of view | 50° |
 | Centring | Macula-centred |

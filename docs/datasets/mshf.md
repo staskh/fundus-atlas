@@ -71,22 +71,33 @@ bounding square takes another 0.9% off the sides of what did survive.
 | | |
 | --- | --- |
 | Resolution (pixels) | DR-XJU 412×310 to 555×419; DR-ZJU 1924×1556 and 3216×2136; Glaucoma and Healthy 1534×1534 |
-| Microns per pixel | Unknown |
+| Microns per pixel | Not published. **Inferred, per size**: 1534² → **7.891 µm/px**; 1924×1556 → **8.269**; 3216×2136 → **5.808**; 555×418 → **31.104**; 412×310 → **41.228**, each from the median optic disc of a sample, [evidence](../../results/um_resolution/mshf.json). The two 496×470 photographs are too few to measure and carry no scale. Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Kowa at 45° and Topcon TRC-NW8 at 50°, per the authors' device list |
 | Field of view | 45° and 50° |
 | Centring | Mixed |
 | Modality | Colour fundus photography |
 
-### 3.2 Portable-camera photographs — 302 images
+### 3.2 Portable-camera photographs — 302 images, in two folders
 
 | | |
 | --- | --- |
 | Resolution (pixels) | 2560×1920, but for one photograph at 1705×1705 |
-| Microns per pixel | Unknown |
+| Microns per pixel | Not published. **local1: 7.247 µm/px** from the median optic disc of 32 photographs. **local2: none** — its discs disagree by 10.7% of their median, wider than the tenth this atlas accepts as one camera, so those 103 photographs carry no scale at all ([evidence](../../results/um_resolution/mshf.json)). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | A handheld device (DEC200 class) at 60° |
 | Field of view | 60° |
 | Centring | Mixed |
 | Modality | Colour fundus photography, handheld |
+
+The deposit publishes these in two folders, `Local1` (199 photographs) and `Local2` (103), and this
+repository's store keeps them as **two subsets** rather than one `portable`. They are treated as two
+devices because the atlas cannot show they are one: measured separately, `local1`'s optic discs
+scatter by 5.3% of their median and `local2`'s by 10.7%, and only the first is inside the tenth a
+single camera is expected to hold. The deposit says nothing about what distinguishes the folders.
+
+The odd photograph at 1705×1705 is `train_local1_137`, the only image at that size in the dataset.
+Its three readers graded it bad on illumination, clarity, contrast and overall, and the disc model
+finds no optic disc in it — the frame is off-centre and there is none to find — so it carries no
+scale.
 
 ### 3.3 Ultra-wide-field mosaics — 500 images
 

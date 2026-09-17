@@ -88,5 +88,7 @@ line-length = 100
 # unreadable photograph must not lose a run of three thousand.
 "src/models/*.py" = ["BLE001"]
 # The same rule one layer up: a benchmark turns whatever a model raises into a failed row rather
-# than letting one photograph end the run.
+# than letting one photograph end the run, and the same for the disc a camera scale is inferred
+# from — one unreadable photograph must not lose a group.
 "src/benchmarks/*.py" = ["BLE001"]
+"src/datasets/fetch_um_resolution.py" = ["BLE001"]
