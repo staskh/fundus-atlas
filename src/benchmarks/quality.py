@@ -26,6 +26,9 @@ GOAL = (
     "photographs through costs it every biomarker computed from them."
 )
 
+#: What this benchmark is called in a heading, where its slug does not read as English.
+TITLE = "Quality"
+
 #: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "quality"
 

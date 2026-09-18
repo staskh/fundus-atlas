@@ -154,7 +154,8 @@ def test_a_new_size_is_built_from_native_with_no_archive_in_reach(tmp_path):
         args=args,
     )
     assert Image.open(store / "32" / "images" / "a.png").size == (32, 32)
-    assert Image.open(store / "32" / "vessels" / "a.png").size == (32, 32)
+    assert Image.open(store / "32" / "fov" / "a.png").size == (32, 32)
+    assert not (store / "32" / "vessels").exists(), "the annotation stays where it was drawn"
     assert json.loads((store / "build.json").read_text())["sizes"] == [32, 64]
 
 

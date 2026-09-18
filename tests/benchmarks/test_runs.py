@@ -124,3 +124,19 @@ def test_one_batch_is_timed_with_its_loading_because_there_is_nothing_else() -> 
 
 def test_a_run_that_measured_nothing_reports_no_timing() -> None:
     assert runs.Timing().summary() == {}
+
+
+def test_the_index_lists_benchmarks_and_not_every_directory_of_results(tmp_path: Path) -> None:
+    """`results/` holds more than benchmarks: `um_resolution/` is a dataset measurement.
+
+    The index took every directory there for a benchmark and tried to import a module for it.
+    """
+    from benchmarks import report
+
+    (tmp_path / "results" / "um_resolution").mkdir(parents=True)
+    (tmp_path / "results" / "um_resolution" / "chaksu.json").write_text("{}")
+
+    written = report.write_index(results=tmp_path / "results", into=tmp_path / "docs").read_text()
+
+    assert "um_resolution" not in written
+    assert "# Benchmarks" in written

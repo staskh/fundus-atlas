@@ -4,7 +4,7 @@ What this repository measured against what experts annotated, on the same images
 
 **Read a row, not a column.** A result marked `in-sample` or `unknown` is not comparable with one marked `out-of-sample`, and a model agreeing with another model is not evidence that either agrees with an expert. Every figure below is **pooled over the datasets that benchmark measured**, which the section says; a model is rarely equally good on all of them, and where it is not, that is on its results page rather than here.
 
-## Disc
+## Disc and cup
 
 **Where exactly are the optic disc and the cup inside it?** Each model's outline is compared with the one an ophthalmologist drew on the same photograph — every ophthalmologist separately, never an averaged consensus — and with the cup-to-disc ratio computed from it, which is the number a glaucoma referral rests on.
 
@@ -57,4 +57,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-09-17
+**Generated:** 2026-09-18

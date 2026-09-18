@@ -48,7 +48,7 @@ def _docs(
 ) -> Iterable[str]:
     models = sorted(configured["models"], key=lambda entry: entry["slug"])
     datasets = sorted(configured["datasets"], key=lambda entry: entry["slug"])
-    yield f"# {benchmark.capitalize()} benchmark — how it is run"
+    yield f"# {_module(benchmark).TITLE} benchmark — how it is run"
     yield ""
     yield (
         "This page says how the benchmark is configured: what it asks, which models and datasets "
@@ -203,11 +203,17 @@ def _index(results: Path) -> Iterable[str]:
         "benchmark measured**, which the section says; a model is rarely equally good on all of "
         "them, and where it is not, that is on its results page rather than here."
     )
-    for benchmark in sorted(path.name for path in results.glob("*") if path.is_dir()):
+    # `results/` holds more than benchmarks — `um_resolution/` is a per-dataset measurement — so
+    # the index walks the benchmarks this repository declares and keeps those with results on disk.
+    from . import __main__ as entry
+
+    for benchmark in sorted(
+        name for name in entry.BENCHMARKS if (results / name).is_dir()
+    ):
         module = _module(benchmark)
         records = list(_stored(results / benchmark))
         yield ""
-        yield f"## {benchmark.capitalize()}"
+        yield f"## {module.TITLE}"
         yield ""
         yield module.GOAL
         yield ""
