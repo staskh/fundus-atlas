@@ -25,6 +25,12 @@ TRAINED_ON: dict[str, dict[str, object]] = {
     "quickqual-meme": {"eyeq": ("train",)},
     # docs/models/automorph-disc-cup.md section 6: REFUGE and GAMMA.
     "automorph-disc-cup": {"refuge": ANY_SPLIT, "gamma": ANY_SPLIT},
+    # docs/models/automorph-artery-vein.md section 6: all three artery/vein datasets at once, with
+    # no split restated for the combined set.
+    "automorph-artery-vein": {"rite": ANY_SPLIT, "hrf": ANY_SPLIT, "les-av": ANY_SPLIT},
+    # docs/models/bf-net.md section 6: one dataset per archive, and the benchmark runs the
+    # DRIVE-trained one — whose repository ships DRIVE's own training split as what it trained on.
+    "bf-net": {"rite": ("train",)},
     # docs/models/segformer-disc-cup.md section 6: fine-tuned on REFUGE, split not stated.
     "segformer-disc-cup": {"refuge": ANY_SPLIT},
     # docs/models/beal.md section 6: REFUGE labelled; Drishti-GS and RIM-ONE as unlabelled target

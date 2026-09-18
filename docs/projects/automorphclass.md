@@ -50,7 +50,7 @@ work:
 | Model | Segments | Origin |
 | --- | --- | --- |
 | [SEGAN vessel segmenter](../models/segan-vessel.md) (run at 912 px) | Blood vessels | Borrowed from AutoMorph, whose weights are copied into this repository |
-| [BF-Net](../models/bf-net.md) (720 px) | Arteries against veins | Borrowed from AutoMorph |
+| [AutoMorph artery/vein](../models/automorph-artery-vein.md) (720 px) | Arteries against veins | Borrowed from AutoMorph, which retrained [BF-Net](../models/bf-net.md)'s network |
 | [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) (512 px) | Optic disc and cup | Borrowed from AutoMorph, which retrained the [lwnet](../models/lwnet.md) architecture for this task |
 | Skeletonisation | Vessel skeleton, a processing step rather than anatomy | Included in the package |
 | — | **No image-quality model.** AutoMorph's quality stage is absent from this package, so every photograph handed to it is measured and nothing is refused. *(This atlas's observation, from reading the package on 2026-09-15: nothing under `src/pytorch_automorph/` mentions quality, and no gate stands between the input and the segmentation models)* | Dropped |

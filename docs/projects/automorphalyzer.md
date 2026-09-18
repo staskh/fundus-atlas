@@ -54,7 +54,7 @@ its output against AutoMorph's. Read any result from it with that caveat attache
 | Model | Segments | Origin |
 | --- | --- | --- |
 | [SEGAN vessel segmenter](../models/segan-vessel.md) | Blood vessels, one class | Borrowed via AutoMorph, which trained the weights |
-| [BF-Net](../models/bf-net.md) | Arteries against veins | Borrowed from [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) (GPL-3.0), via AutoMorph |
+| [AutoMorph artery/vein](../models/automorph-artery-vein.md) | Arteries against veins | Borrowed from AutoMorph, which retrained [BF-Net](../models/bf-net.md)'s network from [Learning-AVSegmentation](https://github.com/rmaphoh/Learning-AVSegmentation) (GPL-3.0) |
 | [AutoMorph disc-and-cup model](../models/automorph-disc-cup.md) | Optic disc and cup | Borrowed via AutoMorph, which retrained the [lwnet](../models/lwnet.md) architecture (MIT) for this task |
 | [QuickQual-MEME](../models/quickqual-meme.md) — **not the [three-class classifier](../models/quickqual.md)** | Image quality, as one probability that the photograph is bad | Borrowed from [QuickQual](https://github.com/justinengelmann/QuickQual), which states no license. *(This atlas's observation: `preprocess/preprocess.py` builds a frozen DenseNet121, selects nine of its features by index, and applies the ten numbers of QuickQual-MEME written out in the source. The three-class support vector machine QuickQual's page describes is never downloaded and never loaded)* |
 

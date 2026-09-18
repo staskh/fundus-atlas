@@ -32,17 +32,20 @@ GOAL = (
 DATASETS = ("hrf", "fundus-avseg", "avrdb", "reyia", "rav", "les-av", "rite")
 
 #: The models, by the slug of their catalogue page.
-MODELS = ("vascx-artery-vein", "ocularnet", "lunet", "ocularnet-nano", "bf-net")
+MODELS = (
+    "vascx-artery-vein",
+    "ocularnet",
+    "lunet",
+    "automorph-artery-vein",
+    "bf-net",
+    "ocularnet-nano",
+)
 
 #: Why a declared model has no adapter, where the reason is worth more than "nobody wrote one".
 WHY_NOT = {
     "ocularnet-nano": (
         "its five checkpoints answer HTTP 401 and the anonymous review account that served them now "
         "holds one repository — the weights cannot be obtained at all"
-    ),
-    "bf-net": (
-        "its weights are an unversioned Google Drive folder, so nothing can be pinned and two "
-        "people running it may not be running the same model"
     ),
 }
 
@@ -198,32 +201,47 @@ def docs_sections(
     yield ""
     yield "## 2. The models"
     yield ""
-    yield "| Model | Pinned at | Grid it reads | Channels it emits | Read as | Ensemble |"
-    yield "| --- | --- | --- | --- | --- | --- |"
+    yield (
+        "| Model | Pinned at | Grid it reads | Grid it runs at | Channels it emits | Read as | "
+        "Ensemble |"
+    )
+    yield "| --- | --- | --- | --- | --- | --- | --- |"
     for entry in models:
         slug, declared = entry["slug"], entry["declared"]
         yield (
             f"| [{slug}](../models/{slug}.md) | {report.pin(declared.get('upstream', {}))} | "
-            f"{declared['grid']}² | {', '.join(declared.get('channels', [])) or '—'} | "
+            f"{declared['grid']}² | {declared['network_grid']}² | "
+            f"{', '.join(declared.get('channels', [])) or '—'} | "
             f"{', '.join(declared.get('structures', []))} | {declared.get('ensemble', '—')} |"
         )
     for model, why in sorted(missing_models.items()):
-        yield f"| [{model}](../models/{model}.md) | **not measured** — {why} | — | — | — | — |"
+        yield f"| [{model}](../models/{model}.md) | **not measured** — {why} | — | — | — | — | — |"
     yield ""
     yield (
-        "**Not one of these models documents its own channel order.** Each was established by "
-        "scoring every output channel against [HRF](../datasets/hrf.md)'s artery and vein "
-        "annotation, and two of the three would have been read wrongly from a reasonable guess: "
-        "LUNet puts the veins first and emits logits rather than probabilities, and VascX's fourth "
-        "channel matches neither vessel. OCULARNet is the exception — its own postprocessing names "
-        "its four classes."
+        "**Two of these models do not document their channel order**, and both would have been "
+        "read wrongly from a reasonable guess: LUNet puts the veins first and emits logits rather "
+        "than probabilities, and VascX's fourth channel matches neither vessel. Every order here "
+        "was settled the same way — by scoring each output channel against "
+        "[HRF](../datasets/hrf.md)'s artery and vein annotation — including the ones the authors do "
+        "name, because a documented order is still worth a measurement."
     )
     yield ""
     yield (
         "**A crossing belongs to both vessels.** Where a model emits crossings as their own class — "
-        "OCULARNet does — the adapter answers with artery *plus* crossing and vein *plus* crossing, "
-        "because that is the region an annotator marked as both and a model cannot be asked to "
-        "reproduce an ambiguity of projection."
+        "OCULARNet, BF-Net and AutoMorph's artery/vein model all do — the adapter answers with "
+        "artery *plus* crossing and vein *plus* crossing, because that is the region an annotator "
+        "marked as both and a model cannot be asked to reproduce an ambiguity of projection. The "
+        "two fusion models call that class *uncertainty* in their own evaluation code; scored "
+        "against [HRF](../datasets/hrf.md) it is the crossings exactly, matching this "
+        "repository's own crossing layer pixel for pixel."
+    )
+    yield ""
+    yield (
+        "**Two grids, because a store holds one and a network wants another.** The photographs are "
+        "read at the size the store built nearest what the model was trained on, and where the "
+        "network's own grid is not one of those — BF-Net and AutoMorph's artery/vein model both run "
+        "at 720 — the adapter resizes down to it rather than up, so nothing is invented. The "
+        "probabilities come back to the native frame either way."
     )
     yield ""
     yield (
