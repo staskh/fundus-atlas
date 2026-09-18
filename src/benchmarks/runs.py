@@ -102,7 +102,7 @@ def write(
     directory.mkdir(parents=True, exist_ok=True)
     if rows:
         with open(directory / f"{dataset}.csv", "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0]), restval="")
+            writer = csv.DictWriter(f, fieldnames=_columns(rows), restval="")
             writer.writeheader()
             writer.writerows(rows)
     (directory / f"{dataset}.json").write_text(
@@ -119,6 +119,20 @@ def write(
         )
         + "\n"
     )
+
+
+def _columns(rows: list[dict[str, object]]) -> list[str]:
+    """Every column any row holds, in the order the rows first mention them.
+
+    A row can be shorter than its neighbours: a model that failed on one photograph records no
+    measurements for it, and a measurement nothing produced stays **absent** rather than blank. But
+    the first row must not decide the header for the rest, or a run whose first photograph failed
+    could not be written down at all.
+    """
+    columns: dict[str, None] = {}
+    for row in rows:
+        columns.update(dict.fromkeys(row))
+    return list(columns)
 
 
 def read(root: Path, benchmark: str, model: str, dataset: str) -> dict[str, object] | None:

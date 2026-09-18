@@ -305,6 +305,8 @@ def _pair(
         "store": store,
         "weights": loaded,
         "fingerprint": identity,
+        "drawing": drawing,
+        "masks": str(masks),
         "padding": loader.padding,
         "counts": counts,
         "summary": summary,

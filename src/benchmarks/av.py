@@ -1,14 +1,27 @@
 # ABOUTME: The artery/vein benchmark: how close a model's arteries, veins and the vessels they make
 # ABOUTME: together are to what an expert drew, by overlap and by connectedness.
 
-from collections.abc import Iterable
+import json
+import shutil
+import sys
+import time
+from collections.abc import Callable, Iterable
+from datetime import UTC, datetime
 from pathlib import Path
 
-from models.utils import catalogue
+import numpy as np
+import torch
+from PIL import Image
 
-from . import report
+from datasets.utils import paths
+from models.utils import catalogue
+from models.utils.outlines import Outlines
+from torch.utils.data import DataLoader
+
+from . import report, runs
 from .loaders.av import ArteryVeinLoader
-from .loaders.base import CROPS, available
+from .loaders.base import CROPS, FLOOR, available, collate
+from .metrics import av as metrics
 
 #: What this benchmark is called in a heading, where its slug does not read as English.
 TITLE = "Artery and vein"
@@ -147,6 +160,415 @@ DERIVED = {
     "avrdb": "**drawn, but not independent**: it agrees with the union to within 0.4–0.6%",
     "reyia": "derived here as the union; the archive publishes no separate tracing",
 }
+
+
+def run(
+    models: list,
+    datasets: list[str],
+    results: Path = runs.RESULTS,
+    root: Path | None = None,
+    batch: int = BATCH,
+    force: bool = False,
+    record: Path | None = None,
+    max_samples: int | None = None,
+    random_samples: bool = False,
+    seed: int = 0,
+    rescore: bool = False,
+) -> list[dict[str, object]]:
+    """Score every model on every dataset, measuring only what is missing.
+
+    :param rescore: measure the masks a previous run kept, instead of drawing them again. What a
+        model drew does not change when what is measured about it does, so a new metric costs a
+        pass over the masks rather than a pass over the networks.
+    """
+    started = datetime.now(UTC)
+    absent = missing_datasets(datasets, root)
+    for slug, why in absent.items():
+        print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
+    present = [slug for slug in datasets if slug not in absent]
+    if not present or not models:
+        raise RuntimeError(
+            "nothing to measure: no declared dataset has a store built, or no declared model has "
+            "an adapter"
+        )
+
+    scored = []
+    for adapter in models:
+        for slug in present:
+            scored.append(
+                _pair(
+                    adapter,
+                    slug,
+                    results,
+                    root,
+                    batch,
+                    force,
+                    max_samples,
+                    random_samples,
+                    seed,
+                    record or runs.RUNS,
+                    rescore,
+                )
+            )
+        let_go = getattr(adapter, "release", None)
+        if let_go is not None:
+            let_go()
+    _record(scored, absent, started, record or runs.RUNS)
+    return scored
+
+
+def _pair(
+    adapter,
+    slug: str,
+    results: Path,
+    root: Path | None,
+    batch: int,
+    force: bool,
+    max_samples: int | None,
+    random_samples: bool,
+    seed: int,
+    keeping: Path,
+    rescore: bool,
+) -> dict[str, object]:
+    """One model on one dataset: keep what still stands, measure what is missing, write it all."""
+    loader = ArteryVeinLoader(
+        slug,
+        size=adapter.grid,
+        root=root,
+        prepare=adapter.prepare,
+        max_samples=max_samples,
+        random_samples=random_samples,
+        seed=seed,
+    )
+    declared = adapter.declare()
+    store = _store(slug, root)
+    loaded = adapter.identity()
+    #: What drew the masks, and therefore what the kept files are of. It does not include this
+    #: benchmark's version: changing what is measured about a mask does not change the mask, which
+    #: is what lets a new measurement be taken from the segmentations already drawn — and what lets
+    #: the biomarker benchmark say whether the masks it is reading are still the model's.
+    drawing = runs.fingerprint(
+        {
+            "model": {name: declared[name] for name in FINGERPRINTED if name in declared},
+            "weights": loaded,
+            "store": store,
+        }
+    )
+    identity = runs.fingerprint(
+        {"drawing": drawing, "benchmark": {"name": NAME, "version": VERSION, "floor": FLOOR}}
+    )
+
+    kept = [] if force or rescore else runs.measured(results, NAME, adapter.slug, slug, identity)
+    done = {row["key"] for row in kept}
+    loader.restrict({row["key"] for row in loader.rows} - done)
+    masks = _masks_for(keeping / NAME / adapter.slug / slug, drawing, keep=bool(kept) or rescore)
+
+    timed = runs.Timing()
+    stored = runs.read(results, NAME, adapter.slug, slug) if kept or rescore else None
+
+    def record_so_far(fresh: list[dict[str, object]]) -> dict[str, object]:
+        """Write down everything measured to this point, complete or not."""
+        evidence = sorted(kept + fresh, key=lambda row: (row["key"], row["reader"]))
+        counted = runs.counts(len({row["key"] for row in evidence}), loader.total, loader.excluded)
+        described = {
+            **_summarise(evidence, declared["structures"]),
+            **runs.kept_timing(stored, timed),
+            "device": declared.get("device"),
+        }
+        runs.write(results, NAME, adapter.slug, slug, identity, {**described, **counted}, evidence)
+        return {"counts": counted, "summary": described}
+
+    if rescore:
+        print(
+            f"{adapter.slug} × {slug}: measuring {len(loader)} kept segmentations afresh",
+            flush=True,
+        )
+        fresh = _remeasure(
+            loader,
+            masks,
+            declared["structures"],
+            record_so_far,
+            drawn_by=declared.get("resampling", ""),
+        )
+    elif len(loader):
+        print(f"{adapter.slug} × {slug}: {len(loader)} photographs", flush=True)
+        fresh = _segment(adapter, loader, batch, timed, masks, record_so_far)
+    else:
+        print(f"{adapter.slug} × {slug}: kept — nothing left to measure", flush=True)
+        fresh = []
+
+    written = record_so_far(fresh)
+    counts, summary = written["counts"], written["summary"]
+    return {
+        "model": adapter.slug,
+        "dataset": slug,
+        "declared": declared,
+        "store": store,
+        "weights": loaded,
+        "fingerprint": identity,
+        "drawing": drawing,
+        "masks": str(masks),
+        "counts": counts,
+        "summary": summary,
+        "measured": len({row["key"] for row in fresh}),
+    }
+
+
+def _segment(
+    adapter,
+    loader: ArteryVeinLoader,
+    batch: int,
+    timed: runs.Timing,
+    masks: Path,
+    record_so_far: Callable[[list[dict[str, object]]], object],
+) -> list[dict[str, object]]:
+    """Every photograph still to be scored, measured against the annotation drawn on it.
+
+    What has been measured is written down every :data:`runs.CHECKPOINT` photographs, so that a run
+    the machine stops part-way through is one the next run finishes rather than starts again.
+    """
+    rows = []
+    since = 0
+    for sample in DataLoader(loader, batch_size=batch, collate_fn=collate, shuffle=False):
+        started = time.perf_counter()
+        try:
+            answers = adapter.outline(sample["image"], sample["native_side"])
+        except Exception as failure:  # a crash is the model's answer to nothing
+            answers = [None] * len(sample["key"])
+            note = repr(failure)
+        else:
+            note = ""
+            timed.record(time.perf_counter() - started, len(sample["key"]))
+        for index, key in enumerate(sample["key"]):
+            _keep(masks, key, answers[index])
+            rows.append(_row(key, sample, index, answers[index], note))
+        since += len(sample["key"])
+        if since >= runs.CHECKPOINT:
+            record_so_far(rows)
+            since = 0
+    return rows
+
+
+def _remeasure(
+    loader: ArteryVeinLoader,
+    masks: Path,
+    structures: list[str],
+    record_so_far: Callable[[list[dict[str, object]]], object],
+    drawn_by: str = "",
+) -> list[dict[str, object]]:
+    """Measure the segmentations a previous run drew, without asking any model to draw them again."""
+    rows: list[dict[str, object]] = []
+    since, missing = 0, []
+    for index in range(len(loader)):
+        row = loader.rows[index]
+        key, side = row["key"], int(row["crop_side"])
+        drawn = _kept(masks, key, structures, side, drawn_by)
+        if drawn is None:
+            missing.append(key)
+            continue
+        sample = {
+            "key": [key],
+            "subset": [row["subset"]],
+            "split": [row["split"]],
+            "native_side": [side],
+            "reader": [loader.readers_of(key)[0]],
+            "masks": [loader.masks_of(key)],
+        }
+        rows.append(_row(key, sample, 0, drawn, note=""))
+        since += 1
+        if since >= runs.CHECKPOINT:
+            record_so_far(rows)
+            since = 0
+    if missing:
+        raise RuntimeError(
+            f"no kept masks for {len(missing)} of {len(loader)} photographs — a rescore measures "
+            f"what a run drew, so run it without --rescore first (first missing: {missing[0]})"
+        )
+    return rows
+
+
+def _kept(
+    masks: Path, key: str, structures: list[str], side: int, drawn_by: str = ""
+) -> Outlines | None:
+    """One photograph's kept segmentation, read back in the frame it was drawn in."""
+    found = {}
+    for structure in structures:
+        path = masks / f"{key}-{structure}.png"
+        if not path.exists():
+            return None
+        with Image.open(path) as mask:
+            found[structure] = np.asarray(mask) > 0
+        if found[structure].shape != (side, side):
+            raise RuntimeError(
+                f"{path} is {found[structure].shape} and the photograph's own frame is "
+                f"{(side, side)}; the store has been rebuilt since these were drawn"
+            )
+    return Outlines(masks=found, resampling=f"{drawn_by}{KEPT}" if drawn_by else KEPT)
+
+
+#: What a rescored row adds to the resampling path its model declares: the segmentation is the one
+#: that path produced, and only the measuring of it happened later.
+KEPT = ", and these numbers were measured from the masks that run kept"
+
+
+def _masks_for(directory: Path, identity: str, keep: bool) -> Path:
+    """Where this pair's predicted masks go, emptied where they describe something else.
+
+    The masks are kept because the biomarker benchmark's input is exactly these rather than the
+    scores computed from them. They are named by the fingerprint of what produced them, so a mask a
+    model no longer agrees with is never read as one it does.
+    """
+    marker = directory / "fingerprint.txt"
+    stale = not keep or not marker.exists() or marker.read_text().strip() != identity
+    if directory.exists() and stale:
+        shutil.rmtree(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    marker.write_text(identity + "\n")
+    return directory
+
+
+def _keep(directory: Path, key: str, answer) -> None:
+    """One photograph's masks, in the native frame: the two classes and the vessels they make.
+
+    The union is written as well as derived, because it is what a vessel-width or a fractal
+    measurement reads, and recomputing it in every consumer is how two of them come to disagree.
+    """
+    if answer is None or answer.outcome != "graded":
+        return
+    for structure, mask in answer.masks.items():
+        Image.fromarray(np.asarray(mask, dtype=bool)).save(directory / f"{key}-{structure}.png")
+    Image.fromarray(metrics.vessels_of(answer.masks)).save(directory / f"{key}-vessels.png")
+
+
+def _row(key, sample, index, answer, note) -> dict[str, object]:
+    """One row: this photograph, scored against the annotation drawn on it."""
+    side = sample["native_side"][index]
+    truth = sample["masks"][index]
+    common = {
+        "key": key,
+        "subset": sample["subset"][index],
+        "split": sample["split"][index],
+        "reader": sample["reader"][index],
+        "native_side": side,
+    }
+    if answer is None or answer.outcome != "graded":
+        return {**common, "outcome": "failed", "resampling": "", "note": note}
+    measured = metrics.measure(answer.masks, truth)
+    return {
+        **common,
+        "outcome": "graded",
+        "resampling": answer.resampling,
+        **{name: "" if value is None else f"{value:.6f}" for name, value in measured.items()},
+        **{
+            "said_artery_px": int(np.asarray(answer.masks.get("artery", [])).sum()),
+            "said_vein_px": int(np.asarray(answer.masks.get("vein", [])).sum()),
+            "truth_artery_px": int(np.asarray(truth.get("artery", [])).sum()),
+            "truth_vein_px": int(np.asarray(truth.get("vein", [])).sum()),
+        },
+        "note": note,
+    }
+
+
+def _summarise(rows: list[dict[str, object]], structures: list[str]) -> dict[str, object]:
+    """What a model did on one dataset, over every photograph it was asked about."""
+    graded = [row for row in rows if row.get("outcome") == "graded"]
+    summary: dict[str, object] = {
+        "segmentations": len(graded),
+        "photographs": len({row["key"] for row in rows}),
+        "failed": len([row for row in rows if row.get("outcome") == "failed"]),
+        "structures": list(structures),
+    }
+    for name in _MEASURED:
+        values = [float(row[name]) for row in graded if row.get(name) not in (None, "")]
+        if not values:
+            continue
+        summary[name] = {
+            "n": len(values),
+            "mean": float(np.mean(values)),
+            "median": float(np.median(values)),
+            "spread": float(np.std(values)),
+        }
+    return summary
+
+
+#: The measurements a summary carries, in the order a table lists them.
+_MEASURED = (
+    "artery_dice",
+    "vein_dice",
+    "vessels_dice",
+    "artery_cldice",
+    "vein_cldice",
+    "vessels_cldice",
+)
+
+
+def _store(slug: str, root: Path | None) -> dict[str, object]:
+    build = (root or paths.root()) / slug / "build.json"
+    record = json.loads(build.read_text()) if build.exists() else {}
+    return {"slug": slug, "builder_version": record.get("builder_version")}
+
+
+def _record(scored, absent, started, into: Path) -> None:
+    directory = into / NAME / started.strftime("%Y-%m-%dT%H-%M-%SZ")
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "run.json").write_text(
+        json.dumps(
+            {
+                "benchmark": NAME,
+                "version": VERSION,
+                "started": started.isoformat(),
+                "torch": torch.__version__,
+                "python": sys.version.split()[0],
+                "not_measured": absent,
+                "results": scored,
+            },
+            indent=2,
+            sort_keys=True,
+            default=str,
+        )
+        + "\n"
+    )
+
+
+def main(asked) -> None:
+    """Run the benchmark as `python -m benchmarks --benchmark av` asked for it."""
+    from . import __main__ as entry
+
+    root = Path(asked.data_root) if asked.data_root else None
+    wanted_models = entry.named(asked.model) or list(MODELS)
+    wanted_datasets = entry.named(asked.dataset) or list(DATASETS)
+
+    models, no_adapter = adapters(wanted_models, asked.device)
+    for slug, why in no_adapter.items():
+        print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
+
+    declared, missing_adapters = adapters(list(MODELS), asked.device)
+    missing_adapters = {slug: WHY_NOT.get(slug, why) for slug, why in missing_adapters.items()}
+    missing_stores = missing_datasets(list(DATASETS), root)
+
+    if asked.report:
+        report.write_docs(
+            NAME,
+            configuration(declared, list(DATASETS), root),
+            missing_adapters,
+            missing_stores,
+            COLUMNS,
+        )
+
+    run(
+        models,
+        wanted_datasets,
+        root=root,
+        batch=asked.batch or BATCH,
+        force=asked.force,
+        max_samples=asked.max_samples,
+        random_samples=asked.random_samples,
+        seed=asked.seed,
+        rescore=asked.rescore,
+    )
+
+    if asked.report:
+        report.write_index()
 
 
 def docs_sections(
@@ -327,3 +749,130 @@ COLUMNS = {
     "truth_vein_px": "how many as vein",
     "note": "what the model failed with",
 }
+
+
+def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
+    """This benchmark's entry in the index: one row per model, pooled, and where to start."""
+    pooled = _pooled(records)
+    yield (
+        f"Pooled over **{report.datasets_of(records)}**. **Dice** is overlap with what the "
+        f"annotator drew, 0 to 1. **clDice** asks the connectedness question instead — how much of "
+        f"each centreline falls inside the other's mask — and the two are read together: a model "
+        f"can cover the vessels and lose the network, or trace the network at the wrong width. "
+        f"**Vessels** is the union of each model's own arteries and veins, derived the same way "
+        f"for every model and for every annotator."
+    )
+    yield ""
+    yield (
+        "| Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | "
+        "Seconds each | Marked |"
+    )
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- |"
+    for model, found in sorted(pooled.items(), key=lambda pair: -(pair[1]["vessels_dice"] or -1)):
+        yield (
+            f"| [{model}](models/{model}.md) | {found['photographs']:,} | "
+            f"{report.number(found['artery_dice'])} | {report.number(found['vein_dice'])} | "
+            f"{report.number(found['vessels_dice'])} | "
+            f"{report.number(found['vessels_cldice'])} | "
+            f"{report.number(found['seconds'])} | {report.mark_of(model, records)} |"
+        )
+    yield ""
+    left = report.unfinished(records)
+    if left:
+        yield left
+        yield ""
+    yield from _where_to_start(pooled)
+
+
+def _pooled(records: list[dict[str, object]]) -> dict[str, dict[str, object]]:
+    """Every model's measurements over every dataset at once.
+
+    A mean over segmentations is exactly the mean of the per-dataset means weighted by how many
+    each holds, so this needs the summaries rather than the evidence — and it agrees with the
+    results page by arithmetic rather than by coincidence.
+    """
+    found: dict[str, dict[str, object]] = {}
+    for model in sorted({str(record["model"]) for record in records}):
+        mine = [record["summary"] for record in records if record["model"] == model]
+        entry: dict[str, object] = {
+            "photographs": sum(summary.get("processed", 0) for summary in mine),
+            "segmentations": sum(summary.get("segmentations", 0) for summary in mine),
+        }
+        for measurement in _MEASURED:
+            weighted = [
+                (summary[measurement]["mean"], summary[measurement]["n"])
+                for summary in mine
+                if isinstance(summary.get(measurement), dict)
+            ]
+            counted = sum(count for _, count in weighted)
+            entry[measurement] = (
+                sum(mean * count for mean, count in weighted) / counted if counted else None
+            )
+        taken = [
+            float(summary["seconds_per_photograph"])
+            for summary in mine
+            if summary.get("seconds_per_photograph") is not None
+        ]
+        entry["seconds"] = sum(taken) / len(taken) if taken else None
+        found[model] = entry
+    return found
+
+
+def _where_to_start(pooled: dict[str, dict[str, object]]) -> Iterable[str]:
+    """Which model to reach for, and at which question.
+
+    Two questions, and they need not have the same answer: finding the vessels and naming them are
+    different skills, and a model that traces the network well can still get the classes wrong.
+    Computed from the stored results; the argument is on the results page.
+    """
+    classed = [
+        name
+        for name in pooled
+        if pooled[name]["artery_dice"] is not None and pooled[name]["vein_dice"] is not None
+    ]
+    if not classed:
+        return
+    named = sorted(classed, key=lambda name: -_both(pooled[name]))
+
+    yield "**Where to start.**"
+    yield ""
+    best = named[0]
+    line = (
+        f"- **For arteries against veins**: **{best}** (artery {pooled[best]['artery_dice']:.3f}, "
+        f"vein {pooled[best]['vein_dice']:.3f})."
+    )
+    if len(named) > 1:
+        second = named[1]
+        margin = _both(pooled[best]) - _both(pooled[second])
+        line += f" **{second}** is {margin:.3f} behind on the two together" + (
+            ", which is not a difference this benchmark can separate."
+            if margin < 0.015
+            else f" (artery {pooled[second]['artery_dice']:.3f}, "
+            f"vein {pooled[second]['vein_dice']:.3f})."
+        )
+    yield line
+
+    network = [name for name in pooled if pooled[name]["vessels_cldice"] is not None]
+    if network:
+        network.sort(key=lambda name: -pooled[name]["vessels_cldice"])
+        yield (
+            f"- **For the vessel network itself**, which is what a connectedness measurement "
+            f"rests on: **{network[0]}** (clDice {pooled[network[0]]['vessels_cldice']:.3f}"
+            + (
+                f", against {pooled[network[1]]['vessels_cldice']:.3f} for {network[1]})."
+                if len(network) > 1
+                else ")."
+            )
+        )
+    yield ""
+    yield (
+        f"**A vessel score is not a second opinion on a class score.** In most of these datasets "
+        f"the vessel annotation *is* the artery/vein annotation, so the two columns are one "
+        f"measurement seen twice — [what came out](benchmarks/{NAME}-results.md) says which, and "
+        f"holds the per-dataset detail these pooled figures hide."
+    )
+
+
+def _both(found: dict[str, object]) -> float:
+    """How well a model named the two classes, as the mean of the two Dice scores."""
+    return (found["artery_dice"] + found["vein_dice"]) / 2

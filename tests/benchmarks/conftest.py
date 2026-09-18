@@ -76,3 +76,15 @@ def write_contours(
             for (structure, reader), nodes in drawn.items():
                 for index, (x, y) in enumerate(nodes):
                     writer.writerow([structure, reader, index, x, y])
+
+
+def write_masks(
+    store: Path,
+    key: str,
+    drawn: dict[str, np.ndarray],
+) -> None:
+    """One photograph's binary annotations, in the native frame the annotator drew in."""
+    for structure, mask in drawn.items():
+        where = store / "native" / structure
+        where.mkdir(parents=True, exist_ok=True)
+        Image.fromarray(np.asarray(mask, dtype=bool)).save(where / f"{key}.png")
