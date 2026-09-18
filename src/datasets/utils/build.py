@@ -313,17 +313,29 @@ def _add_sizes(slug: str, store: Path, args, done: dict) -> int:
         print(f"{slug}: up to date at {done['sizes']}", file=sys.stderr)
         return 0
 
-    keys = [row["key"] for row in manifest.read(store)]
+    rows = list(manifest.read(store))
     print(f"{slug}: adding {missing} from native/", file=sys.stderr)
-    for n, key in enumerate(keys, 1):
-        for layer in sorted(paths.frame(store, paths.NATIVE).iterdir()):
+    native = paths.frame(store, paths.NATIVE)
+    # The same rule as a first build: the photograph and its field at every size, the annotation at
+    # native only. Anything that is not one of those directories — a contour folder, or the
+    # `.DS_Store` a Mac leaves in a store somebody opened in the Finder — is not a layer to resize.
+    layers = [native / name for name in EVERY_SIZE if (native / name).is_dir()]
+    for n, row in enumerate(rows, 1):
+        key = row["key"]
+        for layer in layers:
             frame = np.asarray(Image.open(layer / f"{key}.png"))
             for size in missing:
                 out = paths.layer(store, size, layer.name)
                 out.mkdir(parents=True, exist_ok=True)
                 Image.fromarray(_resize(layer.name, frame, size)).save(out / f"{key}.png")
-        if n % 50 == 0 or n == len(keys):
-            print(f"\r{slug}: {n}/{len(keys)} images", end="", file=sys.stderr, flush=True)
+        drawn = native / "contours" / f"{key}.csv"
+        if drawn.exists():
+            traced = contours.read(drawn)
+            for size in missing:
+                where = paths.layer(store, size, "contours") / f"{key}.csv"
+                contours.write(where, traced, size / int(row["crop_side"]))
+        if n % 50 == 0 or n == len(rows):
+            print(f"\r{slug}: {n}/{len(rows)} images", end="", file=sys.stderr, flush=True)
     print(file=sys.stderr)
 
     done["sizes"] = sorted(set(done["sizes"]) | set(missing))

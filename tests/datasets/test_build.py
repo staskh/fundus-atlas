@@ -659,3 +659,34 @@ def _asked(**overrides):
             *[part for k, v in overrides.items() for part in (f"--{k.replace('_', '-')}", v)],
         ],
     )
+
+
+def test_adding_a_size_rebuilds_the_photograph_and_leaves_the_annotation_alone(tmp_path) -> None:
+    """The size-adding path follows the same rule as a first build, or the store disagrees with
+    itself: 512 would hold annotations that native was the only place for."""
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
+    (store / "native" / ".DS_Store").write_bytes(b"what a Mac leaves behind")
+
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64,96"])
+    build._add_sizes("synthetic", store, args, json.loads((store / "build.json").read_text()))
+
+    assert (store / "96" / "images" / "a.png").exists()
+    assert (store / "96" / "fov" / "a.png").exists()
+    assert not (store / "96" / "vessels").exists(), "an annotation lives at native and nowhere else"
+    assert not (store / "96" / ".DS_Store").exists(), "and a stray file is not a layer"
+
+
+def test_adding_a_size_scales_the_contours_into_it(tmp_path) -> None:
+    """A contour is scaled from native, never re-traced, so an added size gets one too."""
+    raw = a_dataset(tmp_path)
+    store = build_it(tmp_path, "--raw", str(raw))
+    drawn = store / "native" / "contours"
+    drawn.mkdir(parents=True, exist_ok=True)
+    (drawn / "a.csv").write_text("structure,reader,node,x,y\ndisc,expert1,0,100.0,120.0\n")
+
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64,96"])
+    build._add_sizes("synthetic", store, args, json.loads((store / "build.json").read_text()))
+
+    written = (store / "96" / "contours" / "a.csv")
+    assert written.exists(), "the outline belongs at every size, scaled"
+    assert "disc" in written.read_text()

@@ -177,3 +177,29 @@ def test_a_folder_of_modules_is_imported_under_a_name_of_ours(tmp_path: Path) ->
 
     assert imported.get_model.arch() == 4, "its own relative imports resolve inside it"
     assert source.package("a-stage-of-its-own", folder) is imported, "imported once"
+
+
+def test_a_folder_with_one_unimportable_module_still_gives_the_others(tmp_path: Path) -> None:
+    """An upstream folder holds modules for purposes we are not using.
+
+    OCULAR's `utils/` has `get_model.py`, which builds the network, beside `GeometricalVBMs.py`,
+    which imports a biomarker library this repository does not install. Needing the first must not
+    require the second.
+    """
+    folder = tmp_path / "stage" / "utils"
+    folder.mkdir(parents=True)
+    (folder / "wanted.py").write_text("VALUE = 7\n")
+    (folder / "needs_something_else.py").write_text("import a_library_nobody_has\n")
+
+    imported = source.package("a-folder-with-a-gap", folder, modules=["wanted"])
+
+    assert imported.wanted.VALUE == 7
+
+
+def test_a_module_that_was_asked_for_and_cannot_be_imported_raises(tmp_path: Path) -> None:
+    folder = tmp_path / "other" / "utils"
+    folder.mkdir(parents=True)
+    (folder / "broken.py").write_text("import a_library_nobody_has\n")
+
+    with pytest.raises(ModuleNotFoundError):
+        source.package("a-folder-asked-wrongly", folder, modules=["broken"])
