@@ -48,22 +48,36 @@ about whether a given vessel exists.
   so the fundus diameter is 912 pixels, then the module resizes to a square 912×912 with aspect
   ratio ignored.
 - **Output grid:** 912×912 probability and binary masks, each then resampled back to the original
-  photograph's width and height and saved at both sizes.
+  photograph's width and height and saved at both sizes. *Our finding, 2026-09-19:* the upstream
+  **resamples the probability map first and thresholds it afterwards**, in the original frame —
+  which is the rule this atlas applies to every model it benchmarks, so no adjustment was needed
+  to make this one comparable.
 - **Grid set in:** `Define_image_size` in `M2_Vessel_seg/utils.py` (`(912, 912)` when `--uniform`,
   which is what the shipped script passes); the diameter convention is `scale_list = [a*2/912 …]` in
   `M0_Preprocess/EyeQ_process_main.py`.
 - **Input expected:** a preprocessed colour-fundus photograph from the pipeline's own cropping
   stage; AutoMorph works at a fixed internal size of 912 px.
 - **Preprocessing in the published code:** cropping and resizing by the host pipeline, plus a
-  `--pre_threshold` of 40.0 in the shipped command.
+  `--pre_threshold` of 40.0 in the shipped command. *Our finding, 2026-09-19:* that number is the
+  floor for **which pixels the standardisation is computed over** — each photograph is centred and
+  scaled by the mean and deviation of its own pixels whose red channel exceeds 40, which on a
+  photograph cropped to its field of view is the lit circle. It divides by the deviation, where the
+  artery/vein stage of the same repository multiplies by it; the two preparations are not
+  interchangeable and this atlas reproduces each as its own weights were trained through it.
 
 ## 5. Architecture
 
 - **Family:** GAN-based U-Net. The code defines a `Segmenter` generator (five downsampling and five
   upsampling stages, width set by `n_filters`) trained against a `Discriminator`; the shipped
   checkpoints are the generator, named `G_best_F1_epoch.pth`.
-- **Parameters:** Unknown; the checkpoint is about 35 MB per seed.
-- **Single model or ensemble:** ensemble of ten, one per random seed, averaged by the pipeline.
+- **Parameters:** **8,637,825.** *Our finding, 2026-09-19:* counted by constructing the published
+  architecture with the arguments the shipped inference passes it — `input_channels=3`,
+  `n_filters=32`, `n_classes=1`, `bilinear=False` — and loading a seed into it, which it accepts
+  without a missing or unexpected key. The checkpoint is about 33 MB per seed.
+- **Single model or ensemble:** ensemble of ten, one per random seed — 24 to 42 in steps of two.
+  *Our finding, 2026-09-19:* they are combined by **averaging the ten sigmoids**, not the ten
+  logits, in `segment_fundus` of `test_outside_integrated.py`; the same function also writes an
+  uncertainty map as the spread of the ten around that mean, which this atlas does not use.
 
 ## 6. Training data
 
@@ -112,7 +126,29 @@ Note that the vessel masks this model produces are the input to the defective to
 described in [retipy.md](../projects/retipy.md) section 8.1; the defect is in the measurement, not
 in this segmentation.
 
-## 11. Notes
+## 11. How this atlas runs it
+
+*Added 2026-09-19, when the artery/vein benchmark began carrying it.*
+
+It takes part in the [artery/vein benchmark](../benchmarks/av-docs.md) as a **reference for the
+vessel column**, not as an entry in the artery/vein ones: it does not separate arteries from veins,
+so those cells are left empty for it rather than scored as nothing. Every other model in that
+benchmark has its vessel map derived as the union of its own arteries and veins; this one's vessel
+map is its own prediction, so a reader comparing the two numbers is comparing a prediction with a
+union.
+
+**It is run at a threshold of 0.2, where AutoMorph's own pipeline writes its binary mask at 0.5.**
+That is this repository's choice, made to keep the thin vessels the higher threshold drops, and it
+means every score recorded here is a score of the model at 0.2 rather than of the model as its
+authors run it. The adapter declares both numbers, so the difference is in the benchmark's
+fingerprint rather than only in prose.
+
+**Four of the benchmark's datasets are in-sample for it, and one is not.** `ALL-SIX` includes HRF,
+LES-AV and DRIVE — whose photographs are [RITE](../datasets/rite.md)'s — so its scores there are
+not a test. [FIVES](../datasets/fives.md) is the one dataset in that benchmark outside the six, and
+is why FIVES was added to it.
+
+## 12. Notes
 
 - **Running one seed is not running this model.** The published behaviour is the ten-seed ensemble.
   A single-seed run, as AutoMorphClass offers for speed, is a different and undocumented model.

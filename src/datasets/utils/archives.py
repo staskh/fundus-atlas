@@ -255,6 +255,12 @@ class GitSource:
             if self.paths:
                 _git(["-C", str(tree), "sparse-checkout", "set", *self.paths])
             _git(["-C", str(tree), "checkout", self.commit])
+        elif self.paths:
+            # The subtrees asked for are declared, not remembered: a clone made when one stage was
+            # wanted has to grow the others when a second model needs them. Setting the cone again
+            # costs nothing when it already matches, and the clone filters blobs, so only the
+            # subtrees named here are ever fetched.
+            _git(["-C", str(tree), "sparse-checkout", "set", *self.paths])
         at = _git(["-C", str(tree), "rev-parse", "HEAD"]).strip()
         if verify and at != self.commit:
             raise ValueError(f"{tree} is at {at}, not the pinned {self.commit}")

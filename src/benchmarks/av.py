@@ -42,15 +42,21 @@ GOAL = (
 )
 
 #: The datasets this benchmark wants. A name here is intent, not inventory.
-DATASETS = ("hrf", "fundus-avseg", "avrdb", "reyia", "rav", "les-av", "rite")
+#:
+#: `fives` annotates vessels and neither class, so no model is scored on arteries or veins there
+#: and every model is scored on the vessel column — which is the only dataset here outside the six
+#: the vessel reference trained on.
+DATASETS = ("hrf", "fundus-avseg", "avrdb", "reyia", "fives", "rav", "les-av", "rite")
 
-#: The models, by the slug of their catalogue page.
+#: The models, by the slug of their catalogue page. `segan-vessel` answers about vessels alone and
+#: takes part as a reference for that column rather than as an entry in the class ones.
 MODELS = (
     "vascx-artery-vein",
     "ocularnet",
     "lunet",
     "automorph-artery-vein",
     "bf-net",
+    "segan-vessel",
     "ocularnet-nano",
 )
 
@@ -159,6 +165,13 @@ DERIVED = {
     "fundus-avseg": "derived from the artery/vein labels by the authors",
     "avrdb": "**drawn, but not independent**: it agrees with the union to within 0.4–0.6%",
     "reyia": "derived here as the union; the archive publishes no separate tracing",
+    "fives": "**its own tracing, and the only annotation it has**: no artery/vein labels at all",
+}
+
+#: Datasets whose photographs appear in another dataset here, so that pooling a figure over both
+#: counts the same eyes twice. REYIA is a compilation, and its own page names what it reuses.
+OVERLAPS = {
+    "fives": ("reyia", 75),
 }
 
 
@@ -458,6 +471,11 @@ def _row(key, sample, index, answer, note) -> dict[str, object]:
         **common,
         "outcome": "graded",
         "resampling": answer.resampling,
+        # Every score column, on every row, whatever this pair could measure: a model that answers
+        # about vessels alone, or a dataset that annotates them alone, leaves the class columns
+        # empty rather than absent. A file whose columns depend on which model wrote it cannot be
+        # read beside another, and an empty cell says "not asked" where a zero would say "wrong".
+        **dict.fromkeys(_MEASURED, ""),
         **{name: "" if value is None else f"{value:.6f}" for name, value in measured.items()},
         **{
             "said_artery_px": int(np.asarray(answer.masks.get("artery", [])).sum()),
@@ -667,11 +685,36 @@ def docs_sections(
     )
     yield ""
     yield (
-        "**The vessel map is derived, identically for every model**, as the union of its own artery "
-        "and vein masks — not whatever vessel channel a model may also publish. LUNet publishes "
-        "one; it is declared above and not used, so that every model's vessel score means the same "
-        "thing."
+        "**The vessel map is derived, identically for every artery/vein model**, as the union of "
+        "its own artery and vein masks — not whatever vessel channel a model may also publish. "
+        "LUNet publishes one; it is declared above and not used, so that every artery/vein model's "
+        "vessel score means the same thing."
     )
+    for entry in models:
+        declared = entry["declared"]
+        if list(declared.get("structures", [])) != ["vessels"]:
+            continue
+        yield ""
+        yield (
+            f"**One model here is the exception, and is carried as a reference rather than as a "
+            f"competitor.** [{entry['slug']}](../models/{entry['slug']}.md) does not separate "
+            f"arteries from veins, so it has no union to take and **its own vessel map is its "
+            f"answer**. Its artery and vein cells are left empty rather than scored as nothing — "
+            f"empty says it was not asked, where a zero would say it answered and was wrong — and "
+            f"a reader comparing its vessel score with another model's is comparing a prediction "
+            f"with a union."
+        )
+        if "upstream_threshold" in declared:
+            yield ""
+            yield (
+                f"**It is also run at a threshold this repository chose rather than inherited.** A "
+                f"pixel becomes vessel at **{declared['threshold']}** here, where its own pipeline "
+                f"writes its binary mask at {declared['upstream_threshold']}. The lower figure "
+                f"keeps the thin vessels the higher one drops, which is what a reference for this "
+                f"column is wanted for; the cost is that every score recorded for it is a score of "
+                f"the model at {declared['threshold']} rather than of the model as its authors run "
+                f"it."
+            )
     yield ""
     yield "## 3. The datasets"
     yield ""
@@ -695,10 +738,25 @@ def docs_sections(
         "there are **one measurement seen twice**, and their agreement is not corroboration."
     )
     yield ""
+    if any(entry["slug"] == "fives" for entry in datasets):
+        yield (
+            "**[FIVES](../datasets/fives.md) annotates vessels and neither class**, so every model "
+            "is scored there on the vessel column alone and its artery and vein cells are empty "
+            "for all of them. It earns its place because it is the one dataset here that the "
+            "vessel reference did not train on."
+        )
+        yield ""
+    measured = {entry["slug"] for entry in datasets}
+    shared = [
+        f"**{slug}** and **{other}** share {count} photographs"
+        for slug, (other, count) in sorted(OVERLAPS.items())
+        if {slug, other} <= measured
+    ]
     yield (
         "[REYIA](../datasets/reyia.md) is a compilation, and its subsets are named for the "
         "collections its photographs came from — three of which this repository builds separately. "
-        "Pooling a figure over REYIA and those datasets counts the same eyes twice."
+        "Pooling a figure over REYIA and those datasets counts the same eyes twice"
+        + (f": {', '.join(shared)}." if shared else ".")
     )
     yield ""
     yield "### 3.1 What is worth fetching next, and what each would settle"
@@ -736,9 +794,11 @@ COLUMNS = {
     "native_side": "the side of the native square, in pixels — every score below is measured in it",
     "outcome": "`graded`, or `failed` with the reason in `note`",
     "resampling": "how the model's output reached the native frame",
-    "artery_dice": "overlap with the reader's arteries, 0 to 1",
-    "vein_dice": "overlap with the reader's veins",
-    "vessels_dice": "overlap with the reader's vessels — **both derived as artery ∪ vein**",
+    "artery_dice": "overlap with the reader's arteries, 0 to 1 — **empty** where the model or the "
+    "dataset says nothing about the classes, which is not the same as a zero",
+    "vein_dice": "overlap with the reader's veins, on the same terms",
+    "vessels_dice": "overlap with the reader's vessels — **derived as artery ∪ vein on each side "
+    "that has the two classes**, and the map itself on a side that has only vessels",
     "artery_cldice": "how much of each artery network's centreline lies inside the other's mask",
     "vein_cldice": "as above, for the veins",
     "vessels_cldice": "as above, for the vessels",

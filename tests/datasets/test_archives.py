@@ -42,6 +42,19 @@ def test_only_the_subtrees_asked_for_are_checked_out(tmp_path):
     assert not (tree / "elsewhere").exists()
 
 
+def test_a_subtree_added_later_is_checked_out_into_an_existing_clone(tmp_path):
+    """A model whose stage was not needed before must not silently be missing its code."""
+    repo, head = a_repository(tmp_path)
+    first = archives.GitSource(layer="d", repo=str(repo), commit=head, paths=["images"])
+    first.obtain(tmp_path / "raw")
+    wider = archives.GitSource(
+        layer="d", repo=str(repo), commit=head, paths=["images", "elsewhere"]
+    )
+    tree, _ = wider.obtain(tmp_path / "raw")
+    assert (tree / "elsewhere" / "b.txt").read_text() == "b"
+    assert (tree / "images" / "a.txt").read_text() == "a"
+
+
 def test_a_commit_that_is_not_the_pinned_one_is_an_error(tmp_path):
     repo, head = a_repository(tmp_path)
     archives.GitSource(layer="d", repo=str(repo), commit=head).obtain(tmp_path / "raw")

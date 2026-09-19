@@ -62,13 +62,21 @@ def _covered(skeleton: np.ndarray, mask: np.ndarray) -> float | None:
 def vessels_of(masks: dict[str, np.ndarray]) -> np.ndarray:
     """Arteries and veins together, which is what a vessel score is measured on.
 
-    Derived rather than predicted: a model in this benchmark is asked for the two classes, and the
-    union is what they say about where the vessels are. Where a crossing is in both, it is in the
-    union once.
+    Derived rather than predicted **wherever there are two classes to derive it from**: a model
+    asked for arteries and veins has said where the vessels are by saying that, and the union is
+    what makes this column mean one thing across every such model. Where a crossing is in both, it
+    is in the union once.
+
+    Where there are no classes — a vessel-only model, or a dataset that annotates vessels and
+    neither class — the map given is the answer, because there is no union to take. That is the one
+    place this column is not produced the same way for every row, and both benchmark pages say so.
     """
     found = [mask for name, mask in masks.items() if name in ("artery", "vein")]
     if not found:
-        return np.zeros((1, 1), dtype=bool)
+        drawn = masks.get("vessels")
+        if drawn is None:
+            return np.zeros((1, 1), dtype=bool)
+        return np.asarray(drawn, dtype=bool)
     union = np.zeros_like(found[0], dtype=bool)
     for mask in found:
         union |= np.asarray(mask, dtype=bool)

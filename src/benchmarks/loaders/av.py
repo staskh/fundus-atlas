@@ -8,8 +8,11 @@ from datasets.utils import exclusions, paths
 
 from .base import Photographs
 
-#: Why a photograph is excluded from an artery/vein benchmark though the dataset published it.
-NOTHING_SEGMENTED = "no artery/vein annotation to score against"
+#: Why a photograph is excluded from an artery/vein benchmark though the dataset published it:
+#: nothing was drawn on it that any model here could be scored against. A photograph carrying a
+#: vessel tracing and no classes is **not** this — it is scored on the vessel column and left out
+#: of the class ones, which is how a vessels-only dataset takes part at all.
+NOTHING_SEGMENTED = "no vessel annotation to score against"
 
 #: The maps the store holds for one of these datasets, and which of them a model is scored on. The
 #: vessel map is read as the dataset published it and **also** derived from the two classes, because
@@ -33,9 +36,21 @@ class ArteryVeinLoader(Photographs):
         self.findings = exclusions.load(self.slug)
 
     def _with_reference(self, rows: list[dict[str, str]]) -> list[dict[str, str]]:
-        annotated = [row for row in rows if {"artery", "vein"} <= set(row["maps"].split(";"))]
+        """Every photograph carrying something a model here can be scored against.
+
+        That is the two classes, or a vessel tracing without them: a dataset that annotated vessels
+        and never separated arteries from veins still says where the vessels are, and a model's
+        vessel map can be measured against it. What it cannot do is say anything about the classes,
+        so those columns are left empty for it rather than scored as nothing.
+        """
+        annotated = [row for row in rows if self._scorable(row)]
         self._exclude(NOTHING_SEGMENTED, len(rows) - len(annotated))
         return annotated
+
+    @staticmethod
+    def _scorable(row: dict[str, str]) -> bool:
+        drawn = set(row["maps"].split(";"))
+        return {"artery", "vein"} <= drawn or "vessels" in drawn
 
     def masks_of(self, key: str) -> dict[str, np.ndarray]:
         """Every vessel mask drawn on one photograph, less any a finding condemns."""

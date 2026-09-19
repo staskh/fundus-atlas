@@ -30,7 +30,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [VascX vessels](models/vascx-vessels.md) | Blood vessels, one class | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
 | [FR-UNet vessel ensemble](models/frunet-fives.md) | Blood vessels, as a fraction of five members voting | FR-UNet, ensemble of 5 | 512² → back to original | FIVES | Yes | Yes, upstream | **None stated**, weights included | — | 2026-05 | 2026-09-12 |
-| [SEGAN vessel segmenter](models/segan-vessel.md) | Blood vessels, one class | GAN-based U-Net, ensemble of 10 | 912² → back to original | DRIVE, STARE, CHASE-DB1, HRF, IOSTAR, LES-AV (`ALL-SIX`) | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-10 |
+| [SEGAN vessel segmenter](models/segan-vessel.md) | Blood vessels, one class | GAN-based U-Net, 8.6M parameters, ensemble of 10 sigmoids | 912² → back to original, thresholded there | DRIVE, STARE, CHASE-DB1, HRF, IOSTAR, LES-AV (`ALL-SIX`) | Yes | No | Apache-2.0 (host repository) | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-19 |
 | [LWNet](models/lwnet.md) | Blood vessels, one class | W-Net, two chained U-Nets, ~70k parameters | 512² → back to original | DRIVE, CHASE-DB, HRF | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
 
 ### 1.3 Artery/vein — arteries separated from veins

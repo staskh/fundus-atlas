@@ -27,6 +27,29 @@ mistake: getting the network right and the classification wrong looks very diffe
 the vessel altogether. Where a model emits a vessel map of its own as well, that is **not** what
 this column holds — the union is, so that every model is compared on the same derivation.
 
+### 1.1 The one exception: a vessel-only reference
+
+A model that does not separate arteries from veins has no union to take, so **its own vessel map is
+its answer**. That breaks the guarantee above, and the break is the point: a vessel segmenter is
+carried here as a **reference for the vessel column** — what a model built for that one job achieves
+on these photographs — and never as an entry in the artery/vein ones.
+
+Four rules keep it from being read as a competitor:
+
+- **Its artery and vein cells are empty, never zero.** Empty says it was not asked; zero would say
+  it answered and was wrong.
+- **Every page carrying its vessel score says the column is not derived the same way for it.** A
+  reader comparing 0.86 against 0.86 is comparing a prediction with a union.
+- **It is declared in `MODELS` like any other model** and its adapter declares
+  `structures = ("vessels",)`. Nothing else in the run knows it is peculiar.
+- **A threshold this repository chose rather than inherited is declared as a number** and named on
+  both generated pages beside the upstream's own. `segan-vessel` runs at 0.2 where AutoMorph ships
+  0.5, so every score recorded for it is a score of the model at 0.2 and not of the model as its
+  authors run it.
+
+The same rule holds from the other side: a dataset that annotates vessels and neither class is
+scored on the vessel column alone, for every model, and its class cells are empty for all of them.
+
 ## 2. Two scores, because neither is enough
 
 | Metric | What it says |
@@ -79,8 +102,10 @@ section 12. Three things follow that this benchmark must not get wrong:
 
 The common rules of `SKILL.md` section 2, plus:
 
-- **No artery/vein annotation** — a photograph the dataset published without one. Not a failure of
-  the model, and never counted as one.
+- **No vessel annotation at all** — a photograph the dataset published with neither the two classes
+  nor a vessel tracing, so there is nothing any model here could be scored against. Not a failure of
+  the model, and never counted as one. A photograph carrying a vessel tracing and no classes is
+  **not** excluded: it is scored on the vessel column and left out of the class ones (section 1.1).
 - **An annotation a finding condemns**, from `src/datasets/exclusions/`. REYIA has four photographs
   whose two published encodings of the same annotation contradict each other; they are excluded per
   map rather than whole.

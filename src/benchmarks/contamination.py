@@ -31,6 +31,18 @@ TRAINED_ON: dict[str, dict[str, object]] = {
     # docs/models/bf-net.md section 6: one dataset per archive, and the benchmark runs the
     # DRIVE-trained one — whose repository ships DRIVE's own training split as what it trained on.
     "bf-net": {"rite": ("train",)},
+    # docs/models/segan-vessel.md section 6: six vessel datasets at once, which the repository
+    # names ALL-SIX, with no per-dataset split restated. DRIVE's photographs are RITE's, so the
+    # artery/vein benchmark's `rite` is the same images under another dataset's labels.
+    "segan-vessel": {
+        "drive": ANY_SPLIT,
+        "rite": ANY_SPLIT,
+        "stare": ANY_SPLIT,
+        "chase-db1": ANY_SPLIT,
+        "hrf": ANY_SPLIT,
+        "iostar": ANY_SPLIT,
+        "les-av": ANY_SPLIT,
+    },
     # docs/models/segformer-disc-cup.md section 6: fine-tuned on REFUGE, split not stated.
     "segformer-disc-cup": {"refuge": ANY_SPLIT},
     # docs/models/beal.md section 6: REFUGE labelled; Drishti-GS and RIM-ONE as unlabelled target
