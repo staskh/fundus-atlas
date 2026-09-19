@@ -29,8 +29,10 @@ TITLE = "Artery and vein"
 #: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "av"
 
-#: The benchmark's own version. Changing what is measured, or how, changes this.
-VERSION = 1
+#: The benchmark's own version. Changing what is measured, or how, changes this. Version 2 adds the
+#: Betti matching error to every structure, which is measured from the masks a run already kept:
+#: `--rescore` is what fills it in, and no model is asked to segment anything again.
+VERSION = 2
 
 #: What this benchmark asks, in the two sentences the index has room for.
 GOAL = (
@@ -517,6 +519,9 @@ _MEASURED = (
     "artery_cldice",
     "vein_cldice",
     "vessels_cldice",
+    "artery_betti",
+    "vein_betti",
+    "vessels_betti",
 )
 
 
@@ -802,6 +807,11 @@ COLUMNS = {
     "artery_cldice": "how much of each artery network's centreline lies inside the other's mask",
     "vein_cldice": "as above, for the veins",
     "vessels_cldice": "as above, for the vessels",
+    "artery_betti": "**Betti matching error** for the arteries: how many topological features — "
+    "connected components and loops — of either map have no counterpart in the other. 0 is "
+    "perfect; unlike Dice and clDice it counts upwards and has no ceiling",
+    "vein_betti": "as above, for the veins",
+    "vessels_betti": "as above, for the vessels",
     "said_artery_px": "how many pixels the model called artery, so a score can be read beside the "
     "size of the thing scored",
     "said_vein_px": "how many it called vein",

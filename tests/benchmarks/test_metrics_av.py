@@ -169,3 +169,56 @@ def test_a_published_vessel_map_is_not_overwritten_by_an_empty_union() -> None:
     assert av.vessels_of({"artery": drawn, "vessels": np.zeros((8, 8), dtype=bool)}).sum() == (
         drawn.sum()
     ), "where arteries exist the union is still what the vessel column holds"
+
+
+def a_bar(side: int = 30, rows: slice = slice(10, 13), columns: slice = slice(3, 27)) -> np.ndarray:
+    drawn = np.zeros((side, side), dtype=bool)
+    drawn[rows, columns] = True
+    return drawn
+
+
+def test_two_identical_segmentations_have_no_unmatched_topology() -> None:
+    """Betti matching counts the features of each map that the other has nowhere to put."""
+    bar = a_bar()
+
+    assert av.betti_matching_error(bar, bar) == 0
+
+
+def test_a_break_in_a_vessel_is_one_unmatched_feature() -> None:
+    """The break makes a second component in the model's map, and nothing in the reader's matches it.
+
+    This is the failure Dice barely notices — two pixels of 72 — and the one a network measurement
+    exists to catch.
+    """
+    truth = a_bar()
+    broken = truth.copy()
+    broken[:, 14:16] = False
+
+    assert av.betti_matching_error(broken, truth) == 1
+    assert av.dice(broken, truth) > 0.95, "overlap is almost unchanged by the break"
+
+
+def test_a_loop_the_reader_never_drew_is_one_unmatched_feature() -> None:
+    """A hole in dimension one counts the same as a component in dimension zero."""
+    solid = np.zeros((30, 30), dtype=bool)
+    solid[5:25, 5:25] = True
+    ring = solid.copy()
+    ring[9:21, 9:21] = False
+
+    assert av.betti_matching_error(ring, solid) == 1
+
+
+def test_the_error_is_symmetric_in_what_each_map_is_missing() -> None:
+    """A feature only the reader drew counts as much as one only the model drew."""
+    truth = a_bar()
+    broken = truth.copy()
+    broken[:, 14:16] = False
+
+    assert av.betti_matching_error(truth, broken) == av.betti_matching_error(broken, truth)
+
+
+def test_an_empty_map_is_not_measured_rather_than_scored_zero() -> None:
+    """The same rule the overlap metrics follow: nothing to compare is not a perfect answer."""
+    assert av.betti_matching_error(np.zeros((8, 8), dtype=bool), np.zeros((8, 8), dtype=bool)) is (
+        None
+    )

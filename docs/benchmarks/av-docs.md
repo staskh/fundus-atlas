@@ -102,6 +102,9 @@ python -m benchmarks --benchmark av --max-samples 20
 | `artery_cldice` | how much of each artery network's centreline lies inside the other's mask |
 | `vein_cldice` | as above, for the veins |
 | `vessels_cldice` | as above, for the vessels |
+| `artery_betti` | **Betti matching error** for the arteries: how many topological features — connected components and loops — of either map have no counterpart in the other. 0 is perfect; unlike Dice and clDice it counts upwards and has no ceiling |
+| `vein_betti` | as above, for the veins |
+| `vessels_betti` | as above, for the vessels |
 | `said_artery_px` | how many pixels the model called artery, so a score can be read beside the size of the thing scored |
 | `said_vein_px` | how many it called vein |
 | `truth_artery_px` | how many **this reader** drew as artery |
