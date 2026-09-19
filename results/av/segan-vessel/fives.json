@@ -1,0 +1,35 @@
+{
+  "benchmark": "av",
+  "dataset": "fives",
+  "fingerprint": "adcd8c9e7cb22ec4091eb8cb963dfb82590f5c0dd81ec9dc03e6edb98cbb1dae",
+  "model": "segan-vessel",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "excluded": {
+      "no vessel annotation to score against": 2
+    },
+    "failed": 0,
+    "photographs": 798,
+    "processed": 798,
+    "seconds_per_photograph": 1.8560392255288722,
+    "segmentations": 798,
+    "structures": [
+      "vessels"
+    ],
+    "timed_photographs": 796,
+    "total": 798,
+    "vessels_cldice": {
+      "mean": 0.8652641754385964,
+      "median": 0.904979,
+      "n": 798,
+      "spread": 0.12065742497490876
+    },
+    "vessels_dice": {
+      "mean": 0.8554622280701755,
+      "median": 0.8940735,
+      "n": 798,
+      "spread": 0.11511571175972456
+    }
+  }
+}

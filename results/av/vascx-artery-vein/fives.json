@@ -1,0 +1,36 @@
+{
+  "benchmark": "av",
+  "dataset": "fives",
+  "fingerprint": "64487a604d3771eb1a1bbe1e2a572d5c51e29da12bae10fec9c33cd7cfaac0f1",
+  "model": "vascx-artery-vein",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "excluded": {
+      "no vessel annotation to score against": 2
+    },
+    "failed": 0,
+    "photographs": 798,
+    "processed": 798,
+    "seconds_per_photograph": 9.344991863313018,
+    "segmentations": 798,
+    "structures": [
+      "artery",
+      "vein"
+    ],
+    "timed_photographs": 799,
+    "total": 798,
+    "vessels_cldice": {
+      "mean": 0.8426593834586465,
+      "median": 0.869714,
+      "n": 798,
+      "spread": 0.10067062430435154
+    },
+    "vessels_dice": {
+      "mean": 0.8015240764411028,
+      "median": 0.8304055,
+      "n": 798,
+      "spread": 0.10139945396069319
+    }
+  }
+}

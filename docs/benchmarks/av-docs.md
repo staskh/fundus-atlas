@@ -43,7 +43,7 @@ Whether a model's **arteries and veins** are where an ophthalmologist drew them.
 | Dataset | Photographs | Readers | Vessel annotation | Excluded, and why |
 | --- | --- | --- | --- | --- |
 | [avrdb](../datasets/avrdb.md) | 100 | 1 | **drawn, but not independent**: it agrees with the union to within 0.4–0.6% | none |
-| [fives](../datasets/fives.md) | 800 | 1 | **its own tracing, and the only annotation it has**: no artery/vein labels at all | none |
+| [fives](../datasets/fives.md) | 798 | 1 | **its own tracing, and the only annotation it has**: no artery/vein labels at all | 2 no vessel annotation to score against |
 | [fundus-avseg](../datasets/fundus-avseg.md) | 100 | 1 | derived from the artery/vein labels by the authors | none |
 | [hrf](../datasets/hrf.md) | 45 | 1 | **the same tracing**: 0.004% of pixels differ from the artery/vein union | none |
 | [reyia](../datasets/reyia.md) | 559 | 1 | derived here as the union; the archive publishes no separate tracing | 4 no vessel annotation to score against |

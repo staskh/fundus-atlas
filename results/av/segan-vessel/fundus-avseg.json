@@ -1,0 +1,33 @@
+{
+  "benchmark": "av",
+  "dataset": "fundus-avseg",
+  "fingerprint": "34ea928f38f0ca3e4fde79478ca40da5a227301c9569cc1f765cd2d030f27642",
+  "model": "segan-vessel",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "photographs": 100,
+    "processed": 100,
+    "seconds_per_photograph": 2.061664042939553,
+    "segmentations": 100,
+    "structures": [
+      "vessels"
+    ],
+    "timed_photographs": 99,
+    "total": 100,
+    "vessels_cldice": {
+      "mean": 0.91468783,
+      "median": 0.9184795,
+      "n": 100,
+      "spread": 0.020360902523736516
+    },
+    "vessels_dice": {
+      "mean": 0.8857052099999998,
+      "median": 0.8921835,
+      "n": 100,
+      "spread": 0.021526909810418687
+    }
+  }
+}

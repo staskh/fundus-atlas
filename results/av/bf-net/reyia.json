@@ -19,7 +19,7 @@
     "complete": true,
     "device": "mps",
     "excluded": {
-      "no artery/vein annotation to score against": 4
+      "no vessel annotation to score against": 4
     },
     "failed": 0,
     "photographs": 559,

@@ -1,0 +1,36 @@
+{
+  "benchmark": "av",
+  "dataset": "fives",
+  "fingerprint": "6236267fa6b46a9f08ee8e1cfd672a393f262a13a02f334ba265378076dc67ac",
+  "model": "automorph-artery-vein",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "excluded": {
+      "no vessel annotation to score against": 2
+    },
+    "failed": 0,
+    "photographs": 798,
+    "processed": 798,
+    "seconds_per_photograph": 3.5956402525418265,
+    "segmentations": 798,
+    "structures": [
+      "artery",
+      "vein"
+    ],
+    "timed_photographs": 799,
+    "total": 798,
+    "vessels_cldice": {
+      "mean": 0.7296461365914787,
+      "median": 0.8048525,
+      "n": 798,
+      "spread": 0.20873453424831212
+    },
+    "vessels_dice": {
+      "mean": 0.7166970513784462,
+      "median": 0.787825,
+      "n": 798,
+      "spread": 0.2057521600325651
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "benchmark": "av",
+  "dataset": "fives",
+  "fingerprint": "a085d4ada302fd18772dc62db54e0c97b99b6054bbe98e52b604646313ae721b",
+  "model": "ocularnet",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "excluded": {
+      "no vessel annotation to score against": 2
+    },
+    "failed": 0,
+    "photographs": 798,
+    "processed": 798,
+    "seconds_per_photograph": 2.357219939819671,
+    "segmentations": 798,
+    "structures": [
+      "artery",
+      "vein"
+    ],
+    "timed_photographs": 799,
+    "total": 798,
+    "vessels_cldice": {
+      "mean": 0.8896523872180451,
+      "median": 0.9153445,
+      "n": 798,
+      "spread": 0.09245537092433341
+    },
+    "vessels_dice": {
+      "mean": 0.848498492481203,
+      "median": 0.870374,
+      "n": 798,
+      "spread": 0.0889882991808731
+    }
+  }
+}
