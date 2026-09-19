@@ -4,6 +4,29 @@ What this repository measured against what experts annotated, on the same images
 
 **Read a row, not a column.** A result marked `in-sample` or `unknown` is not comparable with one marked `out-of-sample`, and a model agreeing with another model is not evidence that either agrees with an expert. Every figure below is **pooled over the datasets that benchmark measured**, which the section says; a model is rarely equally good on all of them, and where it is not, that is on its results page rather than here.
 
+## Artery and vein
+
+**Which vessels are arteries and which are veins?** Each model's segmentation is compared with what an ophthalmologist drew on the same photograph — the arteries, the veins, and the vessels they make together — by overlap and by how much of the vessel network survives. Everything computed *from* a vessel map, a calibre or an arteriovenous ratio, belongs to the biomarker benchmark instead.
+
+[How it is run](benchmarks/av-docs.md) · [What came out](benchmarks/av-results.md) · [The analysis](../notebooks/av.ipynb) · [Every score](../results/av/)
+
+Pooled over **avrdb, fundus-avseg, hrf, reyia**. **Dice** is overlap with what the annotator drew, 0 to 1. **clDice** asks the connectedness question instead — how much of each centreline falls inside the other's mask — and the two are read together: a model can cover the vessels and lose the network, or trace the network at the wrong width. **Vessels** is the union of each model's own arteries and veins, derived the same way for every model and for every annotator.
+
+| Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Seconds each | Marked |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [ocularnet](models/ocularnet.md) | 804 | 0.829 | 0.853 | 0.859 | 0.878 | 2.742 | unknown |
+| [lunet](models/lunet.md) | 804 | 0.778 | 0.804 | 0.846 | 0.855 | 20.255 | unknown |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | 804 | 0.752 | 0.789 | 0.806 | 0.815 | 22.595 | unknown |
+| [automorph-artery-vein](models/automorph-artery-vein.md) | 804 | 0.708 | 0.774 | 0.776 | 0.784 | 3.429 | mixed: in-sample-unclear-split, out-of-sample |
+| [bf-net](models/bf-net.md) | 804 | 0.491 | 0.601 | 0.617 | 0.625 | 0.481 | out-of-sample |
+
+**Where to start.**
+
+- **For arteries against veins**: **ocularnet** (artery 0.829, vein 0.853). **lunet** is 0.050 behind on the two together (artery 0.778, vein 0.804).
+- **For the vessel network itself**, which is what a connectedness measurement rests on: **ocularnet** (clDice 0.878, against 0.855 for lunet).
+
+**A vessel score is not a second opinion on a class score.** In most of these datasets the vessel annotation *is* the artery/vein annotation, so the two columns are one measurement seen twice — [what came out](benchmarks/av-results.md) says which, and holds the per-dataset detail these pooled figures hide.
+
 ## Disc and cup
 
 **Where exactly are the optic disc and the cup inside it?** Each model's outline is compared with the one an ophthalmologist drew on the same photograph — every ophthalmologist separately, never an averaged consensus — and with the cup-to-disc ratio computed from it, which is the number a glaucoma referral rests on.
@@ -57,4 +80,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-09-18
+**Generated:** 2026-09-19

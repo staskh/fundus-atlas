@@ -1,0 +1,58 @@
+{
+  "benchmark": "av",
+  "dataset": "avrdb",
+  "fingerprint": "c4d7f41bcaa5727cd5eb72c51e2f4cdaecccf53229851437de19f5801d82af4c",
+  "model": "ocularnet",
+  "summary": {
+    "artery_cldice": {
+      "mean": 0.7486486800000002,
+      "median": 0.7679165,
+      "n": 100,
+      "spread": 0.11035589628396664
+    },
+    "artery_dice": {
+      "mean": 0.6696323599999998,
+      "median": 0.6907055,
+      "n": 100,
+      "spread": 0.09638906521297112
+    },
+    "complete": true,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "photographs": 100,
+    "processed": 100,
+    "seconds_per_photograph": 2.8252386927474777,
+    "segmentations": 100,
+    "structures": [
+      "artery",
+      "vein"
+    ],
+    "timed_photographs": 99,
+    "total": 100,
+    "vein_cldice": {
+      "mean": 0.79140559,
+      "median": 0.8090125,
+      "n": 100,
+      "spread": 0.08979829806350396
+    },
+    "vein_dice": {
+      "mean": 0.72078447,
+      "median": 0.7385045,
+      "n": 100,
+      "spread": 0.07466840018152993
+    },
+    "vessels_cldice": {
+      "mean": 0.8082321700000001,
+      "median": 0.825536,
+      "n": 100,
+      "spread": 0.08294263161342964
+    },
+    "vessels_dice": {
+      "mean": 0.7262254899999999,
+      "median": 0.7411625,
+      "n": 100,
+      "spread": 0.06955222983104065
+    }
+  }
+}

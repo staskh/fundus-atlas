@@ -1,0 +1,58 @@
+{
+  "benchmark": "av",
+  "dataset": "fundus-avseg",
+  "fingerprint": "316918fa872c69bf0670773bc557747d78054284b2e56d56f7840922768f0954",
+  "model": "lunet",
+  "summary": {
+    "artery_cldice": {
+      "mean": 0.8323680700000001,
+      "median": 0.83606,
+      "n": 100,
+      "spread": 0.04233242383238999
+    },
+    "artery_dice": {
+      "mean": 0.80476647,
+      "median": 0.8072495,
+      "n": 100,
+      "spread": 0.03818398007946657
+    },
+    "complete": true,
+    "device": "tensorflow",
+    "excluded": {},
+    "failed": 0,
+    "photographs": 100,
+    "processed": 100,
+    "seconds_per_photograph": 20.46144026469698,
+    "segmentations": 100,
+    "structures": [
+      "artery",
+      "vein"
+    ],
+    "timed_photographs": 99,
+    "total": 100,
+    "vein_cldice": {
+      "mean": 0.8352337200000001,
+      "median": 0.841656,
+      "n": 100,
+      "spread": 0.04154047550861208
+    },
+    "vein_dice": {
+      "mean": 0.8182318400000002,
+      "median": 0.8221805,
+      "n": 100,
+      "spread": 0.03609193855107259
+    },
+    "vessels_cldice": {
+      "mean": 0.9174823999999998,
+      "median": 0.922659,
+      "n": 100,
+      "spread": 0.024444901636128547
+    },
+    "vessels_dice": {
+      "mean": 0.8660735799999998,
+      "median": 0.868958,
+      "n": 100,
+      "spread": 0.021394599291494096
+    }
+  }
+}
