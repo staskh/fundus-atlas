@@ -103,8 +103,10 @@ limitation, not a formality.
 
 - **Publicly available:** Yes, though not from a versioned source.
 - **Download URLs:**
-  - https://drive.google.com/uc?id=116EEFBn7qr_LpCBb8GBuyzpa_KGp4xPX — the Google Drive file
-    fetched by PVBM, read out of `PVBM/DiscSegmenter.py`.
+  - https://drive.google.com/file/d/11GE-M-VtIXb6X7_bU2nwH-8mMrSJAAbY/view?usp=sharing — the
+    Google Drive file named in [PVBM issue #5](https://github.com/aim-lab/PVBM/issues/5). The URL
+    hardcoded in `PVBM/DiscSegmenter.py` no longer serves anything, so a fresh checkout of PVBM
+    cannot fetch its own disc weights.
   - https://github.com/jaburke166/AutoMorphalyzer/releases/download/v1.0_PVBM/lunetv2_odc.onnx —
     a copy republished by AutoMorphalyzer, which at least has a fixed release tag.
 - **Format and size:** ONNX, saved locally as `lunetv2_odc.onnx`.

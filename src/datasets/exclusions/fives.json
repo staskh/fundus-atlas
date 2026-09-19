@@ -1,0 +1,21 @@
+{
+  "dataset": "fives",
+  "exclusions": [
+    {
+      "key": "train_447_g",
+      "maps": ["vessels"],
+      "reason": "annotation-incomplete",
+      "detail": "The published vessel mask holds zero pixels. FIVES annotates a median 8.10% of the frame as vessel and no other photograph in the set falls below 0.73%, so this is an annotation that was never drawn rather than a photograph with no vessels in it. The photograph itself is present and is a fundus — 2015 pixels square, 63.5% of the frame lit — but it is dark, mean brightness 15 of 255, and FIVES' own quality sheet grades it bad. Every model scored 0.000 Dice on it, which measures the empty reference rather than the model.",
+      "evidence": "Our sweep of every native vessel mask in every built store, 2026-09-19: two of 800 FIVES masks are empty and none of the 808 masks in the other four artery/vein datasets are.",
+      "found": "2026-09-19"
+    },
+    {
+      "key": "train_448_g",
+      "maps": ["vessels"],
+      "reason": "annotation-incomplete",
+      "detail": "The published vessel mask holds zero pixels, on the same terms as train_447_g. The photograph is 2014 pixels square with 48.8% of the frame lit, mean brightness 13 of 255, and is graded bad by FIVES' own quality sheet.",
+      "evidence": "The same sweep, 2026-09-19.",
+      "found": "2026-09-19"
+    }
+  ]
+}

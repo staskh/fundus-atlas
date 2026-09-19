@@ -10,20 +10,23 @@ What this repository measured against what experts annotated, on the same images
 
 [How it is run](benchmarks/av-docs.md) · [What came out](benchmarks/av-results.md) · [The analysis](../notebooks/av.ipynb) · [Every score](../results/av/)
 
-Pooled over **avrdb, fundus-avseg, hrf, reyia**. **Dice** is overlap with what the annotator drew, 0 to 1. **clDice** asks the connectedness question instead — how much of each centreline falls inside the other's mask — and the two are read together: a model can cover the vessels and lose the network, or trace the network at the wrong width. **Vessels** is the union of each model's own arteries and veins, derived the same way for every model and for every annotator.
+Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with what the annotator drew, 0 to 1. **clDice** asks the connectedness question instead — how much of each centreline falls inside the other's mask — and the two are read together: a model can cover the vessels and lose the network, or trace the network at the wrong width. **Vessels** is the union of each model's own arteries and veins, derived the same way for every model and for every annotator.
+
+**Except for [segan-vessel](models/segan-vessel.md)**, which does not separate arteries from veins: its vessel map is its own prediction rather than a union, and its class cells are empty because it was never asked. It is a reference for that column, not a competitor in it.
 
 | Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [ocularnet](models/ocularnet.md) | 804 | 0.829 | 0.853 | 0.859 | 0.878 | 2.742 | unknown |
-| [lunet](models/lunet.md) | 804 | 0.778 | 0.804 | 0.846 | 0.855 | 20.255 | unknown |
-| [vascx-artery-vein](models/vascx-artery-vein.md) | 804 | 0.752 | 0.789 | 0.806 | 0.815 | 22.595 | unknown |
-| [automorph-artery-vein](models/automorph-artery-vein.md) | 804 | 0.708 | 0.774 | 0.776 | 0.784 | 3.429 | mixed: in-sample-unclear-split, out-of-sample |
-| [bf-net](models/bf-net.md) | 804 | 0.491 | 0.601 | 0.617 | 0.625 | 0.481 | out-of-sample |
+| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.854 | 0.884 | 2.665 | unknown |
+| [lunet](models/lunet.md) | 1,602 | 0.778 | 0.804 | 0.838 | 0.864 | 20.152 | unknown |
+| [segan-vessel](models/segan-vessel.md) | 1,602 | — | — | 0.832 | 0.862 | 1.928 | mixed: in-sample-unclear-split, out-of-sample |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.804 | 0.829 | 19.945 | unknown |
+| [automorph-artery-vein](models/automorph-artery-vein.md) | 1,602 | 0.708 | 0.774 | 0.747 | 0.757 | 3.462 | mixed: in-sample-unclear-split, out-of-sample |
+| [bf-net](models/bf-net.md) | 1,602 | 0.491 | 0.601 | 0.614 | 0.625 | 0.459 | out-of-sample |
 
 **Where to start.**
 
 - **For arteries against veins**: **ocularnet** (artery 0.829, vein 0.853). **lunet** is 0.050 behind on the two together (artery 0.778, vein 0.804).
-- **For the vessel network itself**, which is what a connectedness measurement rests on: **ocularnet** (clDice 0.878, against 0.855 for lunet).
+- **For the vessel network itself**, which is what a connectedness measurement rests on: **ocularnet** (clDice 0.884, against 0.864 for lunet).
 
 **A vessel score is not a second opinion on a class score.** In most of these datasets the vessel annotation *is* the artery/vein annotation, so the two columns are one measurement seen twice — [what came out](benchmarks/av-results.md) says which, and holds the per-dataset detail these pooled figures hide.
 

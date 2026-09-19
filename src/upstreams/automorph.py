@@ -12,12 +12,13 @@ from .utils import source
 QUALITY_STAGE = "M1_Retinal_Image_quality_EyePACS"
 DISC_STAGE = "M2_lwnet_disc_cup"
 AV_STAGE = "M2_Artery_vein"
+VESSEL_STAGE = "M2_Vessel_seg"
 
 CODE = source.Checkout(
     "automorph",
     "https://github.com/rmaphoh/AutoMorph",
     "9a953e5edfa419b454e9fb7b06235eb413828d05",
-    subtrees=[QUALITY_STAGE, DISC_STAGE, AV_STAGE],
+    subtrees=[QUALITY_STAGE, DISC_STAGE, AV_STAGE, VESSEL_STAGE],
     imports_from=QUALITY_STAGE,
 )
 
@@ -27,9 +28,18 @@ CODE = source.Checkout(
 QUALITY_WEIGHTS = f"{QUALITY_STAGE}/Retinal_quality/EyePACS_quality/efficientnet"
 DISC_WEIGHTS = f"{DISC_STAGE}/experiments/wnet_All_three_1024_disc_cup"
 AV_WEIGHTS = f"{AV_STAGE}/ALL-AV"
+VESSEL_WEIGHTS = f"{VESSEL_STAGE}/Saved_model/train_on_ALL-SIX"
 
 #: The three checkpoints each artery/vein seed is, in the order `test_outside.py` loads them.
 AV_CHECKPOINTS = ("CP_best_F1_A.pth", "CP_best_F1_V.pth", "CP_best_F1_all.pth")
+
+#: The ten seeds of the vessel ensemble, as `test_outside_integrated.py` names them — every even
+#: number from 24 to 42, each a folder of its own holding one checkpoint.
+VESSEL_SEEDS = tuple(range(24, 44, 2))
+
+#: What every vessel seed folder is called, and the one checkpoint inside it.
+VESSEL_JOB = "20210630_uniform_thres40_ALL-SIX"
+VESSEL_CHECKPOINT = "G_best_F1_epoch.pth"
 
 
 def quality_weights() -> list[Path]:
@@ -71,6 +81,36 @@ def av_seeds() -> list[Path]:
 def av_weights() -> list[Path]:
     """Every checkpoint the artery/vein ensemble loads: three per seed, twenty-four in all."""
     return [folder / name for folder in av_seeds() for name in AV_CHECKPOINTS]
+
+
+def vessel_folder(seed: int) -> str:
+    """Where one seed of the vessel ensemble lives, inside the checkout."""
+    return f"{VESSEL_WEIGHTS}/{VESSEL_JOB}_savebest_randomseed_{seed}"
+
+
+def vessel_weights() -> list[Path]:
+    """The ten checkpoints of the vessel ensemble, one per seed, committed in the repository."""
+    tree = CODE.obtain()
+    checkpoints = [tree / vessel_folder(seed) / VESSEL_CHECKPOINT for seed in VESSEL_SEEDS]
+    missing = [path for path in checkpoints if not path.exists()]
+    if missing:
+        raise RuntimeError(
+            f"expected the ten seeds of the vessel ensemble under {tree / VESSEL_WEIGHTS}; "
+            f"{len(missing)} are missing, the first being {missing[0]}"
+        )
+    return checkpoints
+
+
+def vessel_architecture() -> object:
+    """The stage's own `Segmenter`, a U-Net emitting one logit per pixel.
+
+    Its module is called `model`, which the quality stage also owns, so it is bound to a name of
+    ours rather than reached through ``sys.path``.
+    """
+    stage = source.package(
+        "automorph_vessel", CODE.obtain() / VESSEL_STAGE, modules=["model", "utils"]
+    )
+    return stage.model.Segmenter
 
 
 def av_architecture() -> object:

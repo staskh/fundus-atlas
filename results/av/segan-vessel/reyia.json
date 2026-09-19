@@ -1,0 +1,35 @@
+{
+  "benchmark": "av",
+  "dataset": "reyia",
+  "fingerprint": "942b22540e6684ad15a78fb4620487cf62d8e2031bf638936b5a48c3ce4772cf",
+  "model": "segan-vessel",
+  "summary": {
+    "complete": true,
+    "device": "mps",
+    "excluded": {
+      "no vessel annotation to score against": 4
+    },
+    "failed": 0,
+    "photographs": 559,
+    "processed": 559,
+    "seconds_per_photograph": 1.8561605784032957,
+    "segmentations": 559,
+    "structures": [
+      "vessels"
+    ],
+    "timed_photographs": 558,
+    "total": 559,
+    "vessels_cldice": {
+      "mean": 0.8676143237924865,
+      "median": 0.877891,
+      "n": 559,
+      "spread": 0.04273049169744638
+    },
+    "vessels_dice": {
+      "mean": 0.8164823577817532,
+      "median": 0.82111,
+      "n": 559,
+      "spread": 0.03931831440836352
+    }
+  }
+}

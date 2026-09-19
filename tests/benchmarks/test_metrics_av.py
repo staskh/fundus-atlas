@@ -123,3 +123,49 @@ def test_the_vessel_score_is_the_union_of_what_the_model_drew() -> None:
     measured = av.measure(said, truth)
 
     assert measured["vessels_dice"] == pytest.approx(2 / 3, abs=0.02), "half the network found"
+
+
+def test_a_model_that_only_finds_vessels_is_measured_on_what_it_drew() -> None:
+    """A vessel-only model has no arteries to take a union of, and its own map is the answer.
+
+    Deriving `vessels` from artery and vein is what makes that column mean one thing across every
+    artery/vein model. A model that predicts vessels directly cannot take part in that derivation,
+    so its own prediction stands — which is why the benchmark calls it a reference rather than a
+    competitor.
+    """
+    artery = np.zeros((8, 8), dtype=bool)
+    artery[2:4, :] = True
+    vein = np.zeros((8, 8), dtype=bool)
+    vein[4:5, :] = True
+    drawn = artery | vein
+
+    measured = av.measure({"vessels": drawn}, {"artery": artery, "vein": vein, "vessels": drawn})
+
+    assert measured["vessels_dice"] == pytest.approx(1.0)
+    assert "artery_dice" not in measured, "it said nothing about arteries and is asked nothing"
+    assert "vein_dice" not in measured
+
+
+def test_an_annotation_of_vessels_alone_scores_the_vessel_column_and_no_other() -> None:
+    """FIVES annotates vessels and neither class, so an artery/vein model is scored on its union."""
+    artery = np.zeros((8, 8), dtype=bool)
+    artery[2:4, :] = True
+    vein = np.zeros((8, 8), dtype=bool)
+    vein[6:8, :] = True
+
+    measured = av.measure({"artery": artery, "vein": vein}, {"vessels": artery | vein})
+
+    assert measured["vessels_dice"] == pytest.approx(1.0), "the union is what it said about vessels"
+    assert "artery_dice" not in measured, "nothing was drawn to compare its arteries against"
+
+
+def test_a_published_vessel_map_is_not_overwritten_by_an_empty_union() -> None:
+    """The union is derived where there is something to derive it from, and never otherwise."""
+    drawn = np.zeros((8, 8), dtype=bool)
+    drawn[1:3, :] = True
+
+    assert av.vessels_of({"vessels": drawn}).shape == drawn.shape
+    assert av.vessels_of({"vessels": drawn}).sum() == drawn.sum()
+    assert av.vessels_of({"artery": drawn, "vessels": np.zeros((8, 8), dtype=bool)}).sum() == (
+        drawn.sum()
+    ), "where arteries exist the union is still what the vessel column holds"

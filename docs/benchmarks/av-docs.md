@@ -22,6 +22,7 @@ Whether a model's **arteries and veins** are where an ophthalmologist drew them.
 | [bf-net](../models/bf-net.md) | `f7de674e` | 1024² | 720² | background, artery, vein, crossing | artery, vein | one seed, trained on DRIVE_AV |
 | [lunet](../models/lunet.md) | `0b0f383e` | 1472² | 1472² | vein, artery, vessels | artery, vein | 1 |
 | [ocularnet](../models/ocularnet.md) | `34b1ecc3` | 1024² | 1024² | background, artery, vein, crossing | artery, vein | one model, averaged over four flips of the photograph |
+| [segan-vessel](../models/segan-vessel.md) | `9a953e5e` | 1024² | 912² | vessel | vessels | 10 |
 | [vascx-artery-vein](../models/vascx-artery-vein.md) | `d0cde1c7` | 1024² | 1024² | background, artery, vein, unclassified | artery, vein | one checkpoint holding several folds, with test-time flips |
 | [ocularnet-nano](../models/ocularnet-nano.md) | **not measured** — its five checkpoints answer HTTP 401 and the anonymous review account that served them now holds one repository — the weights cannot be obtained at all | — | — | — | — | — |
 
@@ -31,23 +32,30 @@ Whether a model's **arteries and veins** are where an ophthalmologist drew them.
 
 **Two grids, because a store holds one and a network wants another.** The photographs are read at the size the store built nearest what the model was trained on, and where the network's own grid is not one of those — BF-Net and AutoMorph's artery/vein model both run at 720 — the adapter resizes down to it rather than up, so nothing is invented. The probabilities come back to the native frame either way.
 
-**The vessel map is derived, identically for every model**, as the union of its own artery and vein masks — not whatever vessel channel a model may also publish. LUNet publishes one; it is declared above and not used, so that every model's vessel score means the same thing.
+**The vessel map is derived, identically for every artery/vein model**, as the union of its own artery and vein masks — not whatever vessel channel a model may also publish. LUNet publishes one; it is declared above and not used, so that every artery/vein model's vessel score means the same thing.
+
+**One model here is the exception, and is carried as a reference rather than as a competitor.** [segan-vessel](../models/segan-vessel.md) does not separate arteries from veins, so it has no union to take and **its own vessel map is its answer**. Its artery and vein cells are left empty rather than scored as nothing — empty says it was not asked, where a zero would say it answered and was wrong — and a reader comparing its vessel score with another model's is comparing a prediction with a union.
+
+**It is also run at a threshold this repository chose rather than inherited.** A pixel becomes vessel at **0.2** here, where its own pipeline writes its binary mask at 0.5. The lower figure keeps the thin vessels the higher one drops, which is what a reference for this column is wanted for; the cost is that every score recorded for it is a score of the model at 0.2 rather than of the model as its authors run it.
 
 ## 3. The datasets
 
 | Dataset | Photographs | Readers | Vessel annotation | Excluded, and why |
 | --- | --- | --- | --- | --- |
 | [avrdb](../datasets/avrdb.md) | 100 | 1 | **drawn, but not independent**: it agrees with the union to within 0.4–0.6% | none |
+| [fives](../datasets/fives.md) | 798 | 1 | **its own tracing, and the only annotation it has**: no artery/vein labels at all | 2 no vessel annotation to score against |
 | [fundus-avseg](../datasets/fundus-avseg.md) | 100 | 1 | derived from the artery/vein labels by the authors | none |
 | [hrf](../datasets/hrf.md) | 45 | 1 | **the same tracing**: 0.004% of pixels differ from the artery/vein union | none |
-| [reyia](../datasets/reyia.md) | 559 | 1 | derived here as the union; the archive publishes no separate tracing | 4 no artery/vein annotation to score against |
+| [reyia](../datasets/reyia.md) | 559 | 1 | derived here as the union; the archive publishes no separate tracing | 4 no vessel annotation to score against |
 | [les-av](../datasets/les-av.md) | **not measured** — no store built | — | — | — |
 | [rav](../datasets/rav.md) | **not measured** — no store built | — | — | — |
 | [rite](../datasets/rite.md) | **not measured** — no store built | — | — | — |
 
 **The vessel annotation column is the one to read before comparing scores.** In three of these datasets the vessel map *is* the artery/vein map: Fundus-AVSeg and AVRDB derive theirs, and HRF's hand-drawn gold standard differs from the union of its artery/vein maps by 0.004% of pixels across all 45 photographs. A model's vessel score and its class scores there are **one measurement seen twice**, and their agreement is not corroboration.
 
-[REYIA](../datasets/reyia.md) is a compilation, and its subsets are named for the collections its photographs came from — three of which this repository builds separately. Pooling a figure over REYIA and those datasets counts the same eyes twice.
+**[FIVES](../datasets/fives.md) annotates vessels and neither class**, so every model is scored there on the vessel column alone and its artery and vein cells are empty for all of them. It earns its place because it is the one dataset here that the vessel reference did not train on.
+
+[REYIA](../datasets/reyia.md) is a compilation, and its subsets are named for the collections its photographs came from — three of which this repository builds separately. Pooling a figure over REYIA and those datasets counts the same eyes twice: **fives** and **reyia** share 75 photographs.
 
 ### 3.1 What is worth fetching next, and what each would settle
 
@@ -88,9 +96,9 @@ python -m benchmarks --benchmark av --max-samples 20
 | `native_side` | the side of the native square, in pixels — every score below is measured in it |
 | `outcome` | `graded`, or `failed` with the reason in `note` |
 | `resampling` | how the model's output reached the native frame |
-| `artery_dice` | overlap with the reader's arteries, 0 to 1 |
-| `vein_dice` | overlap with the reader's veins |
-| `vessels_dice` | overlap with the reader's vessels — **both derived as artery ∪ vein** |
+| `artery_dice` | overlap with the reader's arteries, 0 to 1 — **empty** where the model or the dataset says nothing about the classes, which is not the same as a zero |
+| `vein_dice` | overlap with the reader's veins, on the same terms |
+| `vessels_dice` | overlap with the reader's vessels — **derived as artery ∪ vein on each side that has the two classes**, and the map itself on a side that has only vessels |
 | `artery_cldice` | how much of each artery network's centreline lies inside the other's mask |
 | `vein_cldice` | as above, for the veins |
 | `vessels_cldice` | as above, for the vessels |
@@ -124,4 +132,4 @@ The timing covers the model's own call and nothing around it — not reading the
 
 ---
 
-**Generated by `python -m benchmarks --benchmark av` on:** 2026-09-18
+**Generated by `python -m benchmarks --benchmark av` on:** 2026-09-19
