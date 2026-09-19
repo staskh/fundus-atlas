@@ -16,6 +16,8 @@ models, so it functions as a third camera in that lineage rather than as an eval
 
 ## 2. Provenance
 
+### 2.1 LES-AV — the photographs and their artery/vein maps
+
 | | |
 | --- | --- |
 | Home | <https://figshare.com/articles/dataset/LES-AV_dataset/11857698> |
@@ -28,6 +30,23 @@ models, so it functions as a third camera in that lineage rather than as an eval
 **Two licences disagree.** figshare's metadata records the item as **GPL**, a software licence and an
 odd fit for photographs. Where the two conflict, the narrower text inside the archive governs: treat
 LES-AV as research-only.
+
+### 2.2 VC-Net — a secondary copy of the photographs and artery/vein labels
+
+| | |
+| --- | --- |
+| Home | <https://github.com/yiyg510/VC-Net/tree/master/data> — the LES copies are in `data/LES_AV/` |
+| Download | **direct, no registration** — 22 photographs with their labels, 11 under `training/` and 11 under `test/`, renamed by index |
+| Citation | Hu J, Wang H, Cao Z, Wu G, Jonas JB, Wang YX, Zhang J. *Automatic Artery/Vein Classification Using a Vessel-Constraint Network for Multicenter Fundus Images.* Frontiers in Cell and Developmental Biology 2021;9:659941. DOI: [10.3389/fcell.2021.659941](https://doi.org/10.3389/fcell.2021.659941) — cite the source above as well, since the data is theirs |
+| Licence | **None stated, and none inherited.** VC-Net's repository carries no licence file, while LES-AV's own README forbids commercial use. The restriction travels with the data: a copy under no licence is not a copy under a permissive one |
+| Content | The same 22 photographs; the one examined here is 1620×1444, matching the source |
+| Annotations | Artery, vein, crossing and uncertain classes, a vessel layer and field-of-view masks |
+
+**The uncertain class survives in the files and is discarded by the code.** *Our finding,
+2026-09-19:* the label examined (`data/LES_AV/test/label/0.png`) holds 1,506 white pixels alongside
+red, blue and green, so the copy preserves what the source drew. VC-Net's own label decoder then
+sends those pixels to background rather than excluding them — which is a defect of the model, not
+of this copy, and is recorded on [its page](../models/vc-net.md) §10.
 
 ## 3. The images
 
