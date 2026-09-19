@@ -31,8 +31,14 @@ and then fusing that binary result into the multi-class decision — hence "bina
 ## 4. What it produces
 
 - **Purpose:** `artery/vein`
-- **Output classes:** multi-class vessel segmentation — artery, vein, and (in the fused output)
-  vessel. The published inference writes artery, vein and combined-vessel maps separately.
+- **Output classes:** four, exclusive — background, artery, vein, and a fourth class the authors'
+  own evaluation code calls *uncertainty*. **On the annotations it was trained on, that fourth class
+  is the crossings**: where an artery passes over a vein, an annotator marks the pixels as belonging
+  to both vessels, and a network emitting exclusive classes has to put them somewhere. This atlas
+  measured that rather than assuming it — see section 11 — and reads an artery as the artery class
+  plus the fourth class, which is what [AutoMorph](../projects/automorph.md)'s postprocessing does
+  with the same network's output. The published inference writes artery, vein and combined-vessel
+  maps separately.
 - **Input grid:** 720×720 when run with `--uniform=True`, which is how both this repository's own
   scripts and AutoMorph invoke it. Without that flag the grid is per-dataset and non-square:
   [HRF-AV](../datasets/hrf.md) 880×592, [DRIVE-AV](../datasets/rite.md) 592×592, [LES-AV](../datasets/les-av.md) 800×720. Note this is a **different grid from the vessel
@@ -43,41 +49,74 @@ and then fusing that binary result into the multi-class decision — hence "bina
   AutoMorph's `M2_Artery_vein/scripts/utils.py`.
 - **Input expected:** a colour-fundus photograph; the repository's own pipeline resizes per dataset,
   and the authors note image size settings must be reduced for weaker GPUs.
-- **Preprocessing in the published code:** dataset-specific resizing and normalisation, with a
-  `--uniform` option used throughout their commands.
+- **Preprocessing in the published code:** resize to the grid above, then **scale** each channel by
+  the statistics of the photograph's own lit pixels — those with any red in them. The expression is
+  `(image - mean) / 1.0 * std`, whose operator precedence multiplies by the standard deviation
+  rather than dividing by it, so a low-contrast photograph is scaled towards zero rather than
+  stretched. **Both** of the repository's dataset classes carry the same expression, so the weights
+  were trained through it; it is recorded in section 10 because it means the input is not
+  standardised in the usual sense.
 
 ## 5. Architecture
 
-- **Family:** GAN-based segmentation. A main generator is fused with a branch generator
-  (`Generator_main`, `Generator_branch` in the code) and trained against a U-Net discriminator. The
-  README states the GAN backbone is a revision of the SEGAN vessel-segmentation method — see
+- **Family:** GAN-based segmentation. **Two** branch generators — one for arteries, one for veins —
+  each emit a segmentation and a fusion map, and it is the *fusion* maps that condition a main
+  generator alongside the photograph (`Generator_branch` and `Generator_main` in
+  `scripts/model.py`). A U-Net discriminator takes part in training only. The README states the GAN
+  backbone is a revision of the SEGAN vessel-segmentation method — see
   [segan-vessel.md](segan-vessel.md).
 - **Parameters:** Unknown.
-- **Single model or ensemble:** the published training runs one model per random seed; downstream
-  users ensemble several seeds themselves (AutoMorph ships eight).
+- **Single model or ensemble:** **one seed.** Each of the three published archives holds a single
+  training run — seed 42 — as three checkpoints: the artery branch, the vein branch and the main
+  generator. Downstream users ensemble several seeds themselves, which is what
+  [AutoMorph's artery/vein model](automorph-artery-vein.md) is: the same architecture retrained on
+  three datasets at once and shipped as eight seeds. That is a different model and has its own
+  page.
 
 ## 6. Training data
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| [DRIVE-AV](../datasets/rite.md) | Training and test | The dataset's own authors | Yes: train, validation and test CSVs generated per dataset |
-| [LES-AV](../datasets/les-av.md) | Training and test | The dataset's own authors | Yes |
-| [HRF-AV](../datasets/hrf.md) | Training and test | The dataset's own authors | Yes |
+| [DRIVE-AV](../datasets/rite.md) | Training and test — of the `DRIVE_AV` archive | The dataset's own authors | Yes: train, validation and test CSVs generated per dataset |
+| [LES-AV](../datasets/les-av.md) | Training and test — of the `LES-AV` archive | The dataset's own authors | Yes |
+| [HRF-AV](../datasets/hrf.md) | Training and test — of the `HRF-AV` archive | The dataset's own authors | Yes |
 
-A fair benchmark of these weights therefore cannot use [DRIVE](../datasets/drive.md), LES-AV or [HRF](../datasets/hrf.md). Note that AutoMorph
-retrained the same architecture on a combined set it calls `ALL-AV` (DRIVE-AV, HRF-AV and LES-AV),
-so the same caution applies to the weights AutoMorph ships.
+**Each archive trained on one of the three, not all three**, so which dataset is off limits depends
+on which archive is loaded: the `DRIVE_AV` weights cannot be scored on
+[DRIVE](../datasets/drive.md)/[RITE](../datasets/rite.md) but are out-of-sample on
+[HRF](../datasets/hrf.md) and [LES-AV](../datasets/les-av.md), and so on round. That is the whole
+reason this atlas runs the DRIVE-trained archive.
+
+[AutoMorph](../projects/automorph.md) retrained the same architecture on all three at once — a
+combined set it calls `ALL-AV` — and those weights are in-sample on every one of them. They are
+catalogued as [AutoMorph artery/vein](automorph-artery-vein.md).
 
 ## 7. Weights
 
 - **Publicly available:** Yes.
 - **Download URL:** https://drive.google.com/drive/folders/1c_UZaq69RmPZjFvccot6GWqnhx2VzFRs — the
   pretrained models linked from the repository README, to be unzipped at the project folder.
-- **Format and size:** PyTorch checkpoints. The copies redistributed inside AutoMorph are about
-  35 MB each: `CP_best_F1_A.pth` (artery), `CP_best_F1_V.pth` (vein) and `CP_best_F1_all.pth`
-  (combined) per seed.
-- **Files in an ensemble:** one set per random seed; AutoMorph ships eight seed folders under
-  `M2_Artery_vein/ALL-AV/`.
+- **Format and size:** three zip archives, **one per training dataset rather than one per seed**,
+  each holding one seed's three PyTorch checkpoints: `CP_best_F1_A.pth` (the artery branch, 35 MB),
+  `CP_best_F1_V.pth` (the vein branch, 35 MB) and `CP_best_F1_all.pth` (the main generator, 37 MB).
+- **Files in an ensemble:** three files, one seed, no ensemble.
+
+**A Google Drive folder carries no version and no checksum.** The authors can replace a file in
+place and nothing downstream would say so, which means two people running "BF-Net" cannot establish
+that they ran the same weights. So this atlas takes its own digest of each archive and pins it: a
+download that does not match is refused rather than run, and the digest and its date go into every
+result the model produces.
+
+| Archive | Trained on | Bytes | sha256 |
+| --- | --- | --- | --- |
+| `DRIVE_AV.zip` | [DRIVE-AV](../datasets/rite.md) | 98,226,321 | `19ea93738eeadb9f41e502b2a7f7f5470a62b0bc05f1bc8c2abab5a925d37e7b` |
+| `HRF-AV.zip` | [HRF-AV](../datasets/hrf.md) | 98,063,648 | `adc67b59b08250343b26137347f877b1f11f3f9b6058d3565529fe05955045ac` |
+| `LES-AV.zip` | [LES-AV](../datasets/les-av.md) | 97,984,143 | `a5ef9eafce7a99b9095fda701aae5011be901150567a195b6b5779f94756b8aa` |
+
+**These are this repository's measurements, taken 2026-09-18**, not the authors' — they publish
+none. The [artery/vein benchmark](../benchmarks/av-docs.md) runs the **DRIVE-trained** archive,
+because it is the only one of the three that trained on none of the datasets that benchmark has a
+store for.
 
 ## 8. Performance as reported by the authors
 
@@ -98,18 +137,39 @@ model was trained on. This atlas's own comparisons are separate.
 
 | Project | How it is used | Weights |
 | --- | --- | --- |
-| [AutoMorph](../projects/automorph.md) | The `M2_Artery_vein` module | Retrained by AutoMorph on `ALL-AV`, shipped as an eight-seed ensemble |
+| [AutoMorph](../projects/automorph.md) | The `M2_Artery_vein` module | **Not these weights** — retrained on `ALL-AV` and shipped as eight seeds, catalogued as [AutoMorph artery/vein](automorph-artery-vein.md) |
 | [AutoMorphalyzer](../projects/automorphalyzer.md) | Artery/vein stage, unchanged from AutoMorph | AutoMorph's weights, republished as a release asset |
 | [AutoMorphClass](../projects/automorphclass.md) | `AV_classification.py` | AutoMorph's weights, vendored into the package |
 
+None of the three runs the weights on this page. They run the same architecture with other weights,
+which is why those have a page of their own.
+
 ## 10. Known defects
 
-None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health. The tortuosity
-defect that affects the pipelines above lives in the biomarker code, not in this model; see
-[retipy.md](../projects/retipy.md) section 8.
+- **The weights cannot be pinned by anything the authors publish.** They are files in a Google Drive
+  folder: no version, no release, no checksum, and no notice if one is replaced (section 7). This
+  repository's own digests are a workaround, not a fix.
+- **The input is scaled, not standardised.** `(image - mean) / 1.0 * std` multiplies by the standard
+  deviation (section 4). It is consistent between training and inference, so it is not a bug that
+  breaks these weights — but the network's sensitivity to contrast is the opposite of what the code
+  reads as, and anyone retraining from it inherits that silently.
+
+The tortuosity defect that affects the pipelines above lives in the biomarker code, not in this
+model; see [retipy.md](../projects/retipy.md) section 8.
 
 ## 11. Notes
 
+- **The fourth class is the crossings, and this atlas measured that.** The repository ships its own
+  indexed label maps, and scored against this repository's [HRF](../datasets/hrf.md) store, their
+  class 3 matches our crossing layer pixel for pixel — 56,690 pixels on `09_dr`, with none left
+  over, and class 1 and class 2 matching the arteries and veins outside the crossings exactly. The
+  authors' evaluation code calls the class *uncertainty* and scores it in its own right;
+  AutoMorph's biomarker stage folds it into both vessels. This atlas follows the latter, because it
+  is what the annotator drew.
+- **[RITE](../datasets/rite.md) also publishes vessels of uncertain type**, distinct from its
+  crossings, and a four-class network trained on it has nowhere else to put them. So on the
+  DRIVE-trained archive the fourth class may carry both, while on HRF — where there are no uncertain
+  pixels — it is crossings exactly.
 - The same repository trains only artery/vein models. The binary vessel model that AutoMorph pairs
   with this one is a different network — see [segan-vessel.md](segan-vessel.md).
 - Reference 6 of the README credits the GAN backbone to the SEGAN paper, which is how the two models
@@ -117,4 +177,4 @@ defect that affects the pipelines above lives in the biomarker code, not in this
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-18

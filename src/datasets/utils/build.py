@@ -7,7 +7,7 @@ import multiprocessing
 import shutil
 import sys
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from functools import partial
 from pathlib import Path
@@ -36,7 +36,14 @@ BUILDER_VERSION = 6
 
 #: The maps a store can hold, in the order they appear in the `maps` column. `disc` and `cup` mean
 #: polygons in `contours/<key>.csv`, never a raster.
-LAYERS = ("vessels", "av", "fov", "disc", "cup")
+LAYERS = ("artery", "vein", "vessels", "fov", "disc", "cup")
+
+#: The layers that exist at every built size. Everything else an annotator drew is written at
+#: **native and nowhere else**: a benchmark measures in the frame the annotation was made in — the
+#: disc benchmark already does — so a resized copy of a ground truth is a file nothing reads and a
+#: second thing that can fall out of step with the first. The photograph is resized because that is
+#: what a model is given; the answer is compared where it was drawn.
+EVERY_SIZE = ("images", "fov")
 
 #: The layers that live in `contours/<key>.csv` as polygons rather than in a directory of rasters.
 OUTLINED = ("disc", "cup")
@@ -93,6 +100,28 @@ class SourceRecord:
     readings: list[manifest.Reading] = field(default_factory=list)
 
 
+def as_masks(pixels: np.ndarray, reader: object, name: str = "av") -> dict[str, np.ndarray]:
+    """One published annotation as the binary masks the store keeps.
+
+    A coloured map read as greyscale is not an artery/vein map any more: red and blue arrive as two
+    grey levels that no consumer can tell from a faint vessel, and an annotation drawn on a white
+    page read that way is inside out. The dataset declares how its file is to be read, it is
+    translated here — once, before the crop — and the result is one file per vessel kind, with a
+    crossing belonging to both.
+    """
+    return reader.masks(pixels, name)
+
+
+def published_wins(declared: set[str], derived: dict[str, np.ndarray]) -> set[str]:
+    """Which of a reader's masks to keep, given what the dataset published in its own right.
+
+    Expanding an artery/vein map yields a vessel union as well, and where the dataset drew its own
+    vessels — HRF did, by hand, years before anyone separated its arteries — the union must not
+    replace it. Two independent annotations are worth more than one of them measured twice.
+    """
+    return {kind for kind in derived if kind not in declared}
+
+
 def run(
     slug: str,
     sources: list,
@@ -104,6 +133,7 @@ def run(
     extra_columns: list[manifest.Column] | None = None,
     skipped: Iterable[str] = (),
     verify: Callable[[Path, dict[str, Path], list[dict[str, str]]], dict] | None = None,
+    readers: dict[str, object] | None = None,
 ) -> int:
     """Build the store for one dataset.
 
@@ -112,6 +142,10 @@ def run(
         from and its rows. Whatever it returns is written into `build.json`, so that a store says
         not only what it holds but whether anyone looked. It runs before `raw/` is deleted, since
         the point of it is usually to compare the store against what the dataset published.
+    :param readers: how a layer's published file is to be read, where it is not already a
+        single-channel mask: `av.Palette` for a coloured artery/vein map, `av.Ink` for an annotation
+        drawn on a page. Each answers with the store's own binary masks, so one artery/vein map can
+        become three files and a drawing can become one.
     :param skipped: subcollections deliberately not built — an ultra-wide-field split, per the
         skill's rule 13.7. Each is warned about here and recorded in `build.json`, because a store
         that is quietly smaller than its dataset is how someone comes to under-count it.
@@ -126,7 +160,7 @@ def run(
     if done and not args.force and not done["partial"]:
         return _add_sizes(slug, store, args, done)
 
-    layers, provenance = _obtain(sources, store, args)
+    layers, provenance = obtain(store, sources, args)
     raw = next(iter(layers.values()))
     records = discover(layers)
     if args.limit:
@@ -148,6 +182,7 @@ def run(
         resolution_of=resolution_of,
         fov_strategy=fov_strategy,
         quality_rule=quality_rule,
+        readers=readers or {},
         force=args.force,
     )
     finished = done + list(_across(work, waiting, args.jobs, slug, len(records), len(done)))
@@ -278,17 +313,29 @@ def _add_sizes(slug: str, store: Path, args, done: dict) -> int:
         print(f"{slug}: up to date at {done['sizes']}", file=sys.stderr)
         return 0
 
-    keys = [row["key"] for row in manifest.read(store)]
+    rows = list(manifest.read(store))
     print(f"{slug}: adding {missing} from native/", file=sys.stderr)
-    for n, key in enumerate(keys, 1):
-        for layer in sorted(paths.frame(store, paths.NATIVE).iterdir()):
+    native = paths.frame(store, paths.NATIVE)
+    # The same rule as a first build: the photograph and its field at every size, the annotation at
+    # native only. Anything that is not one of those directories — a contour folder, or the
+    # `.DS_Store` a Mac leaves in a store somebody opened in the Finder — is not a layer to resize.
+    layers = [native / name for name in EVERY_SIZE if (native / name).is_dir()]
+    for n, row in enumerate(rows, 1):
+        key = row["key"]
+        for layer in layers:
             frame = np.asarray(Image.open(layer / f"{key}.png"))
             for size in missing:
                 out = paths.layer(store, size, layer.name)
                 out.mkdir(parents=True, exist_ok=True)
                 Image.fromarray(_resize(layer.name, frame, size)).save(out / f"{key}.png")
-        if n % 50 == 0 or n == len(keys):
-            print(f"\r{slug}: {n}/{len(keys)} images", end="", file=sys.stderr, flush=True)
+        drawn = native / "contours" / f"{key}.csv"
+        if drawn.exists():
+            traced = contours.read(drawn)
+            for size in missing:
+                where = paths.layer(store, size, "contours") / f"{key}.csv"
+                contours.write(where, traced, size / int(row["crop_side"]))
+        if n % 50 == 0 or n == len(rows):
+            print(f"\r{slug}: {n}/{len(rows)} images", end="", file=sys.stderr, flush=True)
     print(file=sys.stderr)
 
     done["sizes"] = sorted(set(done["sizes"]) | set(missing))
@@ -296,7 +343,7 @@ def _add_sizes(slug: str, store: Path, args, done: dict) -> int:
     return 0
 
 
-def _obtain(sources: list, store: Path, args) -> tuple[dict[str, Path], list[dict[str, str]]]:
+def obtain(store: Path, sources: list, args) -> tuple[dict[str, Path], list[dict[str, str]]]:
     """Get the dataset onto disk, however this run was asked to.
 
     :return: where each declared layer ended up, by name, and what to record about it. A tree
@@ -306,7 +353,18 @@ def _obtain(sources: list, store: Path, args) -> tuple[dict[str, Path], list[dic
     raw_dir = store / "raw"
     given = args.raw or args.archive
     if given:
-        where = Path(args.raw) if args.raw else archives.extract(Path(given), raw_dir / "archive")
+        # A source that is read where it lies stays packed, however it arrived. REYIA's archive is
+        # 12 GB and its fetcher addresses members directly; unpacking it because somebody passed
+        # --archive rather than letting it download costs the disk twice for nothing.
+        in_place = sources and all(
+            getattr(source, "extract_it", True) is False for source in sources
+        )
+        if args.raw:
+            where = Path(args.raw)
+        elif in_place:
+            where = Path(given)
+        else:
+            where = archives.extract(Path(given), raw_dir / "archive")
         layers = {source.layer: where for source in sources} or {"local": where}
         return layers, [{"layer": "local", "path": str(given)}]
 
@@ -335,9 +393,11 @@ def _build_one(
     resolution_of: resolution.Declared,
     fov_strategy: str,
     quality_rule: quality.Rule | None,
+    readers: dict[str, object] | None = None,
     force: bool = False,
 ) -> dict[str, str]:
     """Crop one image to its field of view, write every size of it, and describe it."""
+    readers = readers or {}
     photograph = _handle(record.image, raw)
     image = _read(photograph, "RGB")
     height, width = image.shape[:2]
@@ -347,7 +407,9 @@ def _build_one(
         footprint = np.full(image.shape[:2], 255, dtype=np.uint8)
     elif fov_strategy == fov.FROM_MASK and "fov" in record.maps:
         published = _read(_handle(record.maps["fov"], raw), "L")
-        circle = fov.detect(np.dstack([published] * 3))
+        # The geometry is fitted to the dataset's own mask, so the row says `mask` rather than
+        # `detected`: what was found is theirs, and only the circle through it is ours.
+        circle = replace(fov.detect(np.dstack([published] * 3)), source=fov.FROM_MASK)
         footprint = np.where(published > 0, 255, 0).astype(np.uint8)
     else:
         circle = fov.detect(image)
@@ -358,10 +420,18 @@ def _build_one(
     for name, source in record.maps.items():
         if name == "fov":
             continue
-        frames[name] = crop.apply(_read(_handle(source, raw), "L"), square)
+        if name in readers:
+            drawn_as = readers[name].masks(_read(_handle(source, raw), "RGB"), name)
+            drawn_as = {kind: drawn_as[kind] for kind in published_wins(set(record.maps), drawn_as)}
+        else:
+            drawn_as = {name: _read(_handle(source, raw), "L")}
+        for kind, found in drawn_as.items():
+            frames[kind] = crop.apply(found, square)
 
     for size in [paths.NATIVE, *sizes]:
         for name, frame in frames.items():
+            if size != paths.NATIVE and name not in EVERY_SIZE:
+                continue
             out = paths.layer(store, size, name)
             out.mkdir(parents=True, exist_ok=True)
             written = out / f"{record.key}.png"

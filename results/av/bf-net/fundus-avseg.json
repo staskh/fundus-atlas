@@ -1,0 +1,58 @@
+{
+  "benchmark": "av",
+  "dataset": "fundus-avseg",
+  "fingerprint": "a9b8b860bf2fc231d9f17692ee44e9fb720c08747b4bfc7229e8dbd493248c99",
+  "model": "bf-net",
+  "summary": {
+    "artery_cldice": {
+      "mean": 0.64420081,
+      "median": 0.6616854999999999,
+      "n": 100,
+      "spread": 0.07186171023830354
+    },
+    "artery_dice": {
+      "mean": 0.6596491499999999,
+      "median": 0.67061,
+      "n": 100,
+      "spread": 0.06396353200369333
+    },
+    "complete": true,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "photographs": 100,
+    "processed": 100,
+    "seconds_per_photograph": 0.4800223290909112,
+    "segmentations": 100,
+    "structures": [
+      "artery",
+      "vein"
+    ],
+    "timed_photographs": 99,
+    "total": 100,
+    "vein_cldice": {
+      "mean": 0.6959683299999999,
+      "median": 0.6988745000000001,
+      "n": 100,
+      "spread": 0.07000107621144906
+    },
+    "vein_dice": {
+      "mean": 0.7246486299999999,
+      "median": 0.7380225,
+      "n": 100,
+      "spread": 0.05936722353768197
+    },
+    "vessels_cldice": {
+      "mean": 0.7661906699999999,
+      "median": 0.769232,
+      "n": 100,
+      "spread": 0.05576479045904413
+    },
+    "vessels_dice": {
+      "mean": 0.7670273799999999,
+      "median": 0.7702225,
+      "n": 100,
+      "spread": 0.04746193898162611
+    }
+  }
+}

@@ -234,20 +234,23 @@ glaucoma clinic usually will not, because glaucoma changes the cup, not the disc
 
 ## 9. What the method is worth
 
-[PAPILA](../../docs/datasets/papila.md) is the one place this can be checked: its authors state a
-30° field, so a scale follows from the field diameter without any assumption about disc size, and
-this command's assumption can be measured against it.
+Two datasets state a field angle, which gives a scale without any assumption about disc size, so
+they are the only places this method can be checked at all:
 
-| Derivation | µm/px |
-| --- | --- |
-| From the stated 30° field | 3.777 (median; it is per image) |
-| From the median optic disc | 3.994 |
+| Dataset | From its stated field angle | From the median optic disc | They differ by |
+| --- | --- | --- | --- |
+| [PAPILA](../../docs/datasets/papila.md), 30° | 3.777 | 3.994 | **5.8%** |
+| [HRF](../../docs/datasets/hrf.md), 45° | 4.130 | 4.980 | **21%** |
 
-**The two agree to 5.8%.** Read the other way: if the field angle is right, PAPILA's median disc is
-**1,702 µm** rather than the 1,800 µm assumed here — inside the population range, and the size of
-the error to expect from this method on a dataset with nothing to check it against. Quote a
-`disc_anchored` micron figure with that in mind: it is a camera scale good to roughly a tenth, not
-a calibration.
+Read the second row the other way: under HRF's stated field its median disc is **1,490 µm**, not the
+1,800 µm this method assumes; under the disc figure its field spans **54°**, not the stated 45°.
+Nothing here can say which of the two is wrong, and both derivations are this repository's rather
+than an author's — the 300 µm per degree constant is a posterior-pole approximation, and a camera's
+quoted angle is not always the angle subtended at the retina.
+
+**So a `disc_anchored` figure is good to somewhere between a twentieth and a fifth**, on the two
+datasets where it could be checked at all. Quote it as an order of magnitude for a camera, never as
+a calibration, and never report a disc size in millimetres from it — that number was assumed.
 
 Re-run this comparison whenever the typical disc, the disc model or the gate changes, and record
 what it becomes.

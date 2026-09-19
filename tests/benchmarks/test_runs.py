@@ -124,3 +124,49 @@ def test_one_batch_is_timed_with_its_loading_because_there_is_nothing_else() -> 
 
 def test_a_run_that_measured_nothing_reports_no_timing() -> None:
     assert runs.Timing().summary() == {}
+
+
+def test_the_index_lists_benchmarks_and_not_every_directory_of_results(tmp_path: Path) -> None:
+    """`results/` holds more than benchmarks: `um_resolution/` is a dataset measurement.
+
+    The index took every directory there for a benchmark and tried to import a module for it.
+    """
+    from benchmarks import report
+
+    (tmp_path / "results" / "um_resolution").mkdir(parents=True)
+    (tmp_path / "results" / "um_resolution" / "chaksu.json").write_text("{}")
+
+    written = report.write_index(results=tmp_path / "results", into=tmp_path / "docs").read_text()
+
+    assert "um_resolution" not in written
+    assert "# Benchmarks" in written
+
+
+def test_a_file_carries_every_column_any_row_holds(tmp_path: Path) -> None:
+    """A model that failed on one photograph and answered on the next writes both rows.
+
+    The failed row carries no measurements — a column nothing measured stays absent rather than
+    blank — but it must not decide the header for the rows that do carry them.
+    """
+    runs.write(
+        tmp_path,
+        "av",
+        "bands",
+        "hrf",
+        "fingerprint",
+        {},
+        [
+            {"key": "a", "outcome": "failed", "note": "the network fell over"},
+            {"key": "b", "outcome": "graded", "artery_dice": "0.9"},
+        ],
+    )
+
+    written = runs.rows(tmp_path, "av", "bands", "hrf")
+
+    assert written[0] == {
+        "key": "a",
+        "outcome": "failed",
+        "note": "the network fell over",
+        "artery_dice": "",
+    }
+    assert written[1]["artery_dice"] == "0.9"

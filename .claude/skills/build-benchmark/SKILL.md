@@ -163,7 +163,7 @@ scored, so it is *not* part of the fingerprint. It is recorded separately, and i
 | `results/<benchmark>/<model>/<dataset>.csv` | per-image scores: what the dataset said, what the model said, and the subset and split it came from | **yes** — the evidence behind every table |
 | `results/<benchmark>/<model>/<dataset>.json` | the fingerprint, the summary, and how much of the dataset is done | **yes** |
 | `.atlas_runs/<benchmark>/<stamp>/run.json` | what ran, against what, with which pins and versions | no |
-| `.atlas_runs/<benchmark>/…` | predicted masks, where the benchmark makes them | no — but **kept**, because the biomarker benchmark reads them |
+| `.atlas_runs/<benchmark>/<model>/<dataset>/` | predicted masks, where the benchmark makes them — section 6.1 | no — but **kept**, because the biomarker benchmark reads them |
 | `docs/benchmarks/<benchmark>-docs.md` | how the benchmark is configured and run | **yes**, generated |
 | `docs/benchmarks/<benchmark>-results.md` | what came out | **yes**, generated |
 
@@ -171,6 +171,62 @@ The benchmark's name leads the path so that two benchmarks scoring the same mode
 photographs stay apart — the artery/vein segmentation benchmark and the biomarker one will do
 exactly that. The model comes next because that is how the files are read: someone following a model
 page wants that model's evidence across every dataset in one directory.
+
+### 6.1 What `.atlas_runs/` holds, and how another benchmark reads it
+
+`results/` is the evidence a reader can check; `.atlas_runs/` is what a run **produced** — too
+large to commit, and reconstructible by running it again. It is not scratch: the masks in it are
+the biomarker benchmark's input, so its layout is a contract between benchmarks rather than an
+implementation detail.
+
+```
+.atlas_runs/
+  <benchmark>/
+    <stamp>/run.json                     one per invocation — what ran, against what, and with
+                                         which pins: `2026-09-18T09-41-07Z/run.json`
+    <model>/<dataset>/
+      fingerprint.txt                    what these masks are of — section 6.2
+      <key>-<structure>.png              one file per structure, per photograph
+```
+
+- **`<key>` is the store's own key**, so a mask joins to `manifest.csv` and to
+  `results/<benchmark>/<model>/<dataset>.csv` on that column and nothing else.
+- **`<structure>` is what the benchmark scores**: `disc` and `cup` for the disc benchmark;
+  `artery`, `vein` and `vessels` for the artery/vein one. The union is **written as well as
+  derived**, because a vessel width or a fractal dimension reads it, and recomputing it in every
+  consumer is how two of them come to disagree about what a vessel is.
+- **Every mask is a 1-bit PNG in the native frame** — `crop_side × crop_side`, the square the store
+  built, which is where the annotator drew. Not the model's grid: a consumer measuring a calibre in
+  pixels needs the frame the resolution in `manifest.csv` belongs to. A mask whose side is not
+  `crop_side` means the store has been rebuilt since it was drawn, and is an error rather than
+  something to resample.
+- **A photograph the model failed on has no files**, and its row in `results/` says `failed`. A
+  consumer reads the row, not the directory listing.
+- **Anything else under `.atlas_runs/` is scratch** — a log, a stray directory — and nothing may
+  depend on it.
+
+### 6.2 The fingerprint that says whether a kept mask is still the model's
+
+A result carries **two** fingerprints, and they are deliberately different:
+
+| Fingerprint | Covers | Where |
+| --- | --- | --- |
+| **drawing** | the model's declared facts, the sha256 of the weights actually loaded, and the store's slug and builder version | `.atlas_runs/<benchmark>/<model>/<dataset>/fingerprint.txt`, and `drawing` in `run.json` |
+| **result** | the drawing fingerprint **plus** the benchmark's own name, version and size floor | `fingerprint` in `results/<benchmark>/<model>/<dataset>.json` |
+
+The split is what makes a re-measurement cheap and a stale mask impossible:
+
+- changing **what is measured** — a new metric, a new column — changes the result fingerprint and
+  not the drawing one, so `--rescore` measures the masks already on disk and asks no model to run;
+- changing **the model, its weights or the store** changes both, and the run empties the mask
+  directory before drawing into it, so a mask a model no longer agrees with is never read as one it
+  does.
+
+**A benchmark that consumes these masks — the biomarker one — must check the drawing fingerprint
+before reading them.** Recompute it from the adapter's declaration, the weights digest and the
+store, compare it with `fingerprint.txt`, and where they differ, draw them again rather than
+measure what some earlier model said. A mask directory with no `fingerprint.txt` is not a mask
+directory.
 
 **Every result records three counts**, and they answer three different questions:
 

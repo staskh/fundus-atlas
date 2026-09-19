@@ -32,11 +32,11 @@ discs agree closely enough to trust as one camera. The evidence is committed und
 manifest, where `resolution_source` says `disc_anchored` so that nobody mistakes it for an author's
 measurement.
 
-**What that inference is worth is measurable, once.** [PAPILA](datasets/papila.md) states a 30°
-field, so a scale follows from the field's diameter without assuming any disc size — and the two
-derivations agree to **5.8%**, its median disc coming out at 1,702 µm against the 1,800 µm assumed.
-Read every inferred figure in this catalogue as a camera scale good to roughly a tenth, and none of
-them as a per-eye calibration.
+**What that inference is worth is measurable on two datasets.** [PAPILA](datasets/papila.md) and
+[HRF](datasets/hrf.md) state a field angle, which gives a scale without assuming any disc size. On
+PAPILA the two derivations agree to **5.8%**; on HRF they differ by **21%**. Read every inferred
+figure in this catalogue as a camera scale good to somewhere between a twentieth and a fifth — and
+none of them as a per-eye calibration.
 
 ## 1. Summary
 

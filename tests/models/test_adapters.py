@@ -17,6 +17,7 @@ def purposes() -> dict[str, str]:
 
 GRADERS = [slug for slug, purpose in purposes().items() if purpose == "quality"]
 SEGMENTERS = [slug for slug, purpose in purposes().items() if purpose == "disc/cup"]
+VESSELS = [slug for slug, purpose in purposes().items() if purpose == "artery/vein"]
 
 
 def photograph(size: int) -> np.ndarray:
@@ -168,3 +169,21 @@ def test_automorph_counts_the_cup_as_part_of_the_disc() -> None:
     assert outlined.masks["cup"][2, 2]
     assert outlined.masks["disc"].sum() == 4
     assert outlined.masks["cup"].sum() == 1
+
+
+@pytest.mark.parametrize("slug", VESSELS)
+def test_every_artery_vein_model_finds_both_kinds_of_vessel(slug: str) -> None:
+    declared = catalogue.load(slug, device="cpu").declare()
+
+    assert set(declared["structures"]) == {"artery", "vein"}, (
+        "the benchmark derives the vessel map from these two, identically for every model"
+    )
+    assert "resampling" in declared, "how a mask reached the native frame moves every score"
+
+
+@pytest.mark.parametrize("slug", VESSELS)
+def test_an_artery_vein_model_says_which_channel_is_which(slug: str) -> None:
+    """None of these networks documents its channel order; each was measured against an annotation."""
+    declared = catalogue.load(slug, device="cpu").declare()
+
+    assert "artery" in declared["channels"] and "vein" in declared["channels"]

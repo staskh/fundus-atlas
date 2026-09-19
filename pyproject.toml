@@ -35,6 +35,16 @@ benchmarks = [
     "transformers>=4.44",
     # LUNet v2's disc model is published as an ONNX file and nothing else.
     "onnxruntime>=1.18",
+    # OCULARNet builds its architecture with this and ships only weights.
+    "segmentation-models-pytorch>=0.4",
+    # LUNet is a Keras 2.11 model. Its own requirements pin tensorflow 2.14 and numpy<2, which no
+    # other upstream here can live with; a current tensorflow reads the same checkpoint through the
+    # Keras 2 compatibility layer, which is what `TF_USE_LEGACY_KERAS` selects.
+    "tensorflow>=2.18",
+    "tf-keras>=2.18",
+    # BF-Net publishes its weights in a Google Drive folder, which serves a file of that size behind
+    # a confirmation page that a plain request cannot answer. The digest is pinned in its upstream.
+    "gdown>=6.2.0",
 ]
 
 # What the analysis notebooks need to run, kept apart from the benchmark environment so that

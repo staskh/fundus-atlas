@@ -55,7 +55,31 @@ section repeats.
 **One annotator, provenance unstated** for HRF-Seg+: the release ships no inter-observer data and does
 not say who drew the contours.
 
-### 2.4 VC-Net — a secondary copy of the HRF-AV labels
+### 2.4 How to fetch
+
+```bash
+uv run python -m datasets.hrf                      # downloads and builds 512 and 1024
+uv run python -m datasets.fetch_um_resolution --dataset hrf
+```
+
+Two downloads, both unattended: `all.zip` (76 MB) from Erlangen, and the `HRF_AV_GT/` folder of
+`github.com/rubenhx/av-segmentation` at a pinned commit. It builds 45 photographs at 3504×2336 with
+four maps at native resolution — `vessels` (HRF's own hand-drawn gold standard), `artery`, `vein`,
+and the published field-of-view mask, which is why `fov_source` reads `mask` rather than `detected`.
+The disease is taken from the filename: 15 `_dr`, 15 `_g`, 15 `_h`.
+
+**The artery/vein layer is optional and unlicensed.** Its repository carries no licence file at all,
+so a build without it still produces the vessel dataset HRF published; publicly downloadable is not
+the same as licensed, and redistributing those maps needs the authors' word.
+
+**HRF-Seg+'s disc and cup contours are not built** — a third provenance, on Zenodo, not yet wired
+into this fetcher.
+
+The authors publish no microns-per-pixel scale. They state a 45° field, so the store derives one per
+photograph from each frame's own fitted field; the second command then measures a second figure from
+the optic disc, and the two disagree by 21% (section 7).
+
+### 2.5 VC-Net — a secondary copy of the HRF-AV labels
 
 | | |
 | --- | --- |
@@ -87,7 +111,7 @@ of this dataset should come from.
 | | |
 | --- | --- |
 | Resolution (pixels) | 3504×2336 — the largest in this catalogue |
-| Microns per pixel | Unknown — not published |
+| Microns per pixel | Not published, and **two derivations disagree**: 4.130 µm/px from the stated 45° field, 4.980 from the median optic disc ([evidence](../../results/um_resolution/hrf.json)). The manifest carries the disc figure. Section 7 |
 | Camera | Canon CR-1, non-mydriatic |
 | Field of view | 45° |
 | Centring | Mixed |
@@ -129,6 +153,24 @@ figure to read automated disc results against, rather than assuming one.
   at high resolution. It cannot answer generalisation for any of the models above.
 
 ## 7. Known defects
+
+- **The artery/vein map is HRF's own vessel tracing, recoloured.** *Our finding, 2026-09-17:* the
+  union of HRF-AV's artery and vein masks differs from HRF's hand-drawn vessel gold standard by
+  **1,190 pixels across all 45 photographs — 0.004%**, and by at most 0.049% on any one of them.
+  The second group contributed the **classification**, not the segmentation. A model scored against
+  both the vessel gold standard and the artery/vein maps has therefore been scored against one
+  tracing twice, and the two numbers are not independent evidence.
+- **The two available scales disagree by a fifth.** *Our finding:* the stated 45° field gives
+  4.130 µm/px; the median optic disc gives 4.980. Under the first, HRF's median disc measures
+  1,490 µm rather than the 1,800 µm the disc method assumes; under the second, its field spans 54°
+  rather than the stated 45°. Nothing here settles which is wrong — both are this repository's
+  derivations, the 300 µm-per-degree constant is an approximation, and a camera's quoted angle need
+  not be the angle subtended at the retina. It is the widest disagreement between the two methods in
+  this catalogue, against 5.8% on [PAPILA](papila.md).
+- **Three of the 45 artery/vein maps were saved with anti-aliased strokes** — `11_h`, `12_h` and
+  `13_h` — carrying 3,133 stray pixels between them, 0.013% of that layer, in blends and greys. The
+  fetcher reads each as the ramp it lies nearest, so a blend goes to its own colour and a grey to
+  the background.
 
 - The disc-centre spreadsheet is easy to miss on the download page and is in a format that requires
   a legacy reader.

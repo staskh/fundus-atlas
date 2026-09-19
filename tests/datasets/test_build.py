@@ -4,15 +4,16 @@
 import csv
 import json
 import shutil
+import zipfile
 
 import numpy as np
 import pytest
 from PIL import Image
 
-from datasets.utils import archives, build, cli, contours, fov, manifest, quality, resolution
+from datasets.utils import archives, av, build, cli, contours, fov, manifest, quality, resolution
 
 
-def a_dataset(tmp_path):
+def a_dataset(tmp_path, fov=False):
     raw = tmp_path / "raw"
     raw.mkdir()
     for key, cx in (("a", 150), ("b", 160)):
@@ -23,6 +24,10 @@ def a_dataset(tmp_path):
         vessels = np.zeros((300, 300), dtype=np.uint8)
         vessels[145:155, 100:200] = 255
         Image.fromarray(vessels).save(raw / f"{key}_vessels.png")
+        if fov:
+            field = np.zeros((300, 300), dtype=np.uint8)
+            field[(xx - cx) ** 2 + (yy - 150) ** 2 <= 100**2] = 255
+            Image.fromarray(field).save(raw / f"{key}_fov.png")
     return raw
 
 
@@ -32,7 +37,10 @@ def discover(layers):
         build.SourceRecord(
             key=key,
             image=raw / f"{key}.png",
-            maps={"vessels": raw / f"{key}_vessels.png"},
+            maps={
+                "vessels": raw / f"{key}_vessels.png",
+                **({"fov": raw / f"{key}_fov.png"} if (raw / f"{key}_fov.png").exists() else {}),
+            },
             patient=f"p{key}",
             eye="od",
             extras={"artifact": "0"},
@@ -41,7 +49,7 @@ def discover(layers):
     ]
 
 
-def build_it(tmp_path, *argv):
+def build_it(tmp_path, *argv, fov_from_mask=False):
     args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", *argv])
     build.run(
         slug="synthetic",
@@ -49,7 +57,7 @@ def build_it(tmp_path, *argv):
         discover=discover,
         resolution_of=resolution.Declared(5.0, "published", "stated in the paper"),
         args=args,
-        fov_strategy=fov.DETECT,
+        fov_strategy=fov.FROM_MASK if fov_from_mask else fov.DETECT,
         quality_rule=quality.FromComponents({"artifact": "0"}),
         extra_columns=[manifest.Column("artifact", "0 is best")],
         skipped=["an ultra-wide-field split"],
@@ -57,11 +65,19 @@ def build_it(tmp_path, *argv):
     return tmp_path / "store" / "synthetic"
 
 
-def test_every_layer_is_written_at_native_and_at_each_size(tmp_path):
+def test_the_photograph_and_its_field_are_written_at_every_size(tmp_path):
     store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
     for size in ("native", "64"):
-        for layer in ("images", "vessels", "fov"):
+        for layer in ("images", "fov"):
             assert (store / size / layer / "a.png").exists()
+
+
+def test_an_annotation_is_written_at_native_and_nowhere_else(tmp_path):
+    """A benchmark measures in the frame the annotator drew in, so a resized copy reads to nobody."""
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
+
+    assert (store / "native" / "vessels" / "a.png").exists()
+    assert not (store / "64" / "vessels").exists()
 
 
 def test_a_size_is_square_and_native_is_the_crop(tmp_path):
@@ -138,7 +154,8 @@ def test_a_new_size_is_built_from_native_with_no_archive_in_reach(tmp_path):
         args=args,
     )
     assert Image.open(store / "32" / "images" / "a.png").size == (32, 32)
-    assert Image.open(store / "32" / "vessels" / "a.png").size == (32, 32)
+    assert Image.open(store / "32" / "fov" / "a.png").size == (32, 32)
+    assert not (store / "32" / "vessels").exists(), "the annotation stays where it was drawn"
     assert json.loads((store / "build.json").read_text())["sizes"] == [32, 64]
 
 
@@ -553,3 +570,124 @@ def test_a_rebuilt_store_recovers_an_inferred_scale_without_measuring_it_again(t
     assert stamped == 1
     assert row["um_per_px"] == "8.610000"
     assert row["resolution_source"] == "disc_anchored"
+
+
+def test_a_coloured_artery_vein_map_is_stored_as_binary_masks(tmp_path) -> None:
+    """Read as greyscale, red and blue become two grey levels and the classes are gone."""
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"})
+    pixels = np.zeros((8, 8, 3), dtype=np.uint8)
+    pixels[2] = (255, 0, 0)
+    pixels[5] = (0, 0, 255)
+
+    frames = build.as_masks(pixels, palette, "av")
+
+    assert frames["artery"][2].all() and not frames["artery"][5].any()
+    assert frames["vein"][5].all() and not frames["vein"][2].any()
+
+
+def test_ground_truth_is_written_at_native_and_nowhere_else(tmp_path) -> None:
+    """Every score is measured in the frame the annotator drew in, so a resized copy of an
+    annotation is a file nothing reads and a second thing to keep consistent."""
+    assert build.EVERY_SIZE == ("images", "fov")
+    assert "artery" not in build.EVERY_SIZE and "vessels" not in build.EVERY_SIZE
+
+
+def test_an_artery_vein_map_becomes_three_masks(tmp_path) -> None:
+    from datasets.utils import av
+
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein", (0, 255, 0): "crossing"})
+    pixels = np.zeros((8, 8, 3), dtype=np.uint8)
+    pixels[1] = (255, 0, 0)
+    pixels[3] = (0, 0, 255)
+    pixels[5] = (0, 255, 0)
+
+    frames = build.as_masks(pixels, palette, "av")
+
+    assert sorted(frames) == ["artery", "vein", "vessels"]
+    assert frames["artery"][5].all() and frames["vein"][5].all(), "the crossing is in both"
+    assert frames["vessels"][[1, 3, 5]].all()
+
+
+def test_a_published_mask_is_never_replaced_by_a_derived_one(tmp_path) -> None:
+    """HRF draws its vessels by hand and a second group separated its arteries years later.
+
+    Expanding the artery/vein map produces a `vessels` union too, and letting that overwrite the
+    hand-drawn gold standard would turn two independent annotations into one measured twice.
+    """
+    palette = av.Palette({(255, 0, 0): "artery", (0, 0, 255): "vein"})
+    drawn = build.as_masks(np.zeros((4, 4, 3), dtype=np.uint8), palette, "av")
+
+    assert "vessels" in drawn, "the union is produced"
+    assert build.published_wins({"vessels", "fov"}, drawn) == {"artery", "vein"}, (
+        "and dropped where the dataset published its own"
+    )
+
+
+def test_a_field_of_view_taken_from_a_published_mask_says_so(tmp_path) -> None:
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path, fov=True)), fov_from_mask=True)
+
+    row = next(iter(manifest.read(store)))
+
+    assert row["fov_source"] == "mask", "not 'detected': the dataset drew this one"
+
+
+def test_an_archive_handed_over_is_not_unpacked_when_it_is_read_in_place(tmp_path) -> None:
+    """A source declaring `extract_it=False` is read where it lies, however it was obtained.
+
+    REYIA's archive is 12 GB and its fetcher addresses members directly; unpacking it because it
+    arrived through `--archive` rather than a download costs the disk twice and a minute of wall
+    clock for nothing.
+    """
+    archive = tmp_path / "given.zip"
+    with zipfile.ZipFile(archive, "w") as held:
+        held.writestr("inside/a.txt", b"x")
+    sources = [
+        archives.Source(layer="only", url="", filename="given.zip", extract_it=False, manual=True)
+    ]
+
+    layers, _ = build.obtain(tmp_path / "store", sources, _asked(archive=str(archive)))
+
+    assert layers["only"] == archive, "the archive itself, not a directory of its contents"
+
+
+def _asked(**overrides):
+    """The parsed command line a build reads, with only what these tests set."""
+    return cli.parse(
+        "synthetic",
+        [
+            "--data-root",
+            "unused",
+            *[part for k, v in overrides.items() for part in (f"--{k.replace('_', '-')}", v)],
+        ],
+    )
+
+
+def test_adding_a_size_rebuilds_the_photograph_and_leaves_the_annotation_alone(tmp_path) -> None:
+    """The size-adding path follows the same rule as a first build, or the store disagrees with
+    itself: 512 would hold annotations that native was the only place for."""
+    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
+    (store / "native" / ".DS_Store").write_bytes(b"what a Mac leaves behind")
+
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64,96"])
+    build._add_sizes("synthetic", store, args, json.loads((store / "build.json").read_text()))
+
+    assert (store / "96" / "images" / "a.png").exists()
+    assert (store / "96" / "fov" / "a.png").exists()
+    assert not (store / "96" / "vessels").exists(), "an annotation lives at native and nowhere else"
+    assert not (store / "96" / ".DS_Store").exists(), "and a stray file is not a layer"
+
+
+def test_adding_a_size_scales_the_contours_into_it(tmp_path) -> None:
+    """A contour is scaled from native, never re-traced, so an added size gets one too."""
+    raw = a_dataset(tmp_path)
+    store = build_it(tmp_path, "--raw", str(raw))
+    drawn = store / "native" / "contours"
+    drawn.mkdir(parents=True, exist_ok=True)
+    (drawn / "a.csv").write_text("structure,reader,node,x,y\ndisc,expert1,0,100.0,120.0\n")
+
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64,96"])
+    build._add_sizes("synthetic", store, args, json.loads((store / "build.json").read_text()))
+
+    written = (store / "96" / "contours" / "a.csv")
+    assert written.exists(), "the outline belongs at every size, scaled"
+    assert "disc" in written.read_text()

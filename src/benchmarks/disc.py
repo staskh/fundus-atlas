@@ -31,6 +31,9 @@ GOAL = (
     "which is the number a glaucoma referral rests on."
 )
 
+#: What this benchmark is called in a heading, where its slug does not read as English.
+TITLE = "Disc and cup"
+
 #: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "disc"
 
@@ -302,6 +305,8 @@ def _pair(
         "store": store,
         "weights": loaded,
         "fingerprint": identity,
+        "drawing": drawing,
+        "masks": str(masks),
         "padding": loader.padding,
         "counts": counts,
         "summary": summary,

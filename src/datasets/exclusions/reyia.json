@@ -1,0 +1,37 @@
+{
+  "dataset": "reyia",
+  "exclusions": [
+    {
+      "key": "magreb_fimage31prime",
+      "maps": ["artery", "vein", "vessels"],
+      "reason": "mismatched-pair",
+      "detail": "The archive publishes this photograph's annotation twice — as an RGB label map and as binary artery and vein masks — and the two disagree by 124,677 pixels on the artery and 136,560 on the vein, on a 1444x1444 frame where the whole vessel network is about 60,000. Both files are the right size and belong to this photograph, so one of them annotates something else. Nothing available says which is correct, so neither is trusted.",
+      "evidence": "build.json verification, written by the fetcher's own check of the two encodings against each other",
+      "found": "2026-09-17"
+    },
+    {
+      "key": "mbrset_256_3",
+      "maps": ["artery", "vein", "vessels"],
+      "reason": "mismatched-pair",
+      "detail": "The label map and the published binary masks disagree by 16,246 pixels on the artery and 16,780 on the vein.",
+      "evidence": "build.json verification",
+      "found": "2026-09-17"
+    },
+    {
+      "key": "mbrset_296_1",
+      "maps": ["artery", "vein", "vessels"],
+      "reason": "mismatched-pair",
+      "detail": "The label map and the published binary masks disagree by 30,602 pixels on the artery and 35,896 on the vein.",
+      "evidence": "build.json verification",
+      "found": "2026-09-17"
+    },
+    {
+      "key": "mbrset_303_1",
+      "maps": ["artery", "vein", "vessels"],
+      "reason": "mismatched-pair",
+      "detail": "The label map and the published binary masks disagree by 9,756 pixels on the artery and 11,122 on the vein.",
+      "evidence": "build.json verification",
+      "found": "2026-09-17"
+    }
+  ]
+}

@@ -87,9 +87,13 @@ suggests.
 ## 7. Weights
 
 - **Publicly available:** Yes.
-- **Download URLs:** https://huggingface.co/Anon-User-Retina/OCULARNet-nano/resolve/main/nano_f1.pth
-  through `nano_f5.pth` in the same repository — an anonymous review account, so expect these URLs
-  to break when a paper appears.
+- **Download URLs:** **gone.** They were
+  https://huggingface.co/Anon-User-Retina/OCULARNet-nano/resolve/main/nano_f1.pth through
+  `nano_f5.pth`. *Our finding, 2026-09-17:* every one of them now answers **HTTP 401**, and the
+  `Anon-User-Retina` account holds a single repository — `OCULARNet`, whose one checkpoint is still
+  served. The page anticipated this ("an anonymous review account, so expect these URLs to break
+  when a paper appears"); it has happened, so **this model cannot be obtained or run**, and the
+  artery/vein benchmark declares it without an adapter for that reason.
 - **Format and size:** PyTorch `.pth`, five files.
 - **Files in an ensemble:** five.
 

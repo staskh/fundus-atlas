@@ -152,7 +152,7 @@ def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def package(name: str, directory: Path) -> object:
+def package(name: str, directory: Path, modules: list[str] | None = None) -> object:
     """Import a folder of modules as a package, under a name of our choosing.
 
     An upstream stage is a folder rather than a distribution, and the folders collide: AutoMorph's
@@ -160,8 +160,12 @@ def package(name: str, directory: Path) -> object:
     adapters. Binding the folder to a name of ours lets both live in one process, and lets the
     upstream's own relative imports — `from .res_unet_adrian import UNet` — resolve inside it.
 
-    Every module the folder holds is imported, so that the returned package carries them as
-    attributes whatever order they refer to each other in.
+    :param modules: which of the folder's modules to import, by name. Given, only those are
+        imported and a failure among them is raised — asking for a module that cannot be imported is
+        a mistake worth hearing about. Omitted, every module is imported and one that cannot be is
+        skipped: an upstream folder holds modules for purposes this repository is not using, and
+        OCULAR's `utils/` puts the network's factory beside a file that imports a biomarker library
+        nobody here installs.
     """
     if name in sys.modules:
         return sys.modules[name]
@@ -169,7 +173,13 @@ def package(name: str, directory: Path) -> object:
     bound = importlib.util.module_from_spec(spec)
     bound.__path__ = [str(directory)]
     sys.modules[name] = bound
-    for module in sorted(directory.glob("*.py")):
-        if module.stem != "__init__":
-            setattr(bound, module.stem, importlib.import_module(f"{name}.{module.stem}"))
+    wanted = modules or [
+        module.stem for module in sorted(directory.glob("*.py")) if module.stem != "__init__"
+    ]
+    for stem in wanted:
+        try:
+            setattr(bound, stem, importlib.import_module(f"{name}.{stem}"))
+        except ImportError:
+            if modules is not None:
+                raise
     return bound
