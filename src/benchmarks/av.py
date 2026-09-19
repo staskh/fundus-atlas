@@ -822,6 +822,24 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
         f"**Vessels** is the union of each model's own arteries and veins, derived the same way "
         f"for every model and for every annotator."
     )
+    # Read from the stored summary rather than a declaration: the index is built from what is in
+    # `results/`, which is what makes it agree with the evidence it links to.
+    references = sorted(
+        {
+            str(record["model"])
+            for record in records
+            if list(record.get("summary", {}).get("structures", [])) == ["vessels"]
+        }
+    )
+    if references:
+        yield ""
+        yield (
+            "**Except for "
+            + ", ".join(f"[{model}](models/{model}.md)" for model in references)
+            + "**, which does not separate arteries from veins: its vessel map is its own "
+            "prediction rather than a union, and its class cells are empty because it was never "
+            "asked. It is a reference for that column, not a competitor in it."
+        )
     yield ""
     yield (
         "| Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | "
