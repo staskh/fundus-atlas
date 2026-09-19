@@ -79,6 +79,33 @@ The authors publish no microns-per-pixel scale. They state a 45° field, so the 
 photograph from each frame's own fitted field; the second command then measures a second figure from
 the optic disc, and the two disagree by 21% (section 7).
 
+### 2.5 VC-Net — a secondary copy of the HRF-AV labels
+
+| | |
+| --- | --- |
+| Home | <https://github.com/yiyg510/VC-Net/tree/master/data> — the HRF copies are in `data/HRF_AV/` |
+| Download | **direct, no registration** — 45 photographs with their labels, as `0.png` … `29.png` under `test/` and `0.png` … `14.png` under `training/` |
+| Citation | Hu J, Wang H, Cao Z, Wu G, Jonas JB, Wang YX, Zhang J. *Automatic Artery/Vein Classification Using a Vessel-Constraint Network for Multicenter Fundus Images.* Frontiers in Cell and Developmental Biology 2021;9:659941. DOI: [10.3389/fcell.2021.659941](https://doi.org/10.3389/fcell.2021.659941) — cite the sources in 2.1 and 2.2 as well, since the data is theirs |
+| Licence | **None stated, and none inherited.** The VC-Net repository carries no licence file at all. A copy cannot grant terms its source did not: HRF's photographs remain CC BY 4.0, and the HRF-AV labels remain unlicensed |
+| Content | The same 45 photographs at 3504×2336, split 15 training / 30 test, renamed by index |
+| Annotations | Artery/vein labels, a vessel layer, and field-of-view masks |
+
+**These are the section 2.2 labels, byte for byte.** *Our finding, 2026-09-19:* four VC-Net labels
+were compared pixel-by-pixel against every file in `HRF_AV_GT/`, and each matched exactly one of
+them — `data/HRF_AV/test/label/0.png` is `07_g_AVmanual.png`, `1.png` is `13_dr_AVmanual.png`,
+`5.png` is `09_h_AVmanual.png`, `12.png` is `15_dr_AVmanual.png`. The copy renames and re-splits;
+it does not re-annotate.
+
+**Its `vessel/` layer is derived, and is not HRF's gold standard.** *Our finding, 2026-09-19:* in
+each file checked it is exactly the union of the artery and vein classes of the label beside it,
+while HRF's own hand-drawn vessel standard (section 2.1) differs from that union by about 0.004% of
+pixels. Anyone training on this copy's vessel layer is training on the artery/vein drawing, not on
+the vessel drawing.
+
+**Use it only as a fallback.** It is worth recording because it is a direct download of an
+annotation whose own repository is the primary source, but the sections above are where both halves
+of this dataset should come from.
+
 ## 3. The images
 
 | | |
