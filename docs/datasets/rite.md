@@ -42,6 +42,29 @@ Two provenances: the photographs are [DRIVE](drive.md)'s, the artery/vein standa
 
 Two sets of terms govern one archive, because the images and the labels come from different groups.
 
+### 2.3 VC-Net — a secondary copy of the photographs and artery/vein labels
+
+| | |
+| --- | --- |
+| Home | <https://github.com/yiyg510/VC-Net/tree/master/data> — the DRIVE copies are in `data/DRIVE_AV/` |
+| Download | **direct, no registration** — 40 photographs with their labels, 20 under `training/` and 20 under `test/`, renamed `0.png` … `19.png` |
+| Citation | Hu J, Wang H, Cao Z, Wu G, Jonas JB, Wang YX, Zhang J. *Automatic Artery/Vein Classification Using a Vessel-Constraint Network for Multicenter Fundus Images.* Frontiers in Cell and Developmental Biology 2021;9:659941. DOI: [10.3389/fcell.2021.659941](https://doi.org/10.3389/fcell.2021.659941) — cite 2.1 and 2.2 as well, since the data is theirs |
+| Licence | **None stated, and none inherited.** VC-Net's repository carries no licence file. DRIVE's registration terms and RITE's request terms still govern this data, and a copy cannot loosen them |
+| Content | The same 40 photographs at 565×584 |
+| Annotations | Artery, vein and crossing classes, a vessel layer and field-of-view masks |
+
+**This is the only route to these labels that asks for nothing** — no registration, as DRIVE
+requires, and no request form, as RITE requires. That is precisely why it should be used carefully:
+the terms in 2.1 and 2.2 are what a user is bound by, whichever copy they downloaded.
+
+**The uncertain class is not in it.** *Our finding, 2026-09-19:* the label examined
+(`data/DRIVE_AV/test/label/0.png`) holds four colours — black background, red, blue and green —
+and no white, while RITE's own standard carries a fourth, *uncertain* class. What was dropped, and
+whether it was folded into background or into a vessel class, has not been established here, and
+cannot be until RITE itself is fetched. **Which published standard these labels are a copy of is
+not stated by their authors**, and this page does not assert it: the check that settled the HRF
+copies ([hrf.md](hrf.md) §2.4) cannot be run for DRIVE until there is a store to run it against.
+
 ## 3. The images
 
 | | |

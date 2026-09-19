@@ -44,6 +44,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | [LUNet](models/lunet.md) | Arterioles and venules | U-Net variant, TensorFlow | 1472² | UZLF (Leuven-Haifa) 1444×1444 | Yes | Yes, in the repository | **CC BY-NC 4.0 — non-commercial** | — | 2024-12 | 2026-09-10 |
 | [Big W-Net](models/big-wnet.md) | Artery against vein | W-Net, larger configuration | 512² or 1024², by config | DRIVE-AV, HRF-AV | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
 | [BF-Net](models/bf-net.md) | Artery against vein, by binary-to-multi fusion | GAN-based, main plus branch generator | 720² → back to original | DRIVE-AV, LES-AV, HRF-AV | Yes | Yes, in the repository | GPL-3.0 | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2023-02 | 2026-09-10 |
+| [VC-Net](models/vc-net.md) | Background, crossing, vein, artery, **plus a vessel map** | U-Net decoder on a Res2Net-50 encoder, vessel branch constraining the A/V branch | **Native, padded to a multiple of 512** (32 for DRIVE); 512² patches | DRIVE-AV, HRF-AV, LES-AV, Tongren, Kailuan — **one set of weights each** | **No — none published** | Yes, in the repository | **None stated** | — | 2021-04 | 2026-09-19 |
 
 ### 1.4 Disc/cup — the optic disc, the optic cup, or both
 
