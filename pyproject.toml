@@ -45,6 +45,9 @@ benchmarks = [
     # BF-Net publishes its weights in a Google Drive folder, which serves a file of that size behind
     # a confirmation page that a plain request cannot answer. The digest is pinned in its upstream.
     "gdown>=6.2.0",
+    # PVBM, pinned to the commit its catalogue page describes rather than to the later PyPI
+    # release, so a biomarker measured here is attributable to the code that page documents.
+    "pvbm @ git+https://github.com/aim-lab/PVBM@5edb79a6eff5eceb94f1acc623b8d13e126bcfa7",
     # Betti matching publishes no wheel, so its C++ module is built from a pinned clone: cmake
     # configures it and pybind11 is what it links against. Both are needed at run time, because the
     # build happens on first use rather than at install time.
