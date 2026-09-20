@@ -48,6 +48,12 @@ other, which is why both are carried.
 | [automorph-artery-vein](../models/automorph-artery-vein.md) | 1,602 | 1.000 | 0.708 | 0.774 | 0.747 | 0.757 | 104 | 3.5 | mixed |
 | [bf-net](../models/bf-net.md) | 1,602 | 1.000 | 0.491 | 0.601 | 0.614 | 0.625 | 162 | **0.4** | out-of-sample |
 
+***The Betti matching error is not normalised, and is not suitable for comparison between
+datasets — only between models on the same dataset.*** Measured on the readers' own tracings, the
+count runs at about 0.39 of the centreline length in pixels in every dataset here, so a dataset's
+figures say as much about its frame size and how finely it was traced as about any model. HRF's
+3,269-pixel frames carry roughly six times AVRDB's count before a model is asked anything.
+
 **The Betti column counts downwards and the others count upwards.** **Betti matching error** is how
 many topological features — connected components and loops — of either map have no counterpart in
 the other, after the two maps' features have been paired by where they lie. 0 is perfect, there is

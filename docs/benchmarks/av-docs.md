@@ -113,6 +113,8 @@ python -m benchmarks --benchmark av --max-samples 20
 
 A model that has no opinion to record leaves a column **absent** rather than blank: a binary grader emits no class probabilities, and none are invented for it.
 
+***The Betti matching error is not normalised, and is not suitable for comparison between datasets — only between models on the same dataset.*** It counts features rather than scoring a fraction, and the count rises with the length of the vessel network, which is a property of the frame and of the annotation rather than of the model. Measured on the readers' own tracings, the count runs at about 0.39 of the centreline length in pixels in every dataset here, so HRF's 3,269-pixel frames carry six times AVRDB's figure before any model is asked anything.
+
 ## 7. What a re-run repeats, and what it does not
 
 Each `(model, dataset)` result is stored beside a **fingerprint** of everything that could change it: the facts the model declares — its grids, its ensemble, the thresholds it acts on — the sha256 of the weights actually loaded, the patches applied by content, the store's builder version, and this benchmark's own version. A fingerprint that differs means the stored scores describe something that no longer exists, and the pair is measured again from nothing.

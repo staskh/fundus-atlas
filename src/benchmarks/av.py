@@ -821,6 +821,19 @@ COLUMNS = {
 }
 
 
+#: What no other benchmark's columns need said, and this one's do. A count that grows with the
+#: length of the vessel network cannot be carried from one dataset to another.
+COLUMNS_CAVEAT = (
+    "***The Betti matching error is not normalised, and is not suitable for comparison between "
+    "datasets — only between models on the same dataset.*** It counts features rather than scoring "
+    "a fraction, and the count rises with the length of the vessel network, which is a property of "
+    "the frame and of the annotation rather than of the model. Measured on the readers' own "
+    "tracings, the count runs at about 0.39 of the centreline length in pixels in every dataset "
+    "here, so HRF's 3,269-pixel frames carry six times AVRDB's figure before any model is asked "
+    "anything."
+)
+
+
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
     """This benchmark's entry in the index: one row per model, pooled, and where to start."""
     pooled = _pooled(records)

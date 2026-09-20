@@ -93,6 +93,10 @@ def _docs(
         "A model that has no opinion to record leaves a column **absent** rather than blank: a "
         "binary grader emits no class probabilities, and none are invented for it."
     )
+    caveat = getattr(_module(benchmark), "COLUMNS_CAVEAT", "")
+    if caveat:
+        yield ""
+        yield caveat
     yield ""
     yield "## 7. What a re-run repeats, and what it does not"
     yield ""
