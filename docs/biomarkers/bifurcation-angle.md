@@ -12,6 +12,17 @@ with a physical theory behind it rather than an empirical association alone.
 - **Direction of concern:** deviation from the expected angle, in either direction, rather than
   simply higher or lower.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `bifurcation-angle/between-daughters/<structure>` | the angle between the two daughter vessels, in degrees — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 No single ophthalmic origin; the measurement is geometric and the retinal literature inherits it

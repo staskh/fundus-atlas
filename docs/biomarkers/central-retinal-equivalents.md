@@ -17,6 +17,18 @@ arteriolar narrowing has been most often reported.
 - **Direction of concern:** lower CRAE (narrower arterioles) and higher CRVE (wider venules) are
   both reported as adverse.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `central-retinal-equivalents/hubbard/<structure>` | the Hubbard equivalent over the same ring — over artery, vein, vessels |
+| `central-retinal-equivalents/knudtson/<structure>` | the Knudtson equivalent over the disc-centred ring — CRAE on arteries, CRVE on veins — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 Two publications define the two formulas in use, and the field never converged on one:

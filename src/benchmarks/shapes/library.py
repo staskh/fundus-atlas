@@ -38,8 +38,23 @@ class Shape:
 #: Where the disc sits, as a fraction of the frame, and how big it is. Every shape puts it in the
 #: same place: the disc-anchored measurements need one, and a shape that moved it would be testing
 #: the disc rather than the vessel.
-DISC_AT = (0.5, 0.15)
+#:
+#: It sits to the **right** of centre, where a fundus camera puts it, and far enough in that the
+#: ring the central retinal equivalents are measured over — out to three disc radii — stays inside
+#: the field of view at every rotation: 0.30 from the centre plus 0.18 of ring is 0.48, and the
+#: field has radius 0.5.
+DISC_AT = (0.80, 0.5)
 DISC_RADIUS = 0.06
+
+#: The annulus the central retinal equivalents are measured in, in **disc radii** from the disc
+#: centre. PVBM builds it as zone C minus zone B — filled circles at 2 and 3 disc radii — and the
+#: classical convention states the same region in disc *diameters*, which is the factor-of-two trap
+#: `docs/biomarkers/central-retinal-equivalents.md` §5 records.
+ZONE_B_RADII = (2.0, 3.0)
+
+#: What Knudtson's revision multiplies each pair by, and how many vessels it keeps.
+KNUDTSON = {"artery": 0.88, "vein": 0.95}
+KNUDTSON_VESSELS = 6
 
 #: How finely a curve is sampled before it is drawn. The rasteriser measures distance to the
 #: segments rather than to these points, so this only has to be fine enough that a segment's
@@ -91,6 +106,39 @@ def _fov_area(side: int) -> float:
     return math.pi * (side / 2.0) ** 2
 
 
+def knudtson(widths: list[float], structure: str) -> float:
+    """The Knudtson equivalent of a set of vessel widths: CRAE on arteries, CRVE on veins.
+
+    The recursion of Knudtson et al. 2003: take the six largest vessels, pair the widest with the
+    narrowest, the next widest with the next narrowest, and combine each pair as
+    ``k·√(w₁² + w₂²)`` — ``k`` being 0.88 for arterioles and 0.95 for venules. Repeat on the
+    results until one number is left; where a round has an odd count, the middle vessel passes
+    through untouched.
+
+    Being purely multiplicative it is scale-free, so it can be computed on pixel widths and
+    converted afterwards — which is the property Hubbard's fitted constants do not have.
+
+    **Every vessel here is the same width**, which is deliberate: then every pairing order gives
+    the same answer, so a shape built this way tests the formula and the ring rather than an
+    implementation's sorting convention. A shape with unequal widths would test the convention and
+    have no single correct answer to test it against.
+    """
+    constant = KNUDTSON[structure]
+    remaining = sorted(widths, reverse=True)[:KNUDTSON_VESSELS]
+    while len(remaining) > 1:
+        remaining.sort(reverse=True)
+        combined = []
+        left, right = 0, len(remaining) - 1
+        while left < right:
+            combined.append(constant * math.hypot(remaining[left], remaining[right]))
+            left += 1
+            right -= 1
+        if left == right:
+            combined.append(remaining[left])
+        remaining = combined
+    return remaining[0]
+
+
 def straight(side: int, rotation: float = 0.0, width: float = 0.02, length: float = 0.6) -> Shape:
     """A straight vessel: tortuosity exactly 1, no curvature, and a width a calibre must recover."""
     w, distance = width * side, length * side
@@ -108,13 +156,18 @@ def straight(side: int, rotation: float = 0.0, width: float = 0.02, length: floa
         fov=fov,
         disc=_turned_disc(side, rotation),
         theory={
-            "tortuosity/hart-tau1": 1.0,
-            "tortuosity/total-curvature": 0.0,
-            "curvature/constant": 0.0,
-            "vessel-calibre/artery": w,
-            "vessel-area-and-length/skeleton-length": distance,
-            "vessel-area-and-length/area": _tube(distance, w),
-            "vascular-density/over-field-of-view": _tube(distance, w) / _fov_area(side),
+            "tortuosity/hart-tau1/artery": 1.0,
+            "tortuosity/hart-tau2/artery": 0.0,
+            "tortuosity/hart-tau3/artery": 0.0,
+            "tortuosity/hart-tau4/artery": 0.0,
+            "tortuosity/hart-tau5/artery": 0.0,
+            "vessel-calibre/mean-width/artery": w,
+            "vessel-area-and-length/skeleton-length/artery": distance,
+            "vessel-area-and-length/area/artery": _tube(distance, w),
+            "vascular-density/over-field-of-view/vessels": _tube(distance, w) / _fov_area(side),
+            "junction-counts/junctions/vessels": 0.0,
+            "junction-counts/components/vessels": 1.0,
+            "junction-counts/endpoints/vessels": 2.0,
         },
         parameters={"width": w, "length": distance},
         centreline=drawn,
@@ -147,14 +200,18 @@ def arc(
         fov=fov,
         disc=_turned_disc(side, rotation),
         theory={
-            "tortuosity/hart-tau1": theta / (2.0 * math.sin(theta / 2.0)),
-            "tortuosity/total-curvature": theta,
-            "tortuosity/squared-curvature": theta / r,
-            "curvature/constant": 1.0 / r,
-            "vessel-calibre/artery": w,
-            "vessel-area-and-length/skeleton-length": r * theta,
-            "vessel-area-and-length/area": _tube(r * theta, w),
-            "vascular-density/over-field-of-view": _tube(r * theta, w) / _fov_area(side),
+            "tortuosity/hart-tau1/artery": theta / (2.0 * math.sin(theta / 2.0)),
+            "tortuosity/hart-tau2/artery": theta,
+            "tortuosity/hart-tau3/artery": theta / r,
+            # Hart's compositional pair, and the reason he preferred them: both depend on the
+            # radius alone, so measuring more of the same arc does not change them, while τ2 and
+            # τ3 grow with however much of it happened to be traced.
+            "tortuosity/hart-tau4/artery": 1.0 / r,
+            "tortuosity/hart-tau5/artery": 1.0 / (r * r),
+            "vessel-calibre/mean-width/artery": w,
+            "vessel-area-and-length/skeleton-length/artery": r * theta,
+            "vessel-area-and-length/area/artery": _tube(r * theta, w),
+            "vascular-density/over-field-of-view/vessels": _tube(r * theta, w) / _fov_area(side),
         },
         parameters={"width": w, "radius": r, "angle": angle},
         centreline=drawn,
@@ -192,6 +249,8 @@ def sinusoid(
     length = float(np.trapezoid(np.sqrt(1.0 + slope**2), fine))
     curvature = np.abs(second) / (1.0 + slope**2) ** 1.5
     element = np.sqrt(1.0 + slope**2)
+    total_curvature = float(np.trapezoid(curvature * element, fine))
+    total_squared = float(np.trapezoid(curvature**2 * element, fine))
     return Shape(
         name="sinusoid",
         side=side,
@@ -201,13 +260,15 @@ def sinusoid(
         fov=fov,
         disc=_turned_disc(side, rotation),
         theory={
-            "tortuosity/hart-tau1": length / span,
-            "tortuosity/total-curvature": float(np.trapezoid(curvature * element, fine)),
-            "tortuosity/squared-curvature": float(np.trapezoid(curvature**2 * element, fine)),
-            "vessel-calibre/artery": w,
-            "vessel-area-and-length/skeleton-length": length,
-            "vessel-area-and-length/area": _tube(length, w),
-            "vascular-density/over-field-of-view": _tube(length, w) / _fov_area(side),
+            "tortuosity/hart-tau1/artery": length / span,
+            "tortuosity/hart-tau2/artery": total_curvature,
+            "tortuosity/hart-tau3/artery": total_squared,
+            "tortuosity/hart-tau4/artery": total_curvature / length,
+            "tortuosity/hart-tau5/artery": total_squared / length,
+            "vessel-calibre/mean-width/artery": w,
+            "vessel-area-and-length/skeleton-length/artery": length,
+            "vessel-area-and-length/area/artery": _tube(length, w),
+            "vascular-density/over-field-of-view/vessels": _tube(length, w) / _fov_area(side),
         },
         parameters={"width": w, "amplitude": a, "wavelength": lam, "cycles": cycles},
         centreline=drawn,
@@ -242,12 +303,12 @@ def bifurcation(
         fov=fov,
         disc=_turned_disc(side, rotation),
         theory={
-            "bifurcation-angle/between-daughters": float(angle),
-            "junction-counts/junctions": 1.0,
-            "junction-counts/endpoints": 3.0,
-            "junction-counts/components": 1.0,
-            "vessel-calibre/artery": w,
-            "vessel-area-and-length/skeleton-length": 3.0 * reach,
+            "bifurcation-angle/between-daughters/artery": float(angle),
+            "junction-counts/junctions/vessels": 1.0,
+            "junction-counts/endpoints/vessels": 3.0,
+            "junction-counts/components/vessels": 1.0,
+            "vessel-calibre/mean-width/artery": w,
+            "vessel-area-and-length/skeleton-length/artery": 3.0 * reach,
         },
         parameters={"width": w, "angle": angle, "arm": reach},
         centreline=turned[0],
@@ -280,13 +341,16 @@ def disjoint(
         fov=fov,
         disc=_turned_disc(side, rotation),
         theory={
-            "junction-counts/junctions": 0.0,
-            "junction-counts/endpoints": 2.0 * count,
-            "junction-counts/components": float(count),
-            "vessel-calibre/artery": w,
-            "vessel-area-and-length/skeleton-length": count * distance,
-            "vessel-area-and-length/area": count * _tube(distance, w),
-            "vascular-density/over-field-of-view": count * _tube(distance, w) / _fov_area(side),
+            "junction-counts/junctions/vessels": 0.0,
+            "junction-counts/endpoints/vessels": 2.0 * count,
+            "junction-counts/components/vessels": float(count),
+            "vessel-calibre/mean-width/artery": w,
+            "tortuosity/hart-tau1/artery": 1.0,
+            "vessel-area-and-length/skeleton-length/artery": count * distance,
+            "vessel-area-and-length/area/artery": count * _tube(distance, w),
+            "vascular-density/over-field-of-view/vessels": (
+                count * _tube(distance, w) / _fov_area(side)
+            ),
         },
         parameters={"width": w, "segments": float(count), "length": distance},
     )
@@ -301,10 +365,11 @@ def artery_vein_pair(
 ) -> Shape:
     """One artery beside one vein, of known widths: the ratio is exactly the ratio of the widths.
 
-    The only shape here that draws both classes, and the only one that can test a measurement
-    which is a ratio of the two. It separates an implementation that divides two calibres from one
-    that divides two central retinal equivalents computed over a ring, since on parallel vessels of
-    constant width those two are the same number and on a real eye they are not.
+    The only shape here that draws both classes without touching the disc, and what it tests is a
+    ratio of two calibres — **not** a central retinal equivalent. Those are measured over a ring
+    around the disc, and two vessels that never cross that ring cannot produce one; an
+    implementation that returns a CRAE here is measuring something it was not given, which is a
+    finding rather than a value. The shape that does test the equivalents is `disc-spokes`.
     """
     wa, wv, distance = artery_width * side, vein_width * side, length * side
     fov = geometry.field_of_view(side)
@@ -322,18 +387,93 @@ def artery_vein_pair(
         fov=fov,
         disc=_turned_disc(side, rotation),
         theory={
-            "avr/ratio-of-calibres": wa / wv,
-            "vessel-calibre/artery": wa,
-            "vessel-calibre/vein": wv,
-            "central-retinal-equivalents/crae": wa,
-            "central-retinal-equivalents/crve": wv,
-            "tortuosity/hart-tau1": 1.0,
-            "vessel-area-and-length/skeleton-length": 2.0 * distance,
-            "vascular-density/over-field-of-view": (
+            "avr/ratio-of-calibres/both": wa / wv,
+            "vessel-calibre/mean-width/artery": wa,
+            "vessel-calibre/mean-width/vein": wv,
+            "tortuosity/hart-tau1/artery": 1.0,
+            "tortuosity/hart-tau1/vein": 1.0,
+            "vessel-area-and-length/skeleton-length/artery": distance,
+            "vessel-area-and-length/skeleton-length/vein": distance,
+            "vascular-density/over-field-of-view/vessels": (
                 _tube(distance, wa) + _tube(distance, wv)
             ) / _fov_area(side),
         },
         parameters={"artery_width": wa, "vein_width": wv, "length": distance},
+    )
+
+
+def disc_spokes(
+    side: int,
+    rotation: float = 0.0,
+    artery_width: float = 0.012,
+    vein_width: float = 0.016,
+    vessels: float = 6,
+) -> Shape:
+    """Vessels radiating from the optic disc, crossing the ring the equivalents are measured over.
+
+    Six arteries and six veins of constant width, each running from the disc margin out past three
+    disc radii, so every one of them crosses the annulus between two and three radii that PVBM
+    builds as zone C minus zone B. That is what a central retinal equivalent needs and what no
+    other shape here provides: an implementation measuring in the right ring finds twelve vessels
+    of two known widths, and one measuring somewhere else finds nothing or finds them twice.
+
+    All the arteries share a width and all the veins share theirs, so the Knudtson recursion gives
+    the same number whatever order an implementation pairs them in — the shape tests the formula
+    and the region rather than a sorting convention.
+
+    The two classes alternate around the disc, twelve spokes evenly spaced, so neither class is
+    bunched on one side where a half-ring or a temporal-only convention would miss it.
+    """
+    count = int(vessels)
+    wa, wv = artery_width * side, vein_width * side
+    x, y, radius = _disc(side)
+    inner, outer = radius * 1.0, radius * (ZONE_B_RADII[1] + 0.4)
+    artery = np.zeros((side, side), dtype=bool)
+    vein = np.zeros((side, side), dtype=bool)
+    for index in range(2 * count):
+        heading = 2.0 * math.pi * index / (2 * count)
+        spoke = [
+            (x + inner * math.cos(heading), y + inner * math.sin(heading)),
+            (x + outer * math.cos(heading), y + outer * math.sin(heading)),
+        ]
+        turned = geometry.turn(spoke, rotation, _centre(side))
+        if index % 2 == 0:
+            artery |= geometry.draw(turned, wa, side)
+        else:
+            vein |= geometry.draw(turned, wv, side)
+    crae = knudtson([wa] * count, "artery")
+    crve = knudtson([wv] * count, "vein")
+    length = outer - inner
+    return Shape(
+        name="disc-spokes",
+        side=side,
+        rotation=rotation,
+        artery=artery,
+        vein=vein,
+        fov=geometry.field_of_view(side),
+        disc=_turned_disc(side, rotation),
+        theory={
+            "central-retinal-equivalents/knudtson/artery": crae,
+            "central-retinal-equivalents/knudtson/vein": crve,
+            "avr/knudtson/both": crae / crve,
+            "avr/ratio-of-calibres/both": wa / wv,
+            "vessel-calibre/mean-width/artery": wa,
+            "vessel-calibre/mean-width/vein": wv,
+            "tortuosity/hart-tau1/artery": 1.0,
+            "tortuosity/hart-tau1/vein": 1.0,
+            "junction-counts/components/vessels": float(2 * count),
+            "junction-counts/junctions/vessels": 0.0,
+            "vessel-area-and-length/skeleton-length/artery": count * length,
+            "vessel-area-and-length/skeleton-length/vein": count * length,
+        },
+        parameters={
+            "artery_width": wa,
+            "vein_width": wv,
+            "vessels_per_class": float(count),
+            "disc_radius": radius,
+            "inner_radius_in_disc_radii": inner / radius,
+            "outer_radius_in_disc_radii": outer / radius,
+        },
     )
 
 
@@ -345,4 +485,5 @@ SHAPES: dict[str, Callable[..., Shape]] = {
     "bifurcation": bifurcation,
     "disjoint": disjoint,
     "artery-vein-pair": artery_vein_pair,
+    "disc-spokes": disc_spokes,
 }

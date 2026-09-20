@@ -5,6 +5,10 @@ in a spreadsheet column. Each row links to a detail page describing that measure
 who defined it, which competing definitions share its name, what it needs as input, and which
 pipelines compute it.
 
+**Every measurement here also has a canonical name**, fixed in `src/biomarkers/canonical.py` and
+mapped to each project's own column in [BIOMARKER-NAMES.md](BIOMARKER-NAMES.md) — which is where to
+look before reading two projects' numbers against each other.
+
 **A biomarker name is not a definition.** "Tortuosity" names at least three incompatible formulas
 and "CRAE" two; papers usually report the name and omit the choice. The Variants column below is
 therefore the most important one in the table: two numbers under the same heading are comparable

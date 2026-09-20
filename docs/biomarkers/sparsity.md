@@ -16,6 +16,18 @@ measures used in OCT angiography.
   nearest-vessel distance measures.
 - **Direction of concern:** higher is treated as adverse — larger gaps mean less perfused tissue.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `sparsity/max-distance/<structure>` | the furthest any retina is from a vessel — over artery, vein, vessels |
+| `sparsity/mean-distance/<structure>` | mean distance from retina to the nearest vessel — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 - Vargas Quiros JV, Beyeler MJ, Vela SO, Bergmann S, Klaver CCW, Liefers B. *retinalysis-vascx: An

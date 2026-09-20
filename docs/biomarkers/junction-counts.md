@@ -15,6 +15,19 @@ makes them useful for quality control and fragile as clinical variables.
 - **Direction of concern:** context-dependent; fewer branch points can indicate vessel loss, while
   more can indicate a noisier segmentation rather than a different eye.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `junction-counts/components/<structure>` | how many separate pieces the network is in — over artery, vein, vessels |
+| `junction-counts/endpoints/<structure>` | how many free ends the network has — over artery, vein, vessels |
+| `junction-counts/junctions/<structure>` | how many places three or more branches meet — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 - Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA. *PVBM: A Python Vasculature

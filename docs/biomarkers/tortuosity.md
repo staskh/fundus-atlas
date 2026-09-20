@@ -49,6 +49,27 @@ implemented by nobody here.** And AutoMorph reports τ3, which Hart's table mark
 and which grows with vessel length by construction: for a circular arc of angle θ and radius r,
 τ3 = θ/r, so measuring more of the same arc raises it, while τ5 = 1/r² depends on the radius alone.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `tortuosity/arc-chord-times-inflections/<structure>` | τ1 multiplied by the number of curvature sign changes — over artery, vein, vessels |
+| `tortuosity/grisan-density/<structure>` | Grisan's tortuosity density over constant-sign subsegments — over artery, vein, vessels |
+| `tortuosity/hart-tau1/<structure>` | arc length over chord length; 1 for a straight vessel — over artery, vein, vessels |
+| `tortuosity/hart-tau2/<structure>` | total curvature, ∫κ ds — over artery, vein, vessels |
+| `tortuosity/hart-tau3/<structure>` | total squared curvature, ∫κ² ds — over artery, vein, vessels |
+| `tortuosity/hart-tau4/<structure>` | mean curvature, ∫κ ds / s — compositional, and implemented here by nobody — over artery, vein, vessels |
+| `tortuosity/hart-tau5/<structure>` | mean squared curvature, ∫κ² ds / s — likewise — over artery, vein, vessels |
+| `tortuosity/hart-tau6/<structure>` | total curvature over chord, ∫κ ds / chord — over artery, vein, vessels |
+| `tortuosity/hart-tau7/<structure>` | total squared curvature over chord, ∫κ² ds / chord — over artery, vein, vessels |
+| `tortuosity/inflection-count/<structure>` | how many times the curvature changes sign — over artery, vein, vessels |
+| `tortuosity/spline-mean-curvature/<structure>` | mean curvature sampled along a fitted spline — over artery, vein, vessels |
+
 ## 2. Definitions of record
 
 Two papers define everything in the table above.
@@ -105,14 +126,39 @@ Two papers define everything in the table above.
   column exists in AutoMorph output and not in AutoMorphalyzer output.
 - **Implementation note:** retipy's version follows neither half of that recipe; see section 9.2.
 
-### 3.3 Arc-chord ratio times inflection count
+### 3.3 Mean curvature — Hart τ4
+
+- **Formula:** `∫κ ds / s(C)` — the total curvature divided by the length it was accumulated over,
+  so it is the average curvature of the vessel rather than the sum of it.
+- **Why Hart prefers it:** it is **compositional**. Measure two halves of a vessel and the whole
+  follows from them; measure more of the same arc and the number does not move. For a circular arc
+  of radius `r` it is exactly `1/r` whatever angle was traced, where τ2 is `θ` and grows with the
+  angle. A measure that changes when the segmentation happens to find a longer stretch of the same
+  vessel is reporting the segmentation as much as the retina.
+- **Scale response:** `1/γ` — a vessel photographed twice as large has half the mean curvature.
+- **Implemented by:** **nobody in this catalogue.** Hart's own recommendation is the one measure
+  no catalogued project computes.
+- **Canonical name:** `tortuosity/hart-tau4/<structure>`.
+
+### 3.4 Mean squared curvature — Hart τ5
+
+- **Formula:** `∫κ² ds / s(C)`, the same normalisation applied to the squared-curvature integral,
+  so sharp bends still dominate and the sign of a bend still does not matter.
+- **Compositional**, as τ4 is, and exactly `1/r²` on a circular arc of radius `r` whatever angle
+  was traced.
+- **Scale response:** `1/γ²`.
+- **Implemented by:** nobody in this catalogue. AutoMorph reports τ3, which is this quantity
+  **without** the normalisation and therefore grows with vessel length by construction.
+- **Canonical name:** `tortuosity/hart-tau5/<structure>`.
+
+### 3.5 Arc-chord ratio times inflection count
 
 - **Formula:** τ1 multiplied by the number of times the curvature changes sign, so many small
   wiggles score higher than one smooth arc.
 - **Implemented by:** AutoMorph and retipy (`distance_inflection_count_tortuosity`, `t4`).
 - Not one of Hart's seven, and no source publication was established for it.
 
-### 3.4 Tortuosity density — Grisan
+### 3.6 Tortuosity density — Grisan
 
 - **Formula:** `τ = ((n−1)/n) · (1/L_c) · Σᵢ [ L_c,sᵢ / L_χ,sᵢ − 1 ]`, where the vessel is
   partitioned into `n` subsegments of constant curvature sign (the paper calls them *turn curves*),
@@ -146,7 +192,7 @@ Two papers define everything in the table above.
   `(n−1)/n`, and `n−1` in their MATLAB code — a reweighting by twist count rather than a different
   measure, but one that changes the ordering between images because `n` varies per vessel.
 
-### 3.5 Mean curvature on a spline, and inflection count — VascX
+### 3.7 Mean curvature on a spline, and inflection count — VascX
 
 - **Formula:** the mean of κ sampled along a fitted spline; and, separately, the count of curvature
   sign changes.
@@ -162,7 +208,7 @@ exposes three further choices that change the number: per **segment** or per who
 optional caps on segment length and on implausible values. A VascX column name encodes those
 choices; a value quoted without them is not reproducible.
 
-### 3.6 Example code
+### 3.8 Example code
 
 - [retipy `tortuosity_measures.py`](https://github.com/alevalv/retipy-python/blob/master/retipy/retipy/tortuosity_measures.py)
   — τ1, τ1×inflections, τ3 and tortuosity density, the lineage behind the whole AutoMorph family.

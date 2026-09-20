@@ -17,6 +17,18 @@ why two pipelines can disagree about calibre while producing masks that look ide
 - **Direction of concern:** context-dependent — narrower arterioles and wider venules are both
   reported as adverse. The ratio between them is [AVR](avr.md).
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `vessel-calibre/mean-width/<structure>` | mean vessel width, in pixels unless a scale was supplied — over artery, vein, vessels |
+| `vessel-calibre/median-width/<structure>` | median vessel width — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 No single origin: calibre is a physical width, and each method defines the edge differently. The

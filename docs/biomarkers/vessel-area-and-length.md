@@ -16,6 +16,18 @@ computed on.
   length.
 - **Direction of concern:** lower is generally treated as adverse, mirroring density.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `vessel-area-and-length/area/<structure>` | total vessel area, in pixels squared — over artery, vein, vessels |
+| `vessel-area-and-length/skeleton-length/<structure>` | total centreline length, in pixels — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 - Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA. *PVBM: A Python Vasculature

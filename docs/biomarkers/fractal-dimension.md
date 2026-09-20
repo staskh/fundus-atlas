@@ -17,6 +17,20 @@ because its value depends on how it is computed to an extent rarely acknowledged
   singularity length.
 - **Direction of concern:** lower is generally treated as adverse.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `fractal-dimension/box-counting/<structure>` | box-counting dimension — over artery, vein, vessels |
+| `fractal-dimension/multifractal-d0/<structure>` | capacity dimension of the multifractal spectrum — over artery, vein, vessels |
+| `fractal-dimension/multifractal-d1/<structure>` | information dimension — over artery, vein, vessels |
+| `fractal-dimension/multifractal-d2/<structure>` | correlation dimension — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 - **The formula, in words:** cover the vessel mask with a grid of boxes of side *k*, count how many

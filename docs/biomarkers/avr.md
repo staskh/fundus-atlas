@@ -15,6 +15,19 @@ the venules widened, and those have different causes.
 - **Direction of concern:** lower is treated as adverse, and has been associated with raised blood
   pressure and cardiovascular risk.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `avr/hubbard/both` | arteriolar over venular equivalent, both Hubbard — over both |
+| `avr/knudtson/both` | arteriolar over venular equivalent, both Knudtson — over both |
+| `avr/ratio-of-calibres/both` | mean artery width over mean vein width, with no ring and no equivalent — over both |
+
 ## 2. Definition of record
 
 - **The formula, in words:** CRAE divided by CRVE — the arteriolar equivalent over the venular
