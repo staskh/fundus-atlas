@@ -282,4 +282,5 @@ def _module(benchmark: str):
     What a benchmark measures decides how its pages read, so the sections describing that live
     beside the code that measures it rather than in a switch here.
     """
-    return importlib.import_module(f"{__package__}.{benchmark}")
+    # A benchmark's name may carry a hyphen — `biomarker-synthetic` — and a module name may not.
+    return importlib.import_module(f"{__package__}.{benchmark.replace('-', '_')}")

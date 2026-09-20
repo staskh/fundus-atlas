@@ -7,7 +7,7 @@ from argparse import Namespace
 
 #: The benchmarks that exist, by the name they are known by everywhere else — in `results/`, in
 #: `docs/benchmarks/`, and in the module that implements them.
-BENCHMARKS = ("quality", "disc", "av")
+BENCHMARKS = ("quality", "disc", "av", "biomarker-synthetic")
 
 
 def parse(argv: list[str] | None = None) -> Namespace:
@@ -61,7 +61,9 @@ def named(value: str | None) -> list[str] | None:
 
 def main(argv: list[str] | None = None) -> None:
     asked = parse(argv)
-    benchmark = importlib.import_module(f"benchmarks.{asked.benchmark}")
+    # A benchmark's name may carry a hyphen, and a module name may not: `biomarker-synthetic` is
+    # what appears in results/ and in every document, and `biomarker_synthetic` is the module.
+    benchmark = importlib.import_module(f"benchmarks.{asked.benchmark.replace('-', '_')}")
     benchmark.main(asked)
 
 

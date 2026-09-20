@@ -131,6 +131,25 @@ def _fov_area(side: int) -> float:
     return math.pi * (side / 2.0) ** 2
 
 
+def _one_class(theory: dict[str, float], drawn: str) -> dict[str, float]:
+    """Mirror a single-class shape's values between that class and `vessels`.
+
+    Where a shape draws arteries and no veins, the union of the classes *is* the arteries, so a
+    quantity measured over the vessels and the same quantity measured over the arteries are the
+    same number. Saying so here means an implementation that reports per class and one that reports
+    over the union are both compared against the value that applies to them, rather than one of
+    them being compared against nothing.
+    """
+    mirrored = dict(theory)
+    for name, value in theory.items():
+        biomarker, variant, structure = name.split("/")
+        if structure == "vessels":
+            mirrored[f"{biomarker}/{variant}/{drawn}"] = value
+        elif structure == drawn:
+            mirrored[f"{biomarker}/{variant}/vessels"] = value
+    return mirrored
+
+
 def _combine(widths: list[float], pair: Callable[[float, float], float]) -> float:
     """The recursion both equivalents share: pair the widest with the narrowest, repeat.
 
@@ -220,7 +239,7 @@ def straight(
         vein=None,
         fov=fov,
         disc=_turned_disc(side, rotation),
-        theory={
+        theory=_one_class({
             "tortuosity/hart-tau1/artery": 1.0,
             "tortuosity/hart-tau2/artery": 0.0,
             "tortuosity/hart-tau3/artery": 0.0,
@@ -233,7 +252,7 @@ def straight(
             "junction-counts/junctions/vessels": 0.0,
             "junction-counts/components/vessels": 1.0,
             "junction-counts/endpoints/vessels": 2.0,
-        },
+        }, "artery"),
         parameters={"width": w, "length": distance},
         centreline=drawn,
     )
@@ -267,7 +286,7 @@ def arc(
         vein=None,
         fov=fov,
         disc=_turned_disc(side, rotation),
-        theory={
+        theory=_one_class({
             "tortuosity/hart-tau1/artery": theta / (2.0 * math.sin(theta / 2.0)),
             "tortuosity/hart-tau2/artery": theta,
             "tortuosity/hart-tau3/artery": theta / r,
@@ -280,7 +299,7 @@ def arc(
             "vessel-area-and-length/skeleton-length/artery": r * theta,
             "vessel-area-and-length/area/artery": _tube(r * theta, w),
             "vascular-density/over-field-of-view/vessels": _tube(r * theta, w) / _fov_area(side),
-        },
+        }, "artery"),
         parameters={"width": w, "radius": r, "angle": angle},
         centreline=drawn,
     )
@@ -329,7 +348,7 @@ def sinusoid(
         vein=None,
         fov=fov,
         disc=_turned_disc(side, rotation),
-        theory={
+        theory=_one_class({
             "tortuosity/hart-tau1/artery": length / span,
             "tortuosity/hart-tau2/artery": total_curvature,
             "tortuosity/hart-tau3/artery": total_squared,
@@ -339,7 +358,7 @@ def sinusoid(
             "vessel-area-and-length/skeleton-length/artery": length,
             "vessel-area-and-length/area/artery": _tube(length, w),
             "vascular-density/over-field-of-view/vessels": _tube(length, w) / _fov_area(side),
-        },
+        }, "artery"),
         parameters={"width": w, "amplitude": a, "wavelength": lam, "cycles": cycles},
         centreline=drawn,
     )
@@ -375,14 +394,14 @@ def bifurcation(
         vein=None,
         fov=fov,
         disc=_turned_disc(side, rotation),
-        theory={
+        theory=_one_class({
             "bifurcation-angle/between-daughters/artery": float(angle),
             "junction-counts/junctions/vessels": 1.0,
             "junction-counts/endpoints/vessels": 3.0,
             "junction-counts/components/vessels": 1.0,
             "vessel-calibre/mean-width/artery": w,
             "vessel-area-and-length/skeleton-length/artery": 3.0 * reach,
-        },
+        }, "artery"),
         parameters={"width": w, "angle": angle, "arm": reach},
         centreline=turned[0],
     )
@@ -416,7 +435,7 @@ def disjoint(
         vein=None,
         fov=fov,
         disc=_turned_disc(side, rotation),
-        theory={
+        theory=_one_class({
             "junction-counts/junctions/vessels": 0.0,
             "junction-counts/endpoints/vessels": 2.0 * count,
             "junction-counts/components/vessels": float(count),
@@ -427,7 +446,7 @@ def disjoint(
             "vascular-density/over-field-of-view/vessels": (
                 count * _tube(distance, w) / _fov_area(side)
             ),
-        },
+        }, "artery"),
         parameters={"width": w, "segments": float(count), "length": distance},
     )
 

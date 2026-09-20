@@ -1,0 +1,356 @@
+# ABOUTME: The synthetic biomarker benchmark: does an implementation compute the quantity it is said
+# ABOUTME: to compute, measured against shapes whose values follow from geometry rather than opinion.
+
+import json
+import sys
+import time
+from collections.abc import Iterable
+from datetime import UTC, datetime
+from pathlib import Path
+
+from biomarkers import naming
+from biomarkers.utils import catalogue
+
+from . import report, runs
+from .shapes import library
+
+#: What this benchmark is called in a heading, where its slug does not read as English.
+TITLE = "Biomarkers against arithmetic"
+
+#: What it is called in `results/`, in `docs/benchmarks/` and in a run record. A Python module name
+#: cannot carry a hyphen, so the module is `biomarker_synthetic` and `report._module` translates.
+NAME = "biomarker-synthetic"
+
+#: The benchmark's own version. Changing what is measured, or how, changes this.
+VERSION = 1
+
+#: What this benchmark asks, in the sentences the index has room for.
+GOAL = (
+    "**Does a biomarker implementation compute the quantity it is said to compute?** Every other "
+    "benchmark here compares software with a human judgement; this one compares it with a number "
+    "derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature "
+    "of exactly 1/r, and an implementation that disagrees is wrong rather than different. It "
+    "selects nothing: which implementations are fit to measure a real segmentation is a judgement "
+    "made by a person on this evidence."
+)
+
+#: The shapes, which play the part a dataset plays in every other benchmark.
+SHAPES = tuple(library.SHAPES)
+
+#: The implementations, by the slug of the project page each belongs to.
+IMPLEMENTATIONS = ("pvbm",)
+
+#: Why a declared implementation has no adapter, where the reason is worth more than "nobody wrote
+#: one yet".
+WHY_NOT: dict[str, str] = {}
+
+#: The grid every shape is drawn at. One number here rather than several: the convergence study
+#: that reads four resolutions belongs in the analysis, where a reader can see the trend, and a run
+#: that swept them would quadruple every table for a question the notebook answers better.
+SIDE = 2048
+
+#: Microns per pixel. A synthetic shape has no camera, so this is a stated convention — but it has
+#: to be stated, because Hubbard's equivalents carry constants fitted in microns.
+UM_PER_PX = 5.0
+
+#: The angles every shape is drawn at, each generated afresh in continuous coordinates rather than
+#: by turning a picture. Ninety degrees is included deliberately: it is where a vessel lands back on
+#: the pixel lattice, so a measurement that is unusually good or bad there is telling us about the
+#: grid rather than about the retina.
+ROTATIONS = (0.0, 30.0, 60.0, 90.0)
+
+#: What an implementation declares that could change its numbers.
+FINGERPRINTED = ("slug", "needs", "keys", "units")
+
+
+def implementations(slugs: list[str]) -> tuple[list, dict[str, str]]:
+    """The adapters that exist, and what was declared without one."""
+    found, missing = [], {}
+    for slug in slugs:
+        try:
+            found.append(catalogue.load(slug))
+        except LookupError:
+            missing[slug] = WHY_NOT.get(slug, "no adapter written")
+    return found, missing
+
+
+def configuration(adapters: list, shapes: list[str]) -> dict[str, object]:
+    """What this run is about to do, without doing any of it."""
+    described = []
+    for name in shapes:
+        built = library.build(name, side=SIDE, um_per_px=UM_PER_PX)
+        described.append(
+            {
+                "slug": name,
+                "total": len(ROTATIONS),
+                "excluded": {},
+                "classes": [
+                    part
+                    for part, mask in (("artery", built.artery), ("vein", built.vein))
+                    if mask is not None
+                ],
+                "settles": sorted(built.theory),
+            }
+        )
+    return {
+        "models": [{"slug": a.slug, "declared": a.declare()} for a in adapters],
+        "datasets": described,
+        "side": SIDE,
+        "um_per_px": UM_PER_PX,
+        "rotations": list(ROTATIONS),
+    }
+
+
+def run(
+    adapters: list,
+    shapes: list[str],
+    results: Path = runs.RESULTS,
+    root: Path | None = None,
+    batch: int = 1,
+    force: bool = False,
+    record: Path | None = None,
+    max_samples: int | None = None,
+    random_samples: bool = False,
+    seed: int = 0,
+    rescore: bool = False,
+) -> list[dict[str, object]]:
+    """Measure every implementation on every shape, at every angle."""
+    started = datetime.now(UTC)
+    if not adapters or not shapes:
+        raise RuntimeError("nothing to measure: no shape declared, or no implementation adapted")
+    scored = []
+    for adapter in adapters:
+        for shape in shapes:
+            scored.append(_pair(adapter, shape, results, force, max_samples))
+        release = getattr(adapter, "release", None)
+        if release is not None:
+            release()
+    _record(scored, started, record or runs.RUNS)
+    return scored
+
+
+def _pair(
+    adapter, shape: str, results: Path, force: bool, max_samples: int | None
+) -> dict[str, object]:
+    """One implementation on one shape, at every angle it is asked about."""
+    declared = adapter.declare()
+    identity = runs.fingerprint(
+        {
+            "benchmark": NAME,
+            "version": VERSION,
+            "declared": {key: declared.get(key) for key in FINGERPRINTED},
+            "code": adapter.identity(),
+            # The grid, the scale and the angles all change what is measured, so a result that
+            # outlived a change to any of them would be describing something else.
+            "rendering": {"side": SIDE, "um_per_px": UM_PER_PX, "rotations": list(ROTATIONS)},
+        }
+    )
+    kept = [] if force else runs.measured(results, NAME, adapter.slug, shape, identity)
+    wanted = list(ROTATIONS)[: max_samples or len(ROTATIONS)]
+    done = {str(row.get("rotation")) for row in kept}
+    todo = [angle for angle in wanted if f"{angle:.1f}" not in done]
+    if not todo:
+        print(f"{adapter.slug} × {shape}: kept — nothing left to measure", flush=True)
+        rows = kept
+    else:
+        print(f"{adapter.slug} × {shape}: {len(todo)} of {len(wanted)} angles", flush=True)
+        rows = list(kept) + _measure(adapter, shape, todo)
+    summary = _summarise(rows, wanted)
+    runs.write(results, NAME, adapter.slug, shape, identity, summary, rows)
+    return {
+        "model": adapter.slug,
+        "dataset": shape,
+        "declared": declared,
+        "fingerprint": identity,
+        "counts": {
+            "processed": len({str(row["rotation"]) for row in rows}),
+            "total": len(wanted),
+            "complete": len(rows) >= len(wanted),
+            "excluded": {},
+        },
+        "summary": summary,
+    }
+
+
+def _measure(adapter, shape: str, angles: list[float]) -> list[dict[str, object]]:
+    """One row per angle: what the implementation returned, beside what geometry requires."""
+    rows = []
+    for angle in angles:
+        built = library.build(shape, side=SIDE, rotation=angle, um_per_px=UM_PER_PX)
+        started = time.perf_counter()
+        try:
+            answered = adapter.measure(
+                built.artery, built.vein, built.fov, built.disc, built.um_per_px
+            )
+            note = ""
+        except Exception as failure:  # noqa: BLE001 — a crash is an answer about nothing
+            answered, note = dict.fromkeys(adapter.keys()), repr(failure)
+        taken = time.perf_counter() - started
+        rows.append(_row(adapter, built, angle, answered, taken, note))
+    return rows
+
+
+def _row(adapter, built, angle: float, answered: dict, taken: float, note: str) -> dict[str, object]:
+    """What is kept about one rendering.
+
+    The theoretical value sits **beside** the returned one rather than being subtracted from it: a
+    difference is an analysis, and the analysis belongs in the notebook.
+    """
+    row: dict[str, object] = {
+        # What was measured, named once. A rendering plays the part a photograph plays in every
+        # other benchmark here, so it carries the same kind of key and the evidence sorts alike.
+        "key": f"{built.name}@{angle:.0f}",
+        "shape": built.name,
+        "rotation": f"{angle:.1f}",
+        "side": built.side,
+        "um_per_px": built.um_per_px,
+        "outcome": "failed" if note else "measured",
+        "seconds": f"{taken:.3f}",
+        "note": note,
+    }
+    for key in adapter.keys():
+        value = answered.get(key)
+        row[f"said_{key}"] = "" if value is None else f"{float(value):.6f}"
+        canonical = naming.canonical_for(adapter.slug, key)
+        theory = built.theory.get(canonical) if canonical else None
+        row[f"theory_{key}"] = "" if theory is None else f"{float(theory):.6f}"
+        row[f"canonical_{key}"] = canonical or ""
+    return row
+
+
+def _summarise(rows: list[dict[str, object]], wanted: list[float]) -> dict[str, object]:
+    """What this pair did: how much was measured, what it cost, and how far it moved when turned."""
+    measured = [row for row in rows if row.get("outcome") == "measured"]
+    summary: dict[str, object] = {
+        "renderings": len(rows),
+        "failed": len(rows) - len(measured),
+        "processed": len({str(row["rotation"]) for row in rows}),
+        "total": len(wanted),
+        "complete": len(rows) >= len(wanted),
+        "excluded": {},
+        "side": SIDE,
+        "um_per_px": UM_PER_PX,
+    }
+    taken = [float(row["seconds"]) for row in rows if row.get("seconds")]
+    if taken:
+        summary["seconds_per_rendering"] = sum(taken) / len(taken)
+        summary["seconds_per_photograph"] = summary["seconds_per_rendering"]
+        summary["timed_photographs"] = len(taken)
+    return summary
+
+
+def _record(scored: list[dict[str, object]], started: datetime, into: Path) -> None:
+    """What ran, against what, with which pins — beside the results rather than inside them."""
+    into.mkdir(parents=True, exist_ok=True)
+    stamp = started.strftime("%Y-%m-%dT%H-%M-%SZ")
+    directory = into / NAME / stamp
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "run.json").write_text(
+        json.dumps(
+            {
+            "benchmark": NAME,
+            "version": VERSION,
+            "started": started.isoformat(),
+            "side": SIDE,
+            "um_per_px": UM_PER_PX,
+            "rotations": list(ROTATIONS),
+            "pairs": [
+                {
+                    "model": entry["model"],
+                    "dataset": entry["dataset"],
+                    "fingerprint": entry["fingerprint"],
+                    "declared": entry["declared"],
+                }
+                for entry in scored
+            ],
+            },
+            indent=1,
+            default=str,
+        )
+        + "\n"
+    )
+
+
+#: Every column of this benchmark's evidence, and what it means.
+COLUMNS = {
+    "key": "the rendering: the shape and the angle it was drawn at",
+    "shape": "which shape was drawn — `straight`, `arc`, `disc-spokes` and the rest",
+    "rotation": "the angle it was drawn at, in degrees, generated afresh rather than turned",
+    "side": "the grid it was drawn on, in pixels",
+    "um_per_px": "the microns per pixel the shape was built with",
+    "outcome": "`measured`, or `failed` with the reason in `note`",
+    "seconds": "how long the implementation took over this rendering",
+    "said_<key>": "what the implementation returned, under **its own** column name",
+    "theory_<key>": "what the shape's geometry requires for that quantity, where it defines one",
+    "canonical_<key>": (
+        "the canonical name that column is believed to answer to — the claim the theory is "
+        "compared against, and empty where the column maps to nothing catalogued"
+    ),
+    "note": "what an implementation failed with",
+}
+
+
+def docs_sections(configured: dict[str, object]) -> Iterable[str]:
+    """What only this benchmark's configuration page says."""
+    yield "## 1. What this benchmark asks"
+    yield ""
+    yield GOAL
+    yield ""
+    yield (
+        f"Every shape is drawn on a **{configured['side']}²** grid at "
+        f"**{configured['um_per_px']} µm per pixel**, at "
+        f"{', '.join(f'{angle:.0f}°' for angle in configured['rotations'])}. Each angle is a fresh "
+        f"rendering from continuous coordinates, never a turned picture: resampling a structure a "
+        f"few pixels wide destroys it, and a rotated bitmap would measure the resampler."
+    )
+    yield ""
+    yield "## 2. The implementations"
+    yield ""
+    yield "| Implementation | Pinned at | Needs | Claims invariance under | Columns |"
+    yield "| --- | --- | --- | --- | --- |"
+    for entry in configured["models"]:
+        declared = entry["declared"]
+        upstream = declared.get("upstream", {})
+        pin = str(upstream.get("commit") or upstream.get("version") or "—")[:12]
+        yield (
+            f"| [{entry['slug']}](../projects/{entry['slug']}.md) | `{pin}` | "
+            f"{', '.join(declared.get('needs', []))} | "
+            f"{', '.join(declared.get('invariant', [])) or '—'} | "
+            f"{len(declared.get('keys', []))} |"
+        )
+    yield ""
+    yield "## 3. The shapes, and what each one settles"
+    yield ""
+    yield "| Shape | Classes drawn | Quantities it defines |"
+    yield "| --- | --- | --- |"
+    for entry in configured["datasets"]:
+        yield (
+            f"| `{entry['slug']}` | {', '.join(entry['classes'])} | "
+            f"{len(entry['settles'])} |"
+        )
+    yield ""
+    yield (
+        "Every value a shape defines follows from its geometry and is written out in "
+        "[the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb), so a reader can "
+        "disagree with the arithmetic rather than with the code."
+    )
+
+
+def main(arguments) -> None:
+    """Run this benchmark from the one command every benchmark is run from."""
+    chosen = arguments.model.split(",") if arguments.model else list(IMPLEMENTATIONS)
+    shapes = arguments.dataset.split(",") if arguments.dataset else list(SHAPES)
+    adapters, missing = implementations([slug.strip() for slug in chosen])
+    for slug, why in missing.items():
+        print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
+    scored = run(
+        adapters,
+        [shape.strip() for shape in shapes],
+        force=arguments.force,
+        max_samples=arguments.max_samples,
+    )
+    if arguments.report:
+        configured = configuration(adapters, [shape.strip() for shape in shapes])
+        report.write_docs(NAME, configured, missing, {}, COLUMNS)
+        report.write_index()
+    print(f"{len(scored)} pairs measured")
