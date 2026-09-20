@@ -20,6 +20,9 @@ TITLE = "Biomarkers against arithmetic"
 #: What it is called in `results/`, in `docs/benchmarks/` and in a run record. A Python module name
 #: cannot carry a hyphen, so the module is `biomarker_synthetic` and `report._module` translates.
 NAME = "biomarker-synthetic"
+#: How close a measurement must be to what the geometry requires to be counted as agreeing. It is
+#: a way of summarising many numbers in one, not a pass mark: this benchmark selects nothing.
+AGREES = 0.02
 
 #: The benchmark's own version. Changing what is measured, or how, changes this.
 VERSION = 1
@@ -182,7 +185,10 @@ def _measure(adapter, shape: str, angles: list[float]) -> list[dict[str, object]
             answered = adapter.measure(
                 built.artery, built.vein, built.fov, built.disc, built.um_per_px
             )
-            note = ""
+            # What the adapter caught on its way, so an empty cell always says why it is empty.
+            # Without this a defect of ours — handing PVBM 8-bit masks, which overflow on a frame
+            # this size — was indistinguishable in the results from PVBM declining to answer.
+            note = "; ".join(f"{where}: {why}" for where, why in getattr(adapter, "trouble", {}).items())
         except Exception as failure:  # noqa: BLE001 — a crash is an answer about nothing
             answered, note = dict.fromkeys(adapter.keys()), repr(failure)
         taken = time.perf_counter() - started
@@ -204,7 +210,10 @@ def _row(adapter, built, angle: float, answered: dict, taken: float, note: str) 
         "rotation": f"{angle:.1f}",
         "side": built.side,
         "um_per_px": built.um_per_px,
-        "outcome": "failed" if note else "measured",
+        # `failed` means nothing came back. A rendering whose equivalents raised while its
+        # geometry was measured is a measured rendering with a note saying what it could not
+        # answer — otherwise one bad column would throw away every good one beside it.
+        "outcome": "measured" if any(value is not None for value in answered.values()) else "failed",
         "seconds": f"{taken:.3f}",
         "note": note,
     }
@@ -278,7 +287,7 @@ COLUMNS = {
     "rotation": "the angle it was drawn at, in degrees, generated afresh rather than turned",
     "side": "the grid it was drawn on, in pixels",
     "um_per_px": "the microns per pixel the shape was built with",
-    "outcome": "`measured`, or `failed` with the reason in `note`",
+    "outcome": "`measured` if any quantity came back, else `failed`; `note` says what fell over",
     "seconds": "how long the implementation took over this rendering",
     "said_<key>": "what the implementation returned, under **its own** column name",
     "theory_<key>": "what the shape's geometry requires for that quantity, where it defines one",
@@ -394,7 +403,15 @@ def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[s
                         continue
                     comparable += 1
                     required, answered = float(theory), float(said)
-                    if required and abs(answered - required) / abs(required) <= 0.02:
+                    # A required value of zero — a shape with no junctions — is agreed with by
+                    # answering zero and by nothing else. A relative tolerance cannot express that,
+                    # and treating it as unanswerable counted every correct zero as a miss.
+                    close = (
+                        answered == required
+                        if required == 0
+                        else abs(answered - required) / abs(required) <= AGREES
+                    )
+                    if close:
                         agreed += 1
                     by_quantity.setdefault(f"{path.stem}/{key}", []).append(answered)
         for values in by_quantity.values():

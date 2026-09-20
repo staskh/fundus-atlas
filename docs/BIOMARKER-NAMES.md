@@ -48,9 +48,9 @@ added per implementation as its adapter is written, and PVBM is the first.
 
 | Canonical name | Unit | [PVBM](projects/pvbm.md) |
 | --- | --- | --- |
-| [`vessel-area-and-length/area/<structure>`](biomarkers/vessel-area-and-length.md) | px² | `area` 🟡 |
-| [`vessel-area-and-length/skeleton-length/<structure>`](biomarkers/vessel-area-and-length.md) | px | `length` 🟡 |
-| [`tortuosity/hart-tau1/<structure>`](biomarkers/tortuosity.md) | — | `tortuosity index`, `median tortuosity` 🟡 |
+| [`vessel-area-and-length/area/<structure>`](biomarkers/vessel-area-and-length.md) | px² | `area` 🟢 — within 0.1% on four shapes at four angles |
+| [`vessel-area-and-length/skeleton-length/<structure>`](biomarkers/vessel-area-and-length.md) | px | `length` 🔴 — it is a sum of **chords**, so it under-reports a curved vessel: −10.6% on a 90° arc, −18% on a sinusoid |
+| [`tortuosity/hart-tau1/<structure>`](biomarkers/tortuosity.md) | — | `median tortuosity` 🟡 — the right quantity, measured with a naive chain code: a straight vessel reads 1.073 at 30° where it must read 1 |
 | [`tortuosity/hart-tau2/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
 | [`tortuosity/hart-tau3/<structure>`](biomarkers/tortuosity.md) | px⁻² | — |
 | [`tortuosity/hart-tau4/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
@@ -61,18 +61,18 @@ added per implementation as its adapter is written, and PVBM is the first.
 | [`tortuosity/arc-chord-times-inflections/<structure>`](biomarkers/tortuosity.md) | — | — |
 | [`tortuosity/spline-mean-curvature/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
 | [`tortuosity/inflection-count/<structure>`](biomarkers/tortuosity.md) | count | — |
-| [`junction-counts/junctions/<structure>`](biomarkers/junction-counts.md) | count | `number of intersection points` 🟡 |
-| [`junction-counts/endpoints/<structure>`](biomarkers/junction-counts.md) | count | `number of end points` 🟡 |
+| [`junction-counts/junctions/<structure>`](biomarkers/junction-counts.md) | count | `number of intersection points` 🔴 — exact where there are none; a single Y-junction counts as one, three or four depending on the angle |
+| [`junction-counts/endpoints/<structure>`](biomarkers/junction-counts.md) | count | `number of end points` 🟢 — exact at every angle on all three shapes that pin one |
 | [`junction-counts/components/<structure>`](biomarkers/junction-counts.md) | count | `number of start points` 🟡 — **suspected different**: a start point is where a skeleton walk begins, which need not be one per component |
-| [`bifurcation-angle/between-daughters/<structure>`](biomarkers/bifurcation-angle.md) | degrees | `median branching angle` 🟡 |
-| [`fractal-dimension/multifractal-d0/<structure>`](biomarkers/fractal-dimension.md) | — | `capacity dimension` 🟡 |
+| [`bifurcation-angle/between-daughters/<structure>`](biomarkers/bifurcation-angle.md) | degrees | `median branching angle` 🔴 — **the mapping is wrong, not the column**: it medians every pairwise angle at every particular point, including each daughter against the trunk, and reads ~120° where the daughters are 60° apart |
+| [`fractal-dimension/multifractal-d0/<structure>`](biomarkers/fractal-dimension.md) | — | `capacity dimension` 🟡 — computed and recorded on every shape, but no shape pins a value to check it against |
 | [`fractal-dimension/multifractal-d1/<structure>`](biomarkers/fractal-dimension.md) | — | `entropy dimension` 🟡 |
 | [`fractal-dimension/multifractal-d2/<structure>`](biomarkers/fractal-dimension.md) | — | `correlation dimension` 🟡 |
 | [`fractal-dimension/box-counting/<structure>`](biomarkers/fractal-dimension.md) | — | — PVBM's three are multifractal, which is a different measurement |
-| [`central-retinal-equivalents/knudtson/<structure>`](biomarkers/central-retinal-equivalents.md) | px | `crae_knudtson`, `crve_knudtson` 🟡 |
-| [`central-retinal-equivalents/hubbard/<structure>`](biomarkers/central-retinal-equivalents.md) | **µm** | `crae_hubbard`, `crve_hubbard` 🟡 — constants fitted in microns, so a pixel-fed value is a different number, not a rescaled one |
-| [`avr/knudtson/both`](biomarkers/avr.md) | — | not reported; the user divides CRAE by CRVE 🟡 |
-| [`avr/hubbard/both`](biomarkers/avr.md) | — | likewise 🟡 |
+| [`central-retinal-equivalents/knudtson/<structure>`](biomarkers/central-retinal-equivalents.md) | px | `crae_knudtson`, `crve_knudtson` 🟢 — **measured**: within 3.1% (CRAE) and 3.8% (CRVE) of the recursion on twelve vessels of known width, always low by about a mask's worth of width. Two limits are the implementation's, not the mapping's: it keeps only vessels *starting* within 20 + 2·radius of the disc centre — a cutoff one vessel here missed by 1.1 px — and it raises `RecursionError` on a skeleton longer than ~1000 px |
+| [`central-retinal-equivalents/hubbard/<structure>`](biomarkers/central-retinal-equivalents.md) | **µm** | `crae_hubbard`, `crve_hubbard` 🔴 — **measured**: −80% (CRAE) and −76% (CRVE). PVBM computes it from **pixel** widths and takes no scale at all, while Hubbard's constants were fitted in microns; at one 5 µm/px scale the arteries are out by 5.09× and the veins by 4.13×, so no single conversion recovers it — it is a different quantity rather than one awaiting conversion |
+| [`avr/knudtson/both`](biomarkers/avr.md) | — | not reported; the user divides CRAE by CRVE 🟢 — **measured** at +0.8%, better than either calibre it is built from, the two deficits being in the same direction |
+| [`avr/hubbard/both`](biomarkers/avr.md) | — | likewise 🔴 — **measured** at −18.8%, inheriting the dimensional error above |
 | [`avr/ratio-of-calibres/both`](biomarkers/avr.md) | — | — |
 | [`vessel-calibre/mean-width/<structure>`](biomarkers/vessel-calibre.md) | px | — PVBM reaches calibre only through the equivalents |
 | [`vessel-calibre/median-width/<structure>`](biomarkers/vessel-calibre.md) | px | — |

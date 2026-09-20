@@ -50,8 +50,18 @@ class Pvbm:
     needs = ("artery", "vein", "disc")
     invariant = ("rotation",)
 
+    #: What the masks are handed over as. **Not uint8**: PVBM writes pixel coordinates and labels
+    #: into arrays it derives from the input, so an 8-bit input overflows on any image wide enough
+    #: for a coordinate to pass 255 — `OverflowError: Python integer 416 out of bounds for uint8`
+    #: at 2048². Its own documentation asks only for binary values, and float is what its examples
+    #: hand it.
+    DTYPE = np.float64
+
     def __init__(self, device: str | None = None) -> None:
         self.device = "cpu"
+        #: What went wrong during the last call, by where, so a run can record it rather than
+        #: leaving an empty cell that could mean anything.
+        self.trouble: dict[str, str] = {}
         self._geometry = None
         self._fractals = None
         self._equivalents = None
@@ -91,6 +101,7 @@ class Pvbm:
         um_per_px: float | None,
     ) -> dict[str, float | None]:
         """Everything PVBM computes, under PVBM's own names, with `None` where it could not."""
+        self.trouble = {}
         answers: dict[str, float | None] = dict.fromkeys(self.keys())
         for side, mask in (("artery", artery), ("vein", vein)):
             if mask is None or not mask.any():
@@ -102,7 +113,7 @@ class Pvbm:
     def _per_class(self, mask: np.ndarray, side: str) -> dict[str, float | None]:
         """The measurements PVBM takes over one class at a time."""
         found: dict[str, float | None] = {}
-        binary = np.asarray(mask, dtype=np.uint8)
+        binary = np.asarray(mask, dtype=self.DTYPE)
         try:
             geometry = self._loaded_geometry()
             # `compute_perimeter` returns a second value it calls `segmentation_skeleton`, and it
@@ -113,7 +124,7 @@ class Pvbm:
             # is what every one of PVBM's own docstrings asks for.
             perimeter, _border = geometry.compute_perimeter(binary)
             found[f"perimeter_{side}"] = float(perimeter)
-            spine = skeletonize(binary > 0).astype(np.uint8)
+            spine = skeletonize(np.asarray(mask) > 0).astype(self.DTYPE)
             found[f"area_{side}"] = float(geometry.area(binary))
             median_tortuosity, length, _chord, _arc, _connections = geometry.compute_tortuosity_length(
                 spine
@@ -125,14 +136,16 @@ class Pvbm:
             found[f"intersections_{side}"] = _number(intersections)
             _mean, _spread, median_angle, _angles, _centroid = geometry.compute_branching_angles(spine)
             found[f"median_branching_angle_{side}"] = _number(median_angle)
-        except Exception:  # noqa: BLE001 — a measurement that fell over is one that has no value
-            pass
+        except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
+            # Recorded rather than swallowed. Silence here once made an adapter's own bug look
+            # like PVBM declining to answer, which is the most expensive kind of quiet there is.
+            self.trouble[f"geometry_{side}"] = repr(failure)
         try:
             spectrum = self._loaded_fractals().compute_multifractals(binary.copy())
             for name, value in zip(FRACTALS, spectrum, strict=False):
                 found[f"{name}_{side}"] = _number(value)
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as failure:  # noqa: BLE001
+            self.trouble[f"fractals_{side}"] = repr(failure)
         return found
 
     def _per_pair(
@@ -159,7 +172,8 @@ class Pvbm:
             # correction.
             try:
                 both = self._equivalents_of(mask, x, y, radius, artery_flag)
-            except Exception:  # noqa: BLE001
+            except Exception as failure:  # noqa: BLE001
+                self.trouble[f"equivalents_{side}"] = repr(failure)
                 both = {}
             found[f"{prefix}_knudtson"] = both.get("knudtson")
             found[f"{prefix}_hubbard"] = both.get("hubbard")
@@ -179,8 +193,8 @@ class Pvbm:
         letter naming the formula. It signals a failure with −1, which is turned into no answer
         here rather than left to be averaged into somebody's table as a negative calibre.
         """
-        binary = np.asarray(mask, dtype=np.uint8)
-        spine = skeletonize(binary > 0).astype(np.uint8)
+        binary = np.asarray(mask, dtype=self.DTYPE)
+        spine = skeletonize(np.asarray(mask) > 0).astype(self.DTYPE)
         result, _plot = self._loaded_equivalents().compute_central_retinal_equivalents(
             blood_vessel=binary,
             skeleton=spine,

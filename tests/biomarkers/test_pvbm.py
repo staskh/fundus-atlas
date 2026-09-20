@@ -103,6 +103,26 @@ def test_a_crash_is_recorded_rather_than_raised() -> None:
     adapter = an_adapter()
     empty = np.zeros((SIDE, SIDE), dtype=bool)
 
-    measured = adapter.measure(empty, None, np.ones((SIDE, SIDE), dtype=bool), (10.0, 10.0, 5.0), 5.0)
+    measured = adapter.measure(
+        empty, None, np.ones((SIDE, SIDE), dtype=bool), (10.0, 10.0, 5.0), 5.0
+    )
 
     assert set(measured) <= set(adapter.keys())
+
+
+def test_it_measures_equivalents_at_the_grid_the_benchmark_runs_on() -> None:
+    """At 2048² — not at the 512² the rest of these tests use, which is the whole point.
+
+    PVBM writes pixel coordinates into arrays derived from the masks it is handed, so handing it
+    8-bit masks overflows on a large frame: `Python integer 416 out of bounds for uint8`. The
+    adapter caught that and returned no answer, which read in the results as PVBM declining rather
+    than as our own defect. The size is the test.
+    """
+    adapter = an_adapter()
+    shape = library.build("disc-spokes", side=2048, um_per_px=5.0)
+
+    answers = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, 5.0)
+
+    assert not adapter.trouble, f"nothing should have fallen over: {adapter.trouble}"
+    assert answers["crae_knudtson"] is not None, "twelve vessels leave the disc; it can answer"
+    assert np.isfinite(answers["crae_knudtson"])

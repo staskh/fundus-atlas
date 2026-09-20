@@ -132,3 +132,15 @@ observation.
 - **7.5** An upstream's defect is reproduced and recorded, never quietly fixed.
 - **7.6** A class that was not handed over is `None` in every measurement that needs it, never
   replaced by the other class and never assumed empty.
+- **7.7** **Hand the masks over in a wide dtype — never `uint8`.** Measuring code writes pixel
+  coordinates, labels and running sums into arrays it derives from the mask it was given, and an
+  8-bit array silently cannot hold a coordinate on a large frame. PVBM raised
+  `OverflowError: Python integer 416 out of bounds for uint8` on a 2048² image and computed no
+  equivalents and no fractal dimensions at all; the same call on `float64` answered normally. The
+  dtype an adapter chooses is a decision about the numbers, so declare it as a constant with the
+  reason beside it rather than writing it inline at each call.
+- **7.8** **An adapter that catches an exception records why.** Catching is right — one measurement
+  falling over must not lose the rest — but an empty cell with no reason beside it cannot be told
+  apart from an implementation that declined, and that ambiguity is expensive: it let rule 7.7's
+  defect read for a whole run as PVBM refusing to answer. Publish what was caught (`trouble`,
+  keyed by where), and the benchmark writes it into the row's `note`.

@@ -48,7 +48,7 @@ python -m benchmarks --benchmark biomarker-synthetic --max-samples 20
 | `rotation` | the angle it was drawn at, in degrees, generated afresh rather than turned |
 | `side` | the grid it was drawn on, in pixels |
 | `um_per_px` | the microns per pixel the shape was built with |
-| `outcome` | `measured`, or `failed` with the reason in `note` |
+| `outcome` | `measured` if any quantity came back, else `failed`; `note` says what fell over |
 | `seconds` | how long the implementation took over this rendering |
 | `said_<key>` | what the implementation returned, under **its own** column name |
 | `theory_<key>` | what the shape's geometry requires for that quantity, where it defines one |
