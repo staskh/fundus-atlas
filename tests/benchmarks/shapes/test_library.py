@@ -207,9 +207,87 @@ def test_the_knudtson_equivalent_of_equal_vessels_is_what_the_recursion_gives() 
     assert library.knudtson([7.0], "vein") == 7.0, "one vessel combines with nothing"
 
 
-def test_a_pair_of_vessels_far_from_the_disc_promises_no_equivalent() -> None:
-    """They never cross the ring, so a CRAE there would be measuring something else."""
-    shape = library.build("artery-vein-pair", side=SIDE)
+def test_the_pairs_vessels_do_cross_the_ring_the_equivalents_need() -> None:
+    """Measured rather than assumed — and the measurement corrected an earlier belief.
 
-    assert not any(key.startswith("central-retinal-equivalents/") for key in shape.theory)
-    assert "avr/ratio-of-calibres/both" in shape.theory, "a ratio of calibres it can support"
+    The pair was thought to sit too far from the disc to support an equivalent at all. Its vessels
+    run outward past the disc, so each crosses the annulus once, which makes the Knudtson
+    equivalent of a single vessel a legitimate degenerate case rather than a category error.
+    """
+    from scipy.ndimage import label
+
+    shape = library.build("artery-vein-pair", side=SIDE)
+    x, y, radius = shape.disc
+    grid = np.arange(SIDE) + 0.5
+    px, py = np.meshgrid(grid, grid)
+    distance = np.hypot(px - x, py - y) / radius
+    ring = (distance >= library.ZONE_B_RADII[0]) & (distance <= library.ZONE_B_RADII[1])
+
+    assert label(shape.artery & ring)[1] == 1, "exactly one artery crosses the ring"
+    assert label(shape.vein & ring)[1] == 1, "and exactly one vein"
+
+
+def test_the_scale_changes_hubbards_equivalent_and_leaves_knudtson_s_alone() -> None:
+    """Knudtson's formula is purely multiplicative and so scale-free; Hubbard's is not.
+
+    Hubbard's constants were fitted in microns and the additive term does not scale, so the same
+    vessels photographed at a different resolution give a different Hubbard equivalent — which is
+    the trap `docs/biomarkers/central-retinal-equivalents.md` §3.1 records.
+    """
+    coarse = library.build("disc-spokes", side=SIDE, um_per_px=5.0)
+    fine = library.build("disc-spokes", side=SIDE, um_per_px=20.0)
+
+    knudtson = "central-retinal-equivalents/knudtson/artery"
+    hubbard = "central-retinal-equivalents/hubbard/artery"
+    assert coarse.theory[knudtson] == pytest.approx(fine.theory[knudtson]), (
+        "Knudtson is in pixels and does not know what a micron is"
+    )
+    assert coarse.theory[hubbard] != pytest.approx(fine.theory[hubbard])
+    assert fine.theory[hubbard] > coarse.theory[hubbard], "more microns per pixel, wider vessels"
+
+
+def test_hubbard_declines_a_single_vessel_and_knudtson_passes_it_through() -> None:
+    """Which is why the pair shape carries one equivalent and not the other."""
+    assert library.knudtson([9.0], "artery") == 9.0
+    with pytest.raises(ValueError, match="pair"):
+        library.hubbard([90.0], "artery")
+
+
+def test_the_pair_promises_knudtson_only_and_the_spokes_promise_both() -> None:
+    pair = library.build("artery-vein-pair", side=SIDE)
+    spokes = library.build("disc-spokes", side=SIDE)
+
+    assert "central-retinal-equivalents/knudtson/artery" in pair.theory
+    assert "central-retinal-equivalents/hubbard/artery" not in pair.theory, (
+        "one artery cannot make a Hubbard pair, so the shape promises none"
+    )
+    assert "central-retinal-equivalents/hubbard/artery" in spokes.theory
+
+
+def test_the_three_arteriovenous_ratios_are_three_different_numbers() -> None:
+    """A shape where the variants disagree is what makes them testable rather than interchangeable.
+
+    Same vessels, same widths: the ratio of calibres is the ratio of the widths, Knudtson's carries
+    its 0.88 against 0.95 through the recursion, and Hubbard's carries additive constants. An
+    implementation reporting "AVR" without naming which is reporting one of these three.
+    """
+    shape = library.build("disc-spokes", side=SIDE, um_per_px=10.0)
+
+    plain = shape.theory["avr/ratio-of-calibres/both"]
+    knudtson = shape.theory["avr/knudtson/both"]
+    hubbard = shape.theory["avr/hubbard/both"]
+    assert plain != pytest.approx(knudtson, rel=0.01), "0.88 against 0.95, compounded"
+    assert knudtson != pytest.approx(hubbard, rel=0.01)
+
+    # Hubbard's and the plain ratio can *coincide* at a particular scale — at this frame they are
+    # within one per cent — so the proof that they are different quantities is that only one of
+    # them moves when the scale does. Two numbers that respond differently to the same change are
+    # not the same measurement, whatever they happen to read at one setting.
+    wider = library.build("disc-spokes", side=SIDE, um_per_px=40.0)
+    assert wider.theory["avr/ratio-of-calibres/both"] == pytest.approx(plain)
+    assert wider.theory["avr/hubbard/both"] != pytest.approx(hubbard, rel=0.01)
+
+
+def test_a_shape_records_the_scale_it_was_built_with() -> None:
+    assert library.build("straight", side=SIDE).um_per_px == library.UM_PER_PX
+    assert library.build("straight", side=SIDE, um_per_px=3.5).um_per_px == 3.5

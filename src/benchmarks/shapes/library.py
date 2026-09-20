@@ -19,6 +19,9 @@ class Shape:
         absent, so the union an adapter forms is exactly the shape whose value is known.
     :param theory: the values this shape's geometry requires, keyed ``biomarker/variant`` after the
         catalogue in `docs/biomarkers/`, so a returned number can be compared with the right one.
+    :param um_per_px: the scale the shape was built with. A synthetic shape has no camera, so this
+        is a stated convention — but it has to be stated, because Hubbard's equivalents carry
+        additive constants fitted in microns and mean nothing without one.
     :param centreline: the curve before it was drawn, kept so a result can be re-derived without
         re-running the generator.
     """
@@ -26,6 +29,7 @@ class Shape:
     name: str
     side: int
     rotation: float
+    um_per_px: float
     artery: np.ndarray | None
     vein: np.ndarray | None
     fov: np.ndarray
@@ -56,17 +60,38 @@ ZONE_B_RADII = (2.0, 3.0)
 KNUDTSON = {"artery": 0.88, "vein": 0.95}
 KNUDTSON_VESSELS = 6
 
+#: Hubbard's fitted coefficients, `(a, b, c, d)` in `√(a·w₁² + b·w₂² + c·w₁·w₂ + d)`. They were
+#: fitted in **microns**, and the additive term is what makes that matter: it does not scale, so
+#: feeding pixel widths in gives a different number rather than a rescaled one.
+HUBBARD = {"artery": (0.87, 1.01, -0.22, -10.76), "vein": (0.72, 0.91, 0.0, 450.05)}
+
+#: Microns per pixel where a shape is not told otherwise. A synthetic shape has no camera, so this
+#: is a stated convention rather than a measurement — but a scale has to be stated, because
+#: Hubbard's equivalents are meaningless without one.
+UM_PER_PX = 10.0
+
 #: How finely a curve is sampled before it is drawn. The rasteriser measures distance to the
 #: segments rather than to these points, so this only has to be fine enough that a segment's
 #: deviation from the curve is well under a pixel.
 SAMPLES = 2000
 
 
-def build(name: str, side: int = 1024, rotation: float = 0.0, **parameters: float) -> Shape:
-    """One shape, at one grid, at one angle."""
+def build(
+    name: str,
+    side: int = 1024,
+    rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX,
+    **parameters: float,
+) -> Shape:
+    """One shape, at one grid, at one angle, at one scale.
+
+    :param um_per_px: microns per pixel. It changes no geometry — a shape is the same shape at any
+        scale — but it decides what the scale-dependent theory says, which is Hubbard's equivalents
+        and nothing else here.
+    """
     if name not in SHAPES:
         raise LookupError(f"no shape named {name!r}; there are {', '.join(SHAPES)}")
-    return SHAPES[name](side, rotation, **parameters)
+    return SHAPES[name](side, rotation, um_per_px, **parameters)
 
 
 def _disc(side: int) -> tuple[float, float, float]:
@@ -106,6 +131,51 @@ def _fov_area(side: int) -> float:
     return math.pi * (side / 2.0) ** 2
 
 
+def _combine(widths: list[float], pair: Callable[[float, float], float]) -> float:
+    """The recursion both equivalents share: pair the widest with the narrowest, repeat.
+
+    Knudtson's revision fixed the vessels used at the six largest and the pairing at widest with
+    narrowest; the same iteration is applied to Hubbard's combination here, which is what the
+    implementations in this catalogue do. Hubbard's own paper is less explicit about the order,
+    so that is an assumption rather than a reading — and one the synthetic shapes make harmless,
+    since every vessel of a class shares a width and every order gives the same answer.
+    """
+    remaining = sorted(widths, reverse=True)[:KNUDTSON_VESSELS]
+    while len(remaining) > 1:
+        remaining.sort(reverse=True)
+        combined = []
+        left, right = 0, len(remaining) - 1
+        while left < right:
+            combined.append(pair(remaining[left], remaining[right]))
+            left += 1
+            right -= 1
+        if left == right:
+            combined.append(remaining[left])
+        remaining = combined
+    return remaining[0]
+
+
+def hubbard(widths_um: list[float], structure: str) -> float:
+    """The Hubbard equivalent, **in microns**, of vessel widths given in microns.
+
+    `√(a·w₁² + b·w₂² + c·w₁w₂ + d)` per pair, with the coefficients Hubbard et al. 1999 fitted.
+    The additive constant is the reason the unit is stated twice: −10.76 for arterioles and
+    +450.05 for venules do not scale with the image, so this variant is **not** scale-free and a
+    value computed on pixel widths is a different quantity rather than one awaiting conversion.
+
+    Undefined for a single vessel: the formula combines two, and there is nothing to combine one
+    with. A shape offering one vessel per class therefore carries no Hubbard theory — which is
+    itself worth testing, since an implementation must decline rather than invent a second vessel.
+    """
+    if len(widths_um) < 2:
+        raise ValueError("Hubbard's equivalent combines a pair; one vessel cannot make one")
+    a, b, c, d = HUBBARD[structure]
+    return _combine(
+        widths_um,
+        lambda w1, w2: math.sqrt(max(a * w1 * w1 + b * w2 * w2 + c * w1 * w2 + d, 0.0)),
+    )
+
+
 def knudtson(widths: list[float], structure: str) -> float:
     """The Knudtson equivalent of a set of vessel widths: CRAE on arteries, CRVE on veins.
 
@@ -124,22 +194,16 @@ def knudtson(widths: list[float], structure: str) -> float:
     have no single correct answer to test it against.
     """
     constant = KNUDTSON[structure]
-    remaining = sorted(widths, reverse=True)[:KNUDTSON_VESSELS]
-    while len(remaining) > 1:
-        remaining.sort(reverse=True)
-        combined = []
-        left, right = 0, len(remaining) - 1
-        while left < right:
-            combined.append(constant * math.hypot(remaining[left], remaining[right]))
-            left += 1
-            right -= 1
-        if left == right:
-            combined.append(remaining[left])
-        remaining = combined
-    return remaining[0]
+    return _combine(widths, lambda w1, w2: constant * math.hypot(w1, w2))
 
 
-def straight(side: int, rotation: float = 0.0, width: float = 0.02, length: float = 0.6) -> Shape:
+def straight(
+    side: int,
+    rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX,
+    width: float = 0.02,
+    length: float = 0.6,
+) -> Shape:
     """A straight vessel: tortuosity exactly 1, no curvature, and a width a calibre must recover."""
     w, distance = width * side, length * side
     start = (side * 0.5 - distance / 2.0, side * 0.55)
@@ -151,6 +215,7 @@ def straight(side: int, rotation: float = 0.0, width: float = 0.02, length: floa
         name="straight",
         side=side,
         rotation=rotation,
+        um_per_px=um_per_px,
         artery=artery,
         vein=None,
         fov=fov,
@@ -175,7 +240,9 @@ def straight(side: int, rotation: float = 0.0, width: float = 0.02, length: floa
 
 
 def arc(
-    side: int, rotation: float = 0.0, width: float = 0.02, radius: float = 0.3, angle: float = 90.0
+    side: int,
+    rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX, width: float = 0.02, radius: float = 0.3, angle: float = 90.0
 ) -> Shape:
     """A circular arc: curvature exactly 1/r, and an arc-chord ratio in closed form.
 
@@ -195,6 +262,7 @@ def arc(
         name="arc",
         side=side,
         rotation=rotation,
+        um_per_px=um_per_px,
         artery=artery,
         vein=None,
         fov=fov,
@@ -221,6 +289,7 @@ def arc(
 def sinusoid(
     side: int,
     rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX,
     width: float = 0.02,
     amplitude: float = 0.04,
     wavelength: float = 0.25,
@@ -255,6 +324,7 @@ def sinusoid(
         name="sinusoid",
         side=side,
         rotation=rotation,
+        um_per_px=um_per_px,
         artery=artery,
         vein=None,
         fov=fov,
@@ -276,7 +346,9 @@ def sinusoid(
 
 
 def bifurcation(
-    side: int, rotation: float = 0.0, width: float = 0.02, angle: float = 60.0, arm: float = 0.25
+    side: int,
+    rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX, width: float = 0.02, angle: float = 60.0, arm: float = 0.25
 ) -> Shape:
     """A parent vessel splitting into two daughters at a known angle.
 
@@ -298,6 +370,7 @@ def bifurcation(
         name="bifurcation",
         side=side,
         rotation=rotation,
+        um_per_px=um_per_px,
         artery=artery,
         vein=None,
         fov=fov,
@@ -316,7 +389,9 @@ def bifurcation(
 
 
 def disjoint(
-    side: int, rotation: float = 0.0, width: float = 0.02, segments: float = 4, length: float = 0.4
+    side: int,
+    rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX, width: float = 0.02, segments: float = 4, length: float = 0.4
 ) -> Shape:
     """Parallel vessels that never meet: no junctions, and as many components as there are lines.
 
@@ -336,6 +411,7 @@ def disjoint(
         name="disjoint",
         side=side,
         rotation=rotation,
+        um_per_px=um_per_px,
         artery=artery,
         vein=None,
         fov=fov,
@@ -359,6 +435,7 @@ def disjoint(
 def artery_vein_pair(
     side: int,
     rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX,
     artery_width: float = 0.018,
     vein_width: float = 0.024,
     length: float = 0.5,
@@ -382,12 +459,20 @@ def artery_vein_pair(
         name="artery-vein-pair",
         side=side,
         rotation=rotation,
+        um_per_px=um_per_px,
         artery=artery,
         vein=vein,
         fov=fov,
         disc=_turned_disc(side, rotation),
         theory={
             "avr/ratio-of-calibres/both": wa / wv,
+            # One artery and one vein cross the ring, which is a degenerate but legitimate case:
+            # Knudtson's recursion returns a lone vessel's own width untouched. Hubbard's combines
+            # a pair and so has no value here at all — an implementation must decline rather than
+            # invent a second vessel, and this is the shape that asks it to.
+            "central-retinal-equivalents/knudtson/artery": knudtson([wa], "artery"),
+            "central-retinal-equivalents/knudtson/vein": knudtson([wv], "vein"),
+            "avr/knudtson/both": knudtson([wa], "artery") / knudtson([wv], "vein"),
             "vessel-calibre/mean-width/artery": wa,
             "vessel-calibre/mean-width/vein": wv,
             "tortuosity/hart-tau1/artery": 1.0,
@@ -405,6 +490,7 @@ def artery_vein_pair(
 def disc_spokes(
     side: int,
     rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX,
     artery_width: float = 0.012,
     vein_width: float = 0.016,
     vessels: float = 6,
@@ -443,11 +529,17 @@ def disc_spokes(
             vein |= geometry.draw(turned, wv, side)
     crae = knudtson([wa] * count, "artery")
     crve = knudtson([wv] * count, "vein")
+    # Hubbard's constants were fitted in microns, so its widths go in as microns and its answer
+    # comes out in microns. That is the one place the scale a shape was built with changes what
+    # the theory says.
+    crae_um = hubbard([wa * um_per_px] * count, "artery")
+    crve_um = hubbard([wv * um_per_px] * count, "vein")
     length = outer - inner
     return Shape(
         name="disc-spokes",
         side=side,
         rotation=rotation,
+        um_per_px=um_per_px,
         artery=artery,
         vein=vein,
         fov=geometry.field_of_view(side),
@@ -456,6 +548,9 @@ def disc_spokes(
             "central-retinal-equivalents/knudtson/artery": crae,
             "central-retinal-equivalents/knudtson/vein": crve,
             "avr/knudtson/both": crae / crve,
+            "central-retinal-equivalents/hubbard/artery": crae_um,
+            "central-retinal-equivalents/hubbard/vein": crve_um,
+            "avr/hubbard/both": crae_um / crve_um,
             "avr/ratio-of-calibres/both": wa / wv,
             "vessel-calibre/mean-width/artery": wa,
             "vessel-calibre/mean-width/vein": wv,
