@@ -268,7 +268,15 @@ on the largest photographs (Chákṣu's Remidio is 2448×3264), not time.
 
 ## 7. Synthetic validation of biomarkers
 
-**Decided — new, and it belongs before the dataset benchmarks rather than after.**
+**Decided — new, and it belongs before the dataset benchmarks rather than after.** Built as the
+`biomarker-synthetic` benchmark; `build-benchmark/biomarker-synthetic.md` holds its rules. Scope
+agreed 2026-09-20: every catalogued biomarker that does not need the fovea, less AVR for now —
+so disc-fovea distance and temporal angle are out, and sparsity is in, measured in pixels rather
+than as a fraction of a distance it cannot have.
+
+**No pass mark, and no automated selection.** Which implementations go on to the dataset benchmark
+is a judgement made by a person on this evidence, in separate work. A benchmark that also chose
+would be choosing by a rule nobody agreed to.
 
 Many biomarker definitions are ambiguous and many implementations are undocumented, so comparing two
 of them tells you they differ without telling you which is right. Shapes with **known** values fix
@@ -420,7 +428,16 @@ the benchmark's job, and keeping them out is what makes adapters comparable.
 
 ### 10.3 What a biomarker adapter is
 
-The same shape, one layer down. A biomarker implementation usually lives inside somebody's
+**Amended 2026-09-20: one adapter per *implementation*, not per biomarker.** These numbers come out
+of one pass over one skeleton — PVBM computes a dozen in a single call, AutoMorph's feature stage
+the same — so an adapter takes masks, the field of view, the disc and the scale, and returns
+**everything that implementation computes, in one dictionary, under its own names**. Splitting it
+per measurement would mean repeating the same traversal a dozen times, or pretending the numbers
+are independent when they are not. The translation from somebody's column name to a catalogued
+biomarker and variant lives in `src/biomarkers/naming.py`, reviewed on its own, because that
+translation is a claim and it is frequently wrong. `add-biomarker` holds the detail.
+
+The rest of this section stands. A biomarker implementation usually lives inside somebody's
 project — PVBM's tortuosity, AutoMorph's central retinal equivalents — and each expects its input in
 its own form. The adapter:
 

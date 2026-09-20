@@ -94,10 +94,14 @@ Skills that exist today:
   patches, imports, and the provenance a run records.
 - **5.10** `add-model` — the adapter that lets a benchmark run one catalogued model: what it must
   declare, what it must not do, and the page it must match.
-- **5.11** `build-benchmark` — a benchmark: what it runs on, its loaders, metrics, and the
+- **5.11** `add-biomarker` — the adapter that lets a benchmark compute one project's biomarkers
+  from a segmentation. One adapter per implementation rather than per measurement, because these
+  numbers come out of one pass over one skeleton, and the table that translates somebody's column
+  name into a catalogued variant.
+- **5.12** `build-benchmark` — a benchmark: what it runs on, its loaders, metrics, and the
   fingerprint that keeps a re-run cheap.
-- **5.12** `analyse-benchmark` — the notebook every benchmark gets: what its analysis must show.
-- **5.13** `report-benchmark` — the two documents a run generates — how the benchmark is configured,
+- **5.13** `analyse-benchmark` — the notebook every benchmark gets: what its analysis must show.
+- **5.14** `report-benchmark` — the two documents a run generates — how the benchmark is configured,
   and what came out — and the rule that both are generated rather than written.
 
 The three benchmark skills each hold the rules common to every benchmark, and **a file per
@@ -138,6 +142,9 @@ the authority on it:
   from, pinned, and how it is imported. Patches to it live in `src/upstreams/patches/<project>/`.
 - `src/models/<slug>.py` — one adapter per catalogued **model**, matching `docs/models/<slug>.md`.
   Five models from one repository are five adapters and one upstream.
+- `src/biomarkers/<slug>.py` — one adapter per **implementation** of somebody's biomarker code,
+  matching `docs/projects/<slug>.md`, beside `naming.py`, which is the only place a project's own
+  column name is translated into a catalogued biomarker and variant.
 - `src/benchmarks/` — one module per benchmark, its loaders, its scorer and its report writer.
 - `results/` — committed evidence: per-image benchmark scores, and inferred camera scales under
   `results/um_resolution/` for datasets that published no microns-per-pixel figure.
