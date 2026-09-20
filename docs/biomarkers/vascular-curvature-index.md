@@ -28,7 +28,7 @@ index*. That is a different quantity; see section 10.
   [PMC11500049](https://pmc.ncbi.nlm.nih.gov/articles/PMC11500049/).
 - **The formula, in words:** the paper does not give one that can be computed. It states that VCI
   is proprietary, that it is based on the change in angular momentum of a point travelling along
-  the vessel (\(L = I\omega\); in a simplified point-mass example, \(dL/dt = mv\,r'(t)\)), and that
+  the vessel (`L = Iω`; in a simplified point-mass example, `dL/dt = mv r'(t)`), and that
   it is designed to resist errors that arise in segmentation, thresholding and skeletonisation. The
   accompanying figure is a sketch of trajectories under high and low angular-momentum change, not
   an algorithm. A reader cannot recover the number from that description.
@@ -58,7 +58,7 @@ That is their observation, on that sample; it is not a conversion.
   macula-centred colour-fundus photographs and reports VCI separately for arterioles, venules and
   the combined tree.
 - **Derived geometry:** a skeleton, by the authors' own account — they say the metric is built to
-  resist skeletonisation error. The exact trace, the reference point they call \(O\), and how
+  resist skeletonisation error. The exact trace, the reference point they call *O*, and how
   segments are split at junctions are not described.
 - **Why this matters:** tortuosity is a measurement of a trace, not of a mask. Without the tracing
   step, two groups with identical AutoMorph masks could still disagree. See
@@ -101,7 +101,7 @@ calls the metric proprietary.
 - **Reported reproducibility (authors' claim, healthy eyes, five-minute retest, n = 44):** Spearman
   test–retest 0.92 / 0.86 / 0.87 on arteries / veins / combined vessels; Pearson 0.86 / 0.94 /
   0.89. They report that, on Box–Cox-transformed z-scores of the absolute test–retest difference,
-  VCI beat every comparator at \(p < 0.05\) except inverse-radius tortuosity (Bullitt 2003). The
+  VCI beat every comparator at *p* < 0.05 except inverse-radius tortuosity (Bullitt 2003). The
   study excluded ocular disease and used one camera; the paper itself lists those as limits on
   how far the figures travel.
 - Inverse-radius tortuosity, the published metric they did not outperform, is itself implemented
@@ -115,7 +115,7 @@ of findings, not a clean bill of health.
 ## 10. Notes
 
 - **The abbreviation collides.** Chu et al. 2016 defined a *vessel complexity index* (also VCI)
-  on OCT angiograms: \((\sum P)^2 / (4\pi \sum A)\), the isoperimetric quotient of vessel perimeter
+  on OCT angiograms: `(ΣP)² / (4π ΣA)`, the isoperimetric quotient of vessel perimeter
   against vessel area. That is an occupancy-and-outline measure of a binary mask, not a tortuosity
   of a trace, and it belongs to OCTA rather than colour-fundus photography. A paper that writes
   "VCI" without expanding it is not enough to tell the two apart.
