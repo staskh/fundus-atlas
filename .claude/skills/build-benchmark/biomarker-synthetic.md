@@ -80,6 +80,12 @@ shape of that error is the finding:
 A single tolerance at a single resolution cannot tell these apart, which is why this benchmark does
 not have one.
 
+**Expect a sawtooth, not a smooth curve.** What separates a drawn shape from its geometry is at
+most about one row of pixels along the vessel, and whether that row is taken depends on where the
+centreline falls between pixel centres. So the error can rise between two resolutions without
+anything being wrong; the generator's own tests bound it by one row rather than asserting it
+falls. Read the trend across four resolutions, never the step between two.
+
 ## 4. Rotate the shape, not the picture
 
 Every shape is generated again at each angle **in continuous coordinates and rasterised there**.
@@ -87,8 +93,12 @@ Rotating the rendered mask instead would resample it — and resampling a one-pi
 destroys it, as this repository measured when a 1,024-pixel rescaling of HRF's tracing turned 19
 connected components into 309. A rotated bitmap measures the resampler.
 
-Rotation is about the **disc centre**, because that is the point the disc-anchored measurements are
-defined around.
+**Rotation turns the whole scene about the frame centre, disc included.** Turning about the disc
+was the first idea and building it showed it to be wrong: the disc sits near the top of the frame,
+so a vessel a third of a frame away sweeps a circle wide enough to leave the field of view, and a
+clipped vessel measures something other than the shape. Turning everything together keeps every
+distance — vessel to vessel, vessel to disc — exactly as it was, and a circular field of view is
+unchanged by the turn.
 
 **An invariance is checked only where the adapter claims it** (`add-biomarker` §5). A measurement
 over axis-aligned grid fields changes under rotation and is right to.

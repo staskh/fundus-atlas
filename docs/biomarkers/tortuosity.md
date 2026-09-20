@@ -323,6 +323,12 @@ choices; a value quoted without them is not reproducible.
 - If you are choosing a measure rather than inheriting one, Hart's τ4 and τ5 are the pair the
   original paper recommends and the pair nobody here implements — which makes them the obvious
   candidate for this atlas's own comparison work.
+- Giesser et al. 2024 add another named measure, the
+  [vascular curvature index](vascular-curvature-index.md) (VCI), and report it as more
+  retest-stable than the formulas above on healthy eyes. The formula is unpublished — the paper
+  calls it proprietary — and no catalogued project computes it. AutoMorph supplied the masks in
+  that study, not the VCI numbers. The same abbreviation also names an unrelated OCTA *vessel
+  complexity index*.
 
 ---
 

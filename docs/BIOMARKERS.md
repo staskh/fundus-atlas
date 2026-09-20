@@ -27,6 +27,14 @@ Grouped by family; alphabetical within each family.
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Tortuosity](biomarkers/tortuosity.md) | How far vessels deviate from straight | Vessels, or A/V | Varies — whole image, zones, grid fields | Mostly dimensionless; one is a count | **9+** (Hart τ1–τ7, Grisan density, and three implementation-only forms) | retipy, AutoMorph, AutoMorphalyzer, AutoMorphClass, VascX, PVBM, OCULARNet | No definition of record | 2026-09-10 |
+| [Vascular curvature index](biomarkers/vascular-curvature-index.md) | Tortuosity by an unpublished angular-momentum construction | A/V | Whole image | Unknown | 1 (proprietary; formula not published) | None catalogued | Giesser 2024 | 2026-09-20 |
+
+Giesser et al. 2024 name a tenth tortuosity measure, VCI, and report it as more stable on a
+five-minute retest of healthy eyes than the published formulas they compared it against. The
+definition of record calls the metric **proprietary** and does not give a formula a reader can
+compute; AutoMorph supplied the masks in that study, not the VCI numbers. The same abbreviation
+also names an unrelated OCT-angiography *vessel complexity index*. The detail page records both
+facts.
 
 ### 1.3 Density and complexity — how much retina the vessels cover
 
@@ -83,7 +91,7 @@ three variants of "erase the junctions and hope".
 
 | Depends critically | Depends partly | Does not depend at all |
 | --- | --- | --- |
-| [Tortuosity](biomarkers/tortuosity.md) · [bifurcation angle](biomarkers/bifurcation-angle.md) · [junction counts](biomarkers/junction-counts.md) | [Vessel calibre](biomarkers/vessel-calibre.md) (per-segment) · [central retinal equivalents](biomarkers/central-retinal-equivalents.md) · [temporal angle](biomarkers/temporal-angle.md) · [vessel length](biomarkers/vessel-area-and-length.md) | [Vascular density](biomarkers/vascular-density.md) · [fractal dimension](biomarkers/fractal-dimension.md) · [sparsity](biomarkers/sparsity.md) · [vessel area](biomarkers/vessel-area-and-length.md) · [cup-to-disc ratio](biomarkers/cup-to-disc-ratio.md) · [disc-fovea distance](biomarkers/disc-fovea-distance.md) |
+| [Tortuosity](biomarkers/tortuosity.md) · [vascular curvature index](biomarkers/vascular-curvature-index.md) · [bifurcation angle](biomarkers/bifurcation-angle.md) · [junction counts](biomarkers/junction-counts.md) | [Vessel calibre](biomarkers/vessel-calibre.md) (per-segment) · [central retinal equivalents](biomarkers/central-retinal-equivalents.md) · [temporal angle](biomarkers/temporal-angle.md) · [vessel length](biomarkers/vessel-area-and-length.md) | [Vascular density](biomarkers/vascular-density.md) · [fractal dimension](biomarkers/fractal-dimension.md) · [sparsity](biomarkers/sparsity.md) · [vessel area](biomarkers/vessel-area-and-length.md) · [cup-to-disc ratio](biomarkers/cup-to-disc-ratio.md) · [disc-fovea distance](biomarkers/disc-fovea-distance.md) |
 
 This is the most useful diagnostic in the atlas: **a disagreement in density or fractal dimension
 points at the segmentation model; a disagreement in tortuosity, angles or counts points at the
@@ -148,6 +156,12 @@ whole **vessel**, arc length from a **spline** or from the **skeleton**, and opt
 segment length and on implausible values — each of which changes the number. A tortuosity value is
 therefore not interpretable without its formula and those options. See
 [tortuosity](biomarkers/tortuosity.md).
+
+A further named measure, the [vascular curvature index](biomarkers/vascular-curvature-index.md)
+(Giesser 2024), sits outside that count: the authors call it proprietary and publish no computable
+formula, and no project here implements it. AutoMorph in that paper is the segmenter, not the
+source of the VCI column. The letters VCI also name Chu et al. 2016's OCTA *vessel complexity
+index*, a different quantity.
 
 ### 3.3 "Zone B" and "Zone C" differ by a factor of two between pipelines
 
