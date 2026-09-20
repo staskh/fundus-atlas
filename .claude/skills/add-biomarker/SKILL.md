@@ -40,14 +40,14 @@ class Pvbm:
 
     def declare(self) -> dict        # static facts; no disk, no network
     def identity(self) -> str        # what pins the code that will run
-    def measure(self, masks, fov, disc, um_per_px) -> dict[str, float | None]
+    def measure(self, artery, vein, fov, disc, um_per_px) -> dict[str, float | None]
 ```
 
 `measure` is handed:
 
 | Argument | What it is |
 | --- | --- |
-| `masks` | `artery` and `vein`, as boolean arrays in one frame. **Those two and no third** — an implementation that measures the vessels as one class takes their union, `artery | vein`, which is how the artery/vein benchmark derives that map for every model. Handing over a separately drawn vessel mask would let two adapters measure two different things and call both "vessels" |
+| `artery`, `vein` | the two classes, as boolean arrays in one frame — **or `None` for either one**. There is no third vessel mask: an implementation that measures the vessels as one class takes the union of whichever classes it was given, which is how the artery/vein benchmark derives that map for every model. A separately drawn vessel mask would let two adapters measure two different things and call both "vessels" |
 | `fov` | the field of view, as a boolean mask: the region the photograph actually shows |
 | `disc` | the optic disc as `(x, y, radius)` in pixels — the form every catalogued implementation asks for, rather than a mask |
 | `um_per_px` | microns per pixel, or `None` where the caller has no scale. An implementation that needs one and is given `None` returns `None` for the measurements that depend on it, rather than assuming a number |
@@ -65,9 +65,14 @@ produce is `None` with the reason recorded by the run, never 0 and never absent.
   unit. A pixel figure quietly multiplied by a scale is how two studies come to disagree by a
   factor nobody can find.
 - **It must not take the union as given.** Where an implementation wants one vessel class, the
-  adapter forms `artery | vein` itself. That is the same derivation the artery/vein benchmark
-  applies to every model, so a number measured here and a mask scored there describe the same
-  vessels.
+  adapter forms the union of the classes it was handed. That is the same derivation the artery/vein
+  benchmark applies to every model, so a number measured here and a mask scored there describe the
+  same vessels.
+- **It must not substitute one class for the other.** Handed `vein=None`, an adapter measures what
+  can be measured from arteries alone and returns `None` for everything else — an arteriovenous
+  ratio above all, which is a ratio of two things and cannot be had from one. Returning the artery
+  figure under a name that promises both is the worst failure available here, because it is
+  invisible in the evidence.
 - **It must not repair its upstream.** Where an implementation has a defect — retipy's curvature,
   say — the adapter reproduces it and the defect is recorded on the biomarker page. A benchmark of
   fixed code measures the fix rather than the software anybody would actually run.
@@ -125,3 +130,5 @@ observation.
 - **7.3** Original names out of the adapter; translation only in the naming table.
 - **7.4** Units declared, never silently applied.
 - **7.5** An upstream's defect is reproduced and recorded, never quietly fixed.
+- **7.6** A class that was not handed over is `None` in every measurement that needs it, never
+  replaced by the other class and never assumed empty.

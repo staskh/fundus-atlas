@@ -44,13 +44,24 @@ a paragraph of hedging, the shape is not a test, it is another opinion.
 | Constant-width tree of known total length | vessel area `w × L`; density `wL / |FOV|` |
 | Symmetric bifurcation of angle `φ` | branching angle exactly `φ`; one junction; three endpoints |
 | Concentric disc and cup | cup-to-disc ratio exactly the radius ratio |
+| Straight artery and vein, widths `wa` and `wv` | AVR exactly `wa / wv`; each calibre exactly its own width |
 | A network of `n` disjoint segments | junction count 0; `n` components |
 
-Each shape is rendered as an **artery mask and a vein mask** — the two the adapters are handed —
-with an explicit **field of view** and an explicit **disc centre and radius**, because the
-implementations need them and because a measurement over an unstated region is not reproducible. A
-shape that tests a vessel-class measurement puts its vessels in one of the two masks and leaves the
-other empty, so that the union an adapter forms is exactly the shape whose value is known.
+Each shape is rendered as an **artery mask and a vein mask** — the two an adapter is handed — with
+an explicit **field of view** and an explicit **disc centre and radius**, because the
+implementations need them and because a measurement over an unstated region is not reproducible.
+
+A shape may supply **only one class, passing `None` for the other**. That is how a shape testing a
+vessel-class measurement is built: the vessels go in one mask, the other is absent, and the union
+an adapter forms is exactly the shape whose value is known. It is also a test in itself — a shape
+with no veins must yield `None` for every measurement that needs veins, and an implementation that
+answers anyway is measuring something it was not given.
+
+**A ratio of the two classes needs both.** The arteriovenous ratio is in scope, so shapes carrying
+arteries and veins of known width are too: a pair of straight vessels of widths `wa` and `wv` has
+an AVR of exactly `wa / wv` under any variant that is a ratio of calibres, which is what separates
+an implementation that computes the ratio from one that computes two equivalents and divides them
+at a different stage.
 
 ## 3. A rasterised shape is not the shape
 

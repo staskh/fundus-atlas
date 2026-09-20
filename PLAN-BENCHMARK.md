@@ -270,9 +270,10 @@ on the largest photographs (Chákṣu's Remidio is 2448×3264), not time.
 
 **Decided — new, and it belongs before the dataset benchmarks rather than after.** Built as the
 `biomarker-synthetic` benchmark; `build-benchmark/biomarker-synthetic.md` holds its rules. Scope
-agreed 2026-09-20: every catalogued biomarker that does not need the fovea, less AVR for now —
-so disc-fovea distance and temporal angle are out, and sparsity is in, measured in pixels rather
-than as a fraction of a distance it cannot have.
+agreed 2026-09-20: every catalogued biomarker that does not need the fovea — so disc-fovea distance
+and temporal angle are out, sparsity is in, measured in pixels rather than as a fraction of a
+distance it cannot have, and the arteriovenous ratio is in, on shapes carrying both classes at
+known widths.
 
 **No pass mark, and no automated selection.** Which implementations go on to the dataset benchmark
 is a judgement made by a person on this evidence, in separate work. A benchmark that also chose
