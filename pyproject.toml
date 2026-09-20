@@ -45,6 +45,11 @@ benchmarks = [
     # BF-Net publishes its weights in a Google Drive folder, which serves a file of that size behind
     # a confirmation page that a plain request cannot answer. The digest is pinned in its upstream.
     "gdown>=6.2.0",
+    # Betti matching publishes no wheel, so its C++ module is built from a pinned clone: cmake
+    # configures it and pybind11 is what it links against. Both are needed at run time, because the
+    # build happens on first use rather than at install time.
+    "cmake>=3.29",
+    "pybind11>=2.12",
 ]
 
 # What the analysis notebooks need to run, kept apart from the benchmark environment so that

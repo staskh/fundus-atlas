@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "34ea928f38f0ca3e4fde79478ca40da5a227301c9569cc1f765cd2d030f27642",
+  "fingerprint": "dc00ce0bb02302d462281b83b7e5fada0419353dc1e5db305d23ab7f275fb97c",
   "model": "segan-vessel",
   "summary": {
     "complete": true,
@@ -17,6 +17,12 @@
     ],
     "timed_photographs": 99,
     "total": 100,
+    "vessels_betti": {
+      "mean": 228.85,
+      "median": 216.0,
+      "n": 100,
+      "spread": 64.67617412927267
+    },
     "vessels_cldice": {
       "mean": 0.91468783,
       "median": 0.9184795,

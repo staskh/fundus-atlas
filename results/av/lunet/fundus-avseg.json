@@ -1,9 +1,15 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "316918fa872c69bf0670773bc557747d78054284b2e56d56f7840922768f0954",
+  "fingerprint": "38e861297d538ffd8e8e1486c30306ca649cdb4cc0033dc0a2f890c1a327e07e",
   "model": "lunet",
   "summary": {
+    "artery_betti": {
+      "mean": 56.78,
+      "median": 49.0,
+      "n": 100,
+      "spread": 29.825016345343382
+    },
     "artery_cldice": {
       "mean": 0.8323680700000001,
       "median": 0.83606,
@@ -30,6 +36,12 @@
     ],
     "timed_photographs": 99,
     "total": 100,
+    "vein_betti": {
+      "mean": 61.67,
+      "median": 53.5,
+      "n": 100,
+      "spread": 32.37284510202957
+    },
     "vein_cldice": {
       "mean": 0.8352337200000001,
       "median": 0.841656,
@@ -41,6 +53,12 @@
       "median": 0.8221805,
       "n": 100,
       "spread": 0.03609193855107259
+    },
+    "vessels_betti": {
+      "mean": 94.03,
+      "median": 84.5,
+      "n": 100,
+      "spread": 36.69099480799069
     },
     "vessels_cldice": {
       "mean": 0.9174823999999998,

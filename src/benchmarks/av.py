@@ -29,8 +29,10 @@ TITLE = "Artery and vein"
 #: What this benchmark is called: in `results/`, in `docs/benchmarks/` and in a run record.
 NAME = "av"
 
-#: The benchmark's own version. Changing what is measured, or how, changes this.
-VERSION = 1
+#: The benchmark's own version. Changing what is measured, or how, changes this. Version 2 adds the
+#: Betti matching error to every structure, which is measured from the masks a run already kept:
+#: `--rescore` is what fills it in, and no model is asked to segment anything again.
+VERSION = 2
 
 #: What this benchmark asks, in the two sentences the index has room for.
 GOAL = (
@@ -517,6 +519,9 @@ _MEASURED = (
     "artery_cldice",
     "vein_cldice",
     "vessels_cldice",
+    "artery_betti",
+    "vein_betti",
+    "vessels_betti",
 )
 
 
@@ -802,6 +807,11 @@ COLUMNS = {
     "artery_cldice": "how much of each artery network's centreline lies inside the other's mask",
     "vein_cldice": "as above, for the veins",
     "vessels_cldice": "as above, for the vessels",
+    "artery_betti": "**Betti matching error** for the arteries: how many topological features — "
+    "connected components and loops — of either map have no counterpart in the other. 0 is "
+    "perfect; unlike Dice and clDice it counts upwards and has no ceiling",
+    "vein_betti": "as above, for the veins",
+    "vessels_betti": "as above, for the vessels",
     "said_artery_px": "how many pixels the model called artery, so a score can be read beside the "
     "size of the thing scored",
     "said_vein_px": "how many it called vein",
@@ -809,6 +819,19 @@ COLUMNS = {
     "truth_vein_px": "how many as vein",
     "note": "what the model failed with",
 }
+
+
+#: What no other benchmark's columns need said, and this one's do. A count that grows with the
+#: length of the vessel network cannot be carried from one dataset to another.
+COLUMNS_CAVEAT = (
+    "***The Betti matching error is not normalised, and is not suitable for comparison between "
+    "datasets — only between models on the same dataset.*** It counts features rather than scoring "
+    "a fraction, and the count rises with the length of the vessel network, which is a property of "
+    "the frame and of the annotation rather than of the model. Measured on the readers' own "
+    "tracings, the count runs at about 0.39 of the centreline length in pixels in every dataset "
+    "here, so HRF's 3,269-pixel frames carry six times AVRDB's figure before any model is asked "
+    "anything."
+)
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
@@ -820,7 +843,11 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
         f"each centreline falls inside the other's mask — and the two are read together: a model "
         f"can cover the vessels and lose the network, or trace the network at the wrong width. "
         f"**Vessels** is the union of each model's own arteries and veins, derived the same way "
-        f"for every model and for every annotator."
+        f"for every model and for every annotator. **Betti** counts the topological features — "
+        f"components and loops — of either map that have no counterpart in the other, so it counts "
+        f"downwards where the other two count upwards, and it has no ceiling. It is pooled here as "
+        f"a **mean over photographs**, which is the only form that pools exactly; the results page "
+        f"quotes medians, which are lower, because the tail is long."
     )
     # Read from the stored summary rather than a declaration: the index is built from what is in
     # `results/`, which is what makes it agree with the evidence it links to.
@@ -843,15 +870,16 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
     yield ""
     yield (
         "| Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | "
-        "Seconds each | Marked |"
+        "Vessels Betti | Seconds each | Marked |"
     )
-    yield "| --- | --- | --- | --- | --- | --- | --- | --- |"
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
     for model, found in sorted(pooled.items(), key=lambda pair: -(pair[1]["vessels_dice"] or -1)):
         yield (
             f"| [{model}](models/{model}.md) | {found['photographs']:,} | "
             f"{report.number(found['artery_dice'])} | {report.number(found['vein_dice'])} | "
             f"{report.number(found['vessels_dice'])} | "
             f"{report.number(found['vessels_cldice'])} | "
+            f"{report.number(found['vessels_betti'], places=0)} | "
             f"{report.number(found['seconds'])} | {report.mark_of(model, records)} |"
         )
     yield ""
@@ -939,6 +967,20 @@ def _where_to_start(pooled: dict[str, dict[str, object]]) -> Iterable[str]:
             + (
                 f", against {pooled[network[1]]['vessels_cldice']:.3f} for {network[1]})."
                 if len(network) > 1
+                else ")."
+            )
+        )
+    topological = [name for name in pooled if pooled[name]["vessels_betti"] is not None]
+    if topological:
+        topological.sort(key=lambda name: pooled[name]["vessels_betti"])
+        first = topological[0]
+        yield (
+            f"- **For a network that will be measured rather than looked at**, where a broken "
+            f"branch is a branch nothing counts: **{first}** ({pooled[first]['vessels_betti']:.0f} "
+            f"unmatched features a photograph"
+            + (
+                f", against {pooled[topological[1]]['vessels_betti']:.0f} for {topological[1]})."
+                if len(topological) > 1
                 else ")."
             )
         )

@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "64487a604d3771eb1a1bbe1e2a572d5c51e29da12bae10fec9c33cd7cfaac0f1",
+  "fingerprint": "106dad55b9caab8765c7a7400d99951202fa849d9bc6b87b993e818f141d8a7b",
   "model": "vascx-artery-vein",
   "summary": {
     "complete": true,
@@ -20,6 +20,12 @@
     ],
     "timed_photographs": 799,
     "total": 798,
+    "vessels_betti": {
+      "mean": 143.9561403508772,
+      "median": 141.0,
+      "n": 798,
+      "spread": 34.31089367390634
+    },
     "vessels_cldice": {
       "mean": 0.8426593834586465,
       "median": 0.869714,

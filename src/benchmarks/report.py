@@ -93,6 +93,10 @@ def _docs(
         "A model that has no opinion to record leaves a column **absent** rather than blank: a "
         "binary grader emits no class probabilities, and none are invented for it."
     )
+    caveat = getattr(_module(benchmark), "COLUMNS_CAVEAT", "")
+    if caveat:
+        yield ""
+        yield caveat
     yield ""
     yield "## 7. What a re-run repeats, and what it does not"
     yield ""
@@ -155,8 +159,13 @@ def pin(upstream: dict[str, object]) -> str:
     return f"`{commit[:8]}`" if commit else str(upstream.get("version", "—"))
 
 
-def number(value: float | None) -> str:
-    return "—" if value is None else f"{value:.3f}"
+def number(value: float | None, places: int = 3) -> str:
+    """One figure for a table, or an em-dash where a model was never asked the question.
+
+    :param places: decimals to show. A count — how many topological features went unmatched — is
+        not a score between nought and one and is written without a decimal point at all.
+    """
+    return "—" if value is None else f"{value:.{places}f}"
 
 
 def seconds(summary: dict[str, object]) -> str:

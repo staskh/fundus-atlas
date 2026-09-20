@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "11a28124380b6ebd512faa573b4701d0a556fa12ff313fc220f3f6b7c865e6e9",
+  "fingerprint": "f38d21ebce97b5e7e9d7ee7a90e05c3f754ae98398f8163bb00ecc360645797d",
   "model": "bf-net",
   "summary": {
     "complete": true,
@@ -20,6 +20,12 @@
     ],
     "timed_photographs": 796,
     "total": 798,
+    "vessels_betti": {
+      "mean": 157.85588972431077,
+      "median": 159.5,
+      "n": 798,
+      "spread": 48.8789670276705
+    },
     "vessels_cldice": {
       "mean": 0.6250985714285714,
       "median": 0.6882824999999999,

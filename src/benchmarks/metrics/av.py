@@ -59,6 +59,51 @@ def _covered(skeleton: np.ndarray, mask: np.ndarray) -> float | None:
     return float((skeleton & mask).sum()) / total
 
 
+def betti_matching_error(said: np.ndarray, truth: np.ndarray) -> int | None:
+    """How many topological features of either map have no counterpart in the other.
+
+    Dice and clDice both measure agreement pixel by pixel, and neither counts *features*: a vessel
+    broken in two is one connected component where the reader drew one, and a loop the model
+    invents where the reader drew none is a hole nobody asked for. Betti matching pairs the
+    features of the two maps that lie in the same place — by an induced matching of their
+    persistence barcodes — and counts what is left over on each side. Zero means every component
+    and every loop in one map answers a feature of the other.
+
+    It counts in both directions, so a feature only the model drew and one only the reader drew are
+    equally wrong, and it counts components (dimension 0) and loops (dimension 1) alike.
+
+    `None` where neither map holds anything, on the same terms as :func:`dice`: two empty maps have
+    no topology to agree or disagree about, which is not the same as agreeing perfectly.
+
+    From Stucki, Bürgin, Paetzold and Bauer, *Efficient Betti Matching Enables Topology-Aware 3D
+    Segmentation via Persistent Homology*, arXiv:2407.04683, computed by the authors' own
+    implementation rather than a second one written here.
+    """
+    said = np.asarray(said, dtype=bool)
+    truth = np.asarray(truth, dtype=bool)
+    if not said.any() and not truth.any():
+        return None
+    matching = _matching(said, truth)
+    return int(np.sum(matching.num_unmatched_input1)) + int(np.sum(matching.num_unmatched_input2))
+
+
+def _matching(said: np.ndarray, truth: np.ndarray):
+    """The upstream's own matching of two binary maps.
+
+    Its filtration is by *low* values, and its own examples invert a segmentation before handing it
+    over — `(255 - label) / 255` — so that the structure is born first and the background last.
+    Passing the mask the other way round would measure the topology of the background.
+    """
+    from upstreams import bettimatching
+
+    library = bettimatching.module()
+    matching = library.BettiMatching(
+        1.0 - said.astype(np.float64), 1.0 - truth.astype(np.float64)
+    )
+    matching.compute_matching()
+    return matching.get_matching()
+
+
 def vessels_of(masks: dict[str, np.ndarray]) -> np.ndarray:
     """Arteries and veins together, which is what a vessel score is measured on.
 
@@ -86,9 +131,9 @@ def vessels_of(masks: dict[str, np.ndarray]) -> np.ndarray:
 def measure(said: dict[str, np.ndarray], truth: dict[str, np.ndarray]) -> dict[str, float | None]:
     """Every measurement of one photograph, against one reader's annotation.
 
-    Overlap and connectedness, for the arteries, the veins, and the vessels they make together.
-    Anything else a study wants — a calibre, a ratio, a tortuosity — is a biomarker rather than a
-    segmentation and is measured in its own benchmark, from the masks this one keeps.
+    Overlap, connectedness and topology, for the arteries, the veins, and the vessels they make
+    together. Anything else a study wants — a calibre, a ratio, a tortuosity — is a biomarker
+    rather than a segmentation and is measured in its own benchmark, from the masks this one keeps.
     """
     said = {**said, "vessels": vessels_of(said)}
     truth = {**truth, "vessels": vessels_of(truth)}
@@ -101,4 +146,5 @@ def measure(said: dict[str, np.ndarray], truth: dict[str, np.ndarray]) -> dict[s
         theirs = np.asarray(theirs, dtype=bool)
         found[f"{structure}_dice"] = dice(mine, theirs)
         found[f"{structure}_cldice"] = cldice(mine, theirs)
+        found[f"{structure}_betti"] = betti_matching_error(mine, theirs)
     return found

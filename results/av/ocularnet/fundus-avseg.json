@@ -1,9 +1,15 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "3e6eaa49e427fa03e86088baf442abc614797bc4e09119c13bc92d11b35fd82a",
+  "fingerprint": "87184d497a25d0069fd2c77f733b0349b144977455e3f3bed16b3b48e1bbe11f",
   "model": "ocularnet",
   "summary": {
+    "artery_betti": {
+      "mean": 82.99,
+      "median": 74.5,
+      "n": 100,
+      "spread": 32.81295323496499
+    },
     "artery_cldice": {
       "mean": 0.89676199,
       "median": 0.9040630000000001,
@@ -30,6 +36,12 @@
     ],
     "timed_photographs": 99,
     "total": 100,
+    "vein_betti": {
+      "mean": 84.58,
+      "median": 73.0,
+      "n": 100,
+      "spread": 36.41048750016951
+    },
     "vein_cldice": {
       "mean": 0.9033272399999999,
       "median": 0.9073755,
@@ -41,6 +53,12 @@
       "median": 0.89418,
       "n": 100,
       "spread": 0.025840509756726936
+    },
+    "vessels_betti": {
+      "mean": 154.65,
+      "median": 144.5,
+      "n": 100,
+      "spread": 46.14788727558392
     },
     "vessels_cldice": {
       "mean": 0.9322433699999998,
