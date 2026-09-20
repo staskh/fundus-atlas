@@ -46,9 +46,11 @@ a paragraph of hedging, the shape is not a test, it is another opinion.
 | Concentric disc and cup | cup-to-disc ratio exactly the radius ratio |
 | A network of `n` disjoint segments | junction count 0; `n` components |
 
-Each shape is rendered with an explicit **field of view** and an explicit **disc centre and
-radius**, because the implementations need them and because a measurement over an unstated region
-is not reproducible.
+Each shape is rendered as an **artery mask and a vein mask** — the two the adapters are handed —
+with an explicit **field of view** and an explicit **disc centre and radius**, because the
+implementations need them and because a measurement over an unstated region is not reproducible. A
+shape that tests a vessel-class measurement puts its vessels in one of the two masks and leaves the
+other empty, so that the union an adapter forms is exactly the shape whose value is known.
 
 ## 3. A rasterised shape is not the shape
 
