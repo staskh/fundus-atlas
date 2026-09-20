@@ -290,7 +290,11 @@ COLUMNS = {
 }
 
 
-def docs_sections(configured: dict[str, object]) -> Iterable[str]:
+def docs_sections(
+    configured: dict[str, object],
+    missing_models: dict[str, str] | None = None,
+    missing_datasets: dict[str, str] | None = None,
+) -> Iterable[str]:
     """What only this benchmark's configuration page says."""
     yield "## 1. What this benchmark asks"
     yield ""
@@ -318,6 +322,8 @@ def docs_sections(configured: dict[str, object]) -> Iterable[str]:
             f"{', '.join(declared.get('invariant', [])) or '—'} | "
             f"{len(declared.get('keys', []))} |"
         )
+    for slug, why in sorted((missing_models or {}).items()):
+        yield f"| [{slug}](../projects/{slug}.md) | **not measured** — {why} | — | — | — |"
     yield ""
     yield "## 3. The shapes, and what each one settles"
     yield ""
@@ -334,6 +340,73 @@ def docs_sections(configured: dict[str, object]) -> Iterable[str]:
         "[the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb), so a reader can "
         "disagree with the arithmetic rather than with the code."
     )
+
+
+def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
+    """This benchmark's entry in the index: what each implementation got right, and how far off.
+
+    One row per implementation. The figure that matters is not an average error — averaging a
+    tortuosity with a fractal dimension means nothing — but **how many of the quantities it
+    reports land on the value geometry requires**, and how far its answers move when the same
+    shape is turned.
+    """
+    summarised = _pooled(records, results)
+    yield (
+        "Every value is compared with what the shape's geometry requires rather than with another "
+        "implementation. **Agrees** counts the measurements within 2% of the required value; "
+        "**turns with the image** is the largest spread one measurement showed across 0°, 30°, 60° "
+        "and 90°, where the geometry is identical and the answer should be too."
+    )
+    yield ""
+    yield "| Implementation | Renderings | Quantities with a known value | Agrees | Turns with the image |"
+    yield "| --- | --- | --- | --- | --- |"
+    for model, found in sorted(summarised.items()):
+        yield (
+            f"| [{model}](projects/{model}.md) | {found['renderings']} | {found['comparable']} | "
+            f"{found['agreed']} | {found['spread']} |"
+        )
+    yield ""
+    yield (
+        "**This benchmark selects nothing.** Which implementations are fit to measure a real "
+        "segmentation is a judgement made by a person on this evidence, and the numbers above are "
+        "a summary of it rather than a ranking."
+    )
+
+
+def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[str, object]]:
+    """How each implementation did, counted over every rendering in `results/`."""
+    import csv
+
+    found: dict[str, dict[str, object]] = {}
+    for model in sorted({str(record["model"]) for record in records}):
+        comparable = agreed = renderings = 0
+        spreads: list[float] = []
+        by_quantity: dict[str, list[float]] = {}
+        for path in sorted((results / NAME / model).glob("*.csv")):
+            for row in csv.DictReader(path.open()):
+                renderings += 1
+                for column, said in row.items():
+                    if not column.startswith("said_") or not said:
+                        continue
+                    key = column[len("said_") :]
+                    theory = row.get(f"theory_{key}", "")
+                    if not theory:
+                        continue
+                    comparable += 1
+                    required, answered = float(theory), float(said)
+                    if required and abs(answered - required) / abs(required) <= 0.02:
+                        agreed += 1
+                    by_quantity.setdefault(f"{path.stem}/{key}", []).append(answered)
+        for values in by_quantity.values():
+            if len(values) > 1 and max(abs(v) for v in values) > 0:
+                spreads.append((max(values) - min(values)) / max(abs(v) for v in values))
+        found[model] = {
+            "renderings": renderings,
+            "comparable": comparable,
+            "agreed": f"{agreed} of {comparable}" if comparable else "—",
+            "spread": f"{max(spreads):.1%}" if spreads else "—",
+        }
+    return found
 
 
 def main(arguments) -> None:

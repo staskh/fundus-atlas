@@ -22,7 +22,7 @@ def draw(points: list[tuple[float, float]], width: float, side: int) -> np.ndarr
     """
     grid = np.arange(side, dtype=np.float64) + 0.5
     x, y = np.meshgrid(grid, grid)
-    nearest = _distance(np.asarray(points, dtype=np.float64), x, y)
+    nearest = _distance(np.asarray(points, dtype=np.float64), x, y, width / 2.0)
     return nearest <= width / 2.0
 
 
@@ -54,17 +54,33 @@ def field_of_view(side: int, fraction: float = FIELD) -> np.ndarray:
     return (x - centre) ** 2 + (y - centre) ** 2 <= (fraction * side / 2.0) ** 2
 
 
-def _distance(points: np.ndarray, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+def _distance(points: np.ndarray, x: np.ndarray, y: np.ndarray, reach: float) -> np.ndarray:
     """Distance from every pixel centre to the nearest point **on** the polyline.
 
     Segment by segment, because the distance to a sampled point is not the distance to the curve:
     sampling a straight line every ten pixels and measuring to the samples would scallop its edge.
+
+    Each segment is measured only inside its own bounding box, grown by ``reach``. Outside that box
+    no pixel can be within ``reach`` of the segment, so the answer is identical and the work is a
+    few thousand pixels rather than four million — which matters because a sampled curve has two
+    thousand segments, and measuring each against the whole grid is eight billion distances for one
+    sinusoid.
     """
     nearest = np.full(x.shape, np.inf)
     if len(points) == 1:
         return np.hypot(x - points[0, 0], y - points[0, 1])
+    side = x.shape[0]
     for start, end in zip(points[:-1], points[1:], strict=True):
-        nearest = np.minimum(nearest, _to_segment(start, end, x, y))
+        left = max(int(min(start[0], end[0]) - reach) - 1, 0)
+        right = min(int(max(start[0], end[0]) + reach) + 2, side)
+        top = max(int(min(start[1], end[1]) - reach) - 1, 0)
+        bottom = min(int(max(start[1], end[1]) + reach) + 2, side)
+        if left >= right or top >= bottom:
+            continue
+        window = (slice(top, bottom), slice(left, right))
+        nearest[window] = np.minimum(
+            nearest[window], _to_segment(start, end, x[window], y[window])
+        )
     return nearest
 
 
