@@ -33,51 +33,53 @@ quantity*, usually from reading the implementation's source rather than its docu
 where two variants give different known values separates them by measurement, and a column that
 matches no variant's value is a finding rather than a mislabelled row.
 
-**Status** says how far that has got:
+Each mapping carries how far that has got:
 
-| Status | Meaning |
+| | Meaning |
 | --- | --- |
-| **claimed** | mapped from reading the code or the paper; not yet measured against a shape |
-| **confirmed** | a synthetic shape returned the value this variant requires |
-| **contradicted** | a synthetic shape returned a value this variant does not permit; see the note |
-| **—** | this project does not compute anything under this canonical name |
+| 🟢 | **confirmed** — a synthetic shape returned the value this variant requires |
+| 🟡 | **claimed** — mapped from reading the code or the paper; not yet measured against a shape |
+| 🔴 | **contradicted** — a shape returned a value this variant does not permit; the note says what |
+| — | this project computes nothing under this canonical name |
 
-A column is added per implementation as its adapter is written. PVBM is the first.
+Names are written with `<structure>` where the same definition applies to arteries, veins and the
+two together; a project that runs separately on each reports one column per structure. A column is
+added per implementation as its adapter is written, and PVBM is the first.
 
-| Canonical name | Unit | [PVBM](projects/pvbm.md) | Status |
-| --- | --- | --- | --- |
-| `vessel-area-and-length/area/artery` | px² | `area` (arteriole run) | claimed |
-| `vessel-area-and-length/area/vein` | px² | `area` (venule run) | claimed |
-| `vessel-area-and-length/skeleton-length/artery` | px | `length` (arteriole run) | claimed |
-| `vessel-area-and-length/skeleton-length/vein` | px | `length` (venule run) | claimed |
-| `tortuosity/hart-tau1/artery` | — | `tortuosity index`, `median tortuosity` | claimed |
-| `tortuosity/hart-tau1/vein` | — | the same two, venule run | claimed |
-| `tortuosity/hart-tau2/…` | px⁻¹ | — | — |
-| `tortuosity/hart-tau3/…` | px⁻² | — | — |
-| `tortuosity/hart-tau4/…` | px⁻¹ | — | — |
-| `tortuosity/hart-tau5/…` | px⁻² | — | — |
-| `tortuosity/hart-tau6/…`, `hart-tau7/…` | px⁻¹, px⁻² | — | — |
-| `tortuosity/grisan-density/…` | px⁻¹ | — | — |
-| `junction-counts/junctions/artery` | count | `number of intersection points` | claimed |
-| `junction-counts/endpoints/artery` | count | `number of end points` | claimed |
-| `junction-counts/components/artery` | count | `number of start points` — **suspected different**: a start point is where the skeleton begins a walk, which need not be one per component | claimed |
-| `junction-counts/*/vein` | count | the same three, venule run | claimed |
-| `bifurcation-angle/between-daughters/artery` | degrees | `median branching angle` | claimed |
-| `bifurcation-angle/between-daughters/vein` | degrees | the same, venule run | claimed |
-| `fractal-dimension/multifractal-d0/artery` | — | `capacity dimension` | claimed |
-| `fractal-dimension/multifractal-d1/artery` | — | `entropy dimension` | claimed |
-| `fractal-dimension/multifractal-d2/artery` | — | `correlation dimension` | claimed |
-| `fractal-dimension/box-counting/…` | — | — — PVBM's three are multifractal, which is not the same measurement | — |
-| `central-retinal-equivalents/knudtson/artery` | px | `crae_knudtson` | claimed |
-| `central-retinal-equivalents/knudtson/vein` | px | `crve_knudtson` | claimed |
-| `central-retinal-equivalents/hubbard/artery` | **µm** | `crae_hubbard` — its constants were fitted in microns, so a pixel-fed value is a different number, not a rescaled one | claimed |
-| `central-retinal-equivalents/hubbard/vein` | **µm** | `crve_hubbard` | claimed |
-| `avr/knudtson/both` | — | not reported; the user divides CRAE by CRVE | claimed |
-| `avr/hubbard/both` | — | likewise | claimed |
-| `avr/ratio-of-calibres/both` | — | — | — |
-| `vessel-calibre/mean-width/…` | px | — — PVBM measures calibre only through the equivalents | — |
-| `vascular-density/…` | — | — | — |
-| `sparsity/…` | px | — | — |
+| Canonical name | Unit | [PVBM](projects/pvbm.md) |
+| --- | --- | --- |
+| [`vessel-area-and-length/area/<structure>`](biomarkers/vessel-area-and-length.md) | px² | `area` 🟡 |
+| [`vessel-area-and-length/skeleton-length/<structure>`](biomarkers/vessel-area-and-length.md) | px | `length` 🟡 |
+| [`tortuosity/hart-tau1/<structure>`](biomarkers/tortuosity.md) | — | `tortuosity index`, `median tortuosity` 🟡 |
+| [`tortuosity/hart-tau2/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
+| [`tortuosity/hart-tau3/<structure>`](biomarkers/tortuosity.md) | px⁻² | — |
+| [`tortuosity/hart-tau4/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
+| [`tortuosity/hart-tau5/<structure>`](biomarkers/tortuosity.md) | px⁻² | — |
+| [`tortuosity/hart-tau6/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
+| [`tortuosity/hart-tau7/<structure>`](biomarkers/tortuosity.md) | px⁻² | — |
+| [`tortuosity/grisan-density/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
+| [`tortuosity/arc-chord-times-inflections/<structure>`](biomarkers/tortuosity.md) | — | — |
+| [`tortuosity/spline-mean-curvature/<structure>`](biomarkers/tortuosity.md) | px⁻¹ | — |
+| [`tortuosity/inflection-count/<structure>`](biomarkers/tortuosity.md) | count | — |
+| [`junction-counts/junctions/<structure>`](biomarkers/junction-counts.md) | count | `number of intersection points` 🟡 |
+| [`junction-counts/endpoints/<structure>`](biomarkers/junction-counts.md) | count | `number of end points` 🟡 |
+| [`junction-counts/components/<structure>`](biomarkers/junction-counts.md) | count | `number of start points` 🟡 — **suspected different**: a start point is where a skeleton walk begins, which need not be one per component |
+| [`bifurcation-angle/between-daughters/<structure>`](biomarkers/bifurcation-angle.md) | degrees | `median branching angle` 🟡 |
+| [`fractal-dimension/multifractal-d0/<structure>`](biomarkers/fractal-dimension.md) | — | `capacity dimension` 🟡 |
+| [`fractal-dimension/multifractal-d1/<structure>`](biomarkers/fractal-dimension.md) | — | `entropy dimension` 🟡 |
+| [`fractal-dimension/multifractal-d2/<structure>`](biomarkers/fractal-dimension.md) | — | `correlation dimension` 🟡 |
+| [`fractal-dimension/box-counting/<structure>`](biomarkers/fractal-dimension.md) | — | — PVBM's three are multifractal, which is a different measurement |
+| [`central-retinal-equivalents/knudtson/<structure>`](biomarkers/central-retinal-equivalents.md) | px | `crae_knudtson`, `crve_knudtson` 🟡 |
+| [`central-retinal-equivalents/hubbard/<structure>`](biomarkers/central-retinal-equivalents.md) | **µm** | `crae_hubbard`, `crve_hubbard` 🟡 — constants fitted in microns, so a pixel-fed value is a different number, not a rescaled one |
+| [`avr/knudtson/both`](biomarkers/avr.md) | — | not reported; the user divides CRAE by CRVE 🟡 |
+| [`avr/hubbard/both`](biomarkers/avr.md) | — | likewise 🟡 |
+| [`avr/ratio-of-calibres/both`](biomarkers/avr.md) | — | — |
+| [`vessel-calibre/mean-width/<structure>`](biomarkers/vessel-calibre.md) | px | — PVBM reaches calibre only through the equivalents |
+| [`vessel-calibre/median-width/<structure>`](biomarkers/vessel-calibre.md) | px | — |
+| [`vascular-density/over-field-of-view/<structure>`](biomarkers/vascular-density.md) | — | — |
+| [`vascular-density/over-image/<structure>`](biomarkers/vascular-density.md) | — | — |
+| [`sparsity/mean-distance/<structure>`](biomarkers/sparsity.md) | px | — |
+| [`sparsity/max-distance/<structure>`](biomarkers/sparsity.md) | px | — |
 
 **PVBM's own singularity length** has no canonical name yet: it is part of the multifractal spectrum
 rather than a dimension, and nothing else in the catalogue computes it. It will get one when a
