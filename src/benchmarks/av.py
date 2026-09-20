@@ -830,7 +830,11 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
         f"each centreline falls inside the other's mask — and the two are read together: a model "
         f"can cover the vessels and lose the network, or trace the network at the wrong width. "
         f"**Vessels** is the union of each model's own arteries and veins, derived the same way "
-        f"for every model and for every annotator."
+        f"for every model and for every annotator. **Betti** counts the topological features — "
+        f"components and loops — of either map that have no counterpart in the other, so it counts "
+        f"downwards where the other two count upwards, and it has no ceiling. It is pooled here as "
+        f"a **mean over photographs**, which is the only form that pools exactly; the results page "
+        f"quotes medians, which are lower, because the tail is long."
     )
     # Read from the stored summary rather than a declaration: the index is built from what is in
     # `results/`, which is what makes it agree with the evidence it links to.
@@ -853,15 +857,16 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
     yield ""
     yield (
         "| Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | "
-        "Seconds each | Marked |"
+        "Vessels Betti | Seconds each | Marked |"
     )
-    yield "| --- | --- | --- | --- | --- | --- | --- | --- |"
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
     for model, found in sorted(pooled.items(), key=lambda pair: -(pair[1]["vessels_dice"] or -1)):
         yield (
             f"| [{model}](models/{model}.md) | {found['photographs']:,} | "
             f"{report.number(found['artery_dice'])} | {report.number(found['vein_dice'])} | "
             f"{report.number(found['vessels_dice'])} | "
             f"{report.number(found['vessels_cldice'])} | "
+            f"{report.number(found['vessels_betti'], places=0)} | "
             f"{report.number(found['seconds'])} | {report.mark_of(model, records)} |"
         )
     yield ""
@@ -949,6 +954,20 @@ def _where_to_start(pooled: dict[str, dict[str, object]]) -> Iterable[str]:
             + (
                 f", against {pooled[network[1]]['vessels_cldice']:.3f} for {network[1]})."
                 if len(network) > 1
+                else ")."
+            )
+        )
+    topological = [name for name in pooled if pooled[name]["vessels_betti"] is not None]
+    if topological:
+        topological.sort(key=lambda name: pooled[name]["vessels_betti"])
+        first = topological[0]
+        yield (
+            f"- **For a network that will be measured rather than looked at**, where a broken "
+            f"branch is a branch nothing counts: **{first}** ({pooled[first]['vessels_betti']:.0f} "
+            f"unmatched features a photograph"
+            + (
+                f", against {pooled[topological[1]]['vessels_betti']:.0f} for {topological[1]})."
+                if len(topological) > 1
                 else ")."
             )
         )

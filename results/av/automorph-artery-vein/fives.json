@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "6236267fa6b46a9f08ee8e1cfd672a393f262a13a02f334ba265378076dc67ac",
+  "fingerprint": "c21bb92c4798c0c1a403763682cef534ac343167a5c40f08931a0a9118a08cdc",
   "model": "automorph-artery-vein",
   "summary": {
     "complete": true,
@@ -20,6 +20,12 @@
     ],
     "timed_photographs": 799,
     "total": 798,
+    "vessels_betti": {
+      "mean": 94.49749373433583,
+      "median": 93.0,
+      "n": 798,
+      "spread": 30.03818570145213
+    },
     "vessels_cldice": {
       "mean": 0.7296461365914787,
       "median": 0.8048525,

@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "avrdb",
-  "fingerprint": "2fb2eee7347f8a6b91318da19c1e6bde06a58cddac69a4a2b9027f1a90e7d24a",
+  "fingerprint": "bfb23d5a97b5a6af96ba31df91f2fe8f8891b5212bdfb4390a6f64c8d512dbe4",
   "model": "segan-vessel",
   "summary": {
     "complete": true,
@@ -17,6 +17,12 @@
     ],
     "timed_photographs": 99,
     "total": 100,
+    "vessels_betti": {
+      "mean": 207.97,
+      "median": 206.5,
+      "n": 100,
+      "spread": 46.34014566226567
+    },
     "vessels_cldice": {
       "mean": 0.77613859,
       "median": 0.7958275,

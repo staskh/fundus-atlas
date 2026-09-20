@@ -1,9 +1,15 @@
 {
   "benchmark": "av",
   "dataset": "hrf",
-  "fingerprint": "0329fb66ce3e270df3c22d6e425f93c3c8b59b6cef3c04a1d5bfaec2f1ef0992",
+  "fingerprint": "1ee67a5035c4bc63d38bba7d8a433c54405c67c98d832d65134ae0216a430d94",
   "model": "automorph-artery-vein",
   "summary": {
+    "artery_betti": {
+      "mean": 322.1111111111111,
+      "median": 233.0,
+      "n": 45,
+      "spread": 204.08736933232214
+    },
     "artery_cldice": {
       "mean": 0.7356476888888889,
       "median": 0.729297,
@@ -30,6 +36,12 @@
     ],
     "timed_photographs": 41,
     "total": 45,
+    "vein_betti": {
+      "mean": 321.2,
+      "median": 221.0,
+      "n": 45,
+      "spread": 240.9186676960597
+    },
     "vein_cldice": {
       "mean": 0.7594184888888889,
       "median": 0.749419,
@@ -41,6 +53,12 @@
       "median": 0.800359,
       "n": 45,
       "spread": 0.0353109171462682
+    },
+    "vessels_betti": {
+      "mean": 562.3555555555556,
+      "median": 404.0,
+      "n": 45,
+      "spread": 353.38868469312337
     },
     "vessels_cldice": {
       "mean": 0.7768404444444444,

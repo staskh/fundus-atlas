@@ -1,9 +1,15 @@
 {
   "benchmark": "av",
   "dataset": "reyia",
-  "fingerprint": "7dda78be764288e409ab28d7003519a44c94d0827523f01c7db0b79312a01e00",
+  "fingerprint": "23d8496ffb5360c9e9e1b65669d337a1f937e4a93ba7f930144aa0a69d7712b0",
   "model": "vascx-artery-vein",
   "summary": {
+    "artery_betti": {
+      "mean": 67.06976744186046,
+      "median": 65.0,
+      "n": 559,
+      "spread": 25.936287668320908
+    },
     "artery_cldice": {
       "mean": 0.7855774347048301,
       "median": 0.800449,
@@ -32,6 +38,12 @@
     ],
     "timed_photographs": 308,
     "total": 559,
+    "vein_betti": {
+      "mean": 72.07692307692308,
+      "median": 70.0,
+      "n": 559,
+      "spread": 25.48842005501831
+    },
     "vein_cldice": {
       "mean": 0.8013567459749553,
       "median": 0.811266,
@@ -43,6 +55,12 @@
       "median": 0.838581,
       "n": 559,
       "spread": 0.050343864159452446
+    },
+    "vessels_betti": {
+      "mean": 168.97137745974956,
+      "median": 168.0,
+      "n": 559,
+      "spread": 55.67249527320633
     },
     "vessels_cldice": {
       "mean": 0.833341649373882,
