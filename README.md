@@ -23,6 +23,9 @@ against what it actually does, and measures them on the same terms.
    results from different papers and different projects can be read side by side.
 6. **[Checks](docs/benchmarks/quality-results.md)** — the quality gates that decide whether a
    tracing is good enough to trust the numbers derived from it.
+7. **[Papers](docs/PAPERS.md)** — published work that changes how a measurement, a mask or a
+   comparison in the rows above should be read: the formula papers, not a bibliography of every
+   citation.
 
 Each of those is one summary table with a page behind every row. The measurements live in section 4.
 
@@ -72,7 +75,7 @@ A summary paper is planned, under the working title:
 Contributions are welcome from everyone, and you do not need to be a programmer to make a useful
 one. Helpful contributions include:
 
-- A dataset, model, calculation, or pipeline that is missing from the map.
+- A dataset, model, calculation, pipeline, or paper that is missing from the map.
 - A correction: a license recorded wrongly, a claim we have misread, a number that does not
   reproduce.
 - An omission: something a page should say about a dataset or method and does not.

@@ -20,7 +20,7 @@ the venules widened, and those have different causes.
 - **The formula, in words:** CRAE divided by CRVE — the arteriolar equivalent over the venular
   equivalent, both computed on the same ring around the disc.
 - The definition therefore lives on the [central retinal equivalents](central-retinal-equivalents.md)
-  page: Hubbard LD et al., Ophthalmology 1999, and Knudtson MD et al., Current Eye Research 2003.
+  page: [Hubbard 1999](../papers/hubbard-1999.md) and [Knudtson 2003](../papers/knudtson-2003.md).
 
 ## 3. Variants
 

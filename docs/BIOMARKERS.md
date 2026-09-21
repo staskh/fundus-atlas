@@ -8,7 +8,8 @@ pipelines compute it.
 **A biomarker name is not a definition.** "Tortuosity" names at least three incompatible formulas
 and "CRAE" two; papers usually report the name and omit the choice. The Variants column below is
 therefore the most important one in the table: two numbers under the same heading are comparable
-only when their variant, their measurement region and their scale convention all match.
+only when their variant, their measurement region and their scale convention all match. The
+definition papers themselves are in [PAPERS.md](PAPERS.md).
 
 ## 1. Summary
 
@@ -18,15 +19,15 @@ Grouped by family; alphabetical within each family.
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Vessel calibre](biomarkers/vessel-calibre.md) | Vessel width | Vessels, or A/V | Varies — whole image, zones, grid fields | Pixels (microns with a resolution) | 3 (image edges, per-segment median, window average) | ARIA, VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM | Bankhead 2012 | 2026-09-10 |
-| [Central retinal equivalents](biomarkers/central-retinal-equivalents.md) | Estimated trunk calibre near the disc (CRAE, CRVE) | A/V + disc | Ring around the disc; radii differ | Pixels or microns | 2 (Hubbard, Knudtson) | AutoMorph, AutoMorphalyzer (Knudtson only), VascX, PVBM, OCULARNet | Hubbard 1999; Knudtson 2003 | 2026-09-10 |
-| [AVR](biomarkers/avr.md) | Arteriolar calibre relative to venular | A/V + disc | Same ring as its inputs | Dimensionless, **scale-invariant** | 2, inherited from the equivalents | AutoMorph, AutoMorphalyzer, VascX, PVBM (by division) | Hubbard 1999; Knudtson 2003 | 2026-09-10 |
+| [Vessel calibre](biomarkers/vessel-calibre.md) | Vessel width | Vessels, or A/V | Varies — whole image, zones, grid fields | Pixels (microns with a resolution) | 3 (image edges, per-segment median, window average) | ARIA, VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM | [Bankhead 2012](papers/bankhead-2012.md) | 2026-09-10 |
+| [Central retinal equivalents](biomarkers/central-retinal-equivalents.md) | Estimated trunk calibre near the disc (CRAE, CRVE) | A/V + disc | Ring around the disc; radii differ | Pixels or microns | 2 (Hubbard, Knudtson) | AutoMorph, AutoMorphalyzer (Knudtson only), VascX, PVBM, OCULARNet | [Hubbard 1999](papers/hubbard-1999.md); [Knudtson 2003](papers/knudtson-2003.md) | 2026-09-10 |
+| [AVR](biomarkers/avr.md) | Arteriolar calibre relative to venular | A/V + disc | Same ring as its inputs | Dimensionless, **scale-invariant** | 2, inherited from the equivalents | AutoMorph, AutoMorphalyzer, VascX, PVBM (by division) | [Hubbard 1999](papers/hubbard-1999.md); [Knudtson 2003](papers/knudtson-2003.md) | 2026-09-10 |
 
 ### 1.2 Tortuosity — how twisted the vessels are
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Tortuosity](biomarkers/tortuosity.md) | How far vessels deviate from straight | Vessels, or A/V | Varies — whole image, zones, grid fields | Mostly dimensionless; one is a count | **9+** (Hart τ1–τ7, Grisan density, and three implementation-only forms) | retipy, AutoMorph, AutoMorphalyzer, AutoMorphClass, VascX, PVBM, OCULARNet | No definition of record | 2026-09-10 |
+| [Tortuosity](biomarkers/tortuosity.md) | How far vessels deviate from straight | Vessels, or A/V | Varies — whole image, zones, grid fields | Mostly dimensionless; one is a count | **9+** (Hart τ1–τ7, Grisan density, and three implementation-only forms) | retipy, AutoMorph, AutoMorphalyzer, AutoMorphClass, VascX, PVBM, OCULARNet | [Hart 1999](papers/hart-1999.md); [Grisan 2008](papers/grisan-2008.md) | 2026-09-10 |
 
 ### 1.3 Density and complexity — how much retina the vessels cover
 
@@ -182,6 +183,9 @@ no cup-to-disc ratio, and it is a capability gap rather than an oversight. See
 
 ## 4. How to read this table
 
+- **Defined in** — the publication that first defined it, linked to [PAPERS.md](PAPERS.md) when that
+  paper has a page there. A short citation with no link means the paper is not yet in that
+  catalogue.
 - **Variants** — how many competing definitions share this name. A value computed with one variant
   is not interchangeable with a value computed with another; each detail page says whether they can
   be compared at all.
@@ -203,4 +207,5 @@ no cup-to-disc ratio, and it is a capability gap rather than an oversight. See
 
 Biomarker pages follow a fixed structure so they can be read against each other. Load the
 `document-biomarker` skill, which defines that structure and this table's columns, before adding or
-changing an entry.
+changing an entry. A definition-of-record paper that belongs in [PAPERS.md](PAPERS.md) is added in
+the same change, per the `document-paper` skill.

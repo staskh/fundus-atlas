@@ -30,11 +30,13 @@ biomarker most sensitive to how the vessel edge is defined.
 
 ## 3. Major publications by the authors
 
-- Bankhead P, Scholfield CN, McGeown JG, Curtis TM. *Fast Retinal Vessel Detection and Measurement
-  Using Wavelets and Edge Location Refinement.* PLoS ONE 2012;7(3):e32435. DOI:
+- [Bankhead 2012](../papers/bankhead-2012.md). Bankhead P, Scholfield CN, McGeown JG, Curtis TM.
+  *Fast Retinal Vessel Detection and Measurement Using Wavelets and Edge Location Refinement.*
+  PLoS ONE 2012;7(3):e32435. DOI:
   [10.1371/journal.pone.0032435](https://doi.org/10.1371/journal.pone.0032435)
 
-The author asks that this paper be cited in any publication using the software.
+The author asks that this paper be cited in any publication using the software. The argument is on
+the paper page; this page is the code.
 
 ## 4. Segmentation models used
 

@@ -22,8 +22,9 @@ why two pipelines can disagree about calibre while producing masks that look ide
 No single origin: calibre is a physical width, and each method defines the edge differently. The
 reference implementation for the modern literature is:
 
-- Bankhead P, Scholfield CN, McGeown JG, Curtis TM. *Fast Retinal Vessel Detection and Measurement
-  Using Wavelets and Edge Location Refinement.* PLoS ONE 2012;7(3):e32435. DOI:
+- [Bankhead 2012](../papers/bankhead-2012.md). Bankhead P, Scholfield CN, McGeown JG, Curtis TM.
+  *Fast Retinal Vessel Detection and Measurement Using Wavelets and Edge Location Refinement.*
+  PLoS ONE 2012;7(3):e32435. DOI:
   [10.1371/journal.pone.0032435](https://doi.org/10.1371/journal.pone.0032435)
 
 - **The formula, in words:** find the vessel centreline, then at each point step perpendicular to it
