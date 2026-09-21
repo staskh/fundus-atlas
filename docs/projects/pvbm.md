@@ -58,8 +58,10 @@ Not applicable — no new segmentation model is introduced; the disc segmenter i
 (see section 4). For completeness on the borrowed component:
 
 - **Model file:** `lunetv2_odc.onnx`, downloaded on first use by `PVBM/DiscSegmenter.py`.
-- **Download URL:** https://drive.google.com/uc?id=116EEFBn7qr_LpCBb8GBuyzpa_KGp4xPX — a Google
-  Drive file, read out of the download code. It is not versioned in the repository, so the file
+- **Download URL:** https://drive.google.com/file/d/11GE-M-VtIXb6X7_bU2nwH-8mMrSJAAbY — the
+    Google Drive file named in [PVBM issue #5](https://github.com/aim-lab/PVBM/issues/5). The URL
+    hardcoded in `PVBM/DiscSegmenter.py` no longer serves anything, so a fresh checkout of PVBM
+    cannot fetch its own disc weights. It is not versioned in the repository, so the file
   behind that link can change without a commit.
 - **Source project:** https://github.com/aim-lab/LUNet, for which GitHub reports no recognised
   license.
