@@ -148,6 +148,11 @@ the authority on it:
 - `src/benchmarks/` — one module per benchmark, its loaders, its scorer and its report writer.
 - `results/` — committed evidence: per-image benchmark scores, and inferred camera scales under
   `results/um_resolution/` for datasets that published no microns-per-pixel figure.
+- `data/synthetic/av/` — the synthetic artery/vein store, drawn by `python -m benchmarks.shapes`:
+  a binary mask per class, a field of view, a `manifest.csv` saying how each rendering was framed,
+  and a `ground_truth.csv` of the values its geometry requires. Unlike a dataset store it is
+  **committed**, because these are our own shapes rather than anybody else's photographs, and a
+  measurement is then repeatable against the exact pictures it was taken on.
 - `notebooks/` — one analysis notebook per benchmark.
 
 Tests are in `tests/`, mirroring `src/`, and run against synthetic fixtures rather than downloads.

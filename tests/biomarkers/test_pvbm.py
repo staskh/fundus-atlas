@@ -8,7 +8,10 @@ from benchmarks.shapes import library
 from biomarkers import canonical, naming
 from biomarkers.utils import catalogue
 
-SIDE = 512
+#: Big enough for the ring the equivalents are measured over. A clinical optic disc is 1800 µm
+#: across, so three disc radii is 2700 µm, and a frame that cannot hold that cannot carry a shape
+#: which tests them.
+SIDE = 1024
 
 
 def an_adapter():
@@ -76,7 +79,7 @@ def test_pvbm_computes_both_equivalents_from_pixel_widths_whatever_scale_it_is_g
     quietly feeding it microns, and the evidence carries it for the analysis to judge.
     """
     adapter = an_adapter()
-    shape = library.build("disc-spokes", side=SIDE)
+    shape = library.build("spokes-macula-centred", side=SIDE)
 
     without = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, None)
     with_scale = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, 5.0)
@@ -119,7 +122,7 @@ def test_it_measures_equivalents_at_the_grid_the_benchmark_runs_on() -> None:
     than as our own defect. The size is the test.
     """
     adapter = an_adapter()
-    shape = library.build("disc-spokes", side=2048, um_per_px=5.0)
+    shape = library.build("spokes-macula-centred", side=2048, um_per_px=5.0)
 
     answers = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, 5.0)
 

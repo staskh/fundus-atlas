@@ -25,7 +25,7 @@ NAME = "biomarker-synthetic"
 AGREES = 0.02
 
 #: The benchmark's own version. Changing what is measured, or how, changes this.
-VERSION = 1
+VERSION = 2
 
 #: What this benchmark asks, in the sentences the index has room for.
 GOAL = (
@@ -283,7 +283,7 @@ def _record(scored: list[dict[str, object]], started: datetime, into: Path) -> N
 #: Every column of this benchmark's evidence, and what it means.
 COLUMNS = {
     "key": "the rendering: the shape and the angle it was drawn at",
-    "shape": "which shape was drawn — `straight`, `arc`, `disc-spokes` and the rest",
+    "shape": "which shape was drawn — `straight`, `arc`, `spokes-macula-centred` and the rest",
     "rotation": "the angle it was drawn at, in degrees, generated afresh rather than turned",
     "side": "the grid it was drawn on, in pixels",
     "um_per_px": "the microns per pixel the shape was built with",
