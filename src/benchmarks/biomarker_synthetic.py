@@ -349,6 +349,13 @@ def docs_sections(
         "[the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb), so a reader can "
         "disagree with the arithmetic rather than with the code."
     )
+    yield ""
+    yield (
+        "The shapes are **drawn before any of this runs**, by `python -m benchmarks.shapes`, into "
+        "the committed store at `data/synthetic/av/`. How that works — the command, the two tables "
+        "it writes, and what each family settles — is "
+        "[biomarker-synthetic-shapes.md](biomarker-synthetic-shapes.md)."
+    )
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
