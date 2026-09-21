@@ -35,12 +35,15 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 **Does a biomarker implementation compute the quantity it is said to compute?** Every other benchmark here compares software with a human judgement; this one compares it with a number derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of exactly 1/r, and an implementation that disagrees is wrong rather than different. It selects nothing: which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence.
 
-[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-pvbm-results.md) · [The analysis](../notebooks/biomarker-synthetic-pvbm.ipynb) · [Every score](../results/biomarker-synthetic/)
+[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out: PVBM](benchmarks/biomarker-synthetic-pvbm-results.md) · [The analysis](../notebooks/biomarker-synthetic-pvbm.ipynb) · [What came out: AutoMorph](benchmarks/biomarker-synthetic-automorph-results.md) · [The analysis](../notebooks/biomarker-synthetic-automorph.ipynb) · [Every score](../results/biomarker-synthetic/)
 
 Every value is compared with what the shape's geometry requires rather than with another implementation. **Agrees** counts the measurements within 2% of the required value; **turns with the image** is the largest spread one measurement showed across 0°, 30°, 60° and 90°, where the geometry is identical and the answer should be too.
 
 | Implementation | Renderings | Quantities with a known value | Agrees | Turns with the image |
 | --- | --- | --- | --- | --- |
+| [automorph](projects/automorph.md) | 32 | 120 | 32 of 120 | 100.0% |
+| [automorphalyzer](projects/automorphalyzer.md) | 32 | 132 | 28 of 132 | 13.6% |
+| [automorphclass](projects/automorphclass.md) | 32 | 120 | 21 of 120 | 13.6% |
 | [pvbm](projects/pvbm.md) | 32 | 262 | 144 of 262 | 75.0% |
 
 **This benchmark selects nothing.** Which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence, and the numbers above are a summary of it rather than a ranking.

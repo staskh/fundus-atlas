@@ -1,6 +1,6 @@
 # Biomarkers against arithmetic benchmark — how it is run
 
-This page says how the benchmark is configured: what it asks, which models and datasets take part, what it excludes, how to run it, and what every column of its evidence means. It is generated **before** a run measures anything, and again whenever the benchmark's code changes, so it describes the run that is happening rather than the one that happened to finish. A column added to the evidence and not explained here is a bug rather than an omission. What came out is written up separately: [biomarker-synthetic-pvbm-results.md](biomarker-synthetic-pvbm-results.md).
+This page says how the benchmark is configured: what it asks, which models and datasets take part, what it excludes, how to run it, and what every column of its evidence means. It is generated **before** a run measures anything, and again whenever the benchmark's code changes, so it describes the run that is happening rather than the one that happened to finish. A column added to the evidence and not explained here is a bug rather than an omission. What came out is written up separately: [biomarker-synthetic-pvbm-results.md](biomarker-synthetic-pvbm-results.md), [biomarker-synthetic-automorph-results.md](biomarker-synthetic-automorph-results.md).
 
 ## 1. What this benchmark asks
 
@@ -13,6 +13,9 @@ Every shape is drawn on a **2048²** grid at **5.0 µm per pixel**, at 0°, 30°
 | Implementation | Pinned at | Needs | Claims invariance under | Columns |
 | --- | --- | --- | --- | --- |
 | [pvbm](../projects/pvbm.md) | `5edb79a6eff5` | artery, vein, disc | rotation | 32 |
+| [automorph](../projects/automorph.md) | `9a953e5edfa4` | artery, vein | rotation | 18 |
+| [automorphalyzer](../projects/automorphalyzer.md) | `e68843e2d3bc` | artery, vein, disc | rotation | 54 |
+| [automorphclass](../projects/automorphclass.md) | `8f4d18fe961a` | artery, vein | rotation | 18 |
 
 ## 3. The shapes, and what each one settles
 
@@ -34,7 +37,7 @@ The shapes are **drawn before any of this runs**, by `python -m benchmarks.shape
 
 ```bash
 python -m benchmarks --benchmark biomarker-synthetic
-python -m benchmarks --benchmark biomarker-synthetic --model pvbm --dataset arc
+python -m benchmarks --benchmark biomarker-synthetic --model automorph --dataset arc
 python -m benchmarks --benchmark biomarker-synthetic --max-samples 20
 ```
 

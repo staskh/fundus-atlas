@@ -35,6 +35,14 @@ benchmarks = [
     "transformers>=4.44",
     # LUNet v2's disc model is published as an ONNX file and nothing else.
     "onnxruntime>=1.18",
+    # AutoMorphalyzer's measuring code imports both and its own requirements.txt pins them at these
+    # versions; nothing else here installs either. Bottleneck runs the moving windows in its width
+    # measurement, numba the depth-first vessel tracer its authors rewrote.
+    "Bottleneck==1.4.2",
+    "numba==0.61.0",
+    # Its `utils` imports SimpleITK at module load, to read manual annotations this benchmark never
+    # supplies — so it is needed to import the measuring code at all, not to run it.
+    "SimpleITK==2.4.1",
     # OCULARNet builds its architecture with this and ships only weights.
     "segmentation-models-pytorch>=0.4",
     # LUNet is a Keras 2.11 model. Its own requirements pin tensorflow 2.14 and numpy<2, which no

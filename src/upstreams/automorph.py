@@ -14,11 +14,17 @@ DISC_STAGE = "M2_lwnet_disc_cup"
 AV_STAGE = "M2_Artery_vein"
 VESSEL_STAGE = "M2_Vessel_seg"
 
+#: The measurement stage, which is where AutoMorph's biomarkers are computed. It holds no model:
+#: it reads the masks the M2 stages wrote and turns them into numbers, which is why it is reached
+#: by the biomarker adapter rather than by any model adapter.
+FEATURE_STAGE = "M3_feature_whole_pic"
+FEATURE_ZONE_STAGE = "M3_feature_zone"
+
 CODE = source.Checkout(
     "automorph",
     "https://github.com/rmaphoh/AutoMorph",
     "9a953e5edfa419b454e9fb7b06235eb413828d05",
-    subtrees=[QUALITY_STAGE, DISC_STAGE, AV_STAGE, VESSEL_STAGE],
+    subtrees=[QUALITY_STAGE, DISC_STAGE, AV_STAGE, VESSEL_STAGE, FEATURE_STAGE, FEATURE_ZONE_STAGE],
     imports_from=QUALITY_STAGE,
 )
 
@@ -40,6 +46,23 @@ VESSEL_SEEDS = tuple(range(24, 44, 2))
 #: What every vessel seed folder is called, and the one checkpoint inside it.
 VESSEL_JOB = "20210630_uniform_thres40_ALL-SIX"
 VESSEL_CHECKPOINT = "G_best_F1_epoch.pth"
+
+
+def measurements():
+    """`retipy.tortuosity_measures` and `retipy.retina` from the whole-picture stage.
+
+    AutoMorph's measuring is retipy's, vendored into the stage rather than installed, so it is
+    reached by putting the stage's own `retipy` package on the path and importing it by name.
+    """
+    import sys
+
+    tree = CODE.obtain()
+    entry = str(tree / FEATURE_STAGE / "retipy")
+    if entry not in sys.path:
+        sys.path.insert(0, entry)
+    from retipy import retina, tortuosity_measures
+
+    return tortuosity_measures, retina
 
 
 def quality_weights() -> list[Path]:
