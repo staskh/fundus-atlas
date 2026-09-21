@@ -7,7 +7,12 @@ structure they were measured on all match.
 
 So this repository fixes a **canonical name** for each measurement it can compare, and maps every
 project's own column onto one. The canonical names live in `src/biomarkers/canonical.py`, where a
-typo is an error rather than a row that silently matches nothing; the mapping is the table below.
+typo is an error rather than a row that silently matches nothing.
+
+**Each project's mapping lives in its own adapter** — `src/biomarkers/<slug>.py`, beside the calls
+it describes — and the adapter answers under the canonical names, so the evidence a benchmark
+writes is already comparable between implementations without a translation step. The table below is
+that mapping, for a reader.
 
 ## 1. How a canonical name is built
 
@@ -46,6 +51,10 @@ Names are written with `<structure>` where the same definition applies to arteri
 two together; a project that runs separately on each reports one column per structure. A column is
 added per implementation as its adapter is written, and PVBM is the first.
 
+**A dash is not the whole story.** A project may compute something this catalogue has no name for
+at all, and those columns are measured and stored under the project's own name rather than dropped
+— section 3 lists them, because they are what the catalogue is missing.
+
 | Canonical name | Unit | [PVBM](projects/pvbm.md) |
 | --- | --- | --- |
 | [`vessel-area-and-length/area/<structure>`](biomarkers/vessel-area-and-length.md) | px² | `area` 🟢 — within 0.1% on four shapes at four angles |
@@ -64,7 +73,7 @@ added per implementation as its adapter is written, and PVBM is the first.
 | [`junction-counts/junctions/<structure>`](biomarkers/junction-counts.md) | count | `number of intersection points` 🔴 — exact where there are none; a single Y-junction counts as one, three or four depending on the angle |
 | [`junction-counts/endpoints/<structure>`](biomarkers/junction-counts.md) | count | `number of end points` 🟢 — exact at every angle on all three shapes that pin one |
 | [`junction-counts/components/<structure>`](biomarkers/junction-counts.md) | count | `number of start points` 🟡 — **suspected different**: a start point is where a skeleton walk begins, which need not be one per component |
-| [`bifurcation-angle/between-daughters/<structure>`](biomarkers/bifurcation-angle.md) | degrees | `median branching angle` 🔴 — **the mapping is wrong, not the column**: it medians every pairwise angle at every particular point, including each daughter against the trunk, and reads ~120° where the daughters are 60° apart |
+| [`bifurcation-angle/between-daughters/<structure>`](biomarkers/bifurcation-angle.md) | degrees | — 🔴 — **the mapping was wrong, not the column.** `median branching angle` was mapped here until a shape showed it medians every pairwise angle at every particular point, including each daughter against the trunk, and reads ~120° where the daughters are 60° apart. It now maps to nothing and is measured under its own name (section 3) |
 | [`fractal-dimension/multifractal-d0/<structure>`](biomarkers/fractal-dimension.md) | — | `capacity dimension` 🟡 — computed and recorded on every shape, but no shape pins a value to check it against |
 | [`fractal-dimension/multifractal-d1/<structure>`](biomarkers/fractal-dimension.md) | — | `entropy dimension` 🟡 |
 | [`fractal-dimension/multifractal-d2/<structure>`](biomarkers/fractal-dimension.md) | — | `correlation dimension` 🟡 |
@@ -81,11 +90,21 @@ added per implementation as its adapter is written, and PVBM is the first.
 | [`sparsity/mean-distance/<structure>`](biomarkers/sparsity.md) | px | — |
 | [`sparsity/max-distance/<structure>`](biomarkers/sparsity.md) | px | — |
 
-**PVBM's own singularity length** has no canonical name yet: it is part of the multifractal spectrum
-rather than a dimension, and nothing else in the catalogue computes it. It will get one when a
-second implementation does, since a name exists to make two numbers comparable.
+## 3. What each project computes that this catalogue cannot name
 
-## 3. What a missing row means
+These columns are **measured and stored**, under the project's own name, and no row above claims
+them. A quantity the catalogue has no name for is a gap in the catalogue rather than a thing to
+throw away — and keeping it is what makes the gap visible.
+
+| PVBM's column | What it is, and why it has no canonical name |
+| --- | --- |
+| `perimeter_<structure>` | the boundary length of the vessel mask. Nothing else catalogued computes it, and a name exists to make two numbers comparable, so it waits for a second implementation to need one |
+| `singularity_length_<structure>` | part of the multifractal spectrum rather than a dimension of it — the width of the f(α) curve. Same reason |
+| `median_branching_angle_<structure>` | the median of **every** pairwise angle at every particular point, the trunk against each daughter included. It is a real quantity, measured consistently; it is simply not the bifurcation angle it was once mapped to, and the catalogue has no page for what it actually is |
+| `mean_branching_angle_<structure>` | the same collection of angles, averaged |
+| `std_branching_angle_<structure>` | and their spread. PVBM returns it from the same call and its own docstring does not mention it |
+
+## 4. What a missing row means
 
 An em-dash in a project's column means that project does not compute that quantity — **not** that
 it computes it badly. A canonical name with no project against it at all is a measurement this

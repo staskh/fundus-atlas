@@ -1,19 +1,72 @@
-# ABOUTME: PVBM's measuring code, reached from this repository: one call per class, answering with
-# ABOUTME: PVBM's own column names and never renaming, converting or repairing anything.
+# ABOUTME: PVBM's measuring code, reached from this repository: one call per class, and the table
+# ABOUTME: saying which catalogued biomarker each of its columns answers to.
 
 import numpy as np
 from skimage.morphology import skeletonize
 
 from upstreams import pvbm as upstream
 
-#: Every column this adapter can return, in the order a reader meets them. They are PVBM's names,
-#: not this repository's: the translation lives in `naming.py`, reviewed on its own, because it is
-#: a claim about what somebody's code computes.
+#: What PVBM computes **per class**, and the catalogued biomarker this repository believes each
+#: answers to. `{side}` is filled with `artery` or `vein`.
+#:
+#: **Every row is a claim** about what somebody else's code computes — usually read out of its
+#: source — and the synthetic shapes are what test it. `median_branching_angle` was mapped to the
+#: angle between daughters until a shape showed that it medians *every* pairwise angle at every
+#: junction, the trunk included, and reads ~120° where the daughters are 60° apart. That mapping is
+#: now `None`, which is a finding rather than an omission.
+#:
+#: `None` means nothing in the catalogue matches it **yet**. Such a column is measured and stored
+#: exactly like any other, under PVBM's own name: a quantity the catalogue has no name for is a gap
+#: in the catalogue, not a reason to throw a measurement away.
+PER_CLASS: dict[str, str | None] = {
+    "area": "vessel-area-and-length/area/{side}",
+    "length": "vessel-area-and-length/skeleton-length/{side}",
+    # The boundary length of a vessel mask. Nothing else in the catalogue computes it, and a name
+    # exists to make two numbers comparable, so it waits for a second implementation to need one.
+    "perimeter": None,
+    "median_tortuosity": "tortuosity/hart-tau1/{side}",
+    # All three come back from one call. PVBM's own docstring names the mean and the median and
+    # omits the standard deviation, which it returns between them.
+    "mean_branching_angle": None,
+    "std_branching_angle": None,
+    # *Our finding, 2026-09-20, from reading `compute_angles_dictionary`:* not the angle between
+    # the daughters of a bifurcation. See the note above.
+    "median_branching_angle": None,
+    "endpoints": "junction-counts/endpoints/{side}",
+    "intersections": "junction-counts/junctions/{side}",
+    # PVBM's three dimensions are of the multifractal analysis, not the plain box count, which is
+    # why they map to the multifractal names and not to `fractal-dimension/box-counting`.
+    "capacity_dimension": "fractal-dimension/multifractal-d0/{side}",
+    "entropy_dimension": "fractal-dimension/multifractal-d1/{side}",
+    "correlation_dimension": "fractal-dimension/multifractal-d2/{side}",
+    "singularity_length": None,
+}
+
+#: What it computes over **both classes at once**: the equivalents, and the ratios this adapter
+#: forms from them because PVBM leaves that division to its user.
+#:
+#: *Our finding, 2026-09-20:* PVBM computes the Hubbard variants from **pixel** widths, and
+#: Hubbard's constants were fitted in microns. The canonical name says microns, so a value here is
+#: not comparable with one from an implementation that converts first — which is a defect of the
+#: implementation rather than of the mapping, and is why the benchmark reports the number rather
+#: than correcting it.
+PER_PAIR: dict[str, str | None] = {
+    "crae_knudtson": "central-retinal-equivalents/knudtson/artery",
+    "crve_knudtson": "central-retinal-equivalents/knudtson/vein",
+    "crae_hubbard": "central-retinal-equivalents/hubbard/artery",
+    "crve_hubbard": "central-retinal-equivalents/hubbard/vein",
+    "avr_knudtson": "avr/knudtson/both",
+    "avr_hubbard": "avr/hubbard/both",
+}
+
+#: The order a reader meets PVBM's own columns in, per class.
 GEOMETRY = (
     "area",
     "length",
     "perimeter",
     "median_tortuosity",
+    "mean_branching_angle",
+    "std_branching_angle",
     "median_branching_angle",
     "endpoints",
     "intersections",
@@ -24,8 +77,28 @@ FRACTALS = (
     "correlation_dimension",
     "singularity_length",
 )
-EQUIVALENTS = ("crae_knudtson", "crve_knudtson", "crae_hubbard", "crve_hubbard")
-RATIOS = ("avr_knudtson", "avr_hubbard")
+CLASSES = ("artery", "vein")
+
+
+def _answers() -> dict[str, str]:
+    """What this adapter answers under, against the PVBM column each value came from.
+
+    A name carrying a `/` is a catalogued biomarker and a name without one is PVBM's own, so two
+    implementations' evidence lines up column by column wherever the catalogue has a name for what
+    they computed, and keeps what it has no name for yet.
+    """
+    pairs: dict[str, str] = {}
+    for side in CLASSES:
+        for own in GEOMETRY + FRACTALS:
+            mapped = PER_CLASS[own]
+            pairs[mapped.format(side=side) if mapped else f"{own}_{side}"] = f"{own}_{side}"
+    for own, mapped in PER_PAIR.items():
+        pairs[mapped or own] = own
+    return pairs
+
+
+#: Answered name → the PVBM column behind it. Built once; the order is the order above.
+ANSWERS = _answers()
 
 #: What PVBM signals when a central retinal equivalent could not be computed. It is a sentinel
 #: rather than a value, and it is turned into "no answer" here rather than left to be averaged
@@ -39,6 +112,10 @@ class Pvbm:
     One call computes everything PVBM computes — its geometry runs once per class over one
     skeleton, its fractal analysis once per class, and its equivalents once over both — which is
     why the adapter is per implementation rather than per biomarker.
+
+    **It answers under catalogued names**, translating PVBM's own through the table above, so that
+    two implementations' evidence lines up column by column. A column the catalogue has no name for
+    is answered under PVBM's own name and measured all the same.
 
     Two of its habits are reproduced rather than corrected. Its areas and lengths are in pixels,
     which it says plainly; and its Hubbard equivalents carry constants fitted in microns, so they
@@ -72,12 +149,16 @@ class Pvbm:
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
+            # What each answered column is called in PVBM's own vocabulary, so a run records the
+            # claim it was measured under and a later reader can check it against the source.
+            "names": dict(ANSWERS),
+            "unnamed": [own for own, mapped in {**PER_CLASS, **PER_PAIR}.items() if not mapped],
             "units": {
-                "area": "px²",
-                "length": "px",
-                "crae_knudtson": "px",
-                "crae_hubbard": "µm",
-                "median_branching_angle": "degrees",
+                "vessel-area-and-length/area/artery": "px²",
+                "vessel-area-and-length/skeleton-length/artery": "px",
+                "central-retinal-equivalents/knudtson/artery": "px",
+                "central-retinal-equivalents/hubbard/artery": "µm",
+                "median_branching_angle_artery": "degrees",
             },
             "device": self.device,
             "upstream": upstream.provenance(),
@@ -89,8 +170,14 @@ class Pvbm:
 
     def keys(self) -> tuple[str, ...]:
         """Every column, whatever it was handed — so a table has one shape across every shape."""
-        per_class = tuple(f"{name}_{side}" for side in ("artery", "vein") for name in GEOMETRY + FRACTALS)
-        return per_class + EQUIVALENTS + RATIOS
+        return tuple(ANSWERS)
+
+    def canonical_for(self, own: str) -> str | None:
+        """The catalogued name a PVBM column is believed to answer to, or `None` if none does."""
+        for answered, column in ANSWERS.items():
+            if column == own:
+                return answered if "/" in answered else None
+        raise LookupError(f"PVBM computes no column named {own!r}")
 
     def measure(
         self,
@@ -100,15 +187,20 @@ class Pvbm:
         disc: tuple[float, float, float],
         um_per_px: float | None,
     ) -> dict[str, float | None]:
-        """Everything PVBM computes, under PVBM's own names, with `None` where it could not."""
+        """Everything PVBM computes, under catalogued names, with `None` where it could not.
+
+        The measuring is done under PVBM's own names and translated once, here, so that what is
+        computed and what it is called stay separable: a mapping that turns out to be wrong is
+        corrected in the table above without touching a line of the measuring.
+        """
         self.trouble = {}
-        answers: dict[str, float | None] = dict.fromkeys(self.keys())
+        computed: dict[str, float | None] = dict.fromkeys(ANSWERS.values())
         for side, mask in (("artery", artery), ("vein", vein)):
             if mask is None or not mask.any():
                 continue
-            answers.update(self._per_class(mask, side))
-        answers.update(self._per_pair(artery, vein, disc, um_per_px))
-        return answers
+            computed.update(self._per_class(mask, side))
+        computed.update(self._per_pair(artery, vein, disc, um_per_px))
+        return {answered: computed.get(column) for answered, column in ANSWERS.items()}
 
     def _per_class(self, mask: np.ndarray, side: str) -> dict[str, float | None]:
         """The measurements PVBM takes over one class at a time."""
@@ -134,7 +226,11 @@ class Pvbm:
             endpoints, intersections, _ends, _inters = geometry.compute_particular_points(spine)
             found[f"endpoints_{side}"] = _number(endpoints)
             found[f"intersections_{side}"] = _number(intersections)
-            _mean, _spread, median_angle, _angles, _centroid = geometry.compute_branching_angles(spine)
+            mean_angle, spread, median_angle, _angles, _centroid = geometry.compute_branching_angles(
+                spine
+            )
+            found[f"mean_branching_angle_{side}"] = _number(mean_angle)
+            found[f"std_branching_angle_{side}"] = _number(spread)
             found[f"median_branching_angle_{side}"] = _number(median_angle)
         except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
             # Recorded rather than swallowed. Silence here once made an adapter's own bug look

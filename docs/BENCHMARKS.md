@@ -41,7 +41,7 @@ Every value is compared with what the shape's geometry requires rather than with
 
 | Implementation | Renderings | Quantities with a known value | Agrees | Turns with the image |
 | --- | --- | --- | --- | --- |
-| [pvbm](projects/pvbm.md) | 28 | 138 | 76 of 138 | 75.0% |
+| [pvbm](projects/pvbm.md) | 32 | 262 | 144 of 262 | 75.0% |
 
 **This benchmark selects nothing.** Which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence, and the numbers above are a summary of it rather than a ranking.
 
@@ -98,4 +98,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-09-20
+**Generated:** 2026-09-21

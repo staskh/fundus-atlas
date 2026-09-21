@@ -13,7 +13,9 @@ def slugs() -> list[str]:
     return sorted(
         path.stem
         for path in DIRECTORY.glob("*.py")
-        if path.stem not in {"__init__", "canonical", "naming"}
+        # `canonical` is the vocabulary rather than an implementation. Each adapter carries its
+        # own mapping onto that vocabulary, so there is no separate naming module to skip.
+        if path.stem not in {"__init__", "canonical"}
     )
 
 

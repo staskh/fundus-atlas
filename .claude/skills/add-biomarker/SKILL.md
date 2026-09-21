@@ -1,6 +1,6 @@
 ---
 name: add-biomarker
-description: Write the adapter that lets a benchmark compute one project's biomarkers from a segmentation — what it is handed, what it returns, and why it never renames anything. Use when adding or changing anything under src/biomarkers/.
+description: Write the adapter that lets a benchmark compute one project's biomarkers from a segmentation — what it is handed, what it returns, and where the table naming its columns lives. Use when adding or changing anything under src/biomarkers/.
 ---
 
 # Adding a biomarker adapter
@@ -13,7 +13,8 @@ over one skeleton; AutoMorph's feature stage does the same. Splitting that into 
 would mean running the same work a dozen times, or pretending the numbers are independent when they
 come from one traversal. So the unit here is the *implementation* — `src/biomarkers/<slug>.py`,
 where the slug matches the project's catalogue page — and the unit in `docs/biomarkers/` stays the
-*measurement*. The two are joined by the naming table of section 4.
+*measurement*. The two are joined by the naming table of section 4, which lives **in the adapter**,
+beside the calls whose output it describes.
 
 This differs from the model layer, where one adapter is one model, and from an earlier draft of
 `PLAN-BENCHMARK.md` §10.3, which said one adapter per biomarker implementation. The plan records
@@ -23,9 +24,8 @@ the change.
 
 1. **The adapter**, `src/biomarkers/<slug>.py`, with the interface of section 2 and a module-level
    `implementation(**arguments)` returning it.
-2. **Rows in the naming table**, `src/biomarkers/naming.py`, mapping every key the adapter can
-   return to a catalogued biomarker and variant — or to nothing, which is a finding rather than an
-   omission.
+2. **The naming table, in that same file**, mapping every column the implementation computes to a
+   catalogued biomarker and variant — or to `None`, which is a finding rather than an omission.
 3. **Tests**, `tests/biomarkers/`, written first.
 4. **Corrections to the project and biomarker pages**, in the same commit, for whatever reading the
    code taught you that the documentation does not say.
@@ -52,15 +52,26 @@ class Pvbm:
 | `disc` | the optic disc as `(x, y, radius)` in pixels — the form every catalogued implementation asks for, rather than a mask |
 | `um_per_px` | microns per pixel, or `None` where the caller has no scale. An implementation that needs one and is given `None` returns `None` for the measurements that depend on it, rather than assuming a number |
 
-It returns **one dictionary, the implementation's own keys**. `CRAE_Knudtson` stays
-`CRAE_Knudtson`; `t2` stays `t2`, however uninformative. A measurement the implementation could not
-produce is `None` with the reason recorded by the run, never 0 and never absent.
+It returns **one dictionary, keyed by catalogued name** — `biomarker/variant/structure` — for every
+column its table maps, and by the implementation's own name for every column the catalogue cannot
+name yet. The two are told apart by the `/`. A measurement the implementation could not produce is
+`None` with the reason recorded by the run, never 0 and never absent.
+
+**Measure under their names and translate once.** Compute with `CRAE_Knudtson` and `t2` as the
+implementation calls them, and rename at the end in a single step, so that what was computed and
+what it is called stay separable: a mapping that turns out to be wrong is then corrected in the
+table without touching a line of the measuring.
 
 ## 3. What an adapter must not do
 
-- **It must not rename.** The translation from `t2` to *Hart's τ1 arc-chord ratio* is the naming
-  table's job, reviewed on its own, because that translation is a claim about what somebody's code
-  computes and it is frequently wrong.
+- **It must not rename anything its table does not cover.** The translation from `t2` to *Hart's τ1
+  arc-chord ratio* is a claim about what somebody's code computes, and it is frequently wrong — so
+  it is made in one reviewable table and nowhere else, never inline at the call site and never by
+  guessing from a column's name.
+- **It must not drop a column it cannot name.** A quantity the catalogue has no name for is a gap
+  in the catalogue, not a thing to throw away: it is answered under the implementation's own name
+  and measured like any other. Dropping it would make a benchmark quietly measure less than the
+  implementation computes and hide what the catalogue is missing.
 - **It must not convert units silently.** Return what the implementation returns and declare the
   unit. A pixel figure quietly multiplied by a scale is how two studies come to disagree by a
   factor nobody can find.
@@ -80,20 +91,23 @@ produce is `None` with the reason recorded by the run, never 0 and never absent.
 
 ## 4. The naming table is the whole problem
 
-`src/biomarkers/naming.py` maps `(implementation, their key)` to
-`(biomarker page, variant heading, unit)`:
+It lives **in the adapter**, at the top of `src/biomarkers/<slug>.py`, mapping each column the
+implementation computes to a catalogued `biomarker/variant/structure` or to `None`:
 
 ```python
-NAMES = {
-    "pvbm": {
-        "tortuosity_index": ("tortuosity", "hart-tau1", "dimensionless"),
-        "median_tortuosity": ("tortuosity", "hart-tau1", "dimensionless"),
-        ...
-    },
+PER_CLASS: dict[str, str | None] = {
+    "area": "vessel-area-and-length/area/{side}",
+    "median_tortuosity": "tortuosity/hart-tau1/{side}",
+    "perimeter": None,          # nothing catalogued describes it — yet
+    ...
 }
 ```
 
-Three rules keep it honest:
+It sits beside the calls it describes because the two are read together: what a column is worth
+depends on how it was obtained, and a reader checking a mapping against the implementation's source
+should not have to hold two files open. Adding an implementation therefore touches one file.
+
+Four rules keep it honest:
 
 - **A mapping is a claim, and the synthetic benchmark is what tests it.** A shape where two variants
   give different known values separates them by measurement. Declare the mapping the documentation
@@ -103,6 +117,10 @@ Three rules keep it honest:
   `docs/biomarkers/tortuosity.md` already records three.
 - **Two keys may map to the same variant**, as PVBM's two tortuosity figures do. That is not a
   duplicate: they differ in the region or the aggregation, which the table's comment records.
+- **A mapping that a shape contradicts becomes `None`, with the reason beside it.** PVBM's
+  `median_branching_angle` was mapped to the angle between a bifurcation's daughters until a shape
+  showed it medians every pairwise angle at every junction, the trunk included. The column is still
+  measured; it simply no longer claims to be that biomarker.
 
 ## 5. Declaring an invariance is declaring something testable
 
@@ -127,7 +145,10 @@ observation.
 
 - **7.1** The slug matches the project's catalogue page. No page, no adapter.
 - **7.2** One adapter per implementation; one call returns everything it computes.
-- **7.3** Original names out of the adapter; translation only in the naming table.
+- **7.3** Measured under the implementation's names, answered under catalogued ones, translated in
+  one table in the adapter — never inline, and never by guessing from a column's name.
+- **7.3.1** Every column the implementation computes is stored, including those the catalogue
+  cannot name, under the implementation's own name.
 - **7.4** Units declared, never silently applied.
 - **7.5** An upstream's defect is reproduced and recorded, never quietly fixed.
 - **7.6** A class that was not handed over is `None` in every measurement that needs it, never

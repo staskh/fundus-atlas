@@ -8,7 +8,6 @@ from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
-from biomarkers import naming
 from biomarkers.utils import catalogue
 
 from . import report, runs
@@ -220,10 +219,12 @@ def _row(adapter, built, angle: float, answered: dict, taken: float, note: str) 
     for key in adapter.keys():
         value = answered.get(key)
         row[f"said_{key}"] = "" if value is None else f"{float(value):.6f}"
-        canonical = naming.canonical_for(adapter.slug, key)
-        theory = built.theory.get(canonical) if canonical else None
+        # The adapter answers under catalogued names, and a shape states its theory under the same
+        # ones, so the two meet without a translation step in between. A column the catalogue has
+        # no name for carries the implementation's own name and no theory — which is a gap in the
+        # catalogue rather than a reason to leave the measurement out.
+        theory = built.theory.get(key)
         row[f"theory_{key}"] = "" if theory is None else f"{float(theory):.6f}"
-        row[f"canonical_{key}"] = canonical or ""
     return row
 
 
@@ -289,11 +290,17 @@ COLUMNS = {
     "um_per_px": "the microns per pixel the shape was built with",
     "outcome": "`measured` if any quantity came back, else `failed`; `note` says what fell over",
     "seconds": "how long the implementation took over this rendering",
-    "said_<key>": "what the implementation returned, under **its own** column name",
-    "theory_<key>": "what the shape's geometry requires for that quantity, where it defines one",
-    "canonical_<key>": (
-        "the canonical name that column is believed to answer to — the claim the theory is "
-        "compared against, and empty where the column maps to nothing catalogued"
+    "said_<key>": (
+        "what the implementation returned. `<key>` is a **catalogued biomarker name** — "
+        "`biomarker/variant/structure` — wherever the implementation's adapter maps its own column "
+        "to one, so two implementations' evidence lines up column by column. A column the "
+        "catalogue has no name for yet keeps the implementation's own name, recognisable by "
+        "carrying no `/`, and is measured and stored all the same"
+    ),
+    "theory_<key>": (
+        "what the shape's geometry requires for that quantity, where it defines one. A shape "
+        "states its theory under catalogued names too, so the two meet without translation; a "
+        "column under an implementation's own name therefore has no theory beside it"
     ),
     "note": "what an implementation failed with",
 }

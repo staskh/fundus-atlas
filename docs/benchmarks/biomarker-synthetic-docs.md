@@ -12,7 +12,7 @@ Every shape is drawn on a **2048²** grid at **5.0 µm per pixel**, at 0°, 30°
 
 | Implementation | Pinned at | Needs | Claims invariance under | Columns |
 | --- | --- | --- | --- | --- |
-| [pvbm](../projects/pvbm.md) | `5edb79a6eff5` | artery, vein, disc | rotation | 28 |
+| [pvbm](../projects/pvbm.md) | `5edb79a6eff5` | artery, vein, disc | rotation | 32 |
 
 ## 3. The shapes, and what each one settles
 
@@ -53,9 +53,8 @@ python -m benchmarks --benchmark biomarker-synthetic --max-samples 20
 | `um_per_px` | the microns per pixel the shape was built with |
 | `outcome` | `measured` if any quantity came back, else `failed`; `note` says what fell over |
 | `seconds` | how long the implementation took over this rendering |
-| `said_<key>` | what the implementation returned, under **its own** column name |
-| `theory_<key>` | what the shape's geometry requires for that quantity, where it defines one |
-| `canonical_<key>` | the canonical name that column is believed to answer to — the claim the theory is compared against, and empty where the column maps to nothing catalogued |
+| `said_<key>` | what the implementation returned. `<key>` is a **catalogued biomarker name** — `biomarker/variant/structure` — wherever the implementation's adapter maps its own column to one, so two implementations' evidence lines up column by column. A column the catalogue has no name for yet keeps the implementation's own name, recognisable by carrying no `/`, and is measured and stored all the same |
+| `theory_<key>` | what the shape's geometry requires for that quantity, where it defines one. A shape states its theory under catalogued names too, so the two meet without translation; a column under an implementation's own name therefore has no theory beside it |
 | `note` | what an implementation failed with |
 
 A model that has no opinion to record leaves a column **absent** rather than blank: a binary grader emits no class probabilities, and none are invented for it.
