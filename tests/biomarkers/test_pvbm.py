@@ -156,3 +156,21 @@ def test_it_measures_equivalents_at_the_grid_the_benchmark_runs_on() -> None:
     assert not adapter.trouble, f"nothing should have fallen over: {adapter.trouble}"
     assert answers["central-retinal-equivalents/knudtson/artery"] is not None, "twelve vessels leave the disc; it can answer"
     assert np.isfinite(answers["central-retinal-equivalents/knudtson/artery"])
+
+
+def test_it_says_which_call_each_measurement_comes_out_of() -> None:
+    """A failure is recorded per call, so attributing it needs to know what each call produced.
+
+    Without this a reader cannot tell a column lost to an exception from one the shape never
+    defined: both are empty. The equivalents are the case that matters, because they raise on a
+    long vessel while the geometry beside them is measured perfectly well.
+    """
+    calls = an_adapter().declare()["calls"]
+
+    assert calls["vessel-area-and-length/area/artery"] == ["geometry_artery"]
+    assert calls["fractal-dimension/multifractal-d0/vein"] == ["fractals_vein"]
+    assert calls["central-retinal-equivalents/knudtson/artery"] == ["equivalents_artery"]
+    assert calls["central-retinal-equivalents/hubbard/vein"] == ["equivalents_vein"]
+    # A ratio needs both classes, so either failing costs it.
+    assert calls["avr/knudtson/both"] == ["equivalents_artery", "equivalents_vein"]
+    assert set(calls) == set(an_adapter().keys()), "every column says where it came from"

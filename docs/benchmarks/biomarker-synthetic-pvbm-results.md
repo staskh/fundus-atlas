@@ -174,9 +174,14 @@ overturned.
 
 ## 7. The central retinal equivalents
 
-Three families reach the ring these are measured over — the two spokes framings and the artery/vein
-pair. Section 2 has the Knudtson numbers: low by about a pixel of width or less, on every shape, in
-one direction.
+Section 2 has the Knudtson numbers: low by about a pixel of width or less, on every shape, in one
+direction.
+
+**PVBM answers on five of the eight families, and only three of them define a value to check it
+against.** The optic disc sits where several shapes' vessels happen to pass, so the arc and the
+disjoint lines cross the measuring annulus by accident and PVBM computes equivalents for them,
+which nothing here verifies: those shapes were built to test other quantities and pin no value for
+these. That is a gap in the shapes rather than a fault in the implementation.
 
 **Hubbard's variant is not a unit conversion away from being right.**
 

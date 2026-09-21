@@ -100,6 +100,34 @@ def _answers() -> dict[str, str]:
 #: Answered name → the PVBM column behind it. Built once; the order is the order above.
 ANSWERS = _answers()
 
+
+def _calls() -> dict[str, list[str]]:
+    """Which of PVBM's calls each answered column comes out of, named as `trouble` names them.
+
+    A failure is recorded per **call**, because that is what raises — one call computes seven
+    quantities and loses all seven when it falls over. Without this, a reader of the evidence
+    cannot tell a column that was lost to an exception from one that was simply never defined on
+    that shape, since both are empty; with it, a missing value can be attributed to the failure
+    that actually caused it.
+    """
+    where: dict[str, list[str]] = {}
+    for side in CLASSES:
+        for own in GEOMETRY:
+            mapped = PER_CLASS[own]
+            where[mapped.format(side=side) if mapped else f"{own}_{side}"] = [f"geometry_{side}"]
+        for own in FRACTALS:
+            mapped = PER_CLASS[own]
+            where[mapped.format(side=side) if mapped else f"{own}_{side}"] = [f"fractals_{side}"]
+    for own, mapped in PER_PAIR.items():
+        # A ratio needs both classes, so it is lost if either call fails.
+        sides = ["artery"] if own.startswith("crae") else ["vein"] if own.startswith("crve") else list(CLASSES)
+        where[mapped or own] = [f"equivalents_{side}" for side in sides]
+    return where
+
+
+#: Answered name → the calls that produce it. Keyed to match what `trouble` records.
+CALLS = _calls()
+
 #: What PVBM signals when a central retinal equivalent could not be computed. It is a sentinel
 #: rather than a value, and it is turned into "no answer" here rather than left to be averaged
 #: into somebody's table as a negative calibre.
@@ -153,6 +181,9 @@ class Pvbm:
             # claim it was measured under and a later reader can check it against the source.
             "names": dict(ANSWERS),
             "unnamed": [own for own, mapped in {**PER_CLASS, **PER_PAIR}.items() if not mapped],
+            # Which call each column comes out of, so a run's `note` can be attributed to the
+            # columns it actually cost rather than to every column of that rendering.
+            "calls": {name: list(calls) for name, calls in CALLS.items()},
             "units": {
                 "vessel-area-and-length/area/artery": "px²",
                 "vessel-area-and-length/skeleton-length/artery": "px",
