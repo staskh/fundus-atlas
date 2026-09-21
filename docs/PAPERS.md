@@ -49,6 +49,12 @@ yet are omitted; they appear when the first paper of that kind is added.
 | [Hubbard 1999](papers/hubbard-1999.md) | 1999 | Central retinal equivalents and AVR, for ARIC | CRAE/CRVE; AVR | ⛔ | 2026-09-21 |
 | [Knudtson 2003](papers/knudtson-2003.md) | 2003 | The scale-invariant revision most pipelines actually run | CRAE/CRVE; AVR; AutoMorphalyzer | ⛔ | 2026-09-21 |
 
+### 1.2 Findings — a result that changes how a number in this atlas should be read
+
+| Paper | Year | What it is for | Relates to | Open | Last checked |
+| --- | --- | --- | --- | --- | --- |
+| [Mohamed Naim 2026](papers/mohamed-naim-2026.md) | 2026 | Dice can look fine while tortuosity is wrong | Tortuosity; tracing; DRIVE | ✅ | 2026-09-21 |
+
 ## 2. How to read this table
 
 - **Kind** — why the paper is here, not a field-wide taxonomy. `definition` is a first formula;

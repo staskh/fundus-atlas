@@ -314,7 +314,11 @@ choices; a value quoted without them is not reproducible.
 - If you are choosing a measure rather than inheriting one, Hart's τ4 and τ5 are the pair the
   original paper recommends and the pair nobody here implements — which makes them the obvious
   candidate for this atlas's own comparison work.
+- [Mohamed Naim 2026](../papers/mohamed-naim-2026.md) is the same warning on a different photograph:
+  conjunctival segmenters with similar Dice differed five-fold on arc-chord error, because a
+  broken centreline wrecks τ1 even when the painted pixels look right. Their images are not fundus
+  photographs; the failure mode is.
 
 ---
 
-**Links and definitions last checked:** 2026-09-10
+**Links and definitions last checked:** 2026-09-21

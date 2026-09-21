@@ -27,7 +27,7 @@ Grouped by family; alphabetical within each family.
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Tortuosity](biomarkers/tortuosity.md) | How far vessels deviate from straight | Vessels, or A/V | Varies — whole image, zones, grid fields | Mostly dimensionless; one is a count | **9+** (Hart τ1–τ7, Grisan density, and three implementation-only forms) | retipy, AutoMorph, AutoMorphalyzer, AutoMorphClass, VascX, PVBM, OCULARNet | [Hart 1999](papers/hart-1999.md); [Grisan 2008](papers/grisan-2008.md) | 2026-09-10 |
+| [Tortuosity](biomarkers/tortuosity.md) | How far vessels deviate from straight | Vessels, or A/V | Varies — whole image, zones, grid fields | Mostly dimensionless; one is a count | **9+** (Hart τ1–τ7, Grisan density, and three implementation-only forms) | retipy, AutoMorph, AutoMorphalyzer, AutoMorphClass, VascX, PVBM, OCULARNet | [Hart 1999](papers/hart-1999.md); [Grisan 2008](papers/grisan-2008.md) | 2026-09-21 |
 
 ### 1.3 Density and complexity — how much retina the vessels cover
 
