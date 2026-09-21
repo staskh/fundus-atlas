@@ -24,8 +24,8 @@ against what it actually does, and measures them on the same terms.
 6. **[Checks](docs/benchmarks/quality-results.md)** — the quality gates that decide whether a
    tracing is good enough to trust the numbers derived from it.
 7. **[Papers](docs/PAPERS.md)** — published work that changes how a measurement, a mask or a
-   comparison in the rows above should be read: the formula papers, not a bibliography of every
-   citation.
+   comparison in the rows above should be read: the formula papers, plus an index of every other
+   publication already cited on a dataset, model or project page.
 
 Each of those is one summary table with a page behind every row. The measurements live in section 4.
 

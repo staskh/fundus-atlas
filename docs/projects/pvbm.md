@@ -33,9 +33,10 @@ an API rather than a whole-image pipeline.
 
 ## 3. Major publications by the authors
 
-- Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA. *PVBM: A Python Vasculature
-  Biomarker Toolbox Based on Retinal Blood Vessel Segmentation.* In: Computer Vision – ECCV 2022
-  Workshops, Springer, 2023. DOI: [10.1007/978-3-031-25066-8_15](https://doi.org/10.1007/978-3-031-25066-8_15) ·
+- Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA. *[PVBM](../papers/fhima-2022.md):
+  A Python Vasculature Biomarker Toolbox Based on Retinal Blood Vessel Segmentation.* In: Computer
+  Vision – ECCV 2022 Workshops, Springer, 2023. DOI:
+  [10.1007/978-3-031-25066-8_15](https://doi.org/10.1007/978-3-031-25066-8_15) ·
   [arXiv:2208.00392](https://arxiv.org/abs/2208.00392)
 
 The toolbox has grown since that paper (the paper describes eleven biomarkers, the current README
@@ -73,10 +74,10 @@ contributions of the toolbox.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| [Area, Length](../biomarkers/vessel-area-and-length.md) | Standard measures | — | Implemented here (in pixels and square pixels, not physical units) |
-| [Tortuosity index, median tortuosity](../biomarkers/tortuosity.md) | Arc-chord ratio; the algorithm is presented as new in the PVBM paper | — | Introduced here |
-| [Number of start points, end points, intersection points](../biomarkers/junction-counts.md) | Skeleton-based counts | — | Implemented here |
-| [Median branching angle](../biomarkers/bifurcation-angle.md) | Presented as new in the PVBM paper | — | Introduced here |
+| [Area, Length](../biomarkers/vessel-area-and-length.md) | [Fhima 2022](../papers/fhima-2022.md) | — | Implemented here (in pixels and square pixels, not physical units) |
+| [Tortuosity index, median tortuosity](../biomarkers/tortuosity.md) | Arc-chord ratio; the algorithm is presented as new in [Fhima 2022](../papers/fhima-2022.md) | — | Introduced here |
+| [Number of start points, end points, intersection points](../biomarkers/junction-counts.md) | [Fhima 2022](../papers/fhima-2022.md) | — | Implemented here |
+| [Median branching angle](../biomarkers/bifurcation-angle.md) | Presented as new in [Fhima 2022](../papers/fhima-2022.md) | — | Introduced here |
 | [Capacity, entropy and correlation fractal dimensions; singularity length](../biomarkers/fractal-dimension.md) | Established fractal-analysis measures | — | Implemented here |
 | [CRAE and CRVE](../biomarkers/central-retinal-equivalents.md) (central retinal arteriolar and venular equivalents) | Knudtson and Hubbard formulas from prior literature | — | Both formulas implemented; the user chooses |
 | [Arterio-venous ratio (AVR)](../biomarkers/avr.md) | Ratio of CRAE to CRVE | — | Derived by the user from CRAE and CRVE |

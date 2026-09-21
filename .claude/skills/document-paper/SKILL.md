@@ -135,3 +135,22 @@ same commit. **Keep the Paper cell short enough that the name itself does not wr
 
 The authors, venue, DOI and the reason the paper is here are **not** table columns: they live on
 the detail page. Open is effort to *read*, not permission to redistribute.
+
+## 5. The arranged index
+
+After the kind tables, `docs/PAPERS.md` carries an index of every other publication this atlas
+mentions — dataset, model and project describing papers. Those do **not** get a `docs/papers/` page.
+The columns are:
+
+| Column | Content |
+| --- | --- |
+| Paper | Surname and year — never a given name. A dataset paper without a named first author uses the dataset's short name |
+| Year | Publication year, or `—` when none was established |
+| What it described | The catalogued artefact, short |
+| Recorded on | Link to the dataset, model or project page that already holds the full citation |
+
+Alphabetical within each group. A paper already in section 1 is not repeated. A catalogue entry
+with no describing publication gets a row that says so, rather than disappearing.
+
+When adding or changing a dataset, model or project, add or update its row in this index in the
+same commit.

@@ -34,24 +34,24 @@ Grouped by family; alphabetical within each family.
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Fractal dimension](biomarkers/fractal-dimension.md) | How thoroughly vessels fill the retina | Vessels, or A/V | Whole image (AutoMorph); disc annulus (PVBM) | Dimensionless | 2 (boundary-box counting, multifractal D₀/D₁/D₂ + singularity length) | AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM, OCULARNet | Standard box counting | 2026-09-10 |
-| [Sparsity](biomarkers/sparsity.md) | How far tissue sits from the nearest vessel | Vessels + retinal mask | Full mask or any grid field | Pixels, or fraction of disc-fovea distance | 2 (mean, max) | VascX | VascX toolbox paper 2026 | 2026-09-10 |
+| [Sparsity](biomarkers/sparsity.md) | How far tissue sits from the nearest vessel | Vessels + retinal mask | Full mask or any grid field | Pixels, or fraction of disc-fovea distance | 2 (mean, max) | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 | [Vascular density](biomarkers/vascular-density.md) | Fraction of retina covered by vessels | Vessels, or A/V | Whole image (AutoMorph); grid fields (VascX) | Dimensionless fraction | 2 (over retinal mask, over image) | VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, retipy | No single origin | 2026-09-10 |
-| [Vessel area and length](biomarkers/vessel-area-and-length.md) | Total vessel area and skeleton length | A/V + disc | Annulus, 2–3 disc radii | Square pixels; pixels | 1 each | PVBM, OCULARNet | PVBM 2022 | 2026-09-10 |
+| [Vessel area and length](biomarkers/vessel-area-and-length.md) | Total vessel area and skeleton length | A/V + disc | Annulus, 2–3 disc radii | Square pixels; pixels | 1 each | PVBM, OCULARNet | [Fhima 2022](papers/fhima-2022.md) | 2026-09-21 |
 
 ### 1.4 Junctions and angles — how the vessels branch
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Bifurcation angle](biomarkers/bifurcation-angle.md) | Angle at which a vessel splits | Vessels, or A/V | Grid fields (VascX); disc annulus (PVBM) | Degrees | 2 (fixed-distance sampling, median over vasculature) | VascX, PVBM, OCULARNet | Vascular branching theory | 2026-09-10 |
-| [Junction counts](biomarkers/junction-counts.md) | Number of branch points, endpoints, crossings | Vessels, or A/V; disc; crossings class | Disc annulus (PVBM); grid fields (VascX) | Counts | 3 (PVBM's three classes, VascX bifurcations, OCULAR ROI masks) | PVBM, VascX, OCULARNet, retipy | PVBM 2022 | 2026-09-10 |
-| [Temporal angle](biomarkers/temporal-angle.md) | Spread of the two temporal arcades | A/V + disc + **fovea** | Circles from ⅔ of the disc-fovea distance outward | Degrees, **scale-invariant** | 1 | VascX | VascX toolbox paper 2026 | 2026-09-10 |
+| [Junction counts](biomarkers/junction-counts.md) | Number of branch points, endpoints, crossings | Vessels, or A/V; disc; crossings class | Disc annulus (PVBM); grid fields (VascX) | Counts | 3 (PVBM's three classes, VascX bifurcations, OCULAR ROI masks) | PVBM, VascX, OCULARNet, retipy | [Fhima 2022](papers/fhima-2022.md) | 2026-09-21 |
+| [Temporal angle](biomarkers/temporal-angle.md) | Spread of the two temporal arcades | A/V + disc + **fovea** | Circles from ⅔ of the disc-fovea distance outward | Degrees, **scale-invariant** | 1 | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 
 ### 1.5 Other
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Cup-to-disc ratio](biomarkers/cup-to-disc-ratio.md) | Size of the optic cup relative to the disc | Disc **and cup** | Optic nerve head | Dimensionless, **scale-invariant** | 1 (height/width ratios) | AutoMorph, AutoMorphalyzer, AutoMorphClass | Clinical measure | 2026-09-10 |
-| [Disc-fovea distance](biomarkers/disc-fovea-distance.md) | Distance between the two landmarks — and the ruler other measures use | Disc + fovea | Not applicable | Pixels; used as a normalisation factor | 1 | VascX | VascX toolbox paper 2026 | 2026-09-10 |
+| [Disc-fovea distance](biomarkers/disc-fovea-distance.md) | Distance between the two landmarks — and the ruler other measures use | Disc + fovea | Not applicable | Pixels; used as a normalisation factor | 1 | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 
 ## 2. Vessel tracing — the shared step beneath the shape measurements
 

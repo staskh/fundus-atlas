@@ -17,9 +17,9 @@ makes them useful for quality control and fragile as clinical variables.
 
 ## 2. Definition of record
 
-- Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA. *PVBM: A Python Vasculature
-  Biomarker Toolbox Based on Retinal Blood Vessel Segmentation.* ECCV 2022 Workshops. DOI:
-  [10.1007/978-3-031-25066-8_15](https://doi.org/10.1007/978-3-031-25066-8_15)
+- [Fhima 2022](../papers/fhima-2022.md). Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA.
+  *PVBM: A Python Vasculature Biomarker Toolbox Based on Retinal Blood Vessel Segmentation.* ECCV
+  2022 Workshops. DOI: [10.1007/978-3-031-25066-8_15](https://doi.org/10.1007/978-3-031-25066-8_15)
 - **The formula, in words:** skeletonise the vessels, then classify each skeleton pixel by how many
   neighbours it has: one neighbour is an endpoint, three or more is an intersection. PVBM adds a
   third class — skeleton points lying on the optic disc, treated as where the tree *starts*.

@@ -22,7 +22,8 @@ It maps the field:
 - **1.6 Checks** — quality gates that decide whether a segmentation is usable before anyone trusts
   the biomarkers derived from it.
 - **1.7 Papers** — published work a reader needs in order to interpret a measurement, a comparison
-  or a pitfall: the formula papers, not a bibliography of every citation.
+  or a pitfall: the formula papers, not a bibliography of every citation. `docs/PAPERS.md` also
+  indexes the describing papers that stay on dataset, model and project pages.
 
 Pages in sections 1.2 to 1.4 state what a model, calculation, or project *claims* against what it
 *does*.

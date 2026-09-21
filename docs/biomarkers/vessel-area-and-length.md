@@ -18,9 +18,9 @@ computed on.
 
 ## 2. Definition of record
 
-- Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA. *PVBM: A Python Vasculature
-  Biomarker Toolbox Based on Retinal Blood Vessel Segmentation.* ECCV 2022 Workshops. DOI:
-  [10.1007/978-3-031-25066-8_15](https://doi.org/10.1007/978-3-031-25066-8_15)
+- [Fhima 2022](../papers/fhima-2022.md). Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA.
+  *PVBM: A Python Vasculature Biomarker Toolbox Based on Retinal Blood Vessel Segmentation.* ECCV
+  2022 Workshops. DOI: [10.1007/978-3-031-25066-8_15](https://doi.org/10.1007/978-3-031-25066-8_15)
 - **The formula, in words:** area is the count of segmented vessel pixels. Length is the distance
   required to traverse the whole skeleton — the number of skeleton steps, diagonal steps counting
   more than orthogonal ones.

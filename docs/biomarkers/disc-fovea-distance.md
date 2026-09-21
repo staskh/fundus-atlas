@@ -18,8 +18,9 @@ VascX uses it exactly that way, and reports it as a biomarker in its own right.
 
 ## 2. Definition of record
 
-- Vargas Quiros JV, Beyeler MJ, Vela SO, Bergmann S, Klaver CCW, Liefers B. *retinalysis-vascx: An
-  explainable software toolbox for the extraction of retinal vascular biomarkers.* arXiv, 2026.
+- [Vargas 2026](../papers/vargas-2026.md). Vargas Quiros JD, Beyeler MJ, Vela SO, Bergmann S,
+  Klaver CCW, Liefers B. *retinalysis-vascx: An explainable software toolbox for the extraction of
+  retinal vascular biomarkers.* arXiv, 2026.
   [arXiv:2602.08580](https://arxiv.org/abs/2602.08580)
 - **The formula, in words:** the straight-line distance between the centre of the segmented optic
   disc and the detected fovea location.
