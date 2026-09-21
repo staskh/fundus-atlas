@@ -53,7 +53,7 @@ yet are omitted; they appear when the first paper of that kind is added.
 
 | Paper | Year | What it is for | Relates to | Open | Last checked |
 | --- | --- | --- | --- | --- | --- |
-| [Mohamed Naim 2026](papers/mohamed-naim-2026.md) | 2026 | Dice can look fine while tortuosity is wrong | Tortuosity; tracing; DRIVE | ✅ | 2026-09-21 |
+| [Naim 2026](papers/naim-2026.md) | 2026 | Dice can look fine while tortuosity is wrong | Tortuosity; tracing; DRIVE | ✅ | 2026-09-21 |
 
 ## 2. How to read this table
 

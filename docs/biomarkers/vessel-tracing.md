@@ -253,7 +253,7 @@ have no way to know what changed without reading both implementations line by li
   as AutoMorph therefore produce three different tortuosity numbers from one photograph.
 - **Tracing is the cheapest place to improve a biomarker.** It needs no new model, no new data and
   no new annotation — only correct code — which makes it the most tractable target in this atlas.
-- [Mohamed Naim 2026](../papers/mohamed-naim-2026.md) measured that gap directly on conjunctival
+- [Naim 2026](../papers/naim-2026.md) measured that gap directly on conjunctival
   photographs: networks whose Dice sat in the same band as theirs still missed the annotators'
   centreline by more than a hundred pixels. Overlap is not a proxy for a usable trace.
 

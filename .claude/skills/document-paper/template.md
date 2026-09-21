@@ -1,4 +1,4 @@
-# <First author year>
+# <Surname year>
 
 One paragraph, plain language: what question this paper asked, what it did, and what a reader of
 this atlas would take from it.
@@ -13,6 +13,9 @@ this atlas would take from it.
 | DOI | <https://doi.org/…> |
 | Open copy | <publisher / PMC / preprint / author PDF / none established> — <URL> |
 | PMID | <id, or `None found`> |
+| Code | <repository or archive URL; link the project page if catalogued; or `none established`> |
+| Dataset | <deposit released with this paper, full URL; link the dataset page if catalogued; or `none established`> |
+| Other | <weights, Zenodo snapshot, MATLAB reference, supplement — or `none established`> |
 
 <A conference version of a later journal paper, or a preprint of the version of record, as a line
 under the table.>
@@ -46,7 +49,8 @@ defines one.>
 
 Anything a reader needs in order not to be misled: an unpublished formula, a unit that only works
 in microns, a free PDF that is not the publisher's copy, a conference DOI a codebase cites instead
-of the journal's.
+of the journal's, code that does not compute the number the paper reports, a repository with no
+licence.
 
 ---
 

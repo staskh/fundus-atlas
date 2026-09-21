@@ -27,7 +27,8 @@ earlier conference version of the same work is noted on that page, not given a p
 Every paper produces exactly two things:
 
 1. **A detail page**, `docs/papers/<slug>.md`, following `template.md` in this skill directory. The
-   slug is the first author's surname and the year (`Knudtson 2003` becomes `knudtson-2003.md`). If
+   slug is the first author's **surname** and the year — never a given name (`Knudtson 2003`
+   becomes `knudtson-2003.md`; Mohamed Naim A becomes `naim-2026.md`, displayed as Naim 2026). If
    two papers collide, add a short topic (`hart-1999-tortuosity.md`). ASCII, lowercase, hyphens.
 2. **A row in `docs/PAPERS.md`**, the summary table, linking to that detail page.
 
@@ -45,11 +46,15 @@ Use `template.md` verbatim and keep its section numbering. The sections are:
    | Authors | As published |
    | Venue | Journal or conference, year, volume and pages |
    | DOI | Required. A stable link; if there is no DOI, say so and give the best stable URL |
-   | Open copy | `publisher` / `PMC` / `preprint` / `author PDF` / `none established` — and the URL. **For Kaggle, ResearchGate and personal sites, give the full URL and treat it as liable to move.** A GitHub copy of code that accompanies the paper is not an open copy of the paper; record it under Notes |
+   | Open copy | `publisher` / `PMC` / `preprint` / `author PDF` / `none established` — and the URL. **For Kaggle, ResearchGate and personal sites, give the full URL and treat it as liable to move.** A GitHub copy of the authors' code is not an open copy of the paper; it belongs in **Code** |
    | PMID / PMC | Where they exist, so a paywalled DOI still has a lookup |
+   | Code | The authors' own repository or archive, full URL, or `none established`. If this atlas catalogues that software as a project, link the project page as well |
+   | Dataset | The data deposit **released with this paper**, full URL, or `none established`. If catalogued here, link the dataset page. A public set the authors only *used* (DRIVE, say) belongs in Relates to, not here |
+   | Other | Weights, a Zenodo snapshot, a MATLAB reference, a supplement — anything else they point at as accompanying material — or `none established` |
 
    The conference version of a later journal paper belongs as a line under the table, not as a
-   second table.
+   second table. Caveats about those materials — no licence, no weights, a code dump that does not
+   compute the number the paper reports — belong in Notes, not in the table.
 
 2. **What it is about** — in plain language, for a clinician or researcher. What question the paper
    asked, what it did, and what a reader of this atlas would take from it. No formulas here; those
@@ -86,7 +91,8 @@ Use `template.md` verbatim and keep its section numbering. The sections are:
 
 6. **Notes** — anything a reader needs in order not to be misled: a formula that is unpublished, a
    unit that only works in microns, a free PDF that is not the publisher's copy, a conference
-   version whose DOI a codebase cites instead of the journal's.
+   version whose DOI a codebase cites instead of the journal's, code that does not compute the
+   number the paper reports.
 
 A section that does not apply stays in the page, marked `Not applicable` with a short reason. A
 section whose answer could not be established is marked `Unknown` — never filled with a guess.

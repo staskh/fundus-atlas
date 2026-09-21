@@ -14,14 +14,15 @@ AutoMorph reports as tortuosity density.
 | DOI | [10.1109/TMI.2007.904657](https://doi.org/10.1109/TMI.2007.904657) |
 | Open copy | author copy — [ResearchGate](https://www.researchgate.net/publication/5518678_A_Novel_Method_for_the_Automatic_Grading_of_Retinal_Vessel_Tortuosity) |
 | PMID | [18334427](https://pubmed.ncbi.nlm.nih.gov/18334427/) |
+| Code | [enrigrisan/RET-Tortuosity](https://github.com/enrigrisan/RET-Tortuosity) |
+| Dataset | none established |
+| Other | none established |
 
 The earlier conference version is *A novel method for the automatic evaluation of retinal vessel
 tortuosity*, IEEE EMBS 2003, DOI
 [10.1109/IEMBS.2003.1279902](https://doi.org/10.1109/IEMBS.2003.1279902) — the DOI retipy's code
 cites. Both published versions are paywalled. The author-hosted copy that indexes once listed has
-gone dead; ResearchGate is a browser copy that may move. For implementers, the authors' MATLAB
-reference code is at [enrigrisan/RET-Tortuosity](https://github.com/enrigrisan/RET-Tortuosity). That
-repository states no licence.
+gone dead; ResearchGate is a browser copy that may move.
 
 ## 2. What it is about
 

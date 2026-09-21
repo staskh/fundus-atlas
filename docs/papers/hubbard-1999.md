@@ -14,6 +14,9 @@ CRAE, CRVE or AVR is implementing this protocol or Knudtson's later revision of 
 | DOI | [10.1016/S0161-6420(99)90525-0](https://doi.org/10.1016/S0161-6420(99)90525-0) |
 | Open copy | none established |
 | PMID | [10599656](https://pubmed.ncbi.nlm.nih.gov/10599656/) |
+| Code | none established |
+| Dataset | none established — ARIC photographs are not a public download with this paper |
+| Other | none established |
 
 ## 2. What it is about
 

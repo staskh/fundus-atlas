@@ -15,6 +15,9 @@ they still say "Hubbard".
 | DOI | [10.1076/ceyr.27.3.143.16049](https://doi.org/10.1076/ceyr.27.3.143.16049) |
 | Open copy | none established |
 | PMID | [14562179](https://pubmed.ncbi.nlm.nih.gov/14562179/) |
+| Code | none established |
+| Dataset | none established — Beaver Dam photographs are not a public download with this paper |
+| Other | none established |
 
 ## 2. What it is about
 

@@ -14,6 +14,9 @@ formula itself is unpublished: the paper calls it proprietary. No catalogued pip
 | DOI | [10.1167/iovs.65.12.30](https://doi.org/10.1167/iovs.65.12.30) |
 | Open copy | publisher — [IOVS](https://doi.org/10.1167/iovs.65.12.30) (CC BY 4.0) · [PMC11500049](https://pmc.ncbi.nlm.nih.gov/articles/PMC11500049/) |
 | PMID | [39436374](https://pubmed.ncbi.nlm.nih.gov/39436374/) |
+| Code | none established |
+| Dataset | none established |
+| Other | none established |
 
 ## 2. What it is about
 
