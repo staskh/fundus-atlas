@@ -1,6 +1,6 @@
 # Biomarkers against arithmetic benchmark — how it is run
 
-This page says how the benchmark is configured: what it asks, which models and datasets take part, what it excludes, how to run it, and what every column of its evidence means. It is generated **before** a run measures anything, and again whenever the benchmark's code changes, so it describes the run that is happening rather than the one that happened to finish. A column added to the evidence and not explained here is a bug rather than an omission. What came out is a separate page: [biomarker-synthetic-results.md](biomarker-synthetic-results.md).
+This page says how the benchmark is configured: what it asks, which models and datasets take part, what it excludes, how to run it, and what every column of its evidence means. It is generated **before** a run measures anything, and again whenever the benchmark's code changes, so it describes the run that is happening rather than the one that happened to finish. A column added to the evidence and not explained here is a bug rather than an omission. What came out is written up separately: [biomarker-synthetic-pvbm-results.md](biomarker-synthetic-pvbm-results.md).
 
 ## 1. What this benchmark asks
 

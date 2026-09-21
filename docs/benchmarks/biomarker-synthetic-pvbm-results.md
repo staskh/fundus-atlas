@@ -1,4 +1,4 @@
-# Synthetic biomarker benchmark — results
+# Synthetic biomarker benchmark — PVBM
 
 One implementation was measured against eight shapes at four angles — **32 renderings, 262
 comparable measurements** — on a 2048² grid at 5 µm per pixel, with arteries 80 µm wide, veins
@@ -7,13 +7,16 @@ shape's geometry requires, not with another program: a straight vessel has a tor
 1, and an implementation that says otherwise is wrong rather than different.
 
 Every number here comes from `results/biomarker-synthetic/`; the reading of them comes from
-[notebooks/biomarker-synthetic.ipynb](../../notebooks/biomarker-synthetic.ipynb). How the benchmark
+[notebooks/biomarker-synthetic-pvbm.ipynb](../../notebooks/biomarker-synthetic-pvbm.ipynb). How the benchmark
 is configured is a separate page: [biomarker-synthetic-docs.md](biomarker-synthetic-docs.md), and
 the shapes with their derivations are in
 [the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb).
 
-**1 of 1 declared implementations** took part. [PVBM](../projects/pvbm.md) is the first; the naming
-table is built so a second adds a column rather than a rewrite.
+**This page is about one implementation.** [PVBM](../projects/pvbm.md) is the first to be
+adapted, and it is the only one that took part. A second gets a page of its own rather than a
+column in this one: what is true of PVBM's chord-sum length says nothing about the next
+implementation, and one document holding both would bury each under the other. The comparison
+*between* implementations, when there are two, belongs in the index.
 
 ***This benchmark selects nothing.*** Which implementations are fit to measure a real segmentation
 is a judgement made by a person on this evidence. There is no pass mark here, and the 2% used below
@@ -289,5 +292,5 @@ result is wrong.
 
 ---
 
-**Compiled from `notebooks/biomarker-synthetic.ipynb` on:** 2026-09-21 · **Measured by**
+**Compiled from `notebooks/biomarker-synthetic-pvbm.ipynb` on:** 2026-09-21 · **Measured by**
 `python -m benchmarks --benchmark biomarker-synthetic`

@@ -12,6 +12,22 @@ docs/benchmarks/<slug>-docs.md      how it is configured and run — GENERATED b
 docs/benchmarks/<slug>-results.md   what came out, and what it means — WRITTEN from the analysis
 ```
 
+**A benchmark may have more than one results page**, one per thing measured, where reading two of
+them together would bury each under the other. The synthetic biomarker benchmark does: each
+implementation is a different piece of somebody else's code, so what is true of PVBM's chord-sum
+length says nothing about the next implementation, and its pages are
+`biomarker-synthetic-pvbm-results.md` and a sibling per implementation thereafter.
+
+A benchmark that splits declares its pages, as `(label, stem)` pairs, in a module-level `REPORTS`:
+the stem names both `docs/benchmarks/<stem>-results.md` and the `notebooks/<stem>.ipynb` it was
+compiled from, so a page and its notebook cannot drift apart. Declare nothing and a benchmark has
+one page named after itself, which is the usual case. The generated index and configuration page
+read `REPORTS`, so they link every page without being told about each one.
+
+**Splitting is for different subjects, never for length.** Two datasets scored by one model belong
+in one page, because the comparison between them *is* the finding. Two implementations do not,
+because there is no such comparison until a second exists.
+
 Above both sits one page for the whole repository, also generated:
 
 ```

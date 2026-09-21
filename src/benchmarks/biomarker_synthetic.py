@@ -26,6 +26,12 @@ AGREES = 0.02
 #: The benchmark's own version. Changing what is measured, or how, changes this.
 VERSION = 2
 
+#: The written pages this benchmark produces, and the notebook behind each, as `(label, stem)`.
+#: **One per implementation**, because each is a different piece of somebody else's code: what is
+#: true of PVBM's chord-sum length says nothing about the next implementation, and one document
+#: holding both would bury each under the other. A second implementation adds a pair here.
+REPORTS = (("PVBM", "biomarker-synthetic-pvbm"),)
+
 #: What this benchmark asks, in the sentences the index has room for.
 GOAL = (
     "**Does a biomarker implementation compute the quantity it is said to compute?** Every other "

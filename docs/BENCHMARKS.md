@@ -35,7 +35,7 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 **Does a biomarker implementation compute the quantity it is said to compute?** Every other benchmark here compares software with a human judgement; this one compares it with a number derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of exactly 1/r, and an implementation that disagrees is wrong rather than different. It selects nothing: which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence.
 
-[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/biomarker-synthetic.ipynb) · [Every score](../results/biomarker-synthetic/)
+[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-pvbm-results.md) · [The analysis](../notebooks/biomarker-synthetic-pvbm.ipynb) · [Every score](../results/biomarker-synthetic/)
 
 Every value is compared with what the shape's geometry requires rather than with another implementation. **Agrees** counts the measurements within 2% of the required value; **turns with the image** is the largest spread one measurement showed across 0°, 30°, 60° and 90°, where the geometry is identical and the answer should be too.
 
