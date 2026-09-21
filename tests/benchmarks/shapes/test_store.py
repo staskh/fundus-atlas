@@ -134,3 +134,22 @@ def test_naming_no_family_draws_every_one_of_them(tmp_path) -> None:
 
     assert {row["family"] for row in written} == set(library.SHAPES)
     assert len(written) == len(library.SHAPES)
+
+
+def test_a_mask_read_back_survives_being_walked(tmp_path) -> None:
+    """Reading it correctly is not enough: it has to be usable by what measures it.
+
+    A one-bit PNG opens as a mode `1` image, and handing that straight to NumPy gives an array that
+    compares equal to the mask written and yet whose memory is not what it claims — anything walking
+    it in C reads past the buffer and the process dies with no exception to catch. Every measurement
+    downstream skeletonises these masks, so that is what this asserts.
+    """
+    from skimage.morphology import skeletonize
+
+    a_store(tmp_path, rotations=(0.0,))
+    drawn = library.build("straight", side=SIDE, um_per_px=10.0)
+
+    read = store.load(tmp_path / "av", "straight-1024-000")
+
+    assert int(skeletonize(read.artery).sum()) == int(skeletonize(drawn.artery).sum())
+    assert int(skeletonize(read.vein).sum()) > 0

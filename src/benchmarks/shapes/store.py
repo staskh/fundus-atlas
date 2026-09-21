@@ -198,4 +198,13 @@ def load(store: Path = STORE, key: str | None = None) -> Rendering:
 
 
 def _read_mask(path: Path) -> np.ndarray:
-    return np.asarray(Image.open(path)).astype(bool)
+    """One stored mask, as a plain boolean array.
+
+    **Through `convert("L")`, which is not decoration.** A one-bit PNG opens as a mode ``1`` image,
+    and handing that straight to NumPy yields an array whose contents read back correctly — the
+    right shape, the right sum, equal to the mask that was written — but whose memory is not what it
+    claims. Anything that walks it in C, `skimage.morphology.skeletonize` among them, reads past the
+    end of the buffer and the process dies without an exception. Converting to 8-bit first gives a
+    real byte per pixel, and the comparison against zero makes the boolean array this returns.
+    """
+    return np.asarray(Image.open(path).convert("L")) > 0
