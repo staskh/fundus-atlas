@@ -22,6 +22,7 @@ a judgement made by a person on this evidence.
 ## Contents
 
 1. [The headline: a claimed fix, confirmed](#1-the-headline-a-claimed-fix-confirmed)
+   1. [One arc, four angles, three implementations](#11-one-arc-four-angles-three-implementations)
 2. [Summary](#2-summary)
 3. [What each reaches, and what it does not](#3-what-each-reaches-and-what-it-does-not)
 4. [Width, and a resize nobody asked for](#4-width-and-a-resize-nobody-asked-for)
@@ -55,6 +56,53 @@ vessel depends on the vessel.
 
 This is what the synthetic shapes are for: an author's claim about their own software, tested
 against a value neither party chose.
+
+### 1.1 One arc, four angles, three implementations
+
+A worst case per shape hides what the worst case is made of. Below is a single shape — the **arc**,
+two concentric circular arcs of 90° — measured at each of the four angles it was drawn at.
+
+The arc is the right shape for this. Its tortuosity is known in closed form, τ1 = θ / (2 sin(θ/2)),
+which at 90° is **1.1107**, and the `r` cancels: the answer does not depend on how large the arc is.
+Both classes trace arcs of the same angle, so both must return the same number. And turning the
+shape changes nothing a measurement should see — the vessel is turned in continuous coordinates and
+drawn again, so it is the same arc and only the pixels it lands on differ.
+
+| Class | Angle | Geometry requires | AutoMorph | AutoMorphalyzer | AutoMorphClass |
+| --- | --- | --- | --- | --- | --- |
+| artery | 0° | 1.1107 | **3.4086** | 1.1529 | 1.1716 |
+| artery | 30° | 1.1107 | **7.6259** | 1.1458 | 1.1712 |
+| artery | 60° | 1.1107 | 1.0316 | 1.1481 | 1.1698 |
+| artery | 90° | 1.1107 | 1.0371 | 1.1532 | 1.1718 |
+| vein | 0° | 1.1107 | **7.0841** | 1.0834 | 1.1720 |
+| vein | 30° | 1.1107 | **1.0000** | 1.0940 | 1.1718 |
+| vein | 60° | 1.1107 | 1.0485 | 1.1347 | 1.1715 |
+| vein | 90° | 1.1107 | 1.0318 | 1.0782 | 1.1680 |
+
+How far each swings across the four angles, as a fraction of the value required:
+
+| Implementation | Artery | Vein |
+| --- | --- | --- |
+| AutoMorph | **5.94×** | **5.48×** |
+| AutoMorphalyzer | 0.007 | 0.051 |
+| AutoMorphClass | 0.002 | 0.004 |
+
+**AutoMorph returns four different answers for one arc.** Its artery reads 3.41, then 7.63, then
+1.03 and 1.04 — a swing of nearly six times the value it is supposed to return, on a vessel that did
+not change. Its vein reads 7.08 at 0° and **exactly 1.000** at 30°, which is the answer a *straight*
+vessel should give for a vessel bending through a right angle.
+
+**Both rewrites are steady to the third decimal.** AutoMorphalyzer stays between 1.146 and 1.153 on
+the artery; AutoMorphClass between 1.170 and 1.172. Each reads a few per cent high — the naive chain
+code again, which over-measures any path that is not axis-aligned — but each reads *the same* few
+per cent high at every angle.
+
+**That distinction is the one that matters for a study.** An error that is stable can be
+characterised, quoted as a bias, and in principle corrected. An answer that depends on how the
+camera was held cannot be, because nothing in a photograph records the angle: two images of one eye
+give two tortuosities and there is no way to tell which to believe. It is also why the summary in
+section 1 quotes a worst case rather than a mean — a mean over the four angles of AutoMorph's arc is
+3.28, a number that describes none of them.
 
 ## 2. Summary
 
