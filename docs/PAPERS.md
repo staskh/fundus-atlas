@@ -52,6 +52,7 @@ yet are omitted; they appear when the first paper of that kind is added.
 | [Hubbard 1999](papers/hubbard-1999.md) | 1999 | Central retinal equivalents and AVR, for ARIC | CRAE/CRVE; AVR | ⛔ | 2026-09-21 |
 | [Knudtson 2003](papers/knudtson-2003.md) | 2003 | The scale-invariant revision most pipelines actually run | CRAE/CRVE; AVR; AutoMorphalyzer | ⛔ | 2026-09-21 |
 | [Martinez-Perez 2000](papers/martinez-perez-2000.md) | 2000 | Tree-sum area, length, junctions and branching angles | Area/length; junctions; angles; PVBM | ✅ | 2026-09-22 |
+| [Stosic 2006](papers/stosic-2006.md) | 2006 | Retinal vessels as geometrical multifractals | Fractal dimension; STARE; PVBM | 🟡 | 2026-09-22 |
 | [Vargas 2026](papers/vargas-2026.md) | 2026 | Sparsity, temporal angle, disc–fovea distance; VascX toolbox | Sparsity; temporal angle; VascX | 🟡 | 2026-09-21 |
 
 ### 1.2 Findings — a result that changes how a number in this atlas should be read

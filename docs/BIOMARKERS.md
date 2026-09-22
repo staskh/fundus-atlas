@@ -33,7 +33,7 @@ Grouped by family; alphabetical within each family.
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Fractal dimension](biomarkers/fractal-dimension.md) | How thoroughly vessels fill the retina | Vessels, or A/V | Whole image (AutoMorph); disc annulus (PVBM) | Dimensionless | 2 (boundary-box counting, multifractal D₀/D₁/D₂ + singularity length) | AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM, OCULARNet | Standard box counting | 2026-09-10 |
+| [Fractal dimension](biomarkers/fractal-dimension.md) | How thoroughly vessels fill the retina | Vessels, or A/V | Whole image (AutoMorph); disc annulus (PVBM) | Dimensionless | 2 (boundary-box counting, multifractal D₀/D₁/D₂ + singularity length) | AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM, OCULARNet | [Stosic 2006](papers/stosic-2006.md) (multifractal); box counting (monofractal) | 2026-09-22 |
 | [Sparsity](biomarkers/sparsity.md) | How far tissue sits from the nearest vessel | Vessels + retinal mask | Full mask or any grid field | Pixels, or fraction of disc-fovea distance | 2 (mean, max) | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 | [Vascular density](biomarkers/vascular-density.md) | Fraction of retina covered by vessels | Vessels, or A/V | Whole image (AutoMorph); grid fields (VascX) | Dimensionless fraction | 2 (over retinal mask, over image) | VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, retipy | No single origin | 2026-09-10 |
 | [Vessel area and length](biomarkers/vessel-area-and-length.md) | Total vessel area and skeleton length | A/V + disc | Annulus, 2–3 disc radii | Square pixels; pixels | 1 each | PVBM, OCULARNet | [Martinez-Perez 2000](papers/martinez-perez-2000.md); [Fhima 2022](papers/fhima-2022.md) | 2026-09-22 |
@@ -168,7 +168,8 @@ boxes that are **neither empty nor completely full** — its own comment says so
 thin as a vessel tree almost every occupied box is partly empty, so the two conventions nearly
 coincide and the difference passes unnoticed; but it is not the textbook box-counting dimension, and
 it will diverge on thick or densely packed masks. [PVBM](projects/pvbm.md) computes a different
-thing again — a multifractal set (D₀, D₁, D₂ and singularity length), averaged over 25 rotations.
+thing again — a multifractal set (D₀, D₁, D₂ and singularity length), averaged over 25 rotations,
+following [Stosic 2006](papers/stosic-2006.md) in name but not in method (box-counting, not sandbox).
 See [fractal dimension](biomarkers/fractal-dimension.md).
 
 ### 3.5 Only two catalogued models segment the optic cup, which is why most pipelines report no cup-to-disc ratio
