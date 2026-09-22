@@ -2,6 +2,7 @@
 # ABOUTME: that what is read back is exactly what was drawn.
 
 import csv
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -153,3 +154,40 @@ def test_a_mask_read_back_survives_being_walked(tmp_path) -> None:
 
     assert int(skeletonize(read.artery).sum()) == int(skeletonize(drawn.artery).sum())
     assert int(skeletonize(read.vein).sum()) > 0
+
+
+def test_the_committed_store_and_the_library_settle_the_same_quantities() -> None:
+    """The store is drawn from the library, and nothing keeps them in step but this.
+
+    `ground_truth.csv` holds one column per catalogued name some shape settles, and the library is
+    where those values come from. They can drift apart for ordinary reasons — a shape gains a value
+    and the store is not redrawn, or the store is drawn with different parameters — and nothing
+    would say so: the benchmark's configuration page reports what the *library* settles, while a
+    run that reads the store measures what the *store* settles. This is what notices.
+
+    It compares at the store's own parameters, read from its manifest, so it is a test of agreement
+    rather than a test that the store was drawn with the settings the benchmark happens to declare.
+    """
+    from benchmarks.shapes import library
+
+    where = Path(library.__file__).resolve().parents[3] / store.STORE
+    manifest = store.read(where)
+    assert manifest, f"no synthetic store at {where} — draw one with `python -m benchmarks.shapes`"
+
+    side = int(manifest[0]["side"])
+    um_per_px = float(manifest[0]["um_per_px"])
+    families = list(dict.fromkeys(row["family"] for row in manifest))
+
+    with (where / "ground_truth.csv").open() as handle:
+        stored = {name for name in next(csv.reader(handle)) if name != "key"}
+    drawn = {
+        name
+        for family in families
+        for name in library.build(family, side=side, um_per_px=um_per_px).theory
+    }
+
+    assert stored == drawn, (
+        f"the store and the library disagree — redraw it with `python -m benchmarks.shapes`.\n"
+        f"only in the store:   {sorted(stored - drawn)}\n"
+        f"only in the library: {sorted(drawn - stored)}"
+    )
