@@ -36,6 +36,9 @@ REPORTS = (
     # AutoMorphClass both descend from AutoMorph's measuring stage, so the interesting question is
     # what each changed, which only a side-by-side can answer.
     ("AutoMorph", "biomarker-synthetic-automorph"),
+    # VascX shares no code with any of the others — it reimplements every biomarker — so it gets a
+    # page of its own rather than a column in somebody else's.
+    ("VascX", "biomarker-synthetic-vascx"),
 )
 
 #: What this benchmark asks, in the sentences the index has room for.
@@ -52,7 +55,7 @@ GOAL = (
 SHAPES = tuple(library.SHAPES)
 
 #: The implementations, by the slug of the project page each belongs to.
-IMPLEMENTATIONS = ("pvbm", "automorph", "automorphalyzer", "automorphclass")
+IMPLEMENTATIONS = ("pvbm", "automorph", "automorphalyzer", "automorphclass", "vascx")
 
 #: The AutoMorph family, by the page they are written up on together. A family is a lineage rather
 #: than a category: these three measure the same quantities because two of them are rewrites of the
