@@ -1,53 +1,88 @@
-# Biomarkers against arithmetic benchmark — how it is run
+# Biomarkers against arithmetic — how it is run
 
-This page says how the benchmark is configured: what it asks, which models and datasets take part, what it excludes, how to run it, and what every column of its evidence means. It is generated **before** a run measures anything, and again whenever the benchmark's code changes, so it describes the run that is happening rather than the one that happened to finish. A column added to the evidence and not explained here is a bug rather than an omission. What came out is written up separately: [biomarker-synthetic-pvbm-results.md](biomarker-synthetic-pvbm-results.md), [biomarker-synthetic-automorph-results.md](biomarker-synthetic-automorph-results.md), [biomarker-synthetic-vascx-results.md](biomarker-synthetic-vascx-results.md).
+This page says how the benchmark is configured: what it asks, what takes part, how to run it, and
+what every column of its evidence means.
+
+**It is part generated and part written.** The tables and lists between the `generated` markers are
+rendered from what the benchmark reports about itself and are refreshed by
+`python -m benchmarks --benchmark biomarker-synthetic --docs`, which measures nothing. Everything
+else on the page is written by hand and is never overwritten. What *came out* of a run is written
+up separately, per implementation — section 8.
 
 ## 1. What this benchmark asks
 
+<!-- generated: asks -->
 **Does a biomarker implementation compute the quantity it is said to compute?** Every other benchmark here compares software with a human judgement; this one compares it with a number derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of exactly 1/r, and an implementation that disagrees is wrong rather than different. It selects nothing: which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence.
+<!-- /generated -->
 
-Every shape is drawn on a **2048²** grid at **5.0 µm per pixel**, at 0°, 30°, 60°, 90°. Each angle is a fresh rendering from continuous coordinates, never a turned picture: resampling a structure a few pixels wide destroys it, and a rotated bitmap would measure the resampler.
+Its shapes and the derivations behind their values are in
+[the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb); how the pictures are drawn
+is [biomarker-synthetic-shapes.md](biomarker-synthetic-shapes.md).
 
-## 2. The implementations
+## 2. What takes part
 
-| Implementation | Pinned at | Needs | Claims invariance under | Columns |
-| --- | --- | --- | --- | --- |
-| [pvbm](../projects/pvbm.md) | `5edb79a6eff5` | artery, vein, disc | rotation | 32 |
-| [ocular](../projects/ocular.md) | `34b1ecc3a31a` | artery, vein, disc | rotation | 18 |
-| [automorph](../projects/automorph.md) | `9a953e5edfa4` | artery, vein | rotation | 18 |
-| [automorphalyzer](../projects/automorphalyzer.md) | `e68843e2d3bc` | artery, vein, disc | rotation | 54 |
-| [automorphclass](../projects/automorphclass.md) | `8f4d18fe961a` | artery, vein | rotation | 18 |
-| [vascx](../projects/vascx.md) | `d0cde1c7f9b5` | artery, vein, disc | rotation | 20 |
+Each implementation is reached through an adapter that measures it **as it ships** — no defect is
+corrected on its behalf, and each answers under catalogued biomarker names so that two of them line
+up column by column. A column the catalogue cannot name yet is kept under the implementation's own
+name rather than dropped.
 
-## 3. The shapes, and what each one settles
+<!-- generated: subjects -->
+| Implementation | Pinned at | Columns it returns | Took part |
+| --- | --- | --- | --- |
+| [pvbm](../projects/pvbm.md) | `5edb79a` | 32 | yes |
+| [ocular](../projects/ocular.md) | `34b1ecc` | 18 | yes |
+| [automorph](../projects/automorph.md) | `9a953e5` | 18 | yes |
+| [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 54 | yes |
+| [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 18 | yes |
+| [vascx](../projects/vascx.md) | `d0cde1c` | 20 | yes |
+<!-- /generated -->
 
-| Shape | Classes drawn | Quantities it defines |
+Three of them share a lineage and one does not: AutoMorph, AutoMorphalyzer and AutoMorphClass all
+descend from retipy, OCULAR imports PVBM's helpers at runtime, and VascX reimplements every
+measurement independently. That is why they are written up in families rather than one by one.
+
+## 3. What they are measured on
+
+Every shape is a drawing whose values follow from its geometry rather than from anybody's opinion,
+so a disagreement is an error rather than a difference. Each carries both an artery and a vein,
+and each is drawn at four angles — 0°, 30°, 60° and 90° — where the geometry is identical and only
+the pixel grid differs.
+
+<!-- generated: material -->
+| Shape | What its geometry settles | Available |
 | --- | --- | --- |
-| `straight` | artery, vein | 25 |
-| `arc` | artery, vein | 23 |
-| `sinusoid` | artery, vein | 23 |
-| `bifurcation` | artery, vein | 15 |
-| `disjoint` | artery, vein | 19 |
-| `artery-vein-pair` | artery, vein | 18 |
-| `spokes-macula-centred` | artery, vein | 22 |
-| `spokes-disc-centred` | artery, vein | 22 |
+| `straight` | 25 quantities with a known value | yes |
+| `arc` | 23 quantities with a known value | yes |
+| `sinusoid` | 23 quantities with a known value | yes |
+| `bifurcation` | 15 quantities with a known value | yes |
+| `disjoint` | 19 quantities with a known value | yes |
+| `artery-vein-pair` | 18 quantities with a known value | yes |
+| `spokes-macula-centred` | 22 quantities with a known value | yes |
+| `spokes-disc-centred` | 22 quantities with a known value | yes |
+<!-- /generated -->
 
-Every value a shape defines follows from its geometry and is written out in [the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb), so a reader can disagree with the arithmetic rather than with the code.
+## 4. How to run it
 
-The shapes are **drawn before any of this runs**, by `python -m benchmarks.shapes`, into the committed store at `data/synthetic/av/`. How that works — the command, the two tables it writes, and what each family settles — is [biomarker-synthetic-shapes.md](biomarker-synthetic-shapes.md).
-## 5. How to run it
-
+<!-- generated: running -->
 ```bash
 python -m benchmarks --benchmark biomarker-synthetic
-python -m benchmarks --benchmark biomarker-synthetic --model automorph --dataset arc
-python -m benchmarks --benchmark biomarker-synthetic --max-samples 20
+python -m benchmarks --benchmark biomarker-synthetic --model pvbm --dataset straight
+python -m benchmarks --benchmark biomarker-synthetic --docs
 ```
 
-`--model` and `--dataset` each take one name or a comma-separated list, and naming one of each re-measures a single pair. `--max-samples N` scores the first N photographs of each dataset — `--random-samples` chooses them at random from a recorded seed — which is for development: a sampled result says it is not complete, and a later run finishes it rather than starting again. `--force` discards what is stored and measures everything afresh.
+| Flag | What it does |
+| --- | --- |
+| `--model` | one implementation, or several separated by commas |
+| `--dataset` | one shape, or several separated by commas |
+| `--max-samples` | draw only the first N of the four angles, for a development run |
+| `--force` | discard what is stored and measure it all again |
+| `--docs` | refresh this page from the declarations, measuring nothing |
+<!-- /generated -->
 
-## 6. What each column of the evidence means
+## 5. What each column of the evidence means
 
-`results/biomarker-synthetic/<model>/<dataset>.csv` holds one row per photograph:
+<!-- generated: columns -->
+`results/biomarker-synthetic/<implementation>/<shape>.csv` holds one row per rendering:
 
 | Column | Meaning |
 | --- | --- |
@@ -61,29 +96,55 @@ python -m benchmarks --benchmark biomarker-synthetic --max-samples 20
 | `said_<key>` | what the implementation returned. `<key>` is a **catalogued biomarker name** — `biomarker/variant/structure` — wherever the implementation's adapter maps its own column to one, so two implementations' evidence lines up column by column. A column the catalogue has no name for yet keeps the implementation's own name, recognisable by carrying no `/`, and is measured and stored all the same |
 | `theory_<key>` | what the shape's geometry requires for that quantity, where it defines one. A shape states its theory under catalogued names too, so the two meet without translation; a column under an implementation's own name therefore has no theory beside it |
 | `note` | what an implementation failed with |
+<!-- /generated -->
 
-A model that has no opinion to record leaves a column **absent** rather than blank: a binary grader emits no class probabilities, and none are invented for it.
+A column an implementation does not compute is **absent** rather than blank, and one it computes
+but the catalogue cannot name keeps its own name — recognisable by carrying no `/`.
 
-## 7. What a re-run repeats, and what it does not
+## 6. What a re-run repeats, and what it does not
 
-Each `(model, dataset)` result is stored beside a **fingerprint** of everything that could change it: the facts the model declares — its grids, its ensemble, the thresholds it acts on — the sha256 of the weights actually loaded, the patches applied by content, the store's builder version, and this benchmark's own version. A fingerprint that differs means the stored scores describe something that no longer exists, and the pair is measured again from nothing.
+<!-- generated: fingerprint -->
+A stored result is kept only while everything it depends on is unchanged. This benchmark fingerprints:
 
-**How much was done is not part of that**, because it does not change what any photograph scored. A complete result is never re-run; a partial one is finished by measuring only the photographs it is missing; and nothing is ever truncated — asking for twenty against a file that holds four hundred leaves all four hundred alone.
+- this benchmark's name and `VERSION`
+- the facts each implementation declares that bear on its numbers: slug, needs, keys, units
+- the pinned commit of the code that will run, as the adapter reports it
+- the rendering: a 2048px grid at 5 µm per pixel, drawn at 0°, 30°, 60°, 90°
 
-## 8. The counts every result carries
+A fingerprint that differs means the stored result describes something that no longer exists, and it is measured again from nothing. **How much was done is not part of it**, because that does not change what any rendering scored: a complete result is never re-run, and a partial one is finished rather than restarted.
+<!-- /generated -->
 
-| Recorded | Means |
+## 7. The counts every result carries
+
+<!-- generated: counts -->
+| Count | What it answers |
 | --- | --- |
-| `processed` | how many photographs this model has actually scored |
-| `total` | how many the benchmark would ask about, after the exclusions of section 4 |
-| `excluded` | how many those exclusions removed, by reason |
-| `seconds_per_photograph` | how long the model itself took per photograph, on the device the result names |
-| `timed_photographs` | how many photographs that timing covers |
+| `processed` | how many angles of this shape the implementation has measured |
+| `total` | how many it was asked for |
+| `complete` | whether those are all of them |
+| `seconds_per_rendering` | how long the implementation took, on the device named beside it |
+<!-- /generated -->
 
-`processed ≤ total`, and `total + excluded` is what the store holds: a photograph is either one the benchmark asks about or one it excluded, never both and never neither.
+## 8. Where the results are written up
 
-The timing covers the model's own call and nothing around it — not reading the photograph, not scoring the answer. The batch that loads the weights is left out of it whenever there is another batch to average over, and a run that measured nothing keeps the timing it already had rather than reporting none. It is **not** part of the fingerprint: how fast a model answered does not change what it said, and the same weights on another machine would give another number.
+One page per implementation or family, because each is a different piece of somebody else's code
+and reading two in one document buries each under the other:
 
----
+<!-- generated: reports -->
+- **PVBM** — [biomarker-synthetic-pvbm-results.md](biomarker-synthetic-pvbm-results.md)
+- **AutoMorph** — [biomarker-synthetic-automorph-results.md](biomarker-synthetic-automorph-results.md)
+- **VascX** — [biomarker-synthetic-vascx-results.md](biomarker-synthetic-vascx-results.md)
+<!-- /generated -->
 
-**Generated by `python -m benchmarks --benchmark biomarker-synthetic` on:** 2026-09-22
+## 9. What this benchmark does not do
+
+- **It does not measure photographs.** Every shape is clean, binary and noiseless. An
+  implementation that measures a synthetic vessel exactly may still fail on a segmentation of a
+  real eye, which is a different benchmark's question.
+- **It does not select.** No implementation passes or fails here. Which is fit to measure a real
+  segmentation is a judgement made by a person on this evidence.
+- **It cannot test anything anchored to the fovea**, because a synthetic shape has no macula and
+  inventing one would make the answer a property of the fixture.
+- **It checks only what a shape pins.** A quantity no shape defines is measured, stored, and
+  compared against nothing — which is a gap in the shapes rather than a verdict on the
+  implementation.

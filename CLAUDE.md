@@ -107,8 +107,12 @@ Skills that exist today:
 - **5.13** `build-benchmark` — a benchmark: what it runs on, its loaders, metrics, and the
   fingerprint that keeps a re-run cheap.
 - **5.14** `analyse-benchmark` — the notebook every benchmark gets: what its analysis must show.
-- **5.15** `report-benchmark` — the two documents a run generates — how the benchmark is configured,
-  and what came out — and the rule that both are generated rather than written.
+- **5.15** `document-benchmark` — the page saying how a benchmark is configured: the JSON a
+  benchmark reports about itself, the markers separating what is generated from what is written,
+  and the rule that a run never writes it. Usable before the benchmark exists, which is the order
+  to prefer.
+- **5.16** `report-benchmark` — what came out of a run, written from the notebook, and the index
+  above every benchmark.
 
 The three benchmark skills each hold the rules common to every benchmark, and **a file per
 benchmark beside them** — `build-benchmark/quality.md` and its siblings — holding what is true of

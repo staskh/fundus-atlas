@@ -338,6 +338,91 @@ COLUMNS = {
 }
 
 
+def config() -> dict[str, object]:
+    """What this benchmark reports about itself, as data rather than prose.
+
+    Everything here is known from the declarations: no result is read and nothing is measured, so
+    it answers in seconds and a narrowed invocation cannot change it. The `document-benchmark`
+    skill is the authority on the shape.
+    """
+    adapters, missing = implementations(list(IMPLEMENTATIONS))
+    declared = {adapter.slug: adapter.declare() for adapter in adapters}
+    return {
+        "benchmark": NAME,
+        "title": TITLE,
+        "version": VERSION,
+        "asks": GOAL,
+        # A row here is a drawing, not a photograph. Every generated sentence uses this word.
+        "unit_of_work": {"singular": "rendering", "plural": "renderings"},
+        "subjects": {
+            "label": "implementation",
+            "declared": [
+                {
+                    "slug": slug,
+                    "page": f"../projects/{slug}.md",
+                    "pinned": f"`{str(declared[slug]['upstream'].get('commit', ''))[:7]}`"
+                    if slug in declared
+                    else "—",
+                    "columns": len(declared[slug]["keys"]) if slug in declared else "—",
+                    "ran": slug in declared,
+                    "why_not": missing.get(slug),
+                }
+                for slug in IMPLEMENTATIONS
+            ],
+        },
+        "material": {
+            "label": "shape",
+            "describes": "What its geometry settles",
+            "declared": [
+                {
+                    "slug": name,
+                    # Built at the benchmark's own grid: a smaller one cannot hold the ring the
+                    # equivalents are measured over, and the library refuses rather than drawing a
+                    # truncated one. It costs a fraction of a second and no measuring.
+                    "detail": f"{len(library.build(name, side=SIDE, um_per_px=UM_PER_PX).theory)} "
+                    f"quantities with a known value",
+                    "available": True,
+                }
+                for name in SHAPES
+            ],
+        },
+        # What a stored result is invalidated by — and nothing else. This benchmark loads no
+        # weights, applies no patches and reads no dataset store, so none of those appear.
+        "fingerprint": [
+            "this benchmark's name and `VERSION`",
+            f"the facts each implementation declares that bear on its numbers: {', '.join(FINGERPRINTED)}",
+            "the pinned commit of the code that will run, as the adapter reports it",
+            f"the rendering: a {SIDE}px grid at {UM_PER_PX:g} µm per pixel, drawn at "
+            f"{', '.join(f'{angle:g}°' for angle in ROTATIONS)}",
+        ],
+        "running": {
+            "examples": [
+                f"python -m benchmarks --benchmark {NAME}",
+                f"python -m benchmarks --benchmark {NAME} --model pvbm --dataset straight",
+                f"python -m benchmarks --benchmark {NAME} --docs",
+            ],
+            # Only what this benchmark honours. It takes `--random-samples` and `--seed` from the
+            # shared command line and ignores both, so neither is listed.
+            "flags": {
+                "--model": "one implementation, or several separated by commas",
+                "--dataset": "one shape, or several separated by commas",
+                "--max-samples": "draw only the first N of the four angles, for a development run",
+                "--force": "discard what is stored and measure it all again",
+                "--docs": "refresh this page from the declarations, measuring nothing",
+            },
+        },
+        "evidence": f"results/{NAME}/<implementation>/<shape>.csv",
+        "columns": COLUMNS,
+        "counts": {
+            "processed": "how many angles of this shape the implementation has measured",
+            "total": "how many it was asked for",
+            "complete": "whether those are all of them",
+            "seconds_per_rendering": "how long the implementation took, on the device named beside it",
+        },
+        "reports": [list(pair) for pair in REPORTS],
+    }
+
+
 def docs_sections(
     configured: dict[str, object],
     missing_models: dict[str, str] | None = None,
@@ -478,21 +563,10 @@ def main(arguments) -> None:
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
     wanted = [shape.strip() for shape in shapes]
 
-    # Before anything is measured, as `build-benchmark` §8 requires and the other three benchmarks
-    # already do: everything on that page is known from the declarations, so a run that dies
-    # halfway still leaves an accurate account of what it set out to do — and anybody can read
-    # what is about to happen before committing hours of it.
-    #
-    # It describes **everything this benchmark declares**, not the slice this invocation asked
-    # for: `report-benchmark` §7 wants every declared implementation and shape on the page,
-    # including the ones that did not run. Passing the narrowed lists here would let
-    # `--dataset straight` quietly rewrite the page as though the benchmark had one shape.
-    if arguments.report:
-        declared, absent = implementations(list(IMPLEMENTATIONS))
-        report.write_docs(
-            NAME, configuration(declared, list(SHAPES)), {**absent, **missing}, {}, COLUMNS
-        )
-
+    # A run does not write the configuration page. That page describes the benchmark rather than
+    # any run of it, so it is refreshed by `--docs` in seconds — which is what lets eight shapes be
+    # measured in parallel without racing on one file, and what stops `--dataset straight` from
+    # rewriting the page as though the benchmark had one shape. See `document-benchmark`.
     scored = run(
         adapters,
         wanted,

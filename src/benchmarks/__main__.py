@@ -47,7 +47,20 @@ def parse(argv: list[str] | None = None) -> Namespace:
         ),
     )
     parser.add_argument(
-        "--no-report", dest="report", action="store_false", help="skip the generated documents"
+        "--no-report", dest="report", action="store_false", help="skip the generated index"
+    )
+    parser.add_argument(
+        "--config",
+        action="store_true",
+        help="print what this benchmark reports about itself, as JSON, and measure nothing",
+    )
+    parser.add_argument(
+        "--docs",
+        action="store_true",
+        help=(
+            "refresh this benchmark's configuration page from that JSON and measure nothing; it "
+            "replaces the marked blocks and leaves everything written by hand alone"
+        ),
     )
     return parser.parse_args(argv)
 
@@ -64,6 +77,19 @@ def main(argv: list[str] | None = None) -> None:
     # A benchmark's name may carry a hyphen, and a module name may not: `biomarker-synthetic` is
     # what appears in results/ and in every document, and `biomarker_synthetic` is the module.
     benchmark = importlib.import_module(f"benchmarks.{asked.benchmark.replace('-', '_')}")
+
+    # Both of these describe the benchmark rather than any run, so they answer in seconds and stop
+    # here. A run never writes the configuration page: see the `document-benchmark` skill.
+    if asked.config or asked.docs:
+        from . import docs as configuration_page
+
+        reported = configuration_page.config_of(benchmark)
+        if asked.config:
+            print(configuration_page.as_json(reported))
+        if asked.docs:
+            print(f"refreshed {configuration_page.write(asked.benchmark, reported)}")
+        return
+
     benchmark.main(asked)
 
 
