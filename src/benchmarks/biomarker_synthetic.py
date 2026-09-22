@@ -345,8 +345,14 @@ def config() -> dict[str, object]:
     it answers in seconds and a narrowed invocation cannot change it. The `document-benchmark`
     skill is the authority on the shape.
     """
+    from biomarkers import canonical
+
     adapters, missing = implementations(list(IMPLEMENTATIONS))
     declared = {adapter.slug: adapter.declare() for adapter in adapters}
+    # Built once, at the benchmark's own grid, and used for both the shape table and the
+    # vocabulary below: a smaller grid cannot hold the ring the equivalents are measured over.
+    settles = {name: library.build(name, side=SIDE, um_per_px=UM_PER_PX).theory for name in SHAPES}
+    pinned = {f"{key.rsplit('/', 1)[0]}/{{s}}" for theory in settles.values() for key in theory}
     return {
         "benchmark": NAME,
         "title": TITLE,
@@ -376,11 +382,7 @@ def config() -> dict[str, object]:
             "declared": [
                 {
                     "slug": name,
-                    # Built at the benchmark's own grid: a smaller one cannot hold the ring the
-                    # equivalents are measured over, and the library refuses rather than drawing a
-                    # truncated one. It costs a fraction of a second and no measuring.
-                    "detail": f"{len(library.build(name, side=SIDE, um_per_px=UM_PER_PX).theory)} "
-                    f"quantities with a known value",
+                    "detail": f"{len(settles[name])} quantities with a known value",
                     "available": True,
                 }
                 for name in SHAPES
@@ -419,6 +421,20 @@ def config() -> dict[str, object]:
             "complete": "whether those are all of them",
             "seconds_per_rendering": "how long the implementation took, on the device named beside it",
         },
+        # The whole vocabulary an implementation may answer under, whether or not a shape here
+        # pins a value for it — a name nothing settles is a gap in the shapes, and saying so is
+        # more useful than leaving it off the page.
+        "biomarkers": [
+            {
+                "name": template.replace("{s}", "<structure>"),
+                "biomarker": template.split("/")[0],
+                "variant": template.split("/")[1],
+                "means": means,
+                "settled": template in pinned,
+            }
+            for template, means in canonical.NAMES.items()
+        ],
+        "structures": list(canonical.STRUCTURES),
         "reports": [list(pair) for pair in REPORTS],
     }
 

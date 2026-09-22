@@ -145,6 +145,32 @@ def _counts(config) -> Iterable[str]:
         yield f"| `{count}` | {meaning} |"
 
 
+def _biomarkers(config) -> Iterable[str]:
+    """Every catalogued name an implementation may answer under, grouped by biomarker.
+
+    Names are written with `<structure>` where one definition applies to several: an implementation
+    that measures arteries and veins separately reports one column per structure. Whether a shape
+    here settles a value is part of the table, because a name nothing settles is a gap in the
+    shapes rather than a verdict on anybody's code.
+    """
+    structures = ", ".join(f"`{name}`" for name in config["structures"])
+    settled = sum(1 for entry in config["biomarkers"] if entry["settled"])
+    yield (
+        f"{len(config['biomarkers'])} definitions, each applying to one or more structures "
+        f"({structures}), of which **{settled} have a value a shape here settles**."
+    )
+    family = None
+    for entry in config["biomarkers"]:
+        if entry["biomarker"] != family:
+            family = entry["biomarker"]
+            yield ""
+            yield f"**[{family}](../biomarkers/{family}.md)**"
+            yield ""
+            yield "| Canonical name | What it measures | Settled here |"
+            yield "| --- | --- | --- |"
+        yield (f"| `{entry['name']}` | {entry['means']} | {'yes' if entry['settled'] else '—'} |")
+
+
 def _reports(config) -> Iterable[str]:
     for label, stem in config["reports"]:
         yield f"- **{label}** — [{stem}-results.md]({stem}-results.md)"
@@ -159,6 +185,7 @@ BLOCKS = {
     "columns": _columns,
     "fingerprint": _fingerprint,
     "counts": _counts,
+    "biomarkers": _biomarkers,
     "reports": _reports,
 }
 

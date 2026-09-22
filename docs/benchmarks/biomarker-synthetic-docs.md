@@ -136,7 +136,112 @@ and reading two in one document buries each under the other:
 - **VascX** — [biomarker-synthetic-vascx-results.md](biomarker-synthetic-vascx-results.md)
 <!-- /generated -->
 
-## 9. What this benchmark does not do
+## 9. The biomarkers it can name
+
+Every implementation here answers under **catalogued names**, so that two of them can be read
+against each other. This is that vocabulary — the fixed list in `src/biomarkers/canonical.py`,
+where a name is a claim that two numbers under it are comparable, and adding one is a decision
+rather than a side effect of whatever an implementation happened to return.
+
+A name is `biomarker/variant/structure`. The **variant** is the definition rather than the family
+name, because "tortuosity" names at least three incompatible formulas and a table that merged them
+would be comparing different quantities. The **structure** is what the measurement was taken over;
+`both` is reserved for a measurement that is inherently a ratio of the two classes, which is the
+arteriovenous ratio and nothing else.
+
+<!-- generated: biomarkers -->
+32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`), of which **15 have a value a shape here settles**.
+
+**[tortuosity](../biomarkers/tortuosity.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `tortuosity/hart-tau1/<structure>` | arc length over chord length; 1 for a straight vessel | yes |
+| `tortuosity/hart-tau2/<structure>` | total curvature, ∫κ ds | yes |
+| `tortuosity/hart-tau3/<structure>` | total squared curvature, ∫κ² ds | yes |
+| `tortuosity/hart-tau4/<structure>` | mean curvature, ∫κ ds / s — compositional, and implemented here by nobody | yes |
+| `tortuosity/hart-tau5/<structure>` | mean squared curvature, ∫κ² ds / s — likewise | yes |
+| `tortuosity/hart-tau6/<structure>` | total curvature over chord, ∫κ ds / chord | — |
+| `tortuosity/hart-tau7/<structure>` | total squared curvature over chord, ∫κ² ds / chord | — |
+| `tortuosity/grisan-density/<structure>` | Grisan's tortuosity density over constant-sign subsegments | — |
+| `tortuosity/arc-chord-times-inflections/<structure>` | τ1 multiplied by the number of curvature sign changes | — |
+| `tortuosity/spline-mean-curvature/<structure>` | mean curvature sampled along a fitted spline | — |
+| `tortuosity/inflection-count/<structure>` | how many times the curvature changes sign | — |
+
+**[vessel-calibre](../biomarkers/vessel-calibre.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `vessel-calibre/mean-width/<structure>` | mean vessel width, in pixels unless a scale was supplied | yes |
+| `vessel-calibre/median-width/<structure>` | median vessel width | — |
+
+**[central-retinal-equivalents](../biomarkers/central-retinal-equivalents.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `central-retinal-equivalents/knudtson/<structure>` | the Knudtson equivalent over the disc-centred ring — CRAE on arteries, CRVE on veins | yes |
+| `central-retinal-equivalents/hubbard/<structure>` | the Hubbard equivalent over the same ring | yes |
+
+**[avr](../biomarkers/avr.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `avr/knudtson/both` | arteriolar over venular equivalent, both Knudtson | — |
+| `avr/hubbard/both` | arteriolar over venular equivalent, both Hubbard | — |
+| `avr/ratio-of-calibres/both` | mean artery width over mean vein width, with no ring and no equivalent | — |
+
+**[vascular-density](../biomarkers/vascular-density.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `vascular-density/over-field-of-view/<structure>` | vessel area as a fraction of the field of view | yes |
+| `vascular-density/over-image/<structure>` | vessel area as a fraction of the whole frame, lit or not | — |
+
+**[fractal-dimension](../biomarkers/fractal-dimension.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `fractal-dimension/box-counting/<structure>` | box-counting dimension | — |
+| `fractal-dimension/multifractal-d0/<structure>` | capacity dimension of the multifractal spectrum | — |
+| `fractal-dimension/multifractal-d1/<structure>` | information dimension | — |
+| `fractal-dimension/multifractal-d2/<structure>` | correlation dimension | — |
+
+**[vessel-area-and-length](../biomarkers/vessel-area-and-length.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `vessel-area-and-length/area/<structure>` | total vessel area, in pixels squared | yes |
+| `vessel-area-and-length/skeleton-length/<structure>` | total centreline length, in pixels | yes |
+
+**[sparsity](../biomarkers/sparsity.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `sparsity/mean-distance/<structure>` | mean distance from retina to the nearest vessel | — |
+| `sparsity/max-distance/<structure>` | the furthest any retina is from a vessel | — |
+
+**[junction-counts](../biomarkers/junction-counts.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `junction-counts/junctions/<structure>` | how many places three or more branches meet | yes |
+| `junction-counts/endpoints/<structure>` | how many free ends the network has | yes |
+| `junction-counts/components/<structure>` | how many separate pieces the network is in | yes |
+
+**[bifurcation-angle](../biomarkers/bifurcation-angle.md)**
+
+| Canonical name | What it measures | Settled here |
+| --- | --- | --- |
+| `bifurcation-angle/between-daughters/<structure>` | the angle between the two daughter vessels, in degrees | yes |
+<!-- /generated -->
+
+**A name nothing settles is a gap in the shapes, not a verdict on an implementation.** A value in
+that column means only that some shape here defines what the answer must be; the rest are measured
+and stored, and compared against nothing until a shape pins them. Which implementation answers
+under which name is a separate table, in
+[BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+## 10. What this benchmark does not do
 
 - **It does not measure photographs.** Every shape is clean, binary and noiseless. An
   implementation that measures a synthetic vessel exactly may still fail on a segmentation of a
