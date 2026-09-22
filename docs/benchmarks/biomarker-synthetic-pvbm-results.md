@@ -1,4 +1,4 @@
-# Synthetic biomarker benchmark — PVBM
+# Synthetic biomarker benchmark — PVBM and OCULAR
 
 One implementation was measured against eight shapes at four angles — **32 renderings, 262
 comparable measurements** — on a 2048² grid at 5 µm per pixel, with arteries 80 µm wide, veins
@@ -12,8 +12,11 @@ is configured is a separate page: [biomarker-synthetic-docs.md](biomarker-synthe
 the shapes with their derivations are in
 [the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb).
 
-**This page is about one implementation.** [PVBM](../projects/pvbm.md) is the first to be
-adapted, and it is the only one that took part. A second gets a page of its own rather than a
+**This page is about PVBM and the one project that measures with its code.**
+[OCULAR](../projects/ocularnet.md) imports PVBM's tortuosity, perimeter and branching-angle helpers
+at runtime and measures with a modified copy of its `CREVBMs`, so a difference between the two is a
+change somebody made rather than a different definition — section 11. [PVBM](../projects/pvbm.md)
+is the subject of sections 1 to 10, measured alone. A second gets a page of its own rather than a
 column in this one: what is true of PVBM's chord-sum length says nothing about the next
 implementation, and one document holding both would bury each under the other. The comparison
 *between* implementations, when there are two, belongs in the index.
@@ -36,6 +39,7 @@ value — the junction count, which reads 4, 3, 1, 4 on one unchanged shape.
 8. [A vessel too long to measure](#8-a-vessel-too-long-to-measure)
 9. [A cutoff that a vessel can fall either side of](#9-a-cutoff-that-a-vessel-can-fall-either-side-of)
 10. [What these numbers do not say](#10-what-these-numbers-do-not-say)
+11. [OCULAR: the same code, modified](#11-ocular-the-same-code-modified)
 
 ## 1. Summary
 
@@ -299,3 +303,60 @@ result is wrong.
 
 **Compiled from `notebooks/biomarker-synthetic-pvbm.ipynb` on:** 2026-09-21 · **Measured by**
 `python -m benchmarks --benchmark biomarker-synthetic`
+
+## 11. OCULAR: the same code, modified
+
+[OCULAR](../projects/ocularnet.md) is not an independent implementation. Its
+`utils/GeometricalVBMs.py` is a modified copy of PVBM's `CREVBMs`, and it imports PVBM's helpers at
+runtime, so measuring it measures PVBM's code as somebody else changed it. **32 renderings, 208
+comparable measurements**; ten quantities both compute.
+
+| Quantity | PVBM | OCULAR |
+| --- | --- | --- |
+| `vessel-area-and-length/area` (artery / vein) | 0.29% / 0.09% | **0.29% / 0.09%** |
+| `tortuosity/hart-tau1` (artery / vein) | 7.40% / 7.32% | **7.37% / 7.34%** |
+| `junction-counts/junctions/artery` | 300% | **100%** |
+| `junction-counts/endpoints/artery` | **exact** | 100% |
+| `vessel-area-and-length/skeleton-length/artery` | 18.1% | 100% |
+
+Worst difference from what the geometry requires, over every shape and angle.
+
+**Where they agree, nothing was changed.** Area is identical to the decimal and tortuosity differs
+by three parts in a thousand — both are the same naive chain code reached through the same imported
+helper. That is what makes the two rows below meaningful.
+
+### 11.1 It fixed PVBM's length
+
+| Shape | PVBM | OCULAR |
+| --- | --- | --- |
+| sinusoid | **−18.0%** | +3.9% |
+| arc | **−9.9%** | +4.3% |
+| straight | −0.1% | +2.0% |
+
+PVBM's reported length is a sum of chords — the straight-line distances between branch points — so
+it under-reports every curved vessel and the curviest most (§4). OCULAR sums **arc** lengths
+instead and reads a few per cent long rather than up to a fifth short.
+
+That is a definitional correction rather than a tuning: the quantity changed from the distance
+between branch points to the distance travelled along the vessel. It is the clearest improvement
+either page records.
+
+### 11.2 It measures only what reaches the optic disc, and reports zero when nothing does
+
+On the bifurcation, OCULAR returns **0.0** for the artery — zero endpoints, zero junctions, zero
+length — while returning correct values for the vein: 3 endpoints, and a length 2.2% long.
+
+The difference between the two is where they sit. This shape puts the venous Y beside the optic
+disc and the arterial Y on the far side of the frame. PVBM's geometry has no such restriction —
+only its central retinal equivalents require a vessel to start within `20 + 2·radius` of the disc
+centre — and OCULAR extended that requirement to **everything** it measures.
+
+**The restriction is defensible; the reporting is not.** Measuring the disc-connected tree is a
+reasonable choice and is what OCULAR's zones are for. Returning **0** when nothing qualifies is a
+different matter: zero endpoints is a measurement, "no vessels reached the disc" is not, and the two
+are indistinguishable in a results table. PVBM's equivalents *decline* in the same situation, which
+is why this benchmark can tell them apart — and why a zero from OCULAR would be averaged into
+somebody's cohort as though a retina had no vessel ends.
+
+On the disjoint shape, where four parallel vessels lie partly within reach, the same rule costs it
+75% of its endpoints and half its length rather than all of them.

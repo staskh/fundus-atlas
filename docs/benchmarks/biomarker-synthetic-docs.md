@@ -13,6 +13,7 @@ Every shape is drawn on a **2048²** grid at **5.0 µm per pixel**, at 0°, 30°
 | Implementation | Pinned at | Needs | Claims invariance under | Columns |
 | --- | --- | --- | --- | --- |
 | [pvbm](../projects/pvbm.md) | `5edb79a6eff5` | artery, vein, disc | rotation | 32 |
+| [ocular](../projects/ocular.md) | `34b1ecc3a31a` | artery, vein, disc | rotation | 18 |
 | [automorph](../projects/automorph.md) | `9a953e5edfa4` | artery, vein | rotation | 18 |
 | [automorphalyzer](../projects/automorphalyzer.md) | `e68843e2d3bc` | artery, vein, disc | rotation | 54 |
 | [automorphclass](../projects/automorphclass.md) | `8f4d18fe961a` | artery, vein | rotation | 18 |

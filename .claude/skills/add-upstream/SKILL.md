@@ -116,6 +116,22 @@ AutoMorph — give `imports_from` the stage's directory, and import the stage's 
 Import inside the function that needs it, never at module import time: an upstream module must be
 importable for its provenance alone, on a machine where nothing has been cloned yet.
 
+**A common name is a collision waiting to happen.** Two checkouts here both provide a top-level
+`utils`: OCULAR's is a package, AutoMorphalyzer's a module, and whichever is imported first takes
+the name for the whole process. The second upstream then gets the first one's code — and it does
+so **silently**, because a class still loads and still returns numbers; only the numbers are wrong.
+Where a checkout's entry point sits under a name somebody else might claim — `utils`, `models`,
+`config`, `data` — load it **by path under a name of your own**:
+
+```python
+spec = importlib.util.spec_from_file_location("ocular_geometrical_vbms", tree / "utils" / "X.py")
+```
+
+and check the module's own imports first, because this only works for a file that reaches nothing
+relative. What catches the failure when it does happen is a test asserting agreement with whatever
+the upstream borrows from: OCULAR imports PVBM's tortuosity, so OCULAR and PVBM must return the
+same tortuosity, and they stopped doing so the moment the name was taken.
+
 ## 8. Do not let an upstream phone home
 
 A benchmark run makes the network calls it declares and no others. Where a library checks for its

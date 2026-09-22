@@ -44,6 +44,7 @@ Every value is compared with what the shape's geometry requires rather than with
 | [automorph](projects/automorph.md) | 32 | 120 | 32 of 120 | 100.0% |
 | [automorphalyzer](projects/automorphalyzer.md) | 32 | 132 | 28 of 132 | 13.6% |
 | [automorphclass](projects/automorphclass.md) | 32 | 120 | 21 of 120 | 13.6% |
+| [ocular](projects/ocular.md) | 32 | 208 | 104 of 208 | 7.4% |
 | [pvbm](projects/pvbm.md) | 32 | 262 | 144 of 262 | 75.0% |
 | [vascx](projects/vascx.md) | 32 | 81 | 69 of 81 | 0.3% |
 

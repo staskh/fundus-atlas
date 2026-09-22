@@ -31,7 +31,7 @@ VERSION = 2
 #: true of PVBM's chord-sum length says nothing about the next implementation, and one document
 #: holding both would bury each under the other. A second implementation adds a pair here.
 REPORTS = (
-    ("PVBM", "biomarker-synthetic-pvbm"),
+    ("PVBM", "biomarker-synthetic-pvbm"),  # and OCULAR, which imports its measuring code
     # The three AutoMorph projects share a page because they share a lineage: AutoMorphalyzer and
     # AutoMorphClass both descend from AutoMorph's measuring stage, so the interesting question is
     # what each changed, which only a side-by-side can answer.
@@ -55,12 +55,18 @@ GOAL = (
 SHAPES = tuple(library.SHAPES)
 
 #: The implementations, by the slug of the project page each belongs to.
-IMPLEMENTATIONS = ("pvbm", "automorph", "automorphalyzer", "automorphclass", "vascx")
+IMPLEMENTATIONS = ("pvbm", "ocular", "automorph", "automorphalyzer", "automorphclass", "vascx")
 
 #: The AutoMorph family, by the page they are written up on together. A family is a lineage rather
 #: than a category: these three measure the same quantities because two of them are rewrites of the
 #: first, so a difference between their numbers is a change somebody made on purpose.
-FAMILIES = {"biomarker-synthetic-automorph": ("automorph", "automorphalyzer", "automorphclass")}
+FAMILIES = {
+    # OCULAR imports PVBM's tortuosity, perimeter and branching-angle helpers at runtime and
+    # measures with a modified copy of its `CREVBMs`, so the two belong on one page for the same
+    # reason the AutoMorph three do: a difference between them is a change somebody made.
+    "biomarker-synthetic-pvbm": ("pvbm", "ocular"),
+    "biomarker-synthetic-automorph": ("automorph", "automorphalyzer", "automorphclass"),
+}
 
 #: Why a declared implementation has no adapter, where the reason is worth more than "nobody wrote
 #: one yet".
