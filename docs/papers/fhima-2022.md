@@ -1,9 +1,9 @@
 # Fhima 2022
 
 The paper that introduced PVBM — a toolbox that takes artery and vein masks someone else has
-already made, and returns a table of geometric measurements. It is the definition of record in this
-atlas for junction counts and for vessel area and length, and the paper to cite for the PVBM
-software.
+already made, and returns a table of geometric measurements. It is the implementation later
+pipelines actually run for junction counts and for vessel area and length, sitting on top of
+[Martinez-Perez 2000](martinez-perez-2000.md), and the paper to cite for the PVBM software.
 
 ## 1. Citation
 
@@ -37,13 +37,13 @@ vessels; the masks have to come from somewhere else.
 ## 3. Why it is in this atlas
 
 - **Kind:** definition
-- It is the definition of record for [junction counts](../biomarkers/junction-counts.md) and for
-  [vessel area and length](../biomarkers/vessel-area-and-length.md). Those pages exist because this
-  paper named the counts and the pixel sums the later pipelines actually run. The software is
-  catalogued as a project; this page is the argument, not the code.
-- Tortuosity and branching angle are *introduced as algorithms here*, not as the field's first
-  formulas. Those still point at [Hart 1999](hart-1999.md), [Grisan 2008](grisan-2008.md) and
-  vascular branching theory.
+- It is the toolbox that later pipelines actually run for [junction counts](../biomarkers/junction-counts.md)
+  and [vessel area and length](../biomarkers/vessel-area-and-length.md). The first published
+  measurement of those tree sums is [Martinez-Perez 2000](martinez-perez-2000.md); this paper is
+  the implementation, plus new algorithms for tortuosity and branching angle, and fractal measures
+  that paper did not have.
+- The software is catalogued as [PVBM](../projects/pvbm.md); this page is the argument, not the
+  code.
 
 ## 4. What the authors claim
 
@@ -60,9 +60,10 @@ are separate.
 
 | Entry | Relationship |
 | --- | --- |
-| [Junction counts](../biomarkers/junction-counts.md) | Defines startpoints, endpoints and intersection points |
-| [Vessel area and length](../biomarkers/vessel-area-and-length.md) | Defines the pixel-area and skeleton-length measures |
+| [Junction counts](../biomarkers/junction-counts.md) | Implements [Martinez-Perez 2000](martinez-perez-2000.md)'s endpoint and intersection counts, and adds startpoints on the disc |
+| [Vessel area and length](../biomarkers/vessel-area-and-length.md) | Implements the pixel-area and skeleton-length measures |
 | [PVBM](../projects/pvbm.md) | The software this paper introduced |
+| [Martinez-Perez 2000](martinez-perez-2000.md) | The tree-measurement paper this toolbox cites for length, area, endpoints, intersections, tortuosity and branching angle |
 | [Tortuosity](../biomarkers/tortuosity.md) | Introduces a median tortuosity algorithm; not the definition of record |
 | [Bifurcation angle](../biomarkers/bifurcation-angle.md) | Introduces a branching-angle algorithm; not the definition of record |
 | [Leuven-Haifa](../datasets/leuven-haifa.md) | Later public high-resolution set from the same groups; not the 69 UZFG photographs |

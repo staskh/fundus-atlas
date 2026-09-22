@@ -14,9 +14,14 @@ with a physical theory behind it rather than an empirical association alone.
 
 ## 2. Definition of record
 
-No single ophthalmic origin; the measurement is geometric and the retinal literature inherits it
-from vascular-branching theory.
+The measurement is geometric; the retinal literature inherits the *idea* from vascular-branching
+theory (Murray 1926). The first published automatic measurement of branching angles on a whole
+retinal tree in this atlas is [Martinez-Perez 2000](../papers/martinez-perez-2000.md).
 
+- [Martinez-Perez 2000](../papers/martinez-perez-2000.md). Martínez-Pérez ME, Hughes AD, Stanton AV,
+  Thom SA, Chapman N, Bharath AA, Parker KH. *Geometrical and Morphological Analysis of Vascular
+  Branches from Fundus Retinal Images.* MICCAI 2000. DOI:
+  [10.1007/978-3-540-40899-4_78](https://doi.org/10.1007/978-3-540-40899-4_78)
 - **The formula, in words:** at a branch point, take a direction for each daughter vessel and
   measure the angle between those two directions.
 
@@ -108,4 +113,4 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 
 ---
 
-**Links and definitions last checked:** 2026-09-10
+**Links and definitions last checked:** 2026-09-22

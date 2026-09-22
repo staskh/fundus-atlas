@@ -45,12 +45,13 @@ yet are omitted; they appear when the first paper of that kind is added.
 | Paper | Year | What it is for | Relates to | Open | Last checked |
 | --- | --- | --- | --- | --- | --- |
 | [Bankhead 2012](papers/bankhead-2012.md) | 2012 | Vessel width from image edges, not from a mask | Calibre; ARIA; DRIVE | ✅ | 2026-09-21 |
-| [Fhima 2022](papers/fhima-2022.md) | 2022 | Junction counts, vessel area and length; the PVBM toolbox | Junctions; area/length; PVBM | 🟡 | 2026-09-21 |
+| [Fhima 2022](papers/fhima-2022.md) | 2022 | Junction counts and area/length as PVBM actually runs them | Junctions; area/length; PVBM | 🟡 | 2026-09-21 |
 | [Giesser 2024](papers/giesser-2024.md) | 2024 | A proprietary tortuosity score (VCI) and its five-minute retest | Tortuosity; AutoMorph | ✅ | 2026-09-21 |
 | [Grisan 2008](papers/grisan-2008.md) | 2008 | Tortuosity as density of constant-sign bends | Tortuosity; retipy; AutoMorph | 🟡 | 2026-09-21 |
 | [Hart 1999](papers/hart-1999.md) | 1999 | Seven tortuosity formulas, and which of them compose | Tortuosity; tracing | 🟡 | 2026-09-21 |
 | [Hubbard 1999](papers/hubbard-1999.md) | 1999 | Central retinal equivalents and AVR, for ARIC | CRAE/CRVE; AVR | ⛔ | 2026-09-21 |
 | [Knudtson 2003](papers/knudtson-2003.md) | 2003 | The scale-invariant revision most pipelines actually run | CRAE/CRVE; AVR; AutoMorphalyzer | ⛔ | 2026-09-21 |
+| [Martinez-Perez 2000](papers/martinez-perez-2000.md) | 2000 | Tree-sum area, length, junctions and branching angles | Area/length; junctions; angles; PVBM | ✅ | 2026-09-22 |
 | [Vargas 2026](papers/vargas-2026.md) | 2026 | Sparsity, temporal angle, disc–fovea distance; VascX toolbox | Sparsity; temporal angle; VascX | 🟡 | 2026-09-21 |
 
 ### 1.2 Findings — a result that changes how a number in this atlas should be read

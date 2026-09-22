@@ -36,14 +36,14 @@ Grouped by family; alphabetical within each family.
 | [Fractal dimension](biomarkers/fractal-dimension.md) | How thoroughly vessels fill the retina | Vessels, or A/V | Whole image (AutoMorph); disc annulus (PVBM) | Dimensionless | 2 (boundary-box counting, multifractal D₀/D₁/D₂ + singularity length) | AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM, OCULARNet | Standard box counting | 2026-09-10 |
 | [Sparsity](biomarkers/sparsity.md) | How far tissue sits from the nearest vessel | Vessels + retinal mask | Full mask or any grid field | Pixels, or fraction of disc-fovea distance | 2 (mean, max) | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 | [Vascular density](biomarkers/vascular-density.md) | Fraction of retina covered by vessels | Vessels, or A/V | Whole image (AutoMorph); grid fields (VascX) | Dimensionless fraction | 2 (over retinal mask, over image) | VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, retipy | No single origin | 2026-09-10 |
-| [Vessel area and length](biomarkers/vessel-area-and-length.md) | Total vessel area and skeleton length | A/V + disc | Annulus, 2–3 disc radii | Square pixels; pixels | 1 each | PVBM, OCULARNet | [Fhima 2022](papers/fhima-2022.md) | 2026-09-21 |
+| [Vessel area and length](biomarkers/vessel-area-and-length.md) | Total vessel area and skeleton length | A/V + disc | Annulus, 2–3 disc radii | Square pixels; pixels | 1 each | PVBM, OCULARNet | [Martinez-Perez 2000](papers/martinez-perez-2000.md); [Fhima 2022](papers/fhima-2022.md) | 2026-09-22 |
 
 ### 1.4 Junctions and angles — how the vessels branch
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Bifurcation angle](biomarkers/bifurcation-angle.md) | Angle at which a vessel splits | Vessels, or A/V | Grid fields (VascX); disc annulus (PVBM) | Degrees | 2 (fixed-distance sampling, median over vasculature) | VascX, PVBM, OCULARNet | Vascular branching theory | 2026-09-10 |
-| [Junction counts](biomarkers/junction-counts.md) | Number of branch points, endpoints, crossings | Vessels, or A/V; disc; crossings class | Disc annulus (PVBM); grid fields (VascX) | Counts | 3 (PVBM's three classes, VascX bifurcations, OCULAR ROI masks) | PVBM, VascX, OCULARNet, retipy | [Fhima 2022](papers/fhima-2022.md) | 2026-09-21 |
+| [Bifurcation angle](biomarkers/bifurcation-angle.md) | Angle at which a vessel splits | Vessels, or A/V | Grid fields (VascX); disc annulus (PVBM) | Degrees | 2 (fixed-distance sampling, median over vasculature) | VascX, PVBM, OCULARNet | [Martinez-Perez 2000](papers/martinez-perez-2000.md) | 2026-09-22 |
+| [Junction counts](biomarkers/junction-counts.md) | Number of branch points, endpoints, crossings | Vessels, or A/V; disc; crossings class | Disc annulus (PVBM); grid fields (VascX) | Counts | 3 (PVBM's three classes, VascX bifurcations, OCULAR ROI masks) | PVBM, VascX, OCULARNet, retipy | [Martinez-Perez 2000](papers/martinez-perez-2000.md); [Fhima 2022](papers/fhima-2022.md) | 2026-09-22 |
 | [Temporal angle](biomarkers/temporal-angle.md) | Spread of the two temporal arcades | A/V + disc + **fovea** | Circles from ⅔ of the disc-fovea distance outward | Degrees, **scale-invariant** | 1 | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 
 ### 1.5 Other

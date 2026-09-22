@@ -74,10 +74,10 @@ contributions of the toolbox.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| [Area, Length](../biomarkers/vessel-area-and-length.md) | [Fhima 2022](../papers/fhima-2022.md) | — | Implemented here (in pixels and square pixels, not physical units) |
+| [Area, Length](../biomarkers/vessel-area-and-length.md) | [Martinez-Perez 2000](../papers/martinez-perez-2000.md); [Fhima 2022](../papers/fhima-2022.md) | — | Implemented here (in pixels and square pixels, not physical units) |
 | [Tortuosity index, median tortuosity](../biomarkers/tortuosity.md) | Arc-chord ratio; the algorithm is presented as new in [Fhima 2022](../papers/fhima-2022.md) | — | Introduced here |
-| [Number of start points, end points, intersection points](../biomarkers/junction-counts.md) | [Fhima 2022](../papers/fhima-2022.md) | — | Implemented here |
-| [Median branching angle](../biomarkers/bifurcation-angle.md) | Presented as new in [Fhima 2022](../papers/fhima-2022.md) | — | Introduced here |
+| [Number of start points, end points, intersection points](../biomarkers/junction-counts.md) | [Martinez-Perez 2000](../papers/martinez-perez-2000.md); [Fhima 2022](../papers/fhima-2022.md) | — | Implemented here |
+| [Median branching angle](../biomarkers/bifurcation-angle.md) | [Martinez-Perez 2000](../papers/martinez-perez-2000.md); algorithm presented as new in [Fhima 2022](../papers/fhima-2022.md) | — | Introduced here |
 | [Capacity, entropy and correlation fractal dimensions; singularity length](../biomarkers/fractal-dimension.md) | Established fractal-analysis measures | — | Implemented here |
 | [CRAE and CRVE](../biomarkers/central-retinal-equivalents.md) (central retinal arteriolar and venular equivalents) | Knudtson and Hubbard formulas from prior literature | — | Both formulas implemented; the user chooses |
 | [Arterio-venous ratio (AVR)](../biomarkers/avr.md) | Ratio of CRAE to CRVE | — | Derived by the user from CRAE and CRVE |
