@@ -213,7 +213,9 @@ def _measure(adapter, shape: str, angles: list[float]) -> list[dict[str, object]
             # What the adapter caught on its way, so an empty cell always says why it is empty.
             # Without this a defect of ours — handing PVBM 8-bit masks, which overflow on a frame
             # this size — was indistinguishable in the results from PVBM declining to answer.
-            note = "; ".join(f"{where}: {why}" for where, why in getattr(adapter, "trouble", {}).items())
+            note = "; ".join(
+                f"{where}: {why}" for where, why in getattr(adapter, "trouble", {}).items()
+            )
         except Exception as failure:  # noqa: BLE001 — a crash is an answer about nothing
             answered, note = dict.fromkeys(adapter.keys()), repr(failure)
         taken = time.perf_counter() - started
@@ -221,7 +223,9 @@ def _measure(adapter, shape: str, angles: list[float]) -> list[dict[str, object]
     return rows
 
 
-def _row(adapter, built, angle: float, answered: dict, taken: float, note: str) -> dict[str, object]:
+def _row(
+    adapter, built, angle: float, answered: dict, taken: float, note: str
+) -> dict[str, object]:
     """What is kept about one rendering.
 
     The theoretical value sits **beside** the returned one rather than being subtracted from it: a
@@ -238,7 +242,9 @@ def _row(adapter, built, angle: float, answered: dict, taken: float, note: str) 
         # `failed` means nothing came back. A rendering whose equivalents raised while its
         # geometry was measured is a measured rendering with a note saying what it could not
         # answer — otherwise one bad column would throw away every good one beside it.
-        "outcome": "measured" if any(value is not None for value in answered.values()) else "failed",
+        "outcome": "measured"
+        if any(value is not None for value in answered.values())
+        else "failed",
         "seconds": f"{taken:.3f}",
         "note": note,
     }
@@ -284,21 +290,21 @@ def _record(scored: list[dict[str, object]], started: datetime, into: Path) -> N
     (directory / "run.json").write_text(
         json.dumps(
             {
-            "benchmark": NAME,
-            "version": VERSION,
-            "started": started.isoformat(),
-            "side": SIDE,
-            "um_per_px": UM_PER_PX,
-            "rotations": list(ROTATIONS),
-            "pairs": [
-                {
-                    "model": entry["model"],
-                    "dataset": entry["dataset"],
-                    "fingerprint": entry["fingerprint"],
-                    "declared": entry["declared"],
-                }
-                for entry in scored
-            ],
+                "benchmark": NAME,
+                "version": VERSION,
+                "started": started.isoformat(),
+                "side": SIDE,
+                "um_per_px": UM_PER_PX,
+                "rotations": list(ROTATIONS),
+                "pairs": [
+                    {
+                        "model": entry["model"],
+                        "dataset": entry["dataset"],
+                        "fingerprint": entry["fingerprint"],
+                        "declared": entry["declared"],
+                    }
+                    for entry in scored
+                ],
             },
             indent=1,
             default=str,
@@ -372,10 +378,7 @@ def docs_sections(
     yield "| Shape | Classes drawn | Quantities it defines |"
     yield "| --- | --- | --- |"
     for entry in configured["datasets"]:
-        yield (
-            f"| `{entry['slug']}` | {', '.join(entry['classes'])} | "
-            f"{len(entry['settles'])} |"
-        )
+        yield (f"| `{entry['slug']}` | {', '.join(entry['classes'])} | {len(entry['settles'])} |")
     yield ""
     yield (
         "Every value a shape defines follows from its geometry and is written out in "
@@ -473,14 +476,31 @@ def main(arguments) -> None:
     adapters, missing = implementations([slug.strip() for slug in chosen])
     for slug, why in missing.items():
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
+    wanted = [shape.strip() for shape in shapes]
+
+    # Before anything is measured, as `build-benchmark` §8 requires and the other three benchmarks
+    # already do: everything on that page is known from the declarations, so a run that dies
+    # halfway still leaves an accurate account of what it set out to do — and anybody can read
+    # what is about to happen before committing hours of it.
+    #
+    # It describes **everything this benchmark declares**, not the slice this invocation asked
+    # for: `report-benchmark` §7 wants every declared implementation and shape on the page,
+    # including the ones that did not run. Passing the narrowed lists here would let
+    # `--dataset straight` quietly rewrite the page as though the benchmark had one shape.
+    if arguments.report:
+        declared, absent = implementations(list(IMPLEMENTATIONS))
+        report.write_docs(
+            NAME, configuration(declared, list(SHAPES)), {**absent, **missing}, {}, COLUMNS
+        )
+
     scored = run(
         adapters,
-        [shape.strip() for shape in shapes],
+        wanted,
         force=arguments.force,
         max_samples=arguments.max_samples,
     )
+
+    # The index is written after, because it summarises what came out rather than what was asked.
     if arguments.report:
-        configured = configuration(adapters, [shape.strip() for shape in shapes])
-        report.write_docs(NAME, configured, missing, {}, COLUMNS)
         report.write_index()
     print(f"{len(scored)} pairs measured")
