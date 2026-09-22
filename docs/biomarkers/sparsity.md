@@ -30,8 +30,9 @@ and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMAR
 
 ## 2. Definition of record
 
-- Vargas Quiros JV, Beyeler MJ, Vela SO, Bergmann S, Klaver CCW, Liefers B. *retinalysis-vascx: An
-  explainable software toolbox for the extraction of retinal vascular biomarkers.* arXiv, 2026.
+- [Vargas 2026](../papers/vargas-2026.md). Vargas Quiros JD, Beyeler MJ, Vela SO, Bergmann S,
+  Klaver CCW, Liefers B. *retinalysis-vascx: An explainable software toolbox for the extraction of
+  retinal vascular biomarkers.* arXiv, 2026.
   [arXiv:2602.08580](https://arxiv.org/abs/2602.08580)
 - **The formula, in words:** compute, for every retinal pixel, the distance to the nearest vessel
   pixel — a distance transform of the vessel mask — then summarise those distances over the region.

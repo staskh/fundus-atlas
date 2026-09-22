@@ -33,10 +33,13 @@ and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMAR
 
 Two publications define the two formulas in use, and the field never converged on one:
 
-- Hubbard LD, et al. *Methods for evaluation of retinal microvascular abnormalities associated with
-  hypertension/sclerosis in the Atherosclerosis Risk in Communities study.* Ophthalmology 1999.
-- Knudtson MD, Lee KE, Hubbard LD, Wong TY, Klein R, Klein BEK. *Revised formulas for summarizing
-  retinal vessel diameters.* Current Eye Research 2003.
+- [Hubbard 1999](../papers/hubbard-1999.md). Hubbard LD, et al. *Methods for evaluation of retinal
+  microvascular abnormalities associated with hypertension/sclerosis in the Atherosclerosis Risk in
+  Communities study.* Ophthalmology 1999. DOI:
+  [10.1016/S0161-6420(99)90525-0](https://doi.org/10.1016/S0161-6420(99)90525-0)
+- [Knudtson 2003](../papers/knudtson-2003.md). Knudtson MD, Lee KE, Hubbard LD, Wong TY, Klein R,
+  Klein BEK. *Revised formulas for summarizing retinal vessel diameters.* Current Eye Research 2003.
+  DOI: [10.1076/ceyr.27.3.143.16049](https://doi.org/10.1076/ceyr.27.3.143.16049)
 
 - **The formula, in words:** take the widths of the vessels crossing a ring around the disc, sort
   them, pair the widest with the narrowest, combine each pair into one estimated parent width, and

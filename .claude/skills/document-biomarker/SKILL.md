@@ -39,7 +39,7 @@ Use `template.md` verbatim and keep its section numbering.
    with. No formulas here.
 2. **Definition of record** — the publication that first defined it, with a DOI or stable link, and
    the formula as that paper states it. Where the field has no single origin, say so and name the
-   paper each variant traces to.
+   paper each variant traces to. **Where that paper has a page under `docs/papers/`, link it.**
 3. **Variants** — one subsection per competing definition under this name, each with its formula in
    words, its source publication, and which catalogued projects implement it. This is the most
    important section on the page. State plainly whether the variants are **numerically comparable**:
@@ -100,7 +100,8 @@ section whose answer could not be established is marked `Unknown` — never fill
 - **3.6 Date what you checked**, at the bottom of the page.
 - **3.7 Keep the catalogues consistent.** A biomarker page listing a project as an implementer
   requires that project's page to name the biomarker, in the same commit — and the same for the
-  models a biomarker's inputs come from. Disagreement between catalogues is a bug in the atlas.
+  models a biomarker's inputs come from, and for a definition-of-record paper that has a page under
+  `docs/papers/`. Disagreement between catalogues is a bug in the atlas.
 
 ## 4. The summary table
 

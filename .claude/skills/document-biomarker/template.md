@@ -11,7 +11,8 @@ abnormal, and what it has been associated with. No formulas.
 
 ## 2. Definition of record
 
-- <Full citation of the publication that defined it.> DOI: <link>
+- [<papers page if one exists>](../papers/<slug>.md). <Full citation of the publication that defined
+  it.> DOI: <link>
 - **The formula, in words:** <state it plainly before any symbols>
 
 ## 3. Variants

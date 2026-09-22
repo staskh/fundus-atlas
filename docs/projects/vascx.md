@@ -50,9 +50,10 @@ requiring the user to make choices they may not have known existed.
   Ensembles for Retinal Vascular Analysis From Color Fundus Images.* Translational Vision Science &
   Technology 2025;14(7):19. [PMC12306690](https://pmc.ncbi.nlm.nih.gov/articles/PMC12306690/) ·
   [PubMed 40699175](https://pubmed.ncbi.nlm.nih.gov/40699175/) — the segmentation models.
-- Vargas Quiros JV, Beyeler MJ, Vela SO, Bergmann S, Klaver CCW, Liefers B. *retinalysis-vascx: An
-  explainable software toolbox for the extraction of retinal vascular biomarkers.* arXiv preprint,
-  2026. [arXiv:2602.08580](https://arxiv.org/abs/2602.08580) — the biomarker toolbox. Its
+- Vargas Quiros JV, Beyeler MJ, Vela SO, Bergmann S, Klaver CCW, Liefers B.
+  *[retinalysis-vascx](../papers/vargas-2026.md): An explainable software toolbox for the extraction
+  of retinal vascular biomarkers.* arXiv preprint, 2026.
+  [arXiv:2602.08580](https://arxiv.org/abs/2602.08580) — the biomarker toolbox. Its
   reproducibility analysis reports that most VascX biomarkers reach moderate to excellent agreement
   (intraclass correlation above 0.5) when the same eye is imaged twice, with, in the authors' words,
   "important differences in the level of robustness of different biomarkers". That is their
@@ -111,10 +112,10 @@ to the modules in `vascx/fundus/features/`.
 | Artery-vein ratio | Ratio of the two equivalents above | — | Derived from the CRE values |
 | [Tortuosity](../biomarkers/tortuosity.md) | Three published families: distance ratio (arc length over chord length), mean curvature along a spline, and inflection counts | — | Reimplemented; selectable per segment or per whole vessel, spline or skeleton length, with optional caps on segment length and on implausible values |
 | [Vascular density](../biomarkers/vascular-density.md) | Prior literature | — | Reimplemented |
-| [Sparsity](../biomarkers/sparsity.md) | Prior literature | — | Reimplemented, with mode options |
+| [Sparsity](../biomarkers/sparsity.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented, with mode options |
 | [Bifurcation angles](../biomarkers/bifurcation-angle.md) and [counts](../biomarkers/junction-counts.md) | Prior literature | — | Reimplemented |
-| [Temporal angles](../biomarkers/temporal-angle.md) | Prior literature | — | Reimplemented |
-| Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/disc-fovea-distance.md)) | Standard landmarks | — | Implemented here; also the scale reference for other biomarkers |
+| [Temporal angles](../biomarkers/temporal-angle.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented |
+| Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/disc-fovea-distance.md)) | [Vargas 2026](../papers/vargas-2026.md) | — | Implemented here; also the scale reference for other biomarkers |
 | Image quality metrics (edge strength, sharpness, variance of Laplacian) | Standard image-quality measures | — | Implemented here, alongside the learned quality model |
 
 ### 6.1 It implements Knudtson's formula, and no Hubbard variant

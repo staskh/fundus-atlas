@@ -36,7 +36,8 @@ Use `template.md` verbatim as the starting point and keep its section numbering.
 2. **License** — the license of the code, stated as the project itself states it. If the code and
    the model weights carry different licenses, record both separately; they often differ.
 3. **Major publications by the authors** — the paper to cite for the project, plus any follow-ups
-   that change what it does. Full citation and a DOI or stable link.
+   that change what it does. Full citation and a DOI or stable link. **Where that paper has a page
+   under `docs/papers/`, link it** — the paper page is the argument, this page is the code.
 4. **Segmentation models used** — every model in the pipeline, and for each one whether it was
    **introduced by this project** or **borrowed**. If borrowed, name the project or paper it came
    from and link to that source. This distinction is the point of the section: it stops the same

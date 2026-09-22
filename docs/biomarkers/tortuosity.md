@@ -74,27 +74,18 @@ and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMAR
 
 Two papers define everything in the table above.
 
-- Hart WE, Goldbaum M, Côté B, Kube P, Nelson MR. *Measurement and classification of retinal
-  vascular tortuosity.* International Journal of Medical Informatics 1999;53(2–3):239–252. DOI:
-  [10.1016/S1386-5056(98)00163-4](https://doi.org/10.1016/S1386-5056%2898%2900163-4). The publisher's
-  copy is paywalled; a **freely readable copy** is hosted at
-  [siue.edu](https://www.siue.edu/~sumbaug/RetinalProjectPapers/Measurement%20and%20classification%20of%20retinal%20vascular%20tortuosity.pdf),
-  and the paper's record is on
-  [Semantic Scholar](https://www.semanticscholar.org/paper/885dc5636c6a8ce038a9b0756f6695f3db15bb5c).
+- [Hart 1999](../papers/hart-1999.md). Hart WE, Goldbaum M, Côté B, Kube P, Nelson MR. *Measurement
+  and classification of retinal vascular tortuosity.* International Journal of Medical Informatics
+  1999;53(2–3):239–252. DOI:
+  [10.1016/S1386-5056(98)00163-4](https://doi.org/10.1016/S1386-5056%2898%2900163-4).
   Defines τ1–τ7, their scale and compositionality properties, the curvature estimator, and how to
-  combine segments.
-- Grisan E, Foracchia M, Ruggeri A. *A novel method for the automatic grading of retinal vessel
-  tortuosity.* IEEE Transactions on Medical Imaging 2008;27(3):310–319. DOI:
-  [10.1109/TMI.2007.904657](https://doi.org/10.1109/TMI.2007.904657) ·
-  [PubMed 18334427](https://pubmed.ncbi.nlm.nih.gov/18334427/). The earlier conference version is
-  *A novel method for the automatic evaluation of retinal vessel tortuosity*, IEEE EMBS 2003, DOI
+  combine segments. Open-copy routes are on the paper page.
+- [Grisan 2008](../papers/grisan-2008.md). Grisan E, Foracchia M, Ruggeri A. *A novel method for the
+  automatic grading of retinal vessel tortuosity.* IEEE Transactions on Medical Imaging
+  2008;27(3):310–319. DOI: [10.1109/TMI.2007.904657](https://doi.org/10.1109/TMI.2007.904657).
+  The earlier conference version is IEEE EMBS 2003, DOI
   [10.1109/IEMBS.2003.1279902](https://doi.org/10.1109/IEMBS.2003.1279902) — the DOI retipy's code
-  cites. **Both published versions are paywalled** and the author-hosted copy that indexes list has
-  gone dead; the practical routes are the authors' copy on
-  [ResearchGate](https://www.researchgate.net/publication/5518678_A_Novel_Method_for_the_Automatic_Grading_of_Retinal_Vessel_Tortuosity)
-  (browser access) and, more usefully for implementers, the authors' own MATLAB reference code at
-  [enrigrisan/RET-Tortuosity](https://github.com/enrigrisan/RET-Tortuosity), which carries the
-  formula and the algorithm. That repository states no licence.
+  cites. Access and the authors' MATLAB reference code are on the paper page.
 
 ## 3. Variants
 
@@ -369,6 +360,10 @@ choices; a value quoted without them is not reproducible.
 - If you are choosing a measure rather than inheriting one, Hart's τ4 and τ5 are the pair the
   original paper recommends and the pair nobody here implements — which makes them the obvious
   candidate for this atlas's own comparison work.
+- [Naim 2026](../papers/naim-2026.md) is the same warning on a different photograph:
+  conjunctival segmenters with similar Dice differed five-fold on arc-chord error, because a
+  broken centreline wrecks τ1 even when the painted pixels look right. Their images are not fundus
+  photographs; the failure mode is.
 - Giesser et al. 2024 add another named measure, the
   [vascular curvature index](vascular-curvature-index.md) (VCI), and report it as more
   retest-stable than the formulas above on healthy eyes. The formula is unpublished — the paper
@@ -378,4 +373,4 @@ choices; a value quoted without them is not reproducible.
 
 ---
 
-**Links and definitions last checked:** 2026-09-10
+**Links and definitions last checked:** 2026-09-21

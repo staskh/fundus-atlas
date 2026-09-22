@@ -12,7 +12,8 @@ look before reading two projects' numbers against each other.
 **A biomarker name is not a definition.** "Tortuosity" names at least three incompatible formulas
 and "CRAE" two; papers usually report the name and omit the choice. The Variants column below is
 therefore the most important one in the table: two numbers under the same heading are comparable
-only when their variant, their measurement region and their scale convention all match.
+only when their variant, their measurement region and their scale convention all match. The
+definition papers themselves are in [PAPERS.md](PAPERS.md).
 
 ## 1. Summary
 
@@ -22,15 +23,15 @@ Grouped by family; alphabetical within each family.
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Vessel calibre](biomarkers/vessel-calibre.md) | Vessel width | Vessels, or A/V | Varies — whole image, zones, grid fields | Pixels (microns with a resolution) | 3 (image edges, per-segment median, window average) | ARIA, VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM | Bankhead 2012 | 2026-09-10 |
-| [Central retinal equivalents](biomarkers/central-retinal-equivalents.md) | Estimated trunk calibre near the disc (CRAE, CRVE) | A/V + disc | Ring around the disc; radii differ | Pixels or microns | 2 (Hubbard, Knudtson) | AutoMorph, AutoMorphalyzer (Knudtson only), VascX, PVBM, OCULARNet | Hubbard 1999; Knudtson 2003 | 2026-09-10 |
-| [AVR](biomarkers/avr.md) | Arteriolar calibre relative to venular | A/V + disc | Same ring as its inputs | Dimensionless, **scale-invariant** | 2, inherited from the equivalents | AutoMorph, AutoMorphalyzer, VascX, PVBM (by division) | Hubbard 1999; Knudtson 2003 | 2026-09-10 |
+| [Vessel calibre](biomarkers/vessel-calibre.md) | Vessel width | Vessels, or A/V | Varies — whole image, zones, grid fields | Pixels (microns with a resolution) | 3 (image edges, per-segment median, window average) | ARIA, VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM | [Bankhead 2012](papers/bankhead-2012.md) | 2026-09-10 |
+| [Central retinal equivalents](biomarkers/central-retinal-equivalents.md) | Estimated trunk calibre near the disc (CRAE, CRVE) | A/V + disc | Ring around the disc; radii differ | Pixels or microns | 2 (Hubbard, Knudtson) | AutoMorph, AutoMorphalyzer (Knudtson only), VascX, PVBM, OCULARNet | [Hubbard 1999](papers/hubbard-1999.md); [Knudtson 2003](papers/knudtson-2003.md) | 2026-09-10 |
+| [AVR](biomarkers/avr.md) | Arteriolar calibre relative to venular | A/V + disc | Same ring as its inputs | Dimensionless, **scale-invariant** | 2, inherited from the equivalents | AutoMorph, AutoMorphalyzer, VascX, PVBM (by division) | [Hubbard 1999](papers/hubbard-1999.md); [Knudtson 2003](papers/knudtson-2003.md) | 2026-09-10 |
 
 ### 1.2 Tortuosity — how twisted the vessels are
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Tortuosity](biomarkers/tortuosity.md) | How far vessels deviate from straight | Vessels, or A/V | Varies — whole image, zones, grid fields | Mostly dimensionless; one is a count | **9+** (Hart τ1–τ7, Grisan density, and three implementation-only forms) | retipy, AutoMorph, AutoMorphalyzer, AutoMorphClass, VascX, PVBM, OCULARNet | No definition of record | 2026-09-10 |
+| [Tortuosity](biomarkers/tortuosity.md) | How far vessels deviate from straight | Vessels, or A/V | Varies — whole image, zones, grid fields | Mostly dimensionless; one is a count | **9+** (Hart τ1–τ7, Grisan density, and three implementation-only forms) | retipy, AutoMorph, AutoMorphalyzer, AutoMorphClass, VascX, PVBM, OCULARNet | [Hart 1999](papers/hart-1999.md); [Grisan 2008](papers/grisan-2008.md) | 2026-09-21 |
 | [Vascular curvature index](biomarkers/vascular-curvature-index.md) | Tortuosity by an unpublished angular-momentum construction | A/V | Whole image | Unknown | 1 (proprietary; formula not published) | None catalogued | Giesser 2024 | 2026-09-20 |
 
 Giesser et al. 2024 name a tenth tortuosity measure, VCI, and report it as more stable on a
@@ -44,25 +45,25 @@ facts.
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Fractal dimension](biomarkers/fractal-dimension.md) | How thoroughly vessels fill the retina | Vessels, or A/V | Whole image (AutoMorph); disc annulus (PVBM) | Dimensionless | 2 (boundary-box counting, multifractal D₀/D₁/D₂ + singularity length) | AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM, OCULARNet | Standard box counting | 2026-09-10 |
-| [Sparsity](biomarkers/sparsity.md) | How far tissue sits from the nearest vessel | Vessels + retinal mask | Full mask or any grid field | Pixels, or fraction of disc-fovea distance | 2 (mean, max) | VascX | VascX toolbox paper 2026 | 2026-09-10 |
+| [Fractal dimension](biomarkers/fractal-dimension.md) | How thoroughly vessels fill the retina | Vessels, or A/V | Whole image (AutoMorph); disc annulus (PVBM) | Dimensionless | 2 (boundary-box counting, multifractal D₀/D₁/D₂ + singularity length) | AutoMorph, AutoMorphalyzer, AutoMorphClass, PVBM, OCULARNet | [Stosic 2006](papers/stosic-2006.md) (multifractal); box counting (monofractal) | 2026-09-22 |
+| [Sparsity](biomarkers/sparsity.md) | How far tissue sits from the nearest vessel | Vessels + retinal mask | Full mask or any grid field | Pixels, or fraction of disc-fovea distance | 2 (mean, max) | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 | [Vascular density](biomarkers/vascular-density.md) | Fraction of retina covered by vessels | Vessels, or A/V | Whole image (AutoMorph); grid fields (VascX) | Dimensionless fraction | 2 (over retinal mask, over image) | VascX, AutoMorph, AutoMorphalyzer, AutoMorphClass, retipy | No single origin | 2026-09-10 |
-| [Vessel area and length](biomarkers/vessel-area-and-length.md) | Total vessel area and skeleton length | A/V + disc | Annulus, 2–3 disc radii | Square pixels; pixels | 1 each | PVBM, OCULARNet | PVBM 2022 | 2026-09-10 |
+| [Vessel area and length](biomarkers/vessel-area-and-length.md) | Total vessel area and skeleton length | A/V + disc | Annulus, 2–3 disc radii | Square pixels; pixels | 1 each | PVBM, OCULARNet | [Martinez-Perez 2000](papers/martinez-perez-2000.md); [Fhima 2022](papers/fhima-2022.md) | 2026-09-22 |
 
 ### 1.4 Junctions and angles — how the vessels branch
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Bifurcation angle](biomarkers/bifurcation-angle.md) | Angle at which a vessel splits | Vessels, or A/V | Grid fields (VascX); disc annulus (PVBM) | Degrees | 2 (fixed-distance sampling, median over vasculature) | VascX, PVBM, OCULARNet | Vascular branching theory | 2026-09-10 |
-| [Junction counts](biomarkers/junction-counts.md) | Number of branch points, endpoints, crossings | Vessels, or A/V; disc; crossings class | Disc annulus (PVBM); grid fields (VascX) | Counts | 3 (PVBM's three classes, VascX bifurcations, OCULAR ROI masks) | PVBM, VascX, OCULARNet, retipy | PVBM 2022 | 2026-09-10 |
-| [Temporal angle](biomarkers/temporal-angle.md) | Spread of the two temporal arcades | A/V + disc + **fovea** | Circles from ⅔ of the disc-fovea distance outward | Degrees, **scale-invariant** | 1 | VascX | VascX toolbox paper 2026 | 2026-09-10 |
+| [Bifurcation angle](biomarkers/bifurcation-angle.md) | Angle at which a vessel splits | Vessels, or A/V | Grid fields (VascX); disc annulus (PVBM) | Degrees | 2 (fixed-distance sampling, median over vasculature) | VascX, PVBM, OCULARNet | [Martinez-Perez 2000](papers/martinez-perez-2000.md) | 2026-09-22 |
+| [Junction counts](biomarkers/junction-counts.md) | Number of branch points, endpoints, crossings | Vessels, or A/V; disc; crossings class | Disc annulus (PVBM); grid fields (VascX) | Counts | 3 (PVBM's three classes, VascX bifurcations, OCULAR ROI masks) | PVBM, VascX, OCULARNet, retipy | [Martinez-Perez 2000](papers/martinez-perez-2000.md); [Fhima 2022](papers/fhima-2022.md) | 2026-09-22 |
+| [Temporal angle](biomarkers/temporal-angle.md) | Spread of the two temporal arcades | A/V + disc + **fovea** | Circles from ⅔ of the disc-fovea distance outward | Degrees, **scale-invariant** | 1 | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 
 ### 1.5 Other
 
 | Biomarker | What it measures | Inputs | Region | Units | Variants | Computed by | Defined in | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Cup-to-disc ratio](biomarkers/cup-to-disc-ratio.md) | Size of the optic cup relative to the disc | Disc **and cup** | Optic nerve head | Dimensionless, **scale-invariant** | 1 (height/width ratios) | AutoMorph, AutoMorphalyzer, AutoMorphClass | Clinical measure | 2026-09-10 |
-| [Disc-fovea distance](biomarkers/disc-fovea-distance.md) | Distance between the two landmarks — and the ruler other measures use | Disc + fovea | Not applicable | Pixels; used as a normalisation factor | 1 | VascX | VascX toolbox paper 2026 | 2026-09-10 |
+| [Disc-fovea distance](biomarkers/disc-fovea-distance.md) | Distance between the two landmarks — and the ruler other measures use | Disc + fovea | Not applicable | Pixels; used as a normalisation factor | 1 | VascX | [Vargas 2026](papers/vargas-2026.md) | 2026-09-21 |
 
 ## 2. Vessel tracing — the shared step beneath the shape measurements
 
@@ -185,7 +186,8 @@ boxes that are **neither empty nor completely full** — its own comment says so
 thin as a vessel tree almost every occupied box is partly empty, so the two conventions nearly
 coincide and the difference passes unnoticed; but it is not the textbook box-counting dimension, and
 it will diverge on thick or densely packed masks. [PVBM](projects/pvbm.md) computes a different
-thing again — a multifractal set (D₀, D₁, D₂ and singularity length), averaged over 25 rotations.
+thing again — a multifractal set (D₀, D₁, D₂ and singularity length), averaged over 25 rotations,
+following [Stosic 2006](papers/stosic-2006.md) in name but not in method (box-counting, not sandbox).
 See [fractal dimension](biomarkers/fractal-dimension.md).
 
 ### 3.5 Only two catalogued models segment the optic cup, which is why most pipelines report no cup-to-disc ratio
@@ -200,6 +202,9 @@ no cup-to-disc ratio, and it is a capability gap rather than an oversight. See
 
 ## 4. How to read this table
 
+- **Defined in** — the publication that first defined it, linked to [PAPERS.md](PAPERS.md) when that
+  paper has a page there. A short citation with no link means the paper is not yet in that
+  catalogue.
 - **Variants** — how many competing definitions share this name. A value computed with one variant
   is not interchangeable with a value computed with another; each detail page says whether they can
   be compared at all.
@@ -221,4 +226,5 @@ no cup-to-disc ratio, and it is a capability gap rather than an oversight. See
 
 Biomarker pages follow a fixed structure so they can be read against each other. Load the
 `document-biomarker` skill, which defines that structure and this table's columns, before adding or
-changing an entry.
+changing an entry. A definition-of-record paper that belongs in [PAPERS.md](PAPERS.md) is added in
+the same change, per the `document-paper` skill.
