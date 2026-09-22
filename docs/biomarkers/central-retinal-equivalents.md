@@ -67,8 +67,11 @@ Two publications define the two formulas in use, and the field never converged o
 - **Implemented by:** [PVBM](../projects/pvbm.md) (`crae_knudtson`, `crve_knudtson`),
   [AutoMorph](../projects/automorph.md) via retipy's `Knudtson_cal`,
   [AutoMorphalyzer](../projects/automorphalyzer.md) (**Knudtson only** — its authors removed
-  Hubbard), [VascX](../projects/vascx.md) (`CRE`, described in code as a Hubbard-style recursion
-  using the 0.88 and 0.95 constants, which is the Knudtson formula).
+  Hubbard), [VascX](../projects/vascx.md) — **twice**, in `CRE` and in
+  `CREKnudtson`, which differ in protocol rather than formula: both combine pairs with the 0.88 and
+  0.95 constants, while only the second follows Knudtson's zone-B selection of the six largest
+  segments. `cre.py`'s docstring calls that combination "the Hubbard reduction", which it is not;
+  Hubbard's constants appear nowhere in the package.
 - Being purely multiplicative, this variant **is** scale-invariant: it can be computed on pixel
   widths and rescaled afterwards.
 

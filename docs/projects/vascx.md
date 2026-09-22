@@ -107,7 +107,7 @@ to the modules in `vascx/fundus/features/`.
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
 | [Caliber (vessel width)](../biomarkers/vessel-calibre.md) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
-| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) (CRAE, CRVE) | Hubbard reduction, √(d₁²+d₂²), with the artery and vein constants 0.88 and 0.95; the Knudtson variant is implemented separately in `cre_knudtson.py` | — | Reimplemented, with documented parameters: number of concentric circles around the disc, inner and outer radius in disc-diameter multiples, how many largest vessels to keep per circle (6 for the full mode, 4 for temporal or nasal), and orientation mode (temporal, nasal or full) |
+| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) (CRAE, CRVE) | **Knudtson's** combination, `c·√(d₁²+d₂²)` with c = 0.88 for arteries and 0.95 for veins — in both `cre.py` and `cre_knudtson.py`; see §6.3 | — | Reimplemented twice, differing in protocol rather than formula: `cre.py` applies the combination over configurable concentric circles (number of circles, inner and outer radius in disc-diameter multiples, how many largest vessels per circle, orientation mode), and `cre_knudtson.py` follows Knudtson's own zone-B protocol — the 6 largest zone-B segments in full mode, 4 in temporal or nasal, diameters as segment medians |
 | Artery-vein ratio | Ratio of the two equivalents above | — | Derived from the CRE values |
 | [Tortuosity](../biomarkers/tortuosity.md) | Three published families: distance ratio (arc length over chord length), mean curvature along a spline, and inflection counts | — | Reimplemented; selectable per segment or per whole vessel, spline or skeleton length, with optional caps on segment length and on implausible values |
 | [Vascular density](../biomarkers/vascular-density.md) | Prior literature | — | Reimplemented |
@@ -117,7 +117,27 @@ to the modules in `vascx/fundus/features/`.
 | Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/disc-fovea-distance.md)) | Standard landmarks | — | Implemented here; also the scale reference for other biomarkers |
 | Image quality metrics (edge strength, sharpness, variance of Laplacian) | Standard image-quality measures | — | Implemented here, alongside the learned quality model |
 
-### 6.1 Regions
+### 6.1 It implements Knudtson's formula, and no Hubbard variant
+
+*Our finding, 2026-09-22, from reading the source:* this project computes the central retinal
+equivalents by **Knudtson's** formula only. Both classes combine a pair of calibres as
+`c·√(d₁² + d₂²)` with c = 0.88 for arteries and 0.95 for veins, which is Knudtson's revision.
+
+**Hubbard's variant is not implemented anywhere in the package.** His formula is
+`√(a·w₁² + b·w₂² + c·w₁w₂ + d)` with constants fitted in microns — −10.76 for arterioles, +450.05
+for venules — and none of those constants appears in the code. The word "Hubbard" occurs exactly
+once in the whole package: in `cre.py`'s own docstring, which calls `√(d₁²+d₂²)` scaled by 0.88 and
+0.95 "the Hubbard reduction". That is the upstream's label rather than its arithmetic, and an
+earlier version of this page repeated it.
+
+The distinction matters because the two variants are not interchangeable: Knudtson's is purely
+multiplicative and therefore scale-free, while Hubbard's carries an additive term that does not
+scale, so a value computed under one name is not convertible into the other. The
+[synthetic benchmark](../benchmarks/biomarker-synthetic-vascx-results.md) maps VascX's equivalents
+to the Knudtson name on the strength of the formula rather than the label, and measures them within
+0.7% of what the geometry requires.
+
+### 6.2 Regions
 
 Biomarkers can be restricted to a region rather than the whole photograph, using grids placed
 relative to the optic disc and the fovea (the centre of vision). The grids available in the shipped
@@ -133,7 +153,7 @@ If the region a biomarker needs is not visible in the photograph, the biomarker 
 rather than estimated. Circles that fall partly outside the retinal mask are discarded from CRE
 aggregation for the same reason.
 
-### 6.2 Feature sets
+### 6.3 Feature sets
 
 `--feature_set` selects a bundle of biomarker-and-region combinations. The repository ships
 `full`, `full_v2`, `full_v3` (the set the README recommends), `od_centered`, `od_centered_narrow`,
@@ -160,8 +180,28 @@ Unknown.
 
 ## 8. Known defects
 
-None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health. Nothing in this
-project's issue tracker or code was found to change the numbers a user would report.
+### 8.1 The optic disc is resized to 1024 pixels whatever the image is
+
+*Our finding, 2026-09-22.* `rtnls_enface.disc.OpticDisc.__init__` takes `size=1024`, and nothing
+passes the retina's own resolution to it. A disc mask handed to a retina built at any other
+resolution is therefore resized to 1024, after which every feature measured on a circle around the
+disc indexes outside the mask and fails.
+
+- **What it affects:** calibre, the central retinal equivalents, tortuosity and bifurcation angles —
+  everything anchored on the disc. On a 2048-pixel frame this atlas measured **34 of the 36
+  otherwise computable features lost**.
+- **How it presents:** not as an exception. `calc_features` catches each failure, warns, and returns
+  `None` in that column, so a caller reading the result sees empty columns rather than an error.
+- **Inside the shipped pipeline it does not arise**, because that pipeline works at 1024. It is
+  sharp for anyone calling the feature machinery on their own masks at another size.
+- **Working around it:** rebuild the disc at the frame's size —
+  `retina.disc = OpticDisc(mask, fundus=retina, size=side)` — which is what this repository's
+  [biomarker adapter](../benchmarks/biomarker-synthetic-vascx-results.md#4-a-disc-that-resizes-itself-to-1024)
+  does.
+
+Not reported upstream by this atlas as of 2026-09-22.
+
+Nothing else was found: an absence of findings, not a clean bill of health.
 
 ## 9. Notes
 
