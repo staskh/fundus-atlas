@@ -51,10 +51,10 @@ def test_the_three_tortuosity_aggregations_are_told_apart() -> None:
     adapter = an_adapter()
     behind = adapter.declare()["names"]
 
-    assert behind["tortuosity/hart-tau1/artery"] == "median_tortuosity_artery"
+    assert behind["median_tortuosity_artery"] == "tortuosity/hart-tau1/artery"
     for own in ("pooled_tortuosity_artery", "length_weighted_tortuosity_artery"):
         assert own in adapter.keys(), f"{own} is kept"
-        assert own not in behind.values() or own == behind.get(own), f"{own} claims no biomarker"
+        assert behind[own] is None, f"{own} claims no catalogued biomarker"
 
 
 def test_it_reaches_no_central_retinal_equivalents() -> None:
@@ -76,8 +76,10 @@ def test_it_measures_pvbms_code_and_agrees_with_pvbm_on_tortuosity(shape) -> Non
         shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px
     )
 
-    assert ocular["tortuosity/hart-tau1/artery"] == pytest.approx(
-        pvbm["tortuosity/hart-tau1/artery"], rel=0.01
+    # Each under its own name for the same quantity: OCULAR's `median_tortuosity` is PVBM's
+    # `median_tortuosity`, because it is literally PVBM's function.
+    assert ocular["median_tortuosity_artery"] == pytest.approx(
+        pvbm["median_tortuosity_artery"], rel=0.01
     )
 
 

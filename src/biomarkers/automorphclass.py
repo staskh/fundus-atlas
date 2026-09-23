@@ -49,6 +49,16 @@ def _answers() -> dict[str, str]:
 #: Answered name → the column behind it. Built once; the order is the order above.
 ANSWERS = _answers()
 
+#: Each column under **its own name**, against the catalogued biomarker it answers to — or `None`
+#: where the catalogue has no name for it yet. The evidence a run writes is keyed by the
+#: implementation's own names, because that is what its authors call these numbers and what a
+#: reader checking against their documentation will look for; translating to a catalogued name is
+#: a claim, and a claim belongs in the analysis that relies on it rather than baked into the
+#: measurement.
+CANONICAL: dict[str, str | None] = {
+    own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+}
+
 
 class Automorphclass:
     """AutoMorphClass, measured as it ships.
@@ -83,10 +93,8 @@ class Automorphclass:
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
-            "names": dict(ANSWERS),
-            "calls": {
-                name: [f"features_{own.rsplit('_', 1)[-1]}"] for name, own in ANSWERS.items()
-            },
+            "names": dict(CANONICAL),
+            "calls": {own: [f"features_{own.rsplit('_', 1)[-1]}"] for own in CANONICAL},
             "min_pixels_per_vessel": self.MIN_PIXELS_PER_VESSEL,
             "absent": list(ABSENT),
             "units": {"every measurement": "px"},
@@ -98,7 +106,7 @@ class Automorphclass:
         return str(upstream.COMMIT)
 
     def keys(self) -> tuple[str, ...]:
-        return tuple(ANSWERS)
+        return tuple(CANONICAL)
 
     def measure(
         self,
@@ -126,7 +134,7 @@ class Automorphclass:
                 continue
             for column, value in found.items():
                 computed[f"{column}_{measured}"] = _number(value)
-        return {answered: computed.get(own) for answered, own in ANSWERS.items()}
+        return {own: computed.get(own) for own in CANONICAL}
 
     def _loaded_features(self):
         if self._features is None:

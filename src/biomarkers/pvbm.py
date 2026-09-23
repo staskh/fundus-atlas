@@ -100,6 +100,16 @@ def _answers() -> dict[str, str]:
 #: Answered name → the PVBM column behind it. Built once; the order is the order above.
 ANSWERS = _answers()
 
+#: Each column under **its own name**, against the catalogued biomarker it answers to — or `None`
+#: where the catalogue has no name for it yet. The evidence a run writes is keyed by the
+#: implementation's own names, because that is what its authors call these numbers and what a
+#: reader checking against their documentation will look for; translating to a catalogued name is
+#: a claim, and a claim belongs in the analysis that relies on it rather than baked into the
+#: measurement.
+CANONICAL: dict[str, str | None] = {
+    own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+}
+
 
 def _calls() -> dict[str, list[str]]:
     """Which of PVBM's calls each answered column comes out of, named as `trouble` names them.
@@ -113,15 +123,19 @@ def _calls() -> dict[str, list[str]]:
     where: dict[str, list[str]] = {}
     for side in CLASSES:
         for own in GEOMETRY:
-            mapped = PER_CLASS[own]
-            where[mapped.format(side=side) if mapped else f"{own}_{side}"] = [f"geometry_{side}"]
+            where[f"{own}_{side}"] = [f"geometry_{side}"]
         for own in FRACTALS:
-            mapped = PER_CLASS[own]
-            where[mapped.format(side=side) if mapped else f"{own}_{side}"] = [f"fractals_{side}"]
-    for own, mapped in PER_PAIR.items():
+            where[f"{own}_{side}"] = [f"fractals_{side}"]
+    for own, _mapped in PER_PAIR.items():
         # A ratio needs both classes, so it is lost if either call fails.
-        sides = ["artery"] if own.startswith("crae") else ["vein"] if own.startswith("crve") else list(CLASSES)
-        where[mapped or own] = [f"equivalents_{side}" for side in sides]
+        sides = (
+            ["artery"]
+            if own.startswith("crae")
+            else ["vein"]
+            if own.startswith("crve")
+            else list(CLASSES)
+        )
+        where[own] = [f"equivalents_{side}" for side in sides]
     return where
 
 
@@ -179,7 +193,7 @@ class Pvbm:
             "keys": list(self.keys()),
             # What each answered column is called in PVBM's own vocabulary, so a run records the
             # claim it was measured under and a later reader can check it against the source.
-            "names": dict(ANSWERS),
+            "names": dict(CANONICAL),
             "unnamed": [own for own, mapped in {**PER_CLASS, **PER_PAIR}.items() if not mapped],
             # Which call each column comes out of, so a run's `note` can be attributed to the
             # columns it actually cost rather than to every column of that rendering.
@@ -201,7 +215,7 @@ class Pvbm:
 
     def keys(self) -> tuple[str, ...]:
         """Every column, whatever it was handed — so a table has one shape across every shape."""
-        return tuple(ANSWERS)
+        return tuple(CANONICAL)
 
     def canonical_for(self, own: str) -> str | None:
         """The catalogued name a PVBM column is believed to answer to, or `None` if none does."""
@@ -231,7 +245,7 @@ class Pvbm:
                 continue
             computed.update(self._per_class(mask, side))
         computed.update(self._per_pair(artery, vein, disc, um_per_px))
-        return {answered: computed.get(column) for answered, column in ANSWERS.items()}
+        return {own: computed.get(own) for own in CANONICAL}
 
     def _per_class(self, mask: np.ndarray, side: str) -> dict[str, float | None]:
         """The measurements PVBM takes over one class at a time."""
@@ -249,16 +263,16 @@ class Pvbm:
             found[f"perimeter_{side}"] = float(perimeter)
             spine = skeletonize(np.asarray(mask) > 0).astype(self.DTYPE)
             found[f"area_{side}"] = float(geometry.area(binary))
-            median_tortuosity, length, _chord, _arc, _connections = geometry.compute_tortuosity_length(
-                spine
+            median_tortuosity, length, _chord, _arc, _connections = (
+                geometry.compute_tortuosity_length(spine)
             )
             found[f"median_tortuosity_{side}"] = _number(median_tortuosity)
             found[f"length_{side}"] = _number(length)
             endpoints, intersections, _ends, _inters = geometry.compute_particular_points(spine)
             found[f"endpoints_{side}"] = _number(endpoints)
             found[f"intersections_{side}"] = _number(intersections)
-            mean_angle, spread, median_angle, _angles, _centroid = geometry.compute_branching_angles(
-                spine
+            mean_angle, spread, median_angle, _angles, _centroid = (
+                geometry.compute_branching_angles(spine)
             )
             found[f"mean_branching_angle_{side}"] = _number(mean_angle)
             found[f"std_branching_angle_{side}"] = _number(spread)
@@ -333,7 +347,9 @@ class Pvbm:
         )
         answers: dict[str, float | None] = {"knudtson": None, "hubbard": None}
         for name, value in (result or {}).items():
-            variant = "knudtson" if name.endswith("k") else "hubbard" if name.endswith("h") else None
+            variant = (
+                "knudtson" if name.endswith("k") else "hubbard" if name.endswith("h") else None
+            )
             if variant is None:
                 continue
             number = _number(value)

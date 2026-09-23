@@ -37,18 +37,17 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 [How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out: PVBM](benchmarks/biomarker-synthetic-pvbm-results.md) · [The analysis](../notebooks/biomarker-synthetic-pvbm.ipynb) · [What came out: AutoMorph](benchmarks/biomarker-synthetic-automorph-results.md) · [The analysis](../notebooks/biomarker-synthetic-automorph.ipynb) · [What came out: VascX](benchmarks/biomarker-synthetic-vascx-results.md) · [The analysis](../notebooks/biomarker-synthetic-vascx.ipynb) · [Every score](../results/biomarker-synthetic/)
 
-Every value is compared with what the shape's geometry requires rather than with another implementation. **Agrees** counts the measurements within 2% of the required value; **turns with the image** is the largest spread one measurement showed across 0°, 30°, 60° and 90°, where the geometry is identical and the answer should be too.
+Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so **turns with the image** is the largest spread one quantity showed across the four, and anything above zero there is the implementation or the pixel grid rather than the eye. How far each measurement is from what the geometry requires is on the results pages, which read the drawn store's ground truth.
 
-| Implementation | Renderings | Quantities with a known value | Agrees | Turns with the image |
+| Implementation | Renderings | Columns | Values returned | Turns with the image |
 | --- | --- | --- | --- | --- |
-| [automorph](projects/automorph.md) | 32 | 120 | 32 of 120 | 100.0% |
-| [automorphalyzer](projects/automorphalyzer.md) | 32 | 132 | 28 of 132 | 13.6% |
-| [automorphclass](projects/automorphclass.md) | 32 | 120 | 21 of 120 | 13.6% |
-| [ocular](projects/ocular.md) | 32 | 208 | 104 of 208 | 7.4% |
-| [pvbm](projects/pvbm.md) | 32 | 262 | 144 of 262 | 75.0% |
-| [vascx](projects/vascx.md) | 32 | 81 | 69 of 81 | 0.3% |
+| [automorph](projects/automorph.md) | 36 | 18 | 648 | 100.0% |
+| [automorphalyzer](projects/automorphalyzer.md) | 36 | 54 | 1352 | 100.0% |
+| [automorphclass](projects/automorphclass.md) | 36 | 18 | 648 | 100.0% |
+| [ocular](projects/ocularnet.md) | 36 | 18 | 568 | 100.0% |
+| [pvbm](projects/pvbm.md) | 36 | 32 | 921 | 100.0% |
+| [vascx](projects/vascx.md) | 36 | 20 | 430 | 98.6% |
 
-**This benchmark selects nothing.** Which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence, and the numbers above are a summary of it rather than a ranking.
 
 ## Disc and cup
 
@@ -103,4 +102,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-09-22
+**Generated:** 2026-09-23

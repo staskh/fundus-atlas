@@ -18,48 +18,23 @@ def a_result(results, shape, rows):
         writer.writerows(rows)
 
 
-def test_an_exact_answer_of_zero_agrees_with_a_theory_of_zero(tmp_path) -> None:
-    """A straight vessel has no junctions, and saying so is the right answer, not a miss.
+def test_the_evidence_records_what_was_said_and_nothing_about_what_is_right() -> None:
+    """A run measures; it does not judge. The two were one thing and are now separable.
 
-    Counting it as a disagreement would mark every correct zero wrong — and it did: eight of this
-    benchmark's own comparisons were exact zeros reported as failures to agree.
+    The benchmark never reads the ground truth, so its evidence carries only what each
+    implementation returned, under that implementation's own column names. Joining it to the
+    store's `ground_truth.csv` is the analysis's work — which means the same evidence can be
+    re-read against a corrected ground truth without measuring anything again, and a run cannot
+    quietly decide what counts as agreement.
     """
-    a_result(
-        tmp_path,
-        "straight",
-        [
-            {
-                "key": "straight@0",
-                "rotation": "0.0",
-                "said_intersections_artery": "0",
-                "theory_intersections_artery": "0",
-            }
-        ],
+    columns = set(benchmark.COLUMNS)
+
+    assert "said_<key>" in columns
+    assert not [name for name in columns if name.startswith("theory_")], (
+        "a run that recorded the answer would be judging as well as measuring"
     )
-
-    pooled = benchmark._pooled([{"model": "pvbm"}], tmp_path)
-
-    assert pooled["pvbm"]["agreed"] == "1 of 1", "0 against a required 0 is exact"
-
-
-def test_a_wrong_answer_against_a_theory_of_zero_still_disagrees(tmp_path) -> None:
-    """The counterpart: a junction counted where the shape has none is not agreement."""
-    a_result(
-        tmp_path,
-        "straight",
-        [
-            {
-                "key": "straight@0",
-                "rotation": "0.0",
-                "said_intersections_artery": "4",
-                "theory_intersections_artery": "0",
-            }
-        ],
-    )
-
-    pooled = benchmark._pooled([{"model": "pvbm"}], tmp_path)
-
-    assert pooled["pvbm"]["agreed"] == "0 of 1"
+    source = Path(benchmark.__file__).read_text()
+    assert ".theory" not in source, "the run must not reach into a shape's ground truth"
 
 
 class PartlyAnswering:

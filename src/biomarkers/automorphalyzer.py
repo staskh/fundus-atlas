@@ -67,7 +67,11 @@ def _answers() -> dict[str, str]:
         for zone in ("B", "C"):
             for column, mapped in ZONAL.items():
                 own = f"{column}@{zone}_{measured}"
-                catalogued = mapped and zone == COMPARABLE_ZONE and side in (mapped.split("/")[-1], "vessels")
+                catalogued = (
+                    mapped
+                    and zone == COMPARABLE_ZONE
+                    and side in (mapped.split("/")[-1], "vessels")
+                )
                 # An equivalent is named for the class it measures, so the artery column only
                 # answers for arteries; the same column over the vein map is a different number.
                 if catalogued and mapped.split("/")[-1] == side:
@@ -79,6 +83,16 @@ def _answers() -> dict[str, str]:
 
 #: Answered name → the column behind it. Built once; the order is the order above.
 ANSWERS = _answers()
+
+#: Each column under **its own name**, against the catalogued biomarker it answers to — or `None`
+#: where the catalogue has no name for it yet. The evidence a run writes is keyed by the
+#: implementation's own names, because that is what its authors call these numbers and what a
+#: reader checking against their documentation will look for; translating to a catalogued name is
+#: a claim, and a claim belongs in the analysis that relies on it rather than baked into the
+#: measurement.
+CANONICAL: dict[str, str | None] = {
+    own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+}
 
 
 class Automorphalyzer:
@@ -116,8 +130,8 @@ class Automorphalyzer:
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
-            "names": dict(ANSWERS),
-            "calls": {name: [f"measure_{own.rsplit('_', 1)[-1]}"] for name, own in ANSWERS.items()},
+            "names": dict(CANONICAL),
+            "calls": {own: [f"measure_{own.rsplit('_', 1)[-1]}"] for own in CANONICAL},
             "zones": {"B": "2 to 3 disc radii", "C": "2 to 5 disc radii", "whole": "the frame"},
             "units": {"every measurement": "px"},
             "device": self.device,
@@ -129,7 +143,7 @@ class Automorphalyzer:
         return str(upstream.COMMIT)
 
     def keys(self) -> tuple[str, ...]:
-        return tuple(ANSWERS)
+        return tuple(CANONICAL)
 
     def measure(
         self,
@@ -156,7 +170,7 @@ class Automorphalyzer:
             if mask is None or not mask.any():
                 continue
             computed.update(self._one_map(mask, measured, disc_mask, (x, y), radius, side))
-        return {answered: computed.get(own) for answered, own in ANSWERS.items()}
+        return {own: computed.get(own) for own in CANONICAL}
 
     def _one_map(self, mask, measured, disc_mask, centre, radius, side):
         """One vessel map, measured in every zone, under the column names it uses itself."""

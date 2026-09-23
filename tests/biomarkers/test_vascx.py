@@ -48,13 +48,13 @@ def test_nothing_measured_against_the_invented_axis_is_catalogued() -> None:
     """
     adapter = an_adapter()
 
-    catalogued = [key for key in adapter.keys() if "/" in key]
     behind = adapter.declare()["names"]
-    for name in catalogued:
-        own = behind[name]
+    for own, catalogued in behind.items():
+        if catalogued is None:
+            continue
         assert not any(
             direction in own for direction in ("superior", "inferior", "temporal", "nasal")
-        ), f"{name} is catalogued but measured against the axis we invented ({own})"
+        ), f"{own} claims {catalogued} but is measured against the axis we invented"
     assert any("temporal_angle" in key for key in adapter.keys()), "and it is still measured"
 
 
@@ -82,11 +82,17 @@ def test_it_converts_its_millimetres_back_to_the_pixels_the_theory_is_in(shape) 
 
     measured = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
 
-    width = measured["vessel-calibre/mean-width/artery"]
-    assert width == pytest.approx(shape.theory["vessel-calibre/mean-width/artery"], rel=0.05), (
-        "an 80 µm artery at 10 µm per pixel is 8 px across"
+    # Under VascX's own names, which is what a run records; the ground truth is the shape's.
+    names = adapter.declare()["names"]
+    calibre = next(own for own, name in names.items() if name == "vessel-calibre/mean-width/artery")
+    equivalent = next(
+        own for own, name in names.items() if name == "central-retinal-equivalents/knudtson/artery"
     )
-    assert measured["central-retinal-equivalents/knudtson/artery"] == pytest.approx(
+
+    assert measured[calibre] == pytest.approx(
+        shape.theory["vessel-calibre/mean-width/artery"], rel=0.05
+    ), "an 80 µm artery at 10 µm per pixel is 8 px across"
+    assert measured[equivalent] == pytest.approx(
         shape.theory["central-retinal-equivalents/knudtson/artery"], rel=0.05
     )
 

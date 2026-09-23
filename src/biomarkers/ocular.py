@@ -57,6 +57,16 @@ def _answers() -> dict[str, str]:
 #: Answered name → the value behind it. Built once; the order is the order above.
 ANSWERS = _answers()
 
+#: Each column under **its own name**, against the catalogued biomarker it answers to — or `None`
+#: where the catalogue has no name for it yet. The evidence a run writes is keyed by the
+#: implementation's own names, because that is what its authors call these numbers and what a
+#: reader checking against their documentation will look for; translating to a catalogued name is
+#: a claim, and a claim belongs in the analysis that relies on it rather than baked into the
+#: measurement.
+CANONICAL: dict[str, str | None] = {
+    own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+}
+
 
 class Ocular:
     """OCULAR's geometry, run as it ships.
@@ -99,10 +109,8 @@ class Ocular:
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
-            "names": dict(ANSWERS),
-            "calls": {
-                name: [f"geometry_{own.rsplit('_', 1)[-1]}"] for name, own in ANSWERS.items()
-            },
+            "names": dict(CANONICAL),
+            "calls": {own: [f"geometry_{own.rsplit('_', 1)[-1]}"] for own in CANONICAL},
             "traversal": self.TRAVERSAL,
             "absent": list(ABSENT),
             "units": {"every measurement": "px"},
@@ -114,7 +122,7 @@ class Ocular:
         return str(upstream.provenance()["commit"])
 
     def keys(self) -> tuple[str, ...]:
-        return tuple(ANSWERS)
+        return tuple(CANONICAL)
 
     def measure(
         self,
@@ -138,7 +146,7 @@ class Ocular:
                 continue
             for (column, _mapped), value in zip(COLUMNS, found, strict=False):
                 computed[f"{column}_{side}"] = _number(value)
-        return {answered: computed.get(own) for answered, own in ANSWERS.items()}
+        return {own: computed.get(own) for own in CANONICAL}
 
     def _one_class(self, mask: np.ndarray, x: float, y: float, radius: float):
         """One class, measured by OCULAR's own call. The skeleton is an input it does not make."""

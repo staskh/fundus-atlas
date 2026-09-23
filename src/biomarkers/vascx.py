@@ -76,6 +76,16 @@ def _answers() -> dict[str, str]:
 #: Answered name → the feature behind it. Built once; the order is the order above.
 ANSWERS = _answers()
 
+#: Each column under **its own name**, against the catalogued biomarker it answers to — or `None`
+#: where the catalogue has no name for it yet. The evidence a run writes is keyed by the
+#: implementation's own names, because that is what its authors call these numbers and what a
+#: reader checking against their documentation will look for; translating to a catalogued name is
+#: a claim, and a claim belongs in the analysis that relies on it rather than baked into the
+#: measurement.
+CANONICAL: dict[str, str | None] = {
+    own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+}
+
 
 class Vascx:
     """VascX, measured as it ships.
@@ -130,8 +140,8 @@ class Vascx:
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
-            "names": dict(ANSWERS),
-            "calls": {name: ["calc_features"] for name in ANSWERS},
+            "names": dict(CANONICAL),
+            "calls": {own: ["calc_features"] for own in CANONICAL},
             "feature_set": FEATURE_SET,
             "circle": "1.1667 disc diameters from the disc centre",
             "fovea": self.FOVEA,
@@ -148,7 +158,7 @@ class Vascx:
         return str(upstream.provenance().get("version") or upstream.provenance().get("commit"))
 
     def keys(self) -> tuple[str, ...]:
-        return tuple(ANSWERS)
+        return tuple(CANONICAL)
 
     def measure(
         self,
@@ -160,20 +170,19 @@ class Vascx:
     ) -> dict[str, float | None]:
         """Everything the shipped set computes, under catalogued names where one applies."""
         self.trouble = {}
-        computed: dict[str, float | None] = dict.fromkeys(ANSWERS.values())
+        computed: dict[str, float | None] = dict.fromkeys(CANONICAL)
         if artery is None or vein is None:
             # Its retina is assembled from both classes at once; one alone is not a retina, and
             # substituting the other would be invisible in the evidence.
             self.trouble["calc_features"] = "VascX is assembled from both classes and was given one"
-            return {answered: None for answered in ANSWERS}
+            return dict.fromkeys(CANONICAL)
         try:
             found = self._one_retina(artery, vein, fov, disc, um_per_px)
         except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
             self.trouble["calc_features"] = repr(failure)
-            return {answered: None for answered in ANSWERS}
+            return dict.fromkeys(CANONICAL)
         computed.update(found)
-        answers = {answered: computed.get(own) for answered, own in ANSWERS.items()}
-        return self._in_pixels(answers, um_per_px)
+        return self._in_pixels({own: computed.get(own) for own in CANONICAL}, um_per_px)
 
     def _one_retina(self, artery, vein, fov, disc, um_per_px):
         """Build the retina VascX expects, and run the shipped feature set over it once."""
@@ -234,11 +243,14 @@ class Vascx:
         if not um_per_px:
             return answers
         per_pixel_mm = um_per_px * MM_PER_UM
-        for name, value in answers.items():
-            if value is None or "/" not in name:
-                continue
-            if name.startswith(("vessel-calibre/", "central-retinal-equivalents/")):
-                answers[name] = value / per_pixel_mm
+        for own, value in answers.items():
+            # Decided by what the column *means* rather than by what it is called: VascX's own
+            # names say nothing about units, and only the two lengths are converted.
+            catalogued = CANONICAL.get(own) or ""
+            if value is not None and catalogued.startswith(
+                ("vessel-calibre/", "central-retinal-equivalents/")
+            ):
+                answers[own] = value / per_pixel_mm
         return answers
 
     def _loaded(self):

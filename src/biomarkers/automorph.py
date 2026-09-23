@@ -56,6 +56,16 @@ def _answers() -> dict[str, str]:
 #: Answered name → the column behind it. Built once; the order is the order above.
 ANSWERS = _answers()
 
+#: Each column under **its own name**, against the catalogued biomarker it answers to — or `None`
+#: where the catalogue has no name for it yet. The evidence a run writes is keyed by the
+#: implementation's own names, because that is what its authors call these numbers and what a
+#: reader checking against their documentation will look for; translating to a catalogued name is
+#: a claim, and a claim belongs in the analysis that relies on it rather than baked into the
+#: measurement.
+CANONICAL: dict[str, str | None] = {
+    own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+}
+
 
 class Automorph:
     """AutoMorph's measuring stage, run as it ships.
@@ -117,8 +127,8 @@ class Automorph:
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
-            "names": dict(ANSWERS),
-            "calls": {name: [f"evaluate_{own.rsplit('_', 1)[-1]}"] for name, own in ANSWERS.items()},
+            "names": dict(CANONICAL),
+            "calls": {own: [f"evaluate_{own.rsplit('_', 1)[-1]}"] for own in CANONICAL},
             "min_pixels_per_vessel": self.MIN_PIXELS_PER_VESSEL,
             "sampling_size": self.SAMPLING_SIZE,
             "r2_threshold": self.R2_THRESHOLD,
@@ -134,7 +144,7 @@ class Automorph:
         return str(upstream.CODE.commit)
 
     def keys(self) -> tuple[str, ...]:
-        return tuple(ANSWERS)
+        return tuple(CANONICAL)
 
     def measure(
         self,
@@ -162,7 +172,7 @@ class Automorph:
                     computed[f"{column}_{measured}"] = _number(value)
             except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
                 self.trouble[f"evaluate_{measured}"] = repr(failure)
-        return {answered: computed.get(own) for answered, own in ANSWERS.items()}
+        return {own: computed.get(own) for own in CANONICAL}
 
     def _one_map(self, mask: np.ndarray, measured: str) -> tuple:
         """One vessel map, through the file tree retipy insists on."""
@@ -178,7 +188,9 @@ class Automorph:
             _write(vessels / name, binary)
             _write(skeletons / name, skeletonize(binary))
             # It reads the scale from here, finding the file by splitting the store path at `M2`.
-            (root / "M0" / "crop_info.csv").write_text(f"Name,Scale_resolution\n{name},{self.SCALE}\n")
+            (root / "M0" / "crop_info.csv").write_text(
+                f"Name,Scale_resolution\n{name},{self.SCALE}\n"
+            )
 
             picture = retina.Retina(None, str(skeletons / name), store_path=str(vessels))
             # One window covering the whole picture, at the size retipy resampled it to.

@@ -28,28 +28,27 @@ def test_it_declares_what_it_needs_and_what_it_claims() -> None:
     assert declared["upstream"]["commit"], "a run records the code that produced the number"
 
 
-def test_every_name_it_answers_under_is_either_catalogued_or_plainly_its_own() -> None:
-    """The two kinds are told apart by a `/`, and nothing in between is allowed.
+def test_it_answers_under_pvbms_names_and_declares_what_they_mean() -> None:
+    """The evidence carries PVBM's vocabulary; what each column is believed to measure is declared.
 
-    A catalogued name is what makes two implementations comparable; a column the catalogue has no
-    name for keeps the implementation's own, so the measurement is kept rather than discarded and
-    the gap is visible.
+    A reader checking a number against PVBM's own documentation looks for `craek`, not for a name
+    this repository invented. Translating is a claim about somebody else's code, and it travels as
+    a declaration an analysis can apply or disbelieve rather than baked into the measurement.
     """
     adapter = an_adapter()
-    for key in adapter.keys():
-        if "/" in key:
-            canonical.check(key)
-        else:
-            assert key in adapter.declare()["names"].values() or key == adapter.declare()[
-                "names"
-            ].get(key), f"{key} is not one of PVBM's own column names"
+    names = adapter.declare()["names"]
+
+    assert set(names) == set(adapter.keys())
+    for catalogued in names.values():
+        if catalogued is not None:
+            canonical.check(catalogued)
 
 
 def test_it_translates_its_own_columns_onto_catalogued_names() -> None:
     """The renaming happens here, so a run's evidence needs no translation step after it."""
     adapter = an_adapter()
 
-    assert adapter.declare()["names"]["vessel-area-and-length/area/artery"] == "area_artery"
+    assert adapter.declare()["names"]["area_artery"] == "vessel-area-and-length/area/artery"
     assert adapter.canonical_for("area_artery") == "vessel-area-and-length/area/artery"
     # Read out of `compute_angles_dictionary`: it medians every pairwise angle at every junction,
     # the trunk included, so it is not the angle between a bifurcation's daughters.
@@ -93,7 +92,7 @@ def test_a_ratio_of_two_classes_needs_both_of_them() -> None:
 
     measured = adapter.measure(shape.artery, None, shape.fov, shape.disc, shape.um_per_px)
 
-    assert measured["avr/knudtson/both"] is None, "an AVR from arteries alone is the worst answer here"
+    assert measured["avr_knudtson"] is None, "an AVR from arteries alone is the worst answer here"
 
 
 def test_pvbm_computes_both_equivalents_from_pixel_widths_whatever_scale_it_is_given() -> None:
@@ -111,9 +110,9 @@ def test_pvbm_computes_both_equivalents_from_pixel_widths_whatever_scale_it_is_g
     without = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, None)
     with_scale = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, 5.0)
 
-    assert without["central-retinal-equivalents/knudtson/artery"] is not None
-    assert without["central-retinal-equivalents/hubbard/artery"] is not None, "it computes one whether or not a scale exists"
-    assert without["central-retinal-equivalents/hubbard/artery"] == pytest.approx(with_scale["central-retinal-equivalents/hubbard/artery"]), (
+    assert without["crae_knudtson"] is not None
+    assert without["crae_hubbard"] is not None, "it computes one whether or not a scale exists"
+    assert without["crae_hubbard"] == pytest.approx(with_scale["crae_hubbard"]), (
         "and the scale changes nothing, because PVBM never sees it"
     )
 
@@ -125,7 +124,7 @@ def test_it_recovers_the_tortuosity_of_a_straight_vessel() -> None:
 
     measured = adapter.measure(shape.artery, None, shape.fov, shape.disc, shape.um_per_px)
 
-    assert measured["tortuosity/hart-tau1/artery"] == pytest.approx(1.0, abs=0.02)
+    assert measured["median_tortuosity_artery"] == pytest.approx(1.0, abs=0.02)
 
 
 def test_a_crash_is_recorded_rather_than_raised() -> None:
@@ -154,8 +153,8 @@ def test_it_measures_equivalents_at_the_grid_the_benchmark_runs_on() -> None:
     answers = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, 5.0)
 
     assert not adapter.trouble, f"nothing should have fallen over: {adapter.trouble}"
-    assert answers["central-retinal-equivalents/knudtson/artery"] is not None, "twelve vessels leave the disc; it can answer"
-    assert np.isfinite(answers["central-retinal-equivalents/knudtson/artery"])
+    assert answers["crae_knudtson"] is not None, "twelve vessels leave the disc; it can answer"
+    assert np.isfinite(answers["crae_knudtson"])
 
 
 def test_it_says_which_call_each_measurement_comes_out_of() -> None:
@@ -167,10 +166,10 @@ def test_it_says_which_call_each_measurement_comes_out_of() -> None:
     """
     calls = an_adapter().declare()["calls"]
 
-    assert calls["vessel-area-and-length/area/artery"] == ["geometry_artery"]
-    assert calls["fractal-dimension/multifractal-d0/vein"] == ["fractals_vein"]
-    assert calls["central-retinal-equivalents/knudtson/artery"] == ["equivalents_artery"]
-    assert calls["central-retinal-equivalents/hubbard/vein"] == ["equivalents_vein"]
+    assert calls["area_artery"] == ["geometry_artery"]
+    assert calls["capacity_dimension_vein"] == ["fractals_vein"]
+    assert calls["crae_knudtson"] == ["equivalents_artery"]
+    assert calls["crve_hubbard"] == ["equivalents_vein"]
     # A ratio needs both classes, so either failing costs it.
-    assert calls["avr/knudtson/both"] == ["equivalents_artery", "equivalents_vein"]
+    assert calls["avr_knudtson"] == ["equivalents_artery", "equivalents_vein"]
     assert set(calls) == set(an_adapter().keys()), "every column says where it came from"

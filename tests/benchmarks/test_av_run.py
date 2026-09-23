@@ -193,7 +193,9 @@ def test_the_kept_masks_are_thrown_away_when_they_describe_another_model(tmp_pat
     with Image.open(kept / "a-artery.png") as mask:
         drawn = np.asarray(mask)
 
-    assert not drawn[SIDE // 4].any(), "the first model's band is gone, not left beside the second's"
+    assert not drawn[SIDE // 4].any(), (
+        "the first model's band is gone, not left beside the second's"
+    )
     assert drawn[SIDE // 4 + 64].all()
 
 

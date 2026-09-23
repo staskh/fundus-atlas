@@ -104,8 +104,7 @@ python -m benchmarks --benchmark biomarker-synthetic --docs
 | `um_per_px` | the microns per pixel the shape was built with |
 | `outcome` | `measured` if any quantity came back, else `failed`; `note` says what fell over |
 | `seconds` | how long the implementation took over this rendering |
-| `said_<key>` | what the implementation returned. `<key>` is a **catalogued biomarker name** — `biomarker/variant/structure` — wherever the implementation's adapter maps its own column to one, so two implementations' evidence lines up column by column. A column the catalogue has no name for yet keeps the implementation's own name, recognisable by carrying no `/`, and is measured and stored all the same |
-| `theory_<key>` | what the shape's geometry requires for that quantity, where it defines one. A shape states its theory under catalogued names too, so the two meet without translation; a column under an implementation's own name therefore has no theory beside it |
+| `said_<key>` | what the implementation returned, under **its own** column name — what its authors call that number and what a reader checking against their documentation will look for. No value to compare against sits beside it: the ground truth lives in the store's `ground_truth.csv`, the catalogued name each column answers to is in the adapter's declaration, and joining the three is the analysis's work rather than the run's |
 | `note` | what an implementation failed with |
 <!-- /generated -->
 
@@ -170,7 +169,7 @@ would be comparing different quantities. The **structure** is what the measureme
 arteriovenous ratio and nothing else.
 
 <!-- generated: biomarkers -->
-32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`). **29 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing.
+32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`). **32 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing.
 
 **[tortuosity](../biomarkers/tortuosity.md)**
 
@@ -206,9 +205,9 @@ arteriovenous ratio and nothing else.
 
 | Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
-| `avr/knudtson/both` | arteriolar over venular equivalent, both Knudtson | — |
-| `avr/hubbard/both` | arteriolar over venular equivalent, both Hubbard | — |
-| `avr/ratio-of-calibres/both` | mean artery width over mean vein width, with no ring and no equivalent | — |
+| `avr/knudtson/both` | arteriolar over venular equivalent, both Knudtson | yes |
+| `avr/hubbard/both` | arteriolar over venular equivalent, both Hubbard | yes |
+| `avr/ratio-of-calibres/both` | mean artery width over mean vein width, with no ring and no equivalent | yes |
 
 **[vascular-density](../biomarkers/vascular-density.md)**
 

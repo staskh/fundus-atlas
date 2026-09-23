@@ -102,6 +102,28 @@ def implementations(slugs: list[str]) -> tuple[list, dict[str, str]]:
     return found, missing
 
 
+def _ground_truth() -> dict[str, list[str]]:
+    """Which catalogued biomarkers the drawn store settles, per shape, read from the store itself.
+
+    **The run never calls this.** It is for the page that documents the benchmark, which has to be
+    able to say what can be checked — and reading the store is how a reader would find out, rather
+    than rebuilding every shape and trusting that the drawing agrees with the rebuild. Where no
+    store has been drawn the answer is simply empty: a configuration page is writable before the
+    images exist, which is the point of writing it first.
+    """
+    from .shapes import store
+
+    try:
+        truth = store.truth(store.STORE)
+    except (FileNotFoundError, OSError):
+        return {}
+    settled: dict[str, list[str]] = {}
+    for key, values in truth.items():
+        shape = key.rsplit("-", 2)[0]
+        settled.setdefault(shape, sorted(values))
+    return settled
+
+
 def configuration(adapters: list, shapes: list[str]) -> dict[str, object]:
     """What this run is about to do, without doing any of it."""
     described = []
@@ -117,7 +139,7 @@ def configuration(adapters: list, shapes: list[str]) -> dict[str, object]:
                     for part, mask in (("artery", built.artery), ("vein", built.vein))
                     if mask is not None
                 ],
-                "settles": sorted(built.theory),
+                "settles": sorted(_ground_truth().get(name, ())),
             }
         )
     return {
@@ -248,15 +270,14 @@ def _row(
         "seconds": f"{taken:.3f}",
         "note": note,
     }
+    # Under the implementation's **own** column names, and with no value beside them to compare
+    # against. A run records what each program said; what it should have said is in the store's
+    # `ground_truth.csv`, and joining the two is the analysis's job. Keeping them apart means a run
+    # cannot quietly decide what counts as agreement, and the same evidence can be re-read against
+    # a corrected ground truth without measuring anything again.
     for key in adapter.keys():
         value = answered.get(key)
         row[f"said_{key}"] = "" if value is None else f"{float(value):.6f}"
-        # The adapter answers under catalogued names, and a shape states its theory under the same
-        # ones, so the two meet without a translation step in between. A column the catalogue has
-        # no name for carries the implementation's own name and no theory — which is a gap in the
-        # catalogue rather than a reason to leave the measurement out.
-        theory = built.theory.get(key)
-        row[f"theory_{key}"] = "" if theory is None else f"{float(theory):.6f}"
     return row
 
 
@@ -323,16 +344,11 @@ COLUMNS = {
     "outcome": "`measured` if any quantity came back, else `failed`; `note` says what fell over",
     "seconds": "how long the implementation took over this rendering",
     "said_<key>": (
-        "what the implementation returned. `<key>` is a **catalogued biomarker name** — "
-        "`biomarker/variant/structure` — wherever the implementation's adapter maps its own column "
-        "to one, so two implementations' evidence lines up column by column. A column the "
-        "catalogue has no name for yet keeps the implementation's own name, recognisable by "
-        "carrying no `/`, and is measured and stored all the same"
-    ),
-    "theory_<key>": (
-        "what the shape's geometry requires for that quantity, where it defines one. A shape "
-        "states its theory under catalogued names too, so the two meet without translation; a "
-        "column under an implementation's own name therefore has no theory beside it"
+        "what the implementation returned, under **its own** column name — what its authors call "
+        "that number and what a reader checking against their documentation will look for. No "
+        "value to compare against sits beside it: the ground truth lives in the store's "
+        "`ground_truth.csv`, the catalogued name each column answers to is in the adapter's "
+        "declaration, and joining the three is the analysis's work rather than the run's"
     ),
     "note": "what an implementation failed with",
 }
@@ -351,8 +367,14 @@ def config() -> dict[str, object]:
     declared = {adapter.slug: adapter.declare() for adapter in adapters}
     # Built once, at the benchmark's own grid, and used for both the shape table and the
     # vocabulary below: a smaller grid cannot hold the ring the equivalents are measured over.
-    settles = {name: library.build(name, side=SIDE, um_per_px=UM_PER_PX).theory for name in SHAPES}
-    pinned = {f"{key.rsplit('/', 1)[0]}/{{s}}" for theory in settles.values() for key in theory}
+    settles = _ground_truth()
+    # A canonical name is either a template applying to several structures or a literal naming one
+    # — `avr/knudtson/both` is its own name rather than a `{s}` form — so both are recorded.
+    pinned: set[str] = set()
+    for names in settles.values():
+        for name in names:
+            head, _structure = name.rsplit("/", 1)
+            pinned.update({f"{head}/{{s}}", name})
     return {
         "benchmark": NAME,
         "title": TITLE,
@@ -384,7 +406,7 @@ def config() -> dict[str, object]:
             "declared": [
                 {
                     "slug": name,
-                    "detail": f"{len(settles[name])} quantities with a known value",
+                    "detail": f"{len(settles.get(name, ()))} quantities with a known value",
                     "available": True,
                 }
                 for name in SHAPES
@@ -498,75 +520,75 @@ def docs_sections(
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
-    """This benchmark's entry in the index: what each implementation got right, and how far off.
+    """This benchmark's entry in the index: what each implementation returned, and how steady it was.
 
-    One row per implementation. The figure that matters is not an average error — averaging a
-    tortuosity with a fractal dimension means nothing — but **how many of the quantities it
-    reports land on the value geometry requires**, and how far its answers move when the same
-    shape is turned.
+    **No score.** A run does not read the ground truth, so the index cannot say how close anybody
+    got — and saying it here from a different source would put two answers to one question in two
+    places. What belongs here is what the evidence alone supports: how much each program returned,
+    and how much of it moved when the same shape was turned, where the geometry did not.
     """
     summarised = _pooled(records, results)
     yield (
-        "Every value is compared with what the shape's geometry requires rather than with another "
-        "implementation. **Agrees** counts the measurements within 2% of the required value; "
-        "**turns with the image** is the largest spread one measurement showed across 0°, 30°, 60° "
-        "and 90°, where the geometry is identical and the answer should be too."
+        "Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so "
+        "**turns with the image** is the largest spread one quantity showed across the four, and "
+        "anything above zero there is the implementation or the pixel grid rather than the eye. "
+        "How far each measurement is from what the geometry requires is on the results pages, "
+        "which read the drawn store's ground truth."
     )
     yield ""
-    yield "| Implementation | Renderings | Quantities with a known value | Agrees | Turns with the image |"
+    yield "| Implementation | Renderings | Columns | Values returned | Turns with the image |"
     yield "| --- | --- | --- | --- | --- |"
+    # An implementation's slug need not name its catalogue page — OCULAR's is `ocularnet.md` — and
+    # a stored result records no declaration, so the adapters are asked. This runs only when the
+    # index is generated, never during a run.
+    adapters, _absent = implementations(list(IMPLEMENTATIONS))
+    pages = {a.slug: str(a.declare().get("page", a.slug)) for a in adapters}
     for model, found in sorted(summarised.items()):
+        # An implementation's slug need not name its catalogue page — OCULAR's is `ocularnet.md`.
+        page = f"projects/{pages.get(model, model)}.md"
         yield (
-            f"| [{model}](projects/{model}.md) | {found['renderings']} | {found['comparable']} | "
-            f"{found['agreed']} | {found['spread']} |"
+            f"| [{model}]({page}) | {found['renderings']} | {found['columns']} | "
+            f"{found['answered']} | {found['spread']} |"
         )
     yield ""
-    yield (
-        "**This benchmark selects nothing.** Which implementations are fit to measure a real "
-        "segmentation is a judgement made by a person on this evidence, and the numbers above are "
-        "a summary of it rather than a ranking."
-    )
 
 
 def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[str, object]]:
-    """How each implementation did, counted over every rendering in `results/`."""
+    """What each implementation produced, counted over every rendering in `results/`.
+
+    **Nothing here is scored.** The benchmark does not read the ground truth, so it cannot say how
+    close anybody got; what it can say is what each program returned and how steady it was when the
+    same shape was turned, both of which are properties of the evidence alone. How far any of it is
+    from what the geometry requires is on the results pages, which read the store.
+    """
     import csv
 
     found: dict[str, dict[str, object]] = {}
     for model in sorted({str(record["model"]) for record in records}):
-        comparable = agreed = renderings = 0
-        spreads: list[float] = []
+        renderings = answered = 0
+        columns: set[str] = set()
         by_quantity: dict[str, list[float]] = {}
         for path in sorted((results / NAME / model).glob("*.csv")):
             for row in csv.DictReader(path.open()):
                 renderings += 1
                 for column, said in row.items():
-                    if not column.startswith("said_") or not said:
+                    if not column.startswith("said_"):
                         continue
                     key = column[len("said_") :]
-                    theory = row.get(f"theory_{key}", "")
-                    if not theory:
+                    columns.add(key)
+                    if not said:
                         continue
-                    comparable += 1
-                    required, answered = float(theory), float(said)
-                    # A required value of zero — a shape with no junctions — is agreed with by
-                    # answering zero and by nothing else. A relative tolerance cannot express that,
-                    # and treating it as unanswerable counted every correct zero as a miss.
-                    close = (
-                        answered == required
-                        if required == 0
-                        else abs(answered - required) / abs(required) <= AGREES
-                    )
-                    if close:
-                        agreed += 1
-                    by_quantity.setdefault(f"{path.stem}/{key}", []).append(answered)
-        for values in by_quantity.values():
-            if len(values) > 1 and max(abs(v) for v in values) > 0:
-                spreads.append((max(values) - min(values)) / max(abs(v) for v in values))
+                    answered += 1
+                    by_quantity.setdefault(f"{path.stem}/{key}", []).append(float(said))
+        spreads = [
+            (max(values) - min(values)) / max(abs(v) for v in values)
+            for values in by_quantity.values()
+            if len(values) > 1 and max(abs(v) for v in values) > 0
+        ]
         found[model] = {
             "renderings": renderings,
-            "comparable": comparable,
-            "agreed": f"{agreed} of {comparable}" if comparable else "—",
+            "columns": len(columns),
+            "answered": answered,
             "spread": f"{max(spreads):.1%}" if spreads else "—",
         }
     return found

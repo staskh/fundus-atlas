@@ -32,15 +32,21 @@ def test_it_declares_what_it_needs_and_what_pins_it(slug) -> None:
 
 
 @pytest.mark.parametrize("slug", FAMILY)
-def test_every_name_it_answers_under_is_catalogued_or_plainly_its_own(slug) -> None:
-    """The two kinds are told apart by a `/`, exactly as for PVBM."""
-    adapter = catalogue.load(slug)
+def test_it_answers_under_its_own_names_and_says_what_they_mean(slug) -> None:
+    """The evidence carries the implementation's vocabulary; the translation is declared beside it.
 
-    for key in adapter.keys():
-        if "/" in key:
-            canonical.check(key)
-    assert set(adapter.declare()["names"]) == set(adapter.keys())
+    A reader checking a number against its authors' documentation looks for the name they use, so
+    that is what a run records. What each of those columns is believed to measure is a claim, and
+    it travels as a separate declaration that an analysis can apply or disbelieve.
+    """
+    adapter = catalogue.load(slug)
+    names = adapter.declare()["names"]
+
+    assert set(names) == set(adapter.keys()), "every column says what it is believed to mean"
     assert set(adapter.declare()["calls"]) == set(adapter.keys())
+    for catalogued in names.values():
+        if catalogued is not None:
+            canonical.check(catalogued)
 
 
 @pytest.mark.parametrize("slug", FAMILY)
@@ -54,9 +60,12 @@ def test_it_forms_the_union_of_the_classes_itself(slug, shape) -> None:
 
     measured = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
 
+    names = adapter.declare()["names"]
     for structure in ("artery", "vein", "vessels"):
         answered = [
-            key for key in measured if key.endswith(f"/{structure}") and measured[key] is not None
+            own
+            for own, catalogued in names.items()
+            if catalogued and catalogued.endswith(f"/{structure}") and measured[own] is not None
         ]
         assert answered, f"{slug} answered nothing for {structure}"
 
@@ -68,7 +77,12 @@ def test_a_class_it_was_not_given_comes_back_as_nothing(slug, shape) -> None:
 
     measured = adapter.measure(shape.artery, None, shape.fov, shape.disc, shape.um_per_px)
 
-    veins = [key for key in measured if key.endswith(("/vein", "_vein"))]
+    names = adapter.declare()["names"]
+    veins = [
+        own
+        for own, catalogued in names.items()
+        if (catalogued or own).endswith(("/vein", "_vein", "_veins"))
+    ]
     assert veins, "the keys exist so a table has the same columns whatever it was given"
     assert all(measured[key] is None for key in veins)
 
@@ -83,8 +97,8 @@ def test_automorphalyzer_catalogues_zone_b_and_not_zone_c(shape) -> None:
     adapter = catalogue.load("automorphalyzer")
     names = adapter.declare()["names"]
 
-    assert names["central-retinal-equivalents/knudtson/artery"] == "CRAE_Knudtson@B_artery"
-    assert names["central-retinal-equivalents/knudtson/vein"] == "CRVE_Knudtson@B_vein"
+    assert names["CRAE_Knudtson@B_artery"] == "central-retinal-equivalents/knudtson/artery"
+    assert names["CRVE_Knudtson@B_vein"] == "central-retinal-equivalents/knudtson/vein"
     assert "CRAE_Knudtson@C_artery" in adapter.keys(), "zone C is kept under its own name"
     assert adapter.declare()["zones"]["B"] == "2 to 3 disc radii"
 
@@ -124,7 +138,7 @@ def test_the_family_answers_the_same_six_quantities(shape) -> None:
     """
     shared = None
     for slug in FAMILY:
-        catalogued = {key for key in catalogue.load(slug).keys() if "/" in key}
+        catalogued = {name for name in catalogue.load(slug).declare()["names"].values() if name}
         shared = catalogued if shared is None else shared & catalogued
 
     assert len(shared) >= 15, f"only {len(shared)} names in common across the family"
