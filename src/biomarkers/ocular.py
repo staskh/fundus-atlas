@@ -92,6 +92,10 @@ class Ocular:
     def declare(self) -> dict[str, object]:
         return {
             "slug": self.slug,
+            # Its catalogue page is not named after its slug: the project is OCULARNet, of which
+            # OCULAR is the released collection and model together. Everything that links to a page
+            # asks the adapter rather than assuming the two names match.
+            "page": "ocularnet",
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(self.keys()),

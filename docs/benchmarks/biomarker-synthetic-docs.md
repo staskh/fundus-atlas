@@ -1,7 +1,17 @@
 # Biomarkers against arithmetic — how it is run
 
-This page says how the benchmark is configured: what it asks, what takes part, how to run it, and
-what every column of its evidence means.
+**What this benchmark does, in one paragraph.** It runs several biomarker-extraction programs over
+the *same* set of **synthetic** fundus images — drawings rather than photographs — and compares
+every number each one returns against the value that image is *known* to have. The images are
+drawn from geometry, so their ground truth is not somebody's annotation of a real eye but a
+quantity calculated in advance: a straight vessel has a tortuosity of exactly 1, a 90° circular arc
+has a curvature of exactly 1/r, and twelve vessels of known width have a central retinal equivalent
+that Knudtson's recursion fixes to the decimal. An implementation that disagrees with one of those
+is **wrong**, not merely different from its neighbours — which is what no comparison of two
+programs against each other can ever establish.
+
+This page says how that is configured: what it asks, which programs take part, which images they
+run on, how to run it, and what every column of its evidence means.
 
 **It is part generated and part written.** The tables and lists between the `generated` markers are
 rendered from what the benchmark reports about itself and are refreshed by
@@ -30,7 +40,7 @@ name rather than dropped.
 | Implementation | Pinned at | Columns it returns | Took part |
 | --- | --- | --- | --- |
 | [pvbm](../projects/pvbm.md) | `5edb79a` | 32 | yes |
-| [ocular](../projects/ocular.md) | `34b1ecc` | 18 | yes |
+| [ocular](../projects/ocularnet.md) | `34b1ecc` | 18 | yes |
 | [automorph](../projects/automorph.md) | `9a953e5` | 18 | yes |
 | [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 54 | yes |
 | [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 18 | yes |
@@ -143,6 +153,15 @@ against each other. This is that vocabulary — the fixed list in `src/biomarker
 where a name is a claim that two numbers under it are comparable, and adding one is a decision
 rather than a side effect of whatever an implementation happened to return.
 
+**What the last column means.** A biomarker has a *ground truth* here when at least one synthetic
+image carries a pre-computed value for it — the answer its geometry requires, derived on paper
+before anything was drawn and stored beside the image in `ground_truth.csv` — see
+[how the images are made](biomarker-synthetic-shapes.md). Those are the only biomarkers this benchmark
+can judge: an implementation's number is compared with that value, and a disagreement is an error
+with a size. A biomarker with no ground truth is still **measured and stored** — every
+implementation's answer for it is in the evidence — but there is nothing to compare it against, so
+the benchmark reports it and says nothing about whether it is right.
+
 A name is `biomarker/variant/structure`. The **variant** is the definition rather than the family
 name, because "tortuosity" names at least three incompatible formulas and a table that merged them
 would be comparing different quantities. The **structure** is what the measurement was taken over;
@@ -150,11 +169,11 @@ would be comparing different quantities. The **structure** is what the measureme
 arteriovenous ratio and nothing else.
 
 <!-- generated: biomarkers -->
-32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`), of which **15 have a value a shape here settles**.
+32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`). **15 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing.
 
 **[tortuosity](../biomarkers/tortuosity.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `tortuosity/hart-tau1/<structure>` | arc length over chord length; 1 for a straight vessel | yes |
 | `tortuosity/hart-tau2/<structure>` | total curvature, ∫κ ds | yes |
@@ -170,21 +189,21 @@ arteriovenous ratio and nothing else.
 
 **[vessel-calibre](../biomarkers/vessel-calibre.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `vessel-calibre/mean-width/<structure>` | mean vessel width, in pixels unless a scale was supplied | yes |
 | `vessel-calibre/median-width/<structure>` | median vessel width | — |
 
 **[central-retinal-equivalents](../biomarkers/central-retinal-equivalents.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `central-retinal-equivalents/knudtson/<structure>` | the Knudtson equivalent over the disc-centred ring — CRAE on arteries, CRVE on veins | yes |
 | `central-retinal-equivalents/hubbard/<structure>` | the Hubbard equivalent over the same ring | yes |
 
 **[avr](../biomarkers/avr.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `avr/knudtson/both` | arteriolar over venular equivalent, both Knudtson | — |
 | `avr/hubbard/both` | arteriolar over venular equivalent, both Hubbard | — |
@@ -192,14 +211,14 @@ arteriovenous ratio and nothing else.
 
 **[vascular-density](../biomarkers/vascular-density.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `vascular-density/over-field-of-view/<structure>` | vessel area as a fraction of the field of view | yes |
 | `vascular-density/over-image/<structure>` | vessel area as a fraction of the whole frame, lit or not | — |
 
 **[fractal-dimension](../biomarkers/fractal-dimension.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `fractal-dimension/box-counting/<structure>` | box-counting dimension | — |
 | `fractal-dimension/multifractal-d0/<structure>` | capacity dimension of the multifractal spectrum | — |
@@ -208,21 +227,21 @@ arteriovenous ratio and nothing else.
 
 **[vessel-area-and-length](../biomarkers/vessel-area-and-length.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `vessel-area-and-length/area/<structure>` | total vessel area, in pixels squared | yes |
 | `vessel-area-and-length/skeleton-length/<structure>` | total centreline length, in pixels | yes |
 
 **[sparsity](../biomarkers/sparsity.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `sparsity/mean-distance/<structure>` | mean distance from retina to the nearest vessel | — |
 | `sparsity/max-distance/<structure>` | the furthest any retina is from a vessel | — |
 
 **[junction-counts](../biomarkers/junction-counts.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `junction-counts/junctions/<structure>` | how many places three or more branches meet | yes |
 | `junction-counts/endpoints/<structure>` | how many free ends the network has | yes |
@@ -230,16 +249,15 @@ arteriovenous ratio and nothing else.
 
 **[bifurcation-angle](../biomarkers/bifurcation-angle.md)**
 
-| Canonical name | What it measures | Settled here |
+| Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `bifurcation-angle/between-daughters/<structure>` | the angle between the two daughter vessels, in degrees | yes |
 <!-- /generated -->
 
-**A name nothing settles is a gap in the shapes, not a verdict on an implementation.** A value in
-that column means only that some shape here defines what the answer must be; the rest are measured
-and stored, and compared against nothing until a shape pins them. Which implementation answers
-under which name is a separate table, in
-[BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+**A biomarker without a ground truth is a gap in the images, not a verdict on an implementation.**
+It means no shape drawn so far defines what the answer should be — so the fix is a new shape whose
+geometry settles it, not a change to anybody's code. Which implementation answers under which name
+is a separate table, in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
 
 ## 10. What this benchmark does not do
 

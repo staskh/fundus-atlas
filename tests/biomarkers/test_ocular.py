@@ -1,6 +1,8 @@
 # ABOUTME: Tests for the OCULAR adapter: that it measures PVBM's code as OCULAR modified it, and
 # ABOUTME: that the positional list it returns is read in the order OCULAR returns it.
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -97,3 +99,17 @@ def test_a_crash_is_recorded_rather_than_raised() -> None:
     )
 
     assert set(measured) <= set(adapter.keys())
+
+
+def test_it_says_where_its_catalogue_page_is() -> None:
+    """Its slug does not name its page — the project is OCULARNet — so it has to say.
+
+    Anything generating a link to an implementation's page asks the adapter rather than assuming
+    the slug is the filename, which produced a broken link on the configuration page until it did.
+    """
+    declared = an_adapter().declare()
+
+    assert declared["page"] == "ocularnet"
+    assert (
+        Path(__file__).resolve().parents[2] / "docs" / "projects" / f"{declared['page']}.md"
+    ).exists()

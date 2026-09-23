@@ -365,7 +365,9 @@ def config() -> dict[str, object]:
             "declared": [
                 {
                     "slug": slug,
-                    "page": f"../projects/{slug}.md",
+                    # An implementation's slug need not name its catalogue page — OCULAR's page
+                    # is `ocularnet.md` — so the adapter says, and the slug is only the fallback.
+                    "page": f"../projects/{declared.get(slug, {}).get('page', slug)}.md",
                     "pinned": f"`{str(declared[slug]['upstream'].get('commit', ''))[:7]}`"
                     if slug in declared
                     else "—",

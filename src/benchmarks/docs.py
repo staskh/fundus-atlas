@@ -157,7 +157,9 @@ def _biomarkers(config) -> Iterable[str]:
     settled = sum(1 for entry in config["biomarkers"] if entry["settled"])
     yield (
         f"{len(config['biomarkers'])} definitions, each applying to one or more structures "
-        f"({structures}), of which **{settled} have a value a shape here settles**."
+        f"({structures}). **{settled} of them have a ground truth here** — a value computed from "
+        f"the geometry of at least one synthetic image, which is what an implementation's answer "
+        f"is compared against. The rest are measured and stored, and compared against nothing."
     )
     family = None
     for entry in config["biomarkers"]:
@@ -166,7 +168,7 @@ def _biomarkers(config) -> Iterable[str]:
             yield ""
             yield f"**[{family}](../biomarkers/{family}.md)**"
             yield ""
-            yield "| Canonical name | What it measures | Settled here |"
+            yield "| Canonical name | What it measures | Ground truth here |"
             yield "| --- | --- | --- |"
         yield (f"| `{entry['name']}` | {entry['means']} | {'yes' if entry['settled'] else '—'} |")
 
