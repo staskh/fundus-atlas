@@ -24,7 +24,7 @@ NAME = "biomarker-synthetic"
 AGREES = 0.02
 
 #: The benchmark's own version. Changing what is measured, or how, changes this.
-VERSION = 2
+VERSION = 3
 
 #: The written pages this benchmark produces, and the notebook behind each, as `(label, stem)`.
 #: **One per implementation**, because each is a different piece of somebody else's code: what is

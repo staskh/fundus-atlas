@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from . import geometry
+from . import theory as theory_module
 
 
 @dataclass(frozen=True)
@@ -168,13 +169,43 @@ def _turned_disc(
 ) -> tuple[float, float, float]:
     """Where the disc lands once the scene has been turned. Its radius does not change."""
     x, y, r = _disc(side, um_per_px, at=at)
-    (moved_x, moved_y), = geometry.turn([(x, y)], rotation, _centre(side))
+    ((moved_x, moved_y),) = geometry.turn([(x, y)], rotation, _centre(side))
     return (moved_x, moved_y, r)
 
 
 def _widths(um_per_px: float, artery_um: float, vein_um: float) -> tuple[float, float]:
     """A width stated in microns, in the pixels a mask is drawn in."""
     return artery_um / um_per_px, vein_um / um_per_px
+
+
+def _margin(disc: tuple[float, float, float], heading: float) -> tuple[float, float]:
+    """A point on the optic disc's **margin**, at a heading measured from due right.
+
+    Vessels leave the eye at the disc, and they leave it at its edge rather than from its centre —
+    the centre is where the disc is, not where a vessel starts. Every shape here but `disjoint`
+    therefore begins on this circle, which is also what the disc-anchored measurements assume when
+    they walk a vessel inwards looking for where it started.
+    """
+    x, y, radius = disc
+    angle = math.radians(heading)
+    return (x + radius * math.cos(angle), y + radius * math.sin(angle))
+
+
+def _outward(
+    disc: tuple[float, float, float], heading: float, reach: float, samples: int = 2
+) -> np.ndarray:
+    """A straight vessel from the disc margin, heading away from the disc."""
+    start = _margin(disc, heading)
+    angle = math.radians(heading)
+    along = np.linspace(0.0, reach, samples)
+    return np.stack(
+        [start[0] + along * math.cos(angle), start[1] + along * math.sin(angle)], axis=1
+    )
+
+
+def _named(values: dict[str, float], structure: str) -> dict[str, float]:
+    """One curve's values, under the structure they were measured over."""
+    return {f"{name}/{structure}": value for name, value in values.items()}
 
 
 def _tube(length: float, width: float) -> float:
@@ -256,27 +287,170 @@ def knudtson(widths: list[float], structure: str) -> float:
     constant = KNUDTSON[structure]
     return _combine(widths, lambda w1, w2: constant * math.hypot(w1, w2))
 
-def _shared(
-    wa: float, wv: float, length_a: float, length_v: float, area_a: float, area_v: float, side: int
-) -> dict[str, float]:
-    """What every family pins in the same way, now that every family draws both classes.
 
-    Two calibres and the ratio between them, a length and an area per class, and what those come
-    to over the union — so an implementation reporting per class and one reporting over the
-    vessels as a whole are each compared against the value that applies to them.
+def _coarse(points: np.ndarray) -> list[tuple[float, float]]:
+    """A curve thinned to about `SAMPLES` points, keeping its last one.
+
+    Drawing and integrating want different samplings: a rasteriser needs only enough points
+    that a segment strays well under a pixel from the curve; an integral wants as many as it
+    can get. Using one sampling for both makes one of them wrong or slow.
     """
-    return {
-        "vessel-calibre/mean-width/artery": wa,
-        "vessel-calibre/mean-width/vein": wv,
-        "avr/ratio-of-calibres/both": wa / wv,
-        "vessel-area-and-length/skeleton-length/artery": length_a,
-        "vessel-area-and-length/skeleton-length/vein": length_v,
-        "vessel-area-and-length/skeleton-length/vessels": length_a + length_v,
-        "vessel-area-and-length/area/artery": area_a,
-        "vessel-area-and-length/area/vein": area_v,
-        "vessel-area-and-length/area/vessels": area_a + area_v,
-        "vascular-density/over-field-of-view/vessels": (area_a + area_v) / _fov_area(side),
-    }
+    step = max(1, len(points) // SAMPLES)
+    thinned = [tuple(p) for p in points[::step]]
+    if thinned[-1] != tuple(points[-1]):
+        thinned.append(tuple(points[-1]))
+    return thinned
+
+
+def _needs_the_vessels_inside_the_field(side: int, parts: list[np.ndarray]) -> None:
+    """Refuse a frame too small to hold the vessels it was asked to draw.
+
+    Every shape here leaves the optic disc, and a disc of clinical size takes up a large part of a
+    small frame — so a vessel of a given length can run off the edge, and a clipped vessel measures
+    something other than the shape. It is the same refusal the ring gets, for the same reason: a
+    truncated drawing is not a smaller drawing.
+    """
+    limit = side / 2.0
+    for points in parts:
+        away = np.hypot(points[:, 0] - limit, points[:, 1] - limit).max()
+        if away > limit:
+            raise ValueError(
+                f"a vessel reaches {away:.0f} px from the centre of a {side} px frame, which is "
+                f"outside its field of view: widen the frame, lower the scale, or shorten it"
+            )
+
+
+def _compose(
+    name: str,
+    side: int,
+    rotation: float,
+    um_per_px: float,
+    at: tuple[float, float],
+    artery: list[tuple[np.ndarray, np.ndarray]],
+    vein: list[tuple[np.ndarray, np.ndarray]],
+    wa: float,
+    wv: float,
+    counts: dict[str, float],
+    extra: dict[str, float] | None = None,
+    curved: bool = True,
+    parameters: dict[str, float] | None = None,
+) -> Shape:
+    """One shape, from the centrelines of each class: drawn once, and its values derived once.
+
+    Every part is a `(points, curvature)` pair in unrotated coordinates. The parts of one class are
+    identical in everything but position wherever a shape can manage it, because then no
+    aggregation — a median, a mean, a length-weighted mean — can disagree about the answer, and the
+    shape tests the formula rather than somebody's choice of average.
+
+    :param curved: whether the curvature integrals are defined. A vessel made of straight pieces
+        has zero curvature everywhere it is defined and corners where it is not, so a shape whose
+        vessels turn at a corner pins arc-over-chord and leaves the integrals alone rather than
+        claiming a zero no implementation can return.
+    """
+    centre = _centre(side)
+    _needs_the_vessels_inside_the_field(side, [points for points, _ in artery + vein])
+    drawn: dict[str, np.ndarray] = {}
+    turned: dict[str, list[np.ndarray]] = {}
+    for structure, parts, width in (("artery", artery, wa), ("vein", vein, wv)):
+        mask = np.zeros((side, side), dtype=bool)
+        turned[structure] = []
+        for points, _curvature in parts:
+            moved = np.asarray(geometry.turn([tuple(p) for p in points], rotation, centre))
+            turned[structure].append(moved)
+            # Drawn from a coarse sample and integrated from the fine one: a rasteriser measuring
+            # distance to each segment needs only enough points that a segment strays well
+            # under a pixel, while handing it the integration sample means walking two
+            # hundred thousand segments per vessel.
+            mask |= geometry.draw(_coarse(moved), width, side)
+        drawn[structure] = mask
+
+    theory: dict[str, float] = {}
+    for structure, parts, width in (("artery", artery, wa), ("vein", vein, wv)):
+        values = [theory_module.curve(points, curvature) for points, curvature in parts]
+        length = sum(value["vessel-area-and-length/skeleton-length"] for value in values)
+        area = sum(
+            theory_module.tube(value["vessel-area-and-length/skeleton-length"], width)
+            for value in values
+        )
+        theory.update(
+            _named(
+                {
+                    "vessel-calibre/mean-width": width,
+                    # Every vessel of a class shares a width, so the median is the mean.
+                    "vessel-calibre/median-width": width,
+                    "vessel-area-and-length/skeleton-length": length,
+                    "vessel-area-and-length/area": area,
+                },
+                structure,
+            )
+        )
+        # A quantity every part agrees on is the shape's; one they disagree about is an aggregation
+        # question the shape cannot answer, and is left out rather than guessed at.
+        shared_names = set(values[0]) - {"vessel-area-and-length/skeleton-length"}
+        if not curved:
+            shared_names = {n for n in shared_names if n in {"tortuosity/hart-tau1"}}
+        for quantity in sorted(shared_names):
+            found = {round(value[quantity], 9) for value in values}
+            if len(found) == 1 and math.isfinite(next(iter(found))):
+                theory[f"{quantity}/{structure}"] = values[0][quantity]
+
+    both_areas = (
+        theory["vessel-area-and-length/area/artery"] + theory["vessel-area-and-length/area/vein"]
+    )
+    theory.update(
+        {
+            "vessel-area-and-length/skeleton-length/vessels": (
+                theory["vessel-area-and-length/skeleton-length/artery"]
+                + theory["vessel-area-and-length/skeleton-length/vein"]
+            ),
+            "vessel-area-and-length/area/vessels": both_areas,
+            "vascular-density/over-field-of-view/vessels": both_areas / _fov_area(side),
+            # The whole frame, lit or not, which is what an implementation dividing by
+            # `height × width` is measuring.
+            "vascular-density/over-image/vessels": both_areas / float(side * side),
+            "avr/ratio-of-calibres/both": wa / wv,
+        }
+    )
+    theory.update(counts)
+    if extra:
+        theory.update(extra)
+
+    # How far the retina is from a vessel, over both classes together and over each alone.
+    #
+    # Measured on the **unrotated** centrelines. Turning the scene about the centre of a circular
+    # field turns the whole distance field with it, so this quantity cannot depend on the angle —
+    # but evaluating it on a grid can, by a hair, because the samples fall differently. Computing
+    # it once, before the turn, keeps the theory identical at every angle, which is exactly what
+    # every shape here promises and what the shapes notebook asserts.
+    everything = [(np.asarray(points), wa) for points, _ in artery] + [
+        (np.asarray(points), wv) for points, _ in vein
+    ]
+    for structure, parts in (
+        ("artery", [(np.asarray(points), wa) for points, _ in artery]),
+        ("vein", [(np.asarray(points), wv) for points, _ in vein]),
+        ("vessels", everything),
+    ):
+        mean, furthest = theory_module.sparsity(
+            [np.asarray(_coarse(points)) for points, _ in parts],
+            [width for _, width in parts],
+            side,
+        )
+        theory[f"sparsity/mean-distance/{structure}"] = mean
+        theory[f"sparsity/max-distance/{structure}"] = furthest
+
+    return Shape(
+        name=name,
+        side=side,
+        rotation=rotation,
+        um_per_px=um_per_px,
+        artery=drawn["artery"],
+        vein=drawn["vein"],
+        fov=geometry.field_of_view(side),
+        disc=_turned_disc(side, rotation, um_per_px, at=at),
+        theory=theory,
+        parameters={"artery_width": wa, "vein_width": wv, **(parameters or {})},
+        centreline=[tuple(p) for p in turned["artery"][0]],
+    )
 
 
 def straight(
@@ -285,46 +459,39 @@ def straight(
     um_per_px: float = UM_PER_PX,
     artery_um: float = ARTERY_WIDTH_UM,
     vein_um: float = VEIN_WIDTH_UM,
-    length: float = 0.6,
+    length: float = 0.30,
 ) -> Shape:
-    """A straight artery beside a straight vein: tortuosity exactly 1, and two widths to recover."""
+    """One straight vessel per class, leaving the optic disc at right angles to each other.
+
+    The artery runs horizontally and the vein vertically, so that a measurement which walks the
+    pixel lattice rather than the vessel disagrees with itself between the two: a digital line at
+    0° and one at 90° are both exact, and one at 30° is not. Both are exactly as tortuous as a
+    straight line, which is to say exactly 1.
+    """
     wa, wv = _widths(um_per_px, artery_um, vein_um)
-    distance = length * side
-    x0 = side * 0.5 - distance / 2.0
-    lines = {
-        "artery": [(x0, side * 0.44), (x0 + distance, side * 0.44)],
-        "vein": [(x0, side * 0.60), (x0 + distance, side * 0.60)],
-    }
-    turned = {name: geometry.turn(part, rotation, _centre(side)) for name, part in lines.items()}
-    return Shape(
-        name="straight",
-        side=side,
-        rotation=rotation,
-        um_per_px=um_per_px,
-        artery=geometry.draw(turned["artery"], wa, side),
-        vein=geometry.draw(turned["vein"], wv, side),
-        fov=geometry.field_of_view(side),
-        disc=_turned_disc(side, rotation, um_per_px),
-        theory={
-            **_shared(wa, wv, distance, distance, _tube(distance, wa), _tube(distance, wv), side),
-            "tortuosity/hart-tau1/artery": 1.0,
-            "tortuosity/hart-tau1/vein": 1.0,
-            "tortuosity/hart-tau2/artery": 0.0,
-            "tortuosity/hart-tau2/vein": 0.0,
-            "tortuosity/hart-tau3/artery": 0.0,
-            "tortuosity/hart-tau3/vein": 0.0,
-            "tortuosity/hart-tau4/artery": 0.0,
-            "tortuosity/hart-tau4/vein": 0.0,
-            "tortuosity/hart-tau5/artery": 0.0,
-            "tortuosity/hart-tau5/vein": 0.0,
+    disc = _disc(side, um_per_px)
+    reach = length * side
+    return _compose(
+        "straight",
+        side,
+        rotation,
+        um_per_px,
+        DISC_AT,
+        artery=[(_outward(disc, 180.0, reach), np.zeros(2))],
+        vein=[(_outward(disc, 90.0, reach), np.zeros(2))],
+        wa=wa,
+        wv=wv,
+        counts={
+            "junction-counts/junctions/artery": 0.0,
+            "junction-counts/junctions/vein": 0.0,
             "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/components/vessels": 2.0,
-            "junction-counts/endpoints/vessels": 4.0,
             "junction-counts/endpoints/artery": 2.0,
             "junction-counts/endpoints/vein": 2.0,
+            "junction-counts/endpoints/vessels": 4.0,
+            "junction-counts/components/artery": 1.0,
+            "junction-counts/components/vein": 1.0,
+            "junction-counts/components/vessels": 2.0,
         },
-        parameters={"artery_width": wa, "vein_width": wv, "length": distance},
-        centreline=turned["artery"],
     )
 
 
@@ -334,86 +501,50 @@ def arc(
     um_per_px: float = UM_PER_PX,
     artery_um: float = ARTERY_WIDTH_UM,
     vein_um: float = VEIN_WIDTH_UM,
-    radius: float = 0.30,
-    separation: float = 0.06,
+    radius: float = 0.22,
     angle: float = 90.0,
 ) -> Shape:
-    """Two concentric circular arcs: curvature exactly 1/r, and an arc-chord ratio in closed form.
+    """A circular arc per class, each leaving the disc margin and bending away from it.
 
-    τ1 = θ / (2 sin(θ/2)) — arc length rθ over the chord 2r sin(θ/2), the r cancelling, so the
-    ratio depends on how far the vessel bends and not at all on how large it is. An implementation
-    whose τ1 changes with the radius is not computing τ1 — and the two classes here share an angle
-    and differ in radius, so τ1 must come back the same for both while τ3, τ4 and τ5 must not.
-
-    The vein runs **inside** the artery rather than outside it, because outside would put it
-    through the edge of the field of view.
+    Curvature is exactly `1/r` everywhere, so every one of Hart's measures has a closed form and
+    the arc-over-chord ratio `θ / (2 sin(θ/2))` does not depend on how large the arc is. The two
+    classes bend by the same angle about different radii, so τ1 must come back equal for both and
+    the curvature integrals must not.
     """
     wa, wv = _widths(um_per_px, artery_um, vein_um)
-    ra, rv, theta = radius * side, (radius - separation) * side, math.radians(angle)
-    centre = (side * 0.5, side * 0.5 + ra / 2.0)
-    first = -theta / 2.0 - math.pi / 2.0
-    angles = np.linspace(first, first + theta, SAMPLES)
-    turned = {}
-    for name, r in (("artery", ra), ("vein", rv)):
-        points = [(centre[0] + r * math.cos(a), centre[1] + r * math.sin(a)) for a in angles]
-        turned[name] = geometry.turn(points, rotation, _centre(side))
-    tau1 = theta / (2.0 * math.sin(theta / 2.0))
-    return Shape(
-        name="arc",
-        side=side,
-        rotation=rotation,
-        um_per_px=um_per_px,
-        artery=geometry.draw(turned["artery"], wa, side),
-        vein=geometry.draw(turned["vein"], wv, side),
-        fov=geometry.field_of_view(side),
-        disc=_turned_disc(side, rotation, um_per_px),
-        theory={
-            **_shared(
-                wa, wv, ra * theta, rv * theta,
-                _tube(ra * theta, wa), _tube(rv * theta, wv), side,
-            ),
-            "tortuosity/hart-tau1/artery": tau1,
-            "tortuosity/hart-tau1/vein": tau1,
-            "tortuosity/hart-tau2/artery": theta,
-            "tortuosity/hart-tau2/vein": theta,
-            "tortuosity/hart-tau3/artery": theta / ra,
-            "tortuosity/hart-tau3/vein": theta / rv,
-            # Hart's compositional pair, and the reason he preferred them: both depend on the
-            # radius alone, so measuring more of the same arc does not change them, while τ2 and
-            # τ3 grow with however much of it happened to be traced.
-            "tortuosity/hart-tau4/artery": 1.0 / ra,
-            "tortuosity/hart-tau4/vein": 1.0 / rv,
-            "tortuosity/hart-tau5/artery": 1.0 / (ra * ra),
-            "tortuosity/hart-tau5/vein": 1.0 / (rv * rv),
+    disc = _disc(side, um_per_px)
+    theta = math.radians(angle)
+    # The vein bends more tightly than the artery, so the two share an angle and differ in radius —
+    # which is what makes τ1 come back equal for both while the curvature integrals do not.
+    ra, rv = radius * side, radius * 0.75 * side
+    parts = {}
+    for structure, heading, r in (("artery", 180.0, ra), ("vein", 250.0, rv)):
+        start = _margin(disc, heading)
+        # Turning left off the margin, so the arc curves into the frame rather than across it.
+        away = math.radians(heading)
+        centre = (start[0] - r * math.sin(away), start[1] + r * math.cos(away))
+        first = math.atan2(start[1] - centre[1], start[0] - centre[0])
+        sweep = np.linspace(first, first + theta, theory_module.STEPS)
+        points = np.stack([centre[0] + r * np.cos(sweep), centre[1] + r * np.sin(sweep)], axis=1)
+        parts[structure] = [(points, np.full(len(sweep), 1.0 / r))]
+    return _compose(
+        "arc",
+        side,
+        rotation,
+        um_per_px,
+        DISC_AT,
+        artery=parts["artery"],
+        vein=parts["vein"],
+        wa=wa,
+        wv=wv,
+        parameters={"artery_radius": ra, "vein_radius": rv, "angle": angle},
+        counts={
             "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/components/vessels": 2.0,
+            "junction-counts/endpoints/artery": 2.0,
+            "junction-counts/endpoints/vein": 2.0,
             "junction-counts/endpoints/vessels": 4.0,
+            "junction-counts/components/vessels": 2.0,
         },
-        parameters={
-            "artery_width": wa, "vein_width": wv,
-            "artery_radius": ra, "vein_radius": rv, "angle": angle,
-        },
-        centreline=turned["artery"],
-    )
-
-
-def _sinusoid_measures(a: float, lam: float, span: float) -> tuple[float, float, float]:
-    """Arc length and the two curvature integrals of one sine wave, by integration.
-
-    Its arc length is an elliptic integral with no elementary closed form, so the theory here *is*
-    the integral, evaluated finely enough that the result is exact to more places than any
-    implementation will reach.
-    """
-    fine = np.linspace(0.0, span, 200_001)
-    k = 2.0 * math.pi / lam
-    slope = a * k * np.cos(k * fine)
-    second = -a * k * k * np.sin(k * fine)
-    element = np.sqrt(1.0 + slope**2)
-    curvature = np.abs(second) / (1.0 + slope**2) ** 1.5
-    return (
-        float(np.trapezoid(element, fine)),
-        float(np.trapezoid(curvature * element, fine)),
-        float(np.trapezoid(curvature**2 * element, fine)),
     )
 
 
@@ -423,69 +554,73 @@ def sinusoid(
     um_per_px: float = UM_PER_PX,
     artery_um: float = ARTERY_WIDTH_UM,
     vein_um: float = VEIN_WIDTH_UM,
-    amplitude: float = 0.04,
-    wavelength: float = 0.25,
-    cycles: float = 2.0,
+    amplitude: float = 0.035,
+    wavelength: float = 0.16,
+    cycles: float = 1.5,
 ) -> Shape:
-    """Two sine waves, one per class: arc length and the curvature integrals by integration."""
+    """A sine wave per class, leaving the disc margin and waving away from it.
+
+    Its arc length is an elliptic integral with no elementary closed form, so the value here *is*
+    the integral. It is the only shape whose curvature changes sign, which makes it the one that
+    settles the inflection count and Grisan's density — both of which are zero everywhere else.
+    """
     wa, wv = _widths(um_per_px, artery_um, vein_um)
+    disc = _disc(side, um_per_px)
     a, lam = amplitude * side, wavelength * side
     span = lam * cycles
-    x = np.linspace(0.0, span, SAMPLES)
-    y = a * np.sin(2.0 * math.pi / lam * x)
-    turned = {}
-    for name, baseline in (("artery", 0.42), ("vein", 0.62)):
-        points = [
-            (side * 0.5 - span / 2.0 + float(px), side * baseline + float(py))
-            for px, py in zip(x, y, strict=True)
-        ]
-        turned[name] = geometry.turn(points, rotation, _centre(side))
-    length, total_curvature, total_squared = _sinusoid_measures(a, lam, span)
-    return Shape(
-        name="sinusoid",
-        side=side,
-        rotation=rotation,
-        um_per_px=um_per_px,
-        artery=geometry.draw(turned["artery"], wa, side),
-        vein=geometry.draw(turned["vein"], wv, side),
-        fov=geometry.field_of_view(side),
-        disc=_turned_disc(side, rotation, um_per_px),
-        theory={
-            **_shared(
-                wa, wv, length, length, _tube(length, wa), _tube(length, wv), side,
-            ),
-            # The two classes trace the same curve, so every shape-only quantity is the same for
-            # both and only the widths tell them apart.
-            "tortuosity/hart-tau1/artery": length / span,
-            "tortuosity/hart-tau1/vein": length / span,
-            "tortuosity/hart-tau2/artery": total_curvature,
-            "tortuosity/hart-tau2/vein": total_curvature,
-            "tortuosity/hart-tau3/artery": total_squared,
-            "tortuosity/hart-tau3/vein": total_squared,
-            "tortuosity/hart-tau4/artery": total_curvature / length,
-            "tortuosity/hart-tau4/vein": total_curvature / length,
-            "tortuosity/hart-tau5/artery": total_squared / length,
-            "tortuosity/hart-tau5/vein": total_squared / length,
+    parts = {}
+    for structure, heading in (("artery", 180.0), ("vein", 100.0)):
+        start = _margin(disc, heading)
+        away = math.radians(heading)
+        along = np.linspace(0.0, span, theory_module.STEPS)
+        k = 2.0 * math.pi / lam
+        across = a * np.sin(k * along)
+        # Waving about the outward heading rather than about the x axis, so it leaves the disc.
+        points = np.stack(
+            [
+                start[0] + along * math.cos(away) - across * math.sin(away),
+                start[1] + along * math.sin(away) + across * math.cos(away),
+            ],
+            axis=1,
+        )
+        slope = a * k * np.cos(k * along)
+        second = -a * k * k * np.sin(k * along)
+        curvature = second / (1.0 + slope**2) ** 1.5
+        parts[structure] = [(points, curvature)]
+    return _compose(
+        "sinusoid",
+        side,
+        rotation,
+        um_per_px,
+        DISC_AT,
+        artery=parts["artery"],
+        vein=parts["vein"],
+        wa=wa,
+        wv=wv,
+        parameters={"amplitude": a, "wavelength": lam, "cycles": cycles, "span": span},
+        counts={
             "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/components/vessels": 2.0,
+            "junction-counts/endpoints/artery": 2.0,
+            "junction-counts/endpoints/vein": 2.0,
             "junction-counts/endpoints/vessels": 4.0,
+            "junction-counts/components/vessels": 2.0,
         },
-        parameters={
-            "artery_width": wa, "vein_width": wv,
-            "amplitude": a, "wavelength": lam, "cycles": cycles,
-        },
-        centreline=turned["artery"],
     )
 
 
-def _wye(apex: tuple[float, float], reach: float, angle: float) -> list[list[tuple[float, float]]]:
-    """A trunk and two daughters meeting at one point, symmetric about the vertical."""
-    half = math.radians(angle) / 2.0
+def _fork(start, heading: float, reach: float, angle: float):
+    """Two straight daughters leaving one point, symmetric about the heading they came in on."""
     return [
-        [(apex[0], apex[1] - reach), apex],
-        [apex, (apex[0] - reach * math.sin(half), apex[1] + reach * math.cos(half))],
-        [apex, (apex[0] + reach * math.sin(half), apex[1] + reach * math.cos(half))],
+        _line(start, heading - angle / 2.0, reach),
+        _line(start, heading + angle / 2.0, reach),
     ]
+
+
+def _line(start, heading: float, reach: float) -> np.ndarray:
+    angle = math.radians(heading)
+    return np.array(
+        [start, (start[0] + reach * math.cos(angle), start[1] + reach * math.sin(angle))]
+    )
 
 
 def bifurcation(
@@ -495,40 +630,37 @@ def bifurcation(
     artery_um: float = ARTERY_WIDTH_UM,
     vein_um: float = VEIN_WIDTH_UM,
     angle: float = 60.0,
-    arm: float = 0.18,
+    arm: float = 0.13,
 ) -> Shape:
-    """An arterial Y beside a venous one, each splitting at a known angle.
+    """A trunk leaving the disc and splitting once, per class.
 
     Symmetric, so the angle between the daughters is exactly what was asked for and neither
-    daughter is the trunk. One junction and three ends per class; side by side rather than one
-    above the other, because stacking them would make the two Ys overlap.
+    daughter is the trunk. Every piece is straight, so each is exactly as tortuous as a straight
+    line whatever an implementation averages over.
     """
     wa, wv = _widths(um_per_px, artery_um, vein_um)
+    disc = _disc(side, um_per_px)
     reach = arm * side
-    drawn = {}
-    for name, (width, at_x) in (("artery", (wa, 0.32)), ("vein", (wv, 0.68))):
-        mask = np.zeros((side, side), dtype=bool)
-        for part in _wye((side * at_x, side * 0.42), reach, angle):
-            mask |= geometry.draw(geometry.turn(part, rotation, _centre(side)), width, side)
-        drawn[name] = mask
-    return Shape(
-        name="bifurcation",
-        side=side,
-        rotation=rotation,
-        um_per_px=um_per_px,
-        artery=drawn["artery"],
-        vein=drawn["vein"],
-        fov=geometry.field_of_view(side),
-        disc=_turned_disc(side, rotation, um_per_px),
-        theory={
-            # A junction's own pixels are counted in neither arm's length, so the area of a Y is
-            # not three tubes added up; the length is, and only the length is promised here.
-            "vessel-calibre/mean-width/artery": wa,
-            "vessel-calibre/mean-width/vein": wv,
-            "avr/ratio-of-calibres/both": wa / wv,
-            "vessel-area-and-length/skeleton-length/artery": 3.0 * reach,
-            "vessel-area-and-length/skeleton-length/vein": 3.0 * reach,
-            "vessel-area-and-length/skeleton-length/vessels": 6.0 * reach,
+    parts = {}
+    for structure, heading in (("artery", 180.0), ("vein", 120.0)):
+        trunk = _outward(disc, heading, reach)
+        parts[structure] = [
+            (trunk, np.zeros(2)),
+            *((piece, np.zeros(2)) for piece in _fork(trunk[-1], heading, reach, angle)),
+        ]
+    return _compose(
+        "bifurcation",
+        side,
+        rotation,
+        um_per_px,
+        DISC_AT,
+        artery=parts["artery"],
+        vein=parts["vein"],
+        wa=wa,
+        wv=wv,
+        curved=False,
+        parameters={"angle": float(angle), "arm": reach},
+        counts={
             "bifurcation-angle/between-daughters/artery": float(angle),
             "bifurcation-angle/between-daughters/vein": float(angle),
             "junction-counts/junctions/artery": 1.0,
@@ -537,9 +669,91 @@ def bifurcation(
             "junction-counts/endpoints/artery": 3.0,
             "junction-counts/endpoints/vein": 3.0,
             "junction-counts/endpoints/vessels": 6.0,
+            "junction-counts/components/artery": 1.0,
+            "junction-counts/components/vein": 1.0,
             "junction-counts/components/vessels": 2.0,
         },
-        parameters={"artery_width": wa, "vein_width": wv, "angle": angle, "arm": reach},
+    )
+
+
+def deep_bifurcation(
+    side: int,
+    rotation: float = 0.0,
+    um_per_px: float = UM_PER_PX,
+    artery_um: float = ARTERY_WIDTH_UM,
+    vein_um: float = VEIN_WIDTH_UM,
+    angle: float = 50.0,
+    arm: float = 0.07,
+    generations: float = 3,
+    spur: float = 0.35,
+) -> Shape:
+    """A tree: a trunk from the disc, forking repeatedly, with short spurs along the way.
+
+    This is the shape that exercises what a single fork cannot. A real vasculature is a tree, and
+    the things that go wrong on one — a junction counted as a cluster of pixels, a walk that loses
+    a branch, a spur too short to survive a length filter — need more than one generation to show.
+    Some daughters fork again and some end; each fork also carries a **spur**, a stub a third the
+    length of its siblings, because a filter that discards short segments will silently change the
+    count and nothing else here would notice.
+
+    Every piece is straight, so the tortuosity of each is exactly 1 whatever an implementation
+    averages over, and what the shape settles is the counting.
+    """
+    wa, wv = _widths(um_per_px, artery_um, vein_um)
+    disc = _disc(side, um_per_px)
+    reach = arm * side
+    depth = int(generations)
+    parts: dict[str, list[tuple[np.ndarray, np.ndarray]]] = {}
+    tally = {"pieces": 0, "junctions": 0, "ends": 0}
+    for structure, heading in (("artery", 190.0), ("vein", 130.0)):
+        pieces: list[np.ndarray] = []
+        trunk = _outward(disc, heading, reach)
+        pieces.append(trunk)
+        growing = [(trunk[-1], heading)]
+        for generation in range(depth):
+            nxt = []
+            for tip, came in growing:
+                daughters = _fork(tip, came, reach, angle)
+                pieces.extend(daughters)
+                # A stub off the same junction: short enough that a length filter may drop it.
+                pieces.append(_line(tip, came + 90.0, reach * spur))
+                if generation < depth - 1:
+                    nxt.append((daughters[0][-1], came - angle / 2.0))
+                    nxt.append((daughters[1][-1], came + angle / 2.0))
+            growing = nxt
+        parts[structure] = [(piece, np.zeros(2)) for piece in pieces]
+        forks = sum(2**generation for generation in range(depth))
+        tally = {
+            # One junction per fork, and the spur meets the vessel at that same point.
+            "junctions": float(forks),
+            # Every free end: the trunk's start, each spur's tip, and each final daughter.
+            "ends": float(1 + forks + 2**depth),
+            "pieces": float(len(pieces)),
+        }
+    return _compose(
+        "deep-bifurcation",
+        side,
+        rotation,
+        um_per_px,
+        DISC_AT,
+        artery=parts["artery"],
+        vein=parts["vein"],
+        wa=wa,
+        wv=wv,
+        curved=False,
+        counts={
+            "bifurcation-angle/between-daughters/artery": float(angle),
+            "bifurcation-angle/between-daughters/vein": float(angle),
+            "junction-counts/junctions/artery": tally["junctions"],
+            "junction-counts/junctions/vein": tally["junctions"],
+            "junction-counts/junctions/vessels": 2.0 * tally["junctions"],
+            "junction-counts/endpoints/artery": tally["ends"],
+            "junction-counts/endpoints/vein": tally["ends"],
+            "junction-counts/endpoints/vessels": 2.0 * tally["ends"],
+            "junction-counts/components/artery": 1.0,
+            "junction-counts/components/vein": 1.0,
+            "junction-counts/components/vessels": 2.0,
+        },
     )
 
 
@@ -550,43 +764,37 @@ def disjoint(
     artery_um: float = ARTERY_WIDTH_UM,
     vein_um: float = VEIN_WIDTH_UM,
     segments: float = 4,
-    length: float = 0.4,
+    length: float = 0.34,
 ) -> Shape:
-    """Parallel vessels that never meet, alternating class: no junctions, and as many components
-    as there are lines.
+    """Parallel vessels that never meet, alternating class — and the one shape not on the disc.
 
-    A skeletoniser that joins them, or a junction counter that finds a crossing where two vessels
-    merely pass near one another, says so here and nowhere else. Alternating the classes means a
-    vessel of each kind has a vessel of the other kind as its neighbour, which is where a
-    classifier that leaks between them shows it.
+    Every other shape here leaves the optic disc, because vessels do. This one deliberately does
+    not: it is what shows whether a measurement quietly requires a vessel to reach the disc before
+    it will count it, which is a restriction some implementations impose and none announce.
     """
     wa, wv = _widths(um_per_px, artery_um, vein_um)
     distance, count = length * side, int(segments)
-    spacing = side * 0.09
-    drawn = {"artery": np.zeros((side, side), dtype=bool), "vein": np.zeros((side, side), dtype=bool)}
+    spacing = side * 0.075
     first = side * 0.5 - spacing * (2 * count - 1) / 2.0
+    parts: dict[str, list[tuple[np.ndarray, np.ndarray]]] = {"artery": [], "vein": []}
     for index in range(2 * count):
         y = first + index * spacing
-        part = [(side * 0.5 - distance / 2.0, y), (side * 0.5 + distance / 2.0, y)]
-        turned = geometry.turn(part, rotation, _centre(side))
-        name = "artery" if index % 2 == 0 else "vein"
-        drawn[name] |= geometry.draw(turned, wa if name == "artery" else wv, side)
-    return Shape(
-        name="disjoint",
-        side=side,
-        rotation=rotation,
-        um_per_px=um_per_px,
-        artery=drawn["artery"],
-        vein=drawn["vein"],
-        fov=geometry.field_of_view(side),
-        disc=_turned_disc(side, rotation, um_per_px),
-        theory={
-            **_shared(
-                wa, wv, count * distance, count * distance,
-                count * _tube(distance, wa), count * _tube(distance, wv), side,
-            ),
-            "tortuosity/hart-tau1/artery": 1.0,
-            "tortuosity/hart-tau1/vein": 1.0,
+        line = np.array([(side * 0.32 - distance / 2.0, y), (side * 0.32 + distance / 2.0, y)])
+        parts["artery" if index % 2 == 0 else "vein"].append((line, np.zeros(2)))
+    return _compose(
+        "disjoint",
+        side,
+        rotation,
+        um_per_px,
+        DISC_AT,
+        artery=parts["artery"],
+        vein=parts["vein"],
+        wa=wa,
+        wv=wv,
+        curved=False,
+        counts={
+            "junction-counts/junctions/artery": 0.0,
+            "junction-counts/junctions/vein": 0.0,
             "junction-counts/junctions/vessels": 0.0,
             "junction-counts/endpoints/artery": 2.0 * count,
             "junction-counts/endpoints/vein": 2.0 * count,
@@ -595,144 +803,139 @@ def disjoint(
             "junction-counts/components/vein": float(count),
             "junction-counts/components/vessels": float(2 * count),
         },
-        parameters={
-            "artery_width": wa, "vein_width": wv,
-            "segments_per_class": float(count), "length": distance,
-        },
     )
 
 
-def artery_vein_pair(
+#: The Koch curve's similarity dimension: four copies at a third of the length, so `log 4 / log 3`.
+#: It is exact, it is not an integer, and it is a value a box count over a finite raster can
+#: plausibly reach — which an ordinary vessel's dimension of 1 is not.
+KOCH_DIMENSION = math.log(4.0) / math.log(3.0)
+
+
+def _koch(start, heading: float, reach: float, depth: int) -> np.ndarray:
+    """One Koch curve, as a polyline: each segment replaced by four a third as long."""
+    points = [np.array(start, dtype=float), np.array(_line(start, heading, reach)[-1], dtype=float)]
+    for _ in range(depth):
+        grown = [points[0]]
+        for a, b in zip(points[:-1], points[1:], strict=True):
+            step = (b - a) / 3.0
+            turn = math.radians(60.0)
+            rotated = np.array(
+                [
+                    step[0] * math.cos(turn) - step[1] * math.sin(turn),
+                    step[0] * math.sin(turn) + step[1] * math.cos(turn),
+                ]
+            )
+            grown.extend([a + step, a + step + rotated, a + 2 * step, b])
+        points = grown
+    return np.array(points)
+
+
+def koch(
     side: int,
     rotation: float = 0.0,
     um_per_px: float = UM_PER_PX,
     artery_um: float = ARTERY_WIDTH_UM,
     vein_um: float = VEIN_WIDTH_UM,
-    length: float = 0.5,
+    reach: float = 0.34,
+    depth: float = 4,
 ) -> Shape:
-    """One artery beside one vein, of known widths: the ratio is exactly the ratio of the widths.
+    """A Koch curve per class, leaving the disc margin: the shape with a known fractal dimension.
 
-    What this tests is a ratio of two calibres and the degenerate case of the equivalents: one
-    vessel per class crosses the ring, and Knudtson's recursion returns a lone vessel's own width
-    untouched while Hubbard's has nothing to combine it with.
+    Every other shape here is a union of smooth curves, whose box-counting dimension is exactly 1 —
+    a value no estimator returns from a bounded pixel image, so pinning it would charge every
+    implementation with an error none of them can avoid. A Koch curve's dimension is `log 4 / log 3`
+    ≈ 1.2619: not an integer, exactly known, and within reach of a box count over the range of
+    scales a 2048-pixel frame offers.
+
+    It is also self-similar rather than merely fractal, which is why the same number answers for
+    the capacity, information and correlation dimensions: a monofractal's spectrum is a point.
     """
     wa, wv = _widths(um_per_px, artery_um, vein_um)
-    distance = length * side
-    x0, x1 = side * 0.5 - distance / 2.0, side * 0.5 + distance / 2.0
-    above = geometry.turn([(x0, side * 0.45), (x1, side * 0.45)], rotation, _centre(side))
-    below = geometry.turn([(x0, side * 0.62), (x1, side * 0.62)], rotation, _centre(side))
-    return Shape(
-        name="artery-vein-pair",
-        side=side,
-        rotation=rotation,
-        um_per_px=um_per_px,
-        artery=geometry.draw(above, wa, side),
-        vein=geometry.draw(below, wv, side),
-        fov=geometry.field_of_view(side),
-        disc=_turned_disc(side, rotation, um_per_px),
-        theory={
-            **_shared(wa, wv, distance, distance, _tube(distance, wa), _tube(distance, wv), side),
-            # One artery and one vein cross the ring, which is a degenerate but legitimate case:
-            # Knudtson's recursion returns a lone vessel's own width untouched. Hubbard's combines
-            # a pair and so has no value here at all — an implementation must decline rather than
-            # invent a second vessel, and this is the shape that asks it to.
-            "central-retinal-equivalents/knudtson/artery": knudtson([wa], "artery"),
-            "central-retinal-equivalents/knudtson/vein": knudtson([wv], "vein"),
-            "avr/knudtson/both": knudtson([wa], "artery") / knudtson([wv], "vein"),
-            "tortuosity/hart-tau1/artery": 1.0,
-            "tortuosity/hart-tau1/vein": 1.0,
+    disc = _disc(side, um_per_px)
+    generations = int(depth)
+    parts = {}
+    for structure, heading in (("artery", 180.0), ("vein", 110.0)):
+        curve = _koch(_margin(disc, heading), heading, reach * side, generations)
+        parts[structure] = [(curve, np.zeros(len(curve)))]
+    fractal = {
+        f"fractal-dimension/{variant}/{structure}": KOCH_DIMENSION
+        for variant in ("box-counting", "multifractal-d0", "multifractal-d1", "multifractal-d2")
+        for structure in ("artery", "vein", "vessels")
+    }
+    return _compose(
+        "koch",
+        side,
+        rotation,
+        um_per_px,
+        DISC_AT,
+        artery=parts["artery"],
+        vein=parts["vein"],
+        wa=wa,
+        wv=wv,
+        curved=False,
+        counts={
             "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/components/vessels": 2.0,
+            "junction-counts/endpoints/artery": 2.0,
+            "junction-counts/endpoints/vein": 2.0,
             "junction-counts/endpoints/vessels": 4.0,
+            "junction-counts/components/vessels": 2.0,
         },
-        parameters={"artery_width": wa, "vein_width": wv, "length": distance},
+        extra=fractal,
     )
 
 
 def _spokes(
-    name: str,
-    at: tuple[float, float],
-    side: int,
-    rotation: float,
-    um_per_px: float,
-    artery_um: float,
-    vein_um: float,
-    vessels: float,
-) -> Shape:
-    """Vessels radiating from the optic disc, crossing the ring the equivalents are measured over.
+    name: str, at: tuple[float, float], side, rotation, um_per_px, artery_um, vein_um, vessels
+):
+    """Vessels radiating from the disc margin, crossing the ring the equivalents are measured over.
 
-    Six arteries and six veins of constant width, each running from the disc margin out past three
-    disc radii, so every one of them crosses the annulus between two and three radii that PVBM
-    builds as zone C minus zone B. That is what a central retinal equivalent needs: an
-    implementation measuring in the right ring finds twelve vessels of two known widths, and one
-    measuring somewhere else finds nothing or finds them twice.
-
-    All the arteries share a width and all the veins share theirs, so the Knudtson recursion gives
-    the same number whatever order an implementation pairs them in — the shape tests the formula
-    and the region rather than a sorting convention.
-
-    The two classes alternate around the disc, twelve spokes evenly spaced, so neither class is
-    bunched on one side where a half-ring or a temporal-only convention would miss it.
+    Six per class of constant width, each running from the margin out past three disc radii, so
+    every one crosses the annulus between two and three radii. All the arteries share a width and
+    all the veins share theirs, so Knudtson's recursion gives the same number whatever order an
+    implementation pairs them in — the shape tests the formula and the region rather than a sorting
+    convention.
     """
     count = int(vessels)
     wa, wv = _widths(um_per_px, artery_um, vein_um)
-    x, y, radius = _disc(side, um_per_px, at=at)
-    _needs_the_ring_inside_the_field(side, (x, y, radius))
-    # Out to a little past the ring's outer edge, so a spoke crosses the whole annulus rather
-    # than stopping inside it — and no further, because the field of view has an edge.
-    inner, outer = radius, radius * (ZONE_B_RADII[1] + 0.2)
-    drawn = {"artery": np.zeros((side, side), dtype=bool), "vein": np.zeros((side, side), dtype=bool)}
+    disc = _disc(side, um_per_px, at=at)
+    _needs_the_ring_inside_the_field(side, disc)
+    reach = disc[2] * (ZONE_B_RADII[1] + 0.2 - 1.0)
+    parts: dict[str, list[tuple[np.ndarray, np.ndarray]]] = {"artery": [], "vein": []}
     for index in range(2 * count):
-        heading = 2.0 * math.pi * index / (2 * count)
-        spoke = [
-            (x + inner * math.cos(heading), y + inner * math.sin(heading)),
-            (x + outer * math.cos(heading), y + outer * math.sin(heading)),
-        ]
-        turned = geometry.turn(spoke, rotation, _centre(side))
-        which = "artery" if index % 2 == 0 else "vein"
-        drawn[which] |= geometry.draw(turned, wa if which == "artery" else wv, side)
-    crae = knudtson([wa] * count, "artery")
-    crve = knudtson([wv] * count, "vein")
-    # Hubbard's constants were fitted in microns, so its widths go in as microns and its answer
-    # comes out in microns. That is the one place the scale a shape was built with changes what
-    # the theory says.
+        heading = 360.0 * index / (2 * count)
+        line = _outward(disc, heading, reach)
+        parts["artery" if index % 2 == 0 else "vein"].append((line, np.zeros(2)))
+    crae, crve = knudtson([wa] * count, "artery"), knudtson([wv] * count, "vein")
     crae_um = hubbard([wa * um_per_px] * count, "artery")
     crve_um = hubbard([wv * um_per_px] * count, "vein")
-    length = outer - inner
-    return Shape(
-        name=name,
-        side=side,
-        rotation=rotation,
-        um_per_px=um_per_px,
-        artery=drawn["artery"],
-        vein=drawn["vein"],
-        fov=geometry.field_of_view(side),
-        disc=_turned_disc(side, rotation, um_per_px, at=at),
-        theory={
-            **_shared(
-                wa, wv, count * length, count * length,
-                count * _tube(length, wa), count * _tube(length, wv), side,
-            ),
-            "central-retinal-equivalents/knudtson/artery": crae,
-            "central-retinal-equivalents/knudtson/vein": crve,
-            "avr/knudtson/both": crae / crve,
-            "central-retinal-equivalents/hubbard/artery": crae_um,
-            "central-retinal-equivalents/hubbard/vein": crve_um,
-            "avr/hubbard/both": crae_um / crve_um,
-            "tortuosity/hart-tau1/artery": 1.0,
-            "tortuosity/hart-tau1/vein": 1.0,
+    return _compose(
+        name,
+        side,
+        rotation,
+        um_per_px,
+        at,
+        artery=parts["artery"],
+        vein=parts["vein"],
+        wa=wa,
+        wv=wv,
+        curved=False,
+        counts={
+            "junction-counts/junctions/vessels": 0.0,
+            "junction-counts/endpoints/artery": 2.0 * count,
+            "junction-counts/endpoints/vein": 2.0 * count,
+            "junction-counts/endpoints/vessels": 4.0 * count,
             "junction-counts/components/artery": float(count),
             "junction-counts/components/vein": float(count),
             "junction-counts/components/vessels": float(2 * count),
-            "junction-counts/junctions/vessels": 0.0,
         },
-        parameters={
-            "artery_width": wa,
-            "vein_width": wv,
-            "vessels_per_class": float(count),
-            "disc_radius": radius,
-            "inner_radius_in_disc_radii": inner / radius,
-            "outer_radius_in_disc_radii": outer / radius,
+        extra={
+            "central-retinal-equivalents/knudtson/artery": crae,
+            "central-retinal-equivalents/knudtson/vein": crve,
+            "central-retinal-equivalents/hubbard/artery": crae_um,
+            "central-retinal-equivalents/hubbard/vein": crve_um,
+            "avr/knudtson/both": crae / crve,
+            "avr/hubbard/both": crae_um / crve_um,
         },
     )
 
@@ -745,12 +948,7 @@ def spokes_macula_centred(
     vein_um: float = VEIN_WIDTH_UM,
     vessels: float = 6,
 ) -> Shape:
-    """The spokes as a macula-centred photograph frames them: the disc off to one side.
-
-    This is how most fundus photography is taken — the macula in the middle, the disc nasal to it —
-    and it is the harder of the two for a measurement anchored on the disc, because the ring runs
-    towards the edge of the field where a photograph is dimmest and a segmentation weakest.
-    """
+    """The spokes as a macula-centred photograph frames them: the disc off to one side."""
     return _spokes(
         "spokes-macula-centred", DISC_AT, side, rotation, um_per_px, artery_um, vein_um, vessels
     )
@@ -764,12 +962,10 @@ def spokes_disc_centred(
     vein_um: float = VEIN_WIDTH_UM,
     vessels: float = 6,
 ) -> Shape:
-    """The spokes as a disc-centred photograph frames them: the disc in the middle of the frame.
+    """The same retina photographed with the disc in the middle of the frame.
 
-    The same retina and the same vessels as `spokes-macula-centred`, photographed the other way,
-    so the two differ in nothing but where the disc sits. Every disc-anchored measurement should
-    therefore return the same number on both — and a difference between them is a measurement
-    reading the framing rather than the eye.
+    Every disc-anchored measurement should return the same number on both, so a difference between
+    them is a measurement reading the framing rather than the eye.
     """
     return _spokes(
         "spokes-disc-centred", (0.5, 0.5), side, rotation, um_per_px, artery_um, vein_um, vessels
@@ -802,8 +998,6 @@ def demo_image(shape: Shape, rings: bool = True) -> np.ndarray:
     if shape.vein is not None:
         picture[shape.vein] = VEIN_COLOUR
     if shape.artery is not None and shape.vein is not None:
-        # Where the two classes claim the same pixel. It should never happen in a synthetic shape,
-        # so it is coloured to be noticed rather than blended away.
         picture[shape.artery & shape.vein] = OVERLAP_COLOUR
     return picture
 
@@ -814,8 +1008,9 @@ SHAPES: dict[str, Callable[..., Shape]] = {
     "arc": arc,
     "sinusoid": sinusoid,
     "bifurcation": bifurcation,
+    "deep-bifurcation": deep_bifurcation,
     "disjoint": disjoint,
-    "artery-vein-pair": artery_vein_pair,
+    "koch": koch,
     "spokes-macula-centred": spokes_macula_centred,
     "spokes-disc-centred": spokes_disc_centred,
 }

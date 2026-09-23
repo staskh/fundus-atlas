@@ -78,15 +78,11 @@ def _distance(points: np.ndarray, x: np.ndarray, y: np.ndarray, reach: float) ->
         if left >= right or top >= bottom:
             continue
         window = (slice(top, bottom), slice(left, right))
-        nearest[window] = np.minimum(
-            nearest[window], _to_segment(start, end, x[window], y[window])
-        )
+        nearest[window] = np.minimum(nearest[window], _to_segment(start, end, x[window], y[window]))
     return nearest
 
 
-def _to_segment(
-    start: np.ndarray, end: np.ndarray, x: np.ndarray, y: np.ndarray
-) -> np.ndarray:
+def _to_segment(start: np.ndarray, end: np.ndarray, x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """Distance from every pixel centre to one line segment, clamped at its ends."""
     dx, dy = end[0] - start[0], end[1] - start[1]
     squared = dx * dx + dy * dy

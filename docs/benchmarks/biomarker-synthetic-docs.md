@@ -61,14 +61,15 @@ the pixel grid differs.
 <!-- generated: material -->
 | Shape | What its geometry settles | Available |
 | --- | --- | --- |
-| `straight` | 25 quantities with a known value | yes |
-| `arc` | 23 quantities with a known value | yes |
-| `sinusoid` | 23 quantities with a known value | yes |
-| `bifurcation` | 15 quantities with a known value | yes |
-| `disjoint` | 19 quantities with a known value | yes |
-| `artery-vein-pair` | 18 quantities with a known value | yes |
-| `spokes-macula-centred` | 22 quantities with a known value | yes |
-| `spokes-disc-centred` | 22 quantities with a known value | yes |
+| `straight` | 50 quantities with a known value | yes |
+| `arc` | 46 quantities with a known value | yes |
+| `sinusoid` | 46 quantities with a known value | yes |
+| `bifurcation` | 32 quantities with a known value | yes |
+| `deep-bifurcation` | 32 quantities with a known value | yes |
+| `disjoint` | 30 quantities with a known value | yes |
+| `koch` | 38 quantities with a known value | yes |
+| `spokes-macula-centred` | 34 quantities with a known value | yes |
+| `spokes-disc-centred` | 34 quantities with a known value | yes |
 <!-- /generated -->
 
 ## 4. How to run it
@@ -169,7 +170,7 @@ would be comparing different quantities. The **structure** is what the measureme
 arteriovenous ratio and nothing else.
 
 <!-- generated: biomarkers -->
-32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`). **15 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing.
+32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`). **29 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing.
 
 **[tortuosity](../biomarkers/tortuosity.md)**
 
@@ -180,19 +181,19 @@ arteriovenous ratio and nothing else.
 | `tortuosity/hart-tau3/<structure>` | total squared curvature, ∫κ² ds | yes |
 | `tortuosity/hart-tau4/<structure>` | mean curvature, ∫κ ds / s — compositional, and implemented here by nobody | yes |
 | `tortuosity/hart-tau5/<structure>` | mean squared curvature, ∫κ² ds / s — likewise | yes |
-| `tortuosity/hart-tau6/<structure>` | total curvature over chord, ∫κ ds / chord | — |
-| `tortuosity/hart-tau7/<structure>` | total squared curvature over chord, ∫κ² ds / chord | — |
-| `tortuosity/grisan-density/<structure>` | Grisan's tortuosity density over constant-sign subsegments | — |
-| `tortuosity/arc-chord-times-inflections/<structure>` | τ1 multiplied by the number of curvature sign changes | — |
-| `tortuosity/spline-mean-curvature/<structure>` | mean curvature sampled along a fitted spline | — |
-| `tortuosity/inflection-count/<structure>` | how many times the curvature changes sign | — |
+| `tortuosity/hart-tau6/<structure>` | total curvature over chord, ∫κ ds / chord | yes |
+| `tortuosity/hart-tau7/<structure>` | total squared curvature over chord, ∫κ² ds / chord | yes |
+| `tortuosity/grisan-density/<structure>` | Grisan's tortuosity density over constant-sign subsegments | yes |
+| `tortuosity/arc-chord-times-inflections/<structure>` | τ1 multiplied by the number of curvature sign changes | yes |
+| `tortuosity/spline-mean-curvature/<structure>` | mean curvature sampled along a fitted spline | yes |
+| `tortuosity/inflection-count/<structure>` | how many times the curvature changes sign | yes |
 
 **[vessel-calibre](../biomarkers/vessel-calibre.md)**
 
 | Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `vessel-calibre/mean-width/<structure>` | mean vessel width, in pixels unless a scale was supplied | yes |
-| `vessel-calibre/median-width/<structure>` | median vessel width | — |
+| `vessel-calibre/median-width/<structure>` | median vessel width | yes |
 
 **[central-retinal-equivalents](../biomarkers/central-retinal-equivalents.md)**
 
@@ -214,16 +215,16 @@ arteriovenous ratio and nothing else.
 | Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
 | `vascular-density/over-field-of-view/<structure>` | vessel area as a fraction of the field of view | yes |
-| `vascular-density/over-image/<structure>` | vessel area as a fraction of the whole frame, lit or not | — |
+| `vascular-density/over-image/<structure>` | vessel area as a fraction of the whole frame, lit or not | yes |
 
 **[fractal-dimension](../biomarkers/fractal-dimension.md)**
 
 | Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
-| `fractal-dimension/box-counting/<structure>` | box-counting dimension | — |
-| `fractal-dimension/multifractal-d0/<structure>` | capacity dimension of the multifractal spectrum | — |
-| `fractal-dimension/multifractal-d1/<structure>` | information dimension | — |
-| `fractal-dimension/multifractal-d2/<structure>` | correlation dimension | — |
+| `fractal-dimension/box-counting/<structure>` | box-counting dimension | yes |
+| `fractal-dimension/multifractal-d0/<structure>` | capacity dimension of the multifractal spectrum | yes |
+| `fractal-dimension/multifractal-d1/<structure>` | information dimension | yes |
+| `fractal-dimension/multifractal-d2/<structure>` | correlation dimension | yes |
 
 **[vessel-area-and-length](../biomarkers/vessel-area-and-length.md)**
 
@@ -236,8 +237,8 @@ arteriovenous ratio and nothing else.
 
 | Canonical name | What it measures | Ground truth here |
 | --- | --- | --- |
-| `sparsity/mean-distance/<structure>` | mean distance from retina to the nearest vessel | — |
-| `sparsity/max-distance/<structure>` | the furthest any retina is from a vessel | — |
+| `sparsity/mean-distance/<structure>` | mean distance from retina to the nearest vessel | yes |
+| `sparsity/max-distance/<structure>` | the furthest any retina is from a vessel | yes |
 
 **[junction-counts](../biomarkers/junction-counts.md)**
 

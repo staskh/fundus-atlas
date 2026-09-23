@@ -82,7 +82,7 @@ def test_a_rendering_that_answered_in_part_is_measured_rather_than_failed() -> N
     the whole rendering failed would have discarded four sound area measurements per shape.
     """
     adapter = PartlyAnswering()
-    built = benchmark.library.build("straight", side=256, rotation=0.0, um_per_px=5.0)
+    built = benchmark.library.build("straight", side=2048, rotation=0.0, um_per_px=5.0)
 
     row = benchmark._row(
         adapter,
