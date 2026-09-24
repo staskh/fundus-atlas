@@ -35,9 +35,9 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 **Does a biomarker implementation compute the quantity it is said to compute?** Every other benchmark here compares software with a human judgement; this one compares it with a number derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of exactly 1/r, and an implementation that disagrees is wrong rather than different. It selects nothing: which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence.
 
-[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out: PVBM](benchmarks/biomarker-synthetic-pvbm-results.md) · [The analysis](../notebooks/biomarker-synthetic-pvbm.ipynb) · [What came out: AutoMorph](benchmarks/biomarker-synthetic-automorph-results.md) · [The analysis](../notebooks/biomarker-synthetic-automorph.ipynb) · [What came out: VascX](benchmarks/biomarker-synthetic-vascx-results.md) · [The analysis](../notebooks/biomarker-synthetic-vascx.ipynb) · [Every score](../results/biomarker-synthetic/)
+[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/biomarker-synthetic.ipynb) · [Every score](../results/biomarker-synthetic/)
 
-Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so **turns with the image** is the largest spread one quantity showed across the four, and anything above zero there is the implementation or the pixel grid rather than the eye. How far each measurement is from what the geometry requires is on the results pages, which read the drawn store's ground truth.
+Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so **turns with the image** is the largest spread one quantity showed across the four, and anything above zero there is the implementation or the pixel grid rather than the eye. How far each measurement is from what the geometry requires is on the results page, which reads the drawn store's ground truth.
 
 | Implementation | Renderings | Columns | Values returned | Turns with the image |
 | --- | --- | --- | --- | --- |
@@ -102,4 +102,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-09-23
+**Generated:** 2026-09-24

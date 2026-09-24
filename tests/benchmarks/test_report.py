@@ -4,6 +4,7 @@
 from pathlib import Path
 
 from benchmarks import report
+from benchmarks.__main__ import BENCHMARKS
 
 
 def scored(**overrides: object) -> dict[str, object]:
@@ -119,24 +120,19 @@ def test_the_configuration_page_can_be_written_before_anything_is_measured(
     assert "3 below the size floor" in written, "the exclusions are known from the manifest alone"
 
 
-def test_a_benchmark_has_one_results_page_unless_it_says_otherwise() -> None:
-    """The usual case: the page and the notebook are named after the benchmark itself."""
-    label, stem = report.reports("quality")[0]
+def test_every_benchmark_has_one_notebook_and_one_results_page() -> None:
+    """Named after the benchmark, so the page and the notebook it was compiled from cannot drift.
 
-    assert stem == "quality", "docs/benchmarks/quality-results.md and notebooks/quality.ipynb"
-    assert label, "and it carries a label for an index that has several to tell apart"
-
-
-def test_a_benchmark_measuring_several_things_declares_a_page_for_each() -> None:
-    """One page per implementation, because reading two together buries each under the other.
-
-    The stem names the page and the notebook alike, so `biomarker-synthetic-pvbm-results.md` is
-    compiled from `biomarker-synthetic-pvbm.ipynb` and the two cannot drift apart.
+    A benchmark's write-up is never split by what it measured: the comparison between its subjects
+    is the one finding no subject could produce alone, and a page per subject has nothing to
+    compare. See the `report-benchmark` skill.
     """
-    declared = report.reports("biomarker-synthetic")
-
-    assert ("PVBM", "biomarker-synthetic-pvbm") in declared
     root = Path(report.__file__).resolve().parents[2]
-    for _label, stem in declared:
-        assert (root / "docs/benchmarks" / f"{stem}-results.md").exists(), f"{stem} has no page"
-        assert (root / "notebooks" / f"{stem}.ipynb").exists(), f"{stem} has no notebook"
+
+    for benchmark in BENCHMARKS:
+        if not (root / "results" / benchmark).is_dir():
+            continue  # declared, but nothing measured yet, so nothing is written up
+        assert (root / "docs/benchmarks" / f"{benchmark}-results.md").exists(), (
+            f"{benchmark} has no results page"
+        )
+        assert (root / "notebooks" / f"{benchmark}.ipynb").exists(), f"{benchmark} has no notebook"

@@ -6,8 +6,8 @@ otherwise is wrong rather than merely different.
 
 This page describes the utility that draws them. What the benchmark then does with them is a
 separate page — [biomarker-synthetic-docs.md](biomarker-synthetic-docs.md) — and what came out of
-and what came out of measuring one implementation against them is a third, one page per
-implementation: [biomarker-synthetic-pvbm-results.md](biomarker-synthetic-pvbm-results.md).
+measuring every implementation against them is a third:
+[biomarker-synthetic-results.md](biomarker-synthetic-results.md).
 
 ## Contents
 

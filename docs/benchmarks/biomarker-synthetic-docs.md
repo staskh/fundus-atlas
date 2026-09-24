@@ -17,7 +17,7 @@ run on, how to run it, and what every column of its evidence means.
 rendered from what the benchmark reports about itself and are refreshed by
 `python -m benchmarks --benchmark biomarker-synthetic --docs`, which measures nothing. Everything
 else on the page is written by hand and is never overwritten. What *came out* of a run is written
-up separately, per implementation — section 8.
+up separately, on one page holding every implementation — section 8.
 
 ## 1. What this benchmark asks
 
@@ -137,14 +137,15 @@ A fingerprint that differs means the stored result describes something that no l
 
 ## 8. Where the results are written up
 
-One page per implementation or family, because each is a different piece of somebody else's code
-and reading two in one document buries each under the other:
+In **one** page, [biomarker-synthetic-results.md](biomarker-synthetic-results.md), compiled from
+the single notebook [`notebooks/biomarker-synthetic.ipynb`](../../notebooks/biomarker-synthetic.ipynb).
 
-<!-- generated: reports -->
-- **PVBM** — [biomarker-synthetic-pvbm-results.md](biomarker-synthetic-pvbm-results.md)
-- **AutoMorph** — [biomarker-synthetic-automorph-results.md](biomarker-synthetic-automorph-results.md)
-- **VascX** — [biomarker-synthetic-vascx-results.md](biomarker-synthetic-vascx-results.md)
-<!-- /generated -->
+Every implementation appears in it together, and that is the point rather than a convenience. The
+question this benchmark asks is whether these programs compute the same quantity, and that question
+lives **across** a row — one catalogued biomarker, one column per implementation — so a page per
+implementation would have nothing left to compare. The columns stand in lineage order, siblings
+beside each other, so that a difference between neighbours reads as a change somebody made on
+purpose and a difference across a boundary reads as two independent programs.
 
 ## 9. The biomarkers it can name
 

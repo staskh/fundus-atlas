@@ -57,8 +57,8 @@ def _docs(
         "code changes, so it describes the run that is happening rather than the one that happened "
         "to finish. A column added to the evidence and not explained here is a bug rather than an "
         "omission. What came out is written up separately: "
-        + ", ".join(f"[{stem}-results.md]({stem}-results.md)" for _, stem in reports(benchmark))
-        + "."
+        f"to finish. What came out is written up separately, in "
+        f"[{benchmark}-results.md]({benchmark}-results.md)."
     )
     yield ""
     yield from _module(benchmark).docs_sections(configured, missing_models, missing_datasets)
@@ -217,9 +217,7 @@ def _index(results: Path) -> Iterable[str]:
     # the index walks the benchmarks this repository declares and keeps those with results on disk.
     from . import __main__ as entry
 
-    for benchmark in sorted(
-        name for name in entry.BENCHMARKS if (results / name).is_dir()
-    ):
+    for benchmark in sorted(name for name in entry.BENCHMARKS if (results / name).is_dir()):
         module = _module(benchmark)
         records = list(_stored(results / benchmark))
         yield ""
@@ -227,15 +225,10 @@ def _index(results: Path) -> Iterable[str]:
         yield ""
         yield module.GOAL
         yield ""
-        pages = reports(benchmark)
-        # The label only earns its place where there is more than one page to tell apart.
-        written = " · ".join(
-            f"[What came out{f': {label}' if len(pages) > 1 else ''}](benchmarks/{stem}-results.md)"
-            f" · [The analysis](../notebooks/{stem}.ipynb)"
-            for label, stem in pages
-        )
         yield (
-            f"[How it is run](benchmarks/{benchmark}-docs.md) · {written} · "
+            f"[How it is run](benchmarks/{benchmark}-docs.md) · "
+            f"[What came out](benchmarks/{benchmark}-results.md) · "
+            f"[The analysis](../notebooks/{benchmark}.ipynb) · "
             f"[Every score](../results/{benchmark}/)"
         )
         yield ""
@@ -280,20 +273,6 @@ def unfinished(records: list[dict[str, object]]) -> str:
 def _stored(directory: Path) -> Iterable[dict[str, object]]:
     for path in sorted(directory.glob("*/*.json")):
         yield json.loads(path.read_text())
-
-
-def reports(benchmark: str) -> list[tuple[str, str]]:
-    """What written pages a benchmark has, and the notebook behind each, as `(label, stem)`.
-
-    Most benchmarks have one, named after the benchmark itself. A benchmark whose analysis is **per
-    implementation** declares several: each implementation is a different piece of somebody else's
-    code, and reading two of them in one document buries what is true of one under what is true of
-    the other. The stem names both the page, `docs/benchmarks/<stem>-results.md`, and the notebook
-    it was compiled from, `notebooks/<stem>.ipynb`, so the two cannot drift apart.
-    """
-    module = _module(benchmark)
-    declared = getattr(module, "REPORTS", None)
-    return [tuple(entry) for entry in declared] if declared else [(module.TITLE, benchmark)]
 
 
 def _module(benchmark: str):

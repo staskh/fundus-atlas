@@ -107,9 +107,9 @@ and the switch that appears to control it does not.
 
 PVBM walks a vessel by calling a function once per skeleton pixel, so a vessel longer than Python's
 recursion limit raises `RecursionError`. This atlas measured that in the
-[synthetic biomarker benchmark](../benchmarks/biomarker-synthetic-pvbm-results.md) §8: it cost the
-central retinal equivalents on 10 of 32 renderings, and whether it happens depends on the angle the
-eye sat at, because a tilted digital line spends fewer pixels covering the same distance.
+[synthetic biomarker benchmark](../benchmarks/biomarker-synthetic-results.md) §3: it cost the
+central retinal equivalents on 8 of 36 renderings — every angle of the two shapes carrying the most
+skeleton — so what triggers it is how much vessel there is rather than anything malformed.
 
 OCULAR's copy addresses that unevenly:
 

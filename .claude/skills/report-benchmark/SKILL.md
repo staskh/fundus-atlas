@@ -17,21 +17,17 @@ benchmark is configured is `document-benchmark`: a page part generated from the 
 reports about itself and part written by hand, refreshed by `--docs` rather than by a run. Load
 that skill to change it.
 
-**A benchmark may have more than one results page**, one per thing measured, where reading two of
-them together would bury each under the other. The synthetic biomarker benchmark does: each
-implementation is a different piece of somebody else's code, so what is true of PVBM's chord-sum
-length says nothing about the next implementation, and its pages are
-`biomarker-synthetic-pvbm-results.md` and a sibling per implementation thereafter.
+**One benchmark, one results page**, named after the benchmark itself, compiled from the one
+notebook `notebooks/<benchmark>.ipynb` so that a page and its notebook cannot drift apart.
 
-A benchmark that splits declares its pages, as `(label, stem)` pairs, in a module-level `REPORTS`:
-the stem names both `docs/benchmarks/<stem>-results.md` and the `notebooks/<stem>.ipynb` it was
-compiled from, so a page and its notebook cannot drift apart. Declare nothing and a benchmark has
-one page named after itself, which is the usual case. The generated index and configuration page
-read `REPORTS`, so they link every page without being told about each one.
-
-**Splitting is for different subjects, never for length.** Two datasets scored by one model belong
-in one page, because the comparison between them *is* the finding. Two implementations do not,
-because there is no such comparison until a second exists.
+**Do not split a benchmark's write-up by what it measured.** A page per model, per dataset or per
+implementation destroys the only thing the benchmark produced that none of its subjects could
+produce alone: the comparison. Two datasets scored by one model belong together because the
+difference between them *is* the finding; two implementations of one biomarker belong together for
+the same reason, and the synthetic biomarker benchmark is the case — a reader asking whether six
+programs compute the same quantity reads across a row, and six pages have no rows to read across.
+Length is not a reason to split: a page too long to read is a page with too much in it, and the fix
+is to cut, not to shard.
 
 Above both sits one page for the whole repository, also generated:
 

@@ -22,11 +22,32 @@ The intro states, in this order and in plain terms:
      another program's output. An implementation that disagrees with it is wrong rather than
      different.
 - **How to read the tables.** Unless a section says otherwise, every result is a table whose
-  **rows are canonical biomarker names** and whose **columns are implementations**. Where a value
-  depends on which shape it was measured on, the columns carry both, as
-  `(implementation, shape)`.
+  **rows are canonical biomarker names** and whose **columns are implementations**. Where a
+  quantity was measured on several shapes or at several angles, the cell is the **worst** of them,
+  because a mean would hide the case that matters.
 
-### 1.1 Where the three inputs come from
+**One notebook holds every implementation, and one results page is compiled from it.** There is no
+notebook per implementation and none per family: the comparison *is* the result, and a table split
+by implementation cannot be read across. **Order the columns so that siblings stand together** —
+implementations sharing a lineage beside each other, independent ones apart — so that a difference
+between neighbours is a change somebody made on purpose, and a difference across the gap is two
+programs that never shared a line of code.
+
+### 1.1 The order of the columns
+
+Take it from the benchmark's own `IMPLEMENTATIONS`, which is **kept in lineage order** for exactly
+this reason, and never re-sort it alphabetically:
+
+| Columns | Why they stand together |
+| --- | --- |
+| `pvbm`, `ocular` | OCULAR imports PVBM's measuring code, so a difference between these two is something OCULAR did on purpose |
+| `automorph`, `automorphalyzer`, `automorphclass` | the two descendants both fork AutoMorph's measuring stage; reading them side by side is what shows what each changed |
+| `vascx` | shares no code with any of the above — it reimplements every biomarker, so a disagreement across this boundary is two independent readings of the same definition |
+
+A gap between groups therefore means something a reader can use: **within** a group, a difference is
+an edit; **across** one, it is two programs that never shared a line.
+
+### 1.2 Where the three inputs come from
 
 The notebook does the join that the benchmark deliberately does not:
 
@@ -94,9 +115,10 @@ one that returns a confident wrong number has not. Keep the two apart here and e
 
 The geometry is identical at every angle, so **any spread is the implementation or the grid**.
 
-- Table indexed by canonical name, **filtered to names where at least one implementation exceeds
-  `ROTATION_TOLERANCE`**, showing the spread as a **percentage of the mean** for each kind of
-  synthetic image.
+- Table indexed by canonical name, columns the implementations, **filtered to names where at least
+  one implementation exceeds `ROTATION_TOLERANCE`**. Each cell is the **worst spread that quantity
+  showed on any shape**, as a percentage of its mean on that shape — every shape pooled into one
+  number, because a quantity that turns with the image on one shape turns with the image.
 - Then **one subsection per implementation** doing the same for its **non-canonical** columns —
   the quantities nothing can compare against are as capable of turning with the image as the ones
   that can, and nothing else in this notebook would notice.
@@ -106,8 +128,16 @@ five that are not.
 
 ## 6. Section 4 — agreement with ground truth
 
-Table indexed by canonical name, **filtered to those with at least one fault**, showing the error
-as a **percentage of the ground truth**.
+**The main table** is indexed by canonical name with the implementations as columns, **filtered to
+those with at least one fault**, and each cell is the **worst disagreement over every shape and
+every angle**, as a percentage of the ground truth. One number per implementation per biomarker:
+the worst case it produced anywhere.
+
+**Then one subsection per shape**, the same table for that shape alone — worst over its rotations.
+The main table says *whether* a biomarker is trustworthy; the per-shape tables say *where* it
+stopped being so, which is what turns a number into something to investigate. A biomarker wrong on
+one shape and right on seven is a different finding from one wrong on all eight, and the main
+table cannot tell them apart.
 
 Only canonical names appear, because only they have a ground truth to disagree with. A quantity an
 implementation computes under a name the catalogue does not know is measured, stored, and absent
@@ -127,7 +157,12 @@ settle.
 
 ## 8. What this analysis must not conclude
 
-- **That an implementation is good or bad.** This benchmark selects nothing; the notebook reports.
+- **That an implementation is good or bad, as a ranking.** No column is scored and no order is
+  published. What the notebook *may* do — and should — is **argue for the best at a named
+  question**: which implementation to reach for if what matters is calibre, or tortuosity, or
+  surviving a rotation, with the evidence for it and the caveats that would change the answer.
+  That is `report-benchmark` §5's rule, and the difference is between an argument a reader can
+  disagree with and a league table they cannot.
 - **That a quantity with no ground truth is wrong**, or right. It is unchecked.
 - **That agreement between two implementations means either is correct.** They can share a lineage,
   and two of these do — agreement is evidence about their common ancestor, not about the truth.

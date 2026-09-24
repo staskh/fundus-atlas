@@ -164,8 +164,9 @@ the authority on it:
   and a `ground_truth.csv` of the values its geometry requires. Unlike a dataset store it is
   **committed**, because these are our own shapes rather than anybody else's photographs, and a
   measurement is then repeatable against the exact pictures it was taken on.
-- `notebooks/` — one analysis notebook per results page: usually one per benchmark, and one per
-  implementation where the benchmark measures several.
+- `notebooks/` — one analysis notebook per benchmark, `notebooks/<benchmark>.ipynb`, holding every
+  subject that benchmark measured, and one results page compiled from it. A notebook per model or
+  per implementation would destroy the comparison the benchmark exists to make.
 
 Tests are in `tests/`, mirroring `src/`, and run against synthetic fixtures rather than downloads.
 Three directories are git-ignored caches: `.atlas_data/` for dataset stores, `.atlas_code/` for

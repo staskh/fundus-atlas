@@ -173,11 +173,6 @@ def _biomarkers(config) -> Iterable[str]:
         yield (f"| `{entry['name']}` | {entry['means']} | {'yes' if entry['settled'] else '—'} |")
 
 
-def _reports(config) -> Iterable[str]:
-    for label, stem in config["reports"]:
-        yield f"- **{label}** — [{stem}-results.md]({stem}-results.md)"
-
-
 #: Every block a page may mark, and what fills it. A marker naming anything else is an error.
 BLOCKS = {
     "asks": _asks,
@@ -188,7 +183,6 @@ BLOCKS = {
     "fingerprint": _fingerprint,
     "counts": _counts,
     "biomarkers": _biomarkers,
-    "reports": _reports,
 }
 
 

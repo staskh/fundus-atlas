@@ -11,7 +11,7 @@ from pathlib import Path
 from biomarkers.utils import catalogue
 
 from . import report, runs
-from .shapes import library
+from .shapes import library, store
 
 #: What this benchmark is called in a heading, where its slug does not read as English.
 TITLE = "Biomarkers against arithmetic"
@@ -30,17 +30,6 @@ VERSION = 3
 #: **One per implementation**, because each is a different piece of somebody else's code: what is
 #: true of PVBM's chord-sum length says nothing about the next implementation, and one document
 #: holding both would bury each under the other. A second implementation adds a pair here.
-REPORTS = (
-    ("PVBM", "biomarker-synthetic-pvbm"),  # and OCULAR, which imports its measuring code
-    # The three AutoMorph projects share a page because they share a lineage: AutoMorphalyzer and
-    # AutoMorphClass both descend from AutoMorph's measuring stage, so the interesting question is
-    # what each changed, which only a side-by-side can answer.
-    ("AutoMorph", "biomarker-synthetic-automorph"),
-    # VascX shares no code with any of the others — it reimplements every biomarker — so it gets a
-    # page of its own rather than a column in somebody else's.
-    ("VascX", "biomarker-synthetic-vascx"),
-)
-
 #: What this benchmark asks, in the sentences the index has room for.
 GOAL = (
     "**Does a biomarker implementation compute the quantity it is said to compute?** Every other "
@@ -55,18 +44,15 @@ GOAL = (
 SHAPES = tuple(library.SHAPES)
 
 #: The implementations, by the slug of the project page each belongs to.
+#:
+#: **The order is lineage, not the alphabet, and the analysis reads its columns from here.** OCULAR
+#: imports PVBM's tortuosity, perimeter and branching-angle helpers at runtime and measures with a
+#: modified copy of its `CREVBMs`; AutoMorphalyzer and AutoMorphClass are both rewrites of
+#: AutoMorph's measuring stage; VascX shares code with none of them and reimplements every
+#: biomarker. So a difference between neighbours is a change somebody made on purpose, and a
+#: difference across a boundary is two programs that never shared a line — which is only legible if
+#: the columns stand in this order.
 IMPLEMENTATIONS = ("pvbm", "ocular", "automorph", "automorphalyzer", "automorphclass", "vascx")
-
-#: The AutoMorph family, by the page they are written up on together. A family is a lineage rather
-#: than a category: these three measure the same quantities because two of them are rewrites of the
-#: first, so a difference between their numbers is a change somebody made on purpose.
-FAMILIES = {
-    # OCULAR imports PVBM's tortuosity, perimeter and branching-angle helpers at runtime and
-    # measures with a modified copy of its `CREVBMs`, so the two belong on one page for the same
-    # reason the AutoMorph three do: a difference between them is a change somebody made.
-    "biomarker-synthetic-pvbm": ("pvbm", "ocular"),
-    "biomarker-synthetic-automorph": ("automorph", "automorphalyzer", "automorphclass"),
-}
 
 #: Why a declared implementation has no adapter, where the reason is worth more than "nobody wrote
 #: one yet".
@@ -111,8 +97,6 @@ def _ground_truth() -> dict[str, list[str]]:
     store has been drawn the answer is simply empty: a configuration page is writable before the
     images exist, which is the point of writing it first.
     """
-    from .shapes import store
-
     try:
         truth = store.truth(store.STORE)
     except (FileNotFoundError, OSError):
@@ -254,9 +238,10 @@ def _row(
     difference is an analysis, and the analysis belongs in the notebook.
     """
     row: dict[str, object] = {
-        # What was measured, named once. A rendering plays the part a photograph plays in every
-        # other benchmark here, so it carries the same kind of key and the evidence sorts alike.
-        "key": f"{built.name}@{angle:.0f}",
+        # What was measured, named once, and spelt the way the drawn store spells it — so that a
+        # row of evidence and the rendering it came from can be joined without a translation, and
+        # so that the ground truth the analysis reads keys against it directly.
+        "key": store.key_of(built.name, built.side, angle),
         "shape": built.name,
         "rotation": f"{angle:.1f}",
         "side": built.side,
@@ -459,7 +444,6 @@ def config() -> dict[str, object]:
             for template, means in canonical.NAMES.items()
         ],
         "structures": list(canonical.STRUCTURES),
-        "reports": [list(pair) for pair in REPORTS],
     }
 
 
@@ -532,8 +516,8 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
         "Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so "
         "**turns with the image** is the largest spread one quantity showed across the four, and "
         "anything above zero there is the implementation or the pixel grid rather than the eye. "
-        "How far each measurement is from what the geometry requires is on the results pages, "
-        "which read the drawn store's ground truth."
+        "How far each measurement is from what the geometry requires is on the results page, "
+        "which reads the drawn store's ground truth."
     )
     yield ""
     yield "| Implementation | Renderings | Columns | Values returned | Turns with the image |"
@@ -559,7 +543,7 @@ def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[s
     **Nothing here is scored.** The benchmark does not read the ground truth, so it cannot say how
     close anybody got; what it can say is what each program returned and how steady it was when the
     same shape was turned, both of which are properties of the evidence alone. How far any of it is
-    from what the geometry requires is on the results pages, which read the store.
+    from what the geometry requires is on the results page, which reads the store.
     """
     import csv
 

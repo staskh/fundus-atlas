@@ -134,7 +134,7 @@ earlier version of this page repeated it.
 The distinction matters because the two variants are not interchangeable: Knudtson's is purely
 multiplicative and therefore scale-free, while Hubbard's carries an additive term that does not
 scale, so a value computed under one name is not convertible into the other. The
-[synthetic benchmark](../benchmarks/biomarker-synthetic-vascx-results.md) maps VascX's equivalents
+[synthetic benchmark](../benchmarks/biomarker-synthetic-results.md) maps VascX's equivalents
 to the Knudtson name on the strength of the formula rather than the label, and measures them within
 0.7% of what the geometry requires.
 
@@ -197,8 +197,7 @@ disc indexes outside the mask and fails.
   sharp for anyone calling the feature machinery on their own masks at another size.
 - **Working around it:** rebuild the disc at the frame's size —
   `retina.disc = OpticDisc(mask, fundus=retina, size=side)` — which is what this repository's
-  [biomarker adapter](../benchmarks/biomarker-synthetic-vascx-results.md#4-a-disc-that-resizes-itself-to-1024)
-  does.
+  this repository's biomarker adapter (`src/biomarkers/vascx.py`) does.
 
 Not reported upstream by this atlas as of 2026-09-22.
 
