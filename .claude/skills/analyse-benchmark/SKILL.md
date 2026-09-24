@@ -10,10 +10,15 @@ generated documents in `docs/benchmarks/` hold the configuration and the facts, 
 holds the judgement**. They are separate artefacts because a table saying a model scores 0.82 cannot
 say that the 0.82 is two populations and that one of them is a camera.
 
-One notebook per results page, `notebooks/<stem>.ipynb`, and usually that is one per benchmark.
-A benchmark whose analysis is per implementation has one each — `biomarker-synthetic-pvbm.ipynb`
-and a sibling per implementation — named by the stems its `REPORTS` declares, so a notebook and the
-page compiled from it carry the same name. **What only one benchmark's analysis
+One notebook per results page, `notebooks/<stem>.ipynb`, and usually that is one per benchmark,
+named by the stems its `REPORTS` declares so that a notebook and the page compiled from it carry
+the same name.
+
+**A benchmark may instead analyse every subject in one notebook**, where the question it asks is
+whether they agree with each other rather than how each behaves. The synthetic biomarker benchmark
+is the case: its rows are catalogued biomarker names and its columns are implementations, because
+a reader asking "do these programs compute the same quantity" reads across a row, and splitting
+that table by implementation would destroy the comparison the benchmark exists to make. **What only one benchmark's analysis
 must show lives in its own file beside this one** — `quality.md`, and one per benchmark thereafter —
 and you load that file too.
 
@@ -21,6 +26,7 @@ and you load that file too.
 | --- | --- |
 | Quality | [quality.md](quality.md) |
 | Disc and cup | [disc.md](disc.md) |
+| Biomarkers against arithmetic | [biomarker-synthetic.md](biomarker-synthetic.md) |
 
 ## 1. An existing notebook is extended, never rewritten
 
