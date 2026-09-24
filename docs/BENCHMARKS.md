@@ -42,11 +42,11 @@ Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identica
 | Implementation | Renderings | Columns | Values returned | Turns with the image |
 | --- | --- | --- | --- | --- |
 | [automorph](projects/automorph.md) | 36 | 18 | 648 | 100.0% |
-| [automorphalyzer](projects/automorphalyzer.md) | 36 | 54 | 1352 | 100.0% |
+| [automorphalyzer](projects/automorphalyzer.md) | 36 | 54 | 1344 | 100.0% |
 | [automorphclass](projects/automorphclass.md) | 36 | 18 | 648 | 100.0% |
 | [ocular](projects/ocularnet.md) | 36 | 18 | 568 | 100.0% |
-| [pvbm](projects/pvbm.md) | 36 | 32 | 921 | 100.0% |
-| [vascx](projects/vascx.md) | 36 | 20 | 430 | 98.6% |
+| [pvbm](projects/pvbm.md) | 36 | 32 | 912 | 100.0% |
+| [vascx](projects/vascx.md) | 36 | 20 | 424 | 98.6% |
 
 
 ## Disc and cup

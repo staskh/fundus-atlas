@@ -175,8 +175,11 @@ def _pair(
             "declared": {key: declared.get(key) for key in FINGERPRINTED},
             "code": adapter.identity(),
             # The grid, the scale and the angles all change what is measured, so a result that
-            # outlived a change to any of them would be describing something else.
+            # outlived a change to any of them would be describing something else. So does the
+            # drawing: a shape redrawn from different parameters is a different question, and
+            # nothing else here would notice, because its grid and scale are unchanged.
             "rendering": {"side": SIDE, "um_per_px": UM_PER_PX, "rotations": list(ROTATIONS)},
+            "drawing": store.digest(shape),
         }
     )
     kept = [] if force else runs.measured(results, NAME, adapter.slug, shape, identity)
@@ -401,6 +404,7 @@ def config() -> dict[str, object]:
         # weights, applies no patches and reads no dataset store, so none of those appear.
         "fingerprint": [
             "this benchmark's name and `VERSION`",
+            "a sha256 of the masks this shape is drawn as, so a redrawing re-measures it",
             f"the facts each implementation declares that bear on its numbers: {', '.join(FINGERPRINTED)}",
             "the pinned commit of the code that will run, as the adapter reports it",
             f"the rendering: a {SIDE}px grid at {UM_PER_PX:g} µm per pixel, drawn at "

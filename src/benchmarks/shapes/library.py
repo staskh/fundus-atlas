@@ -811,6 +811,31 @@ def disjoint(
 #: plausibly reach — which an ordinary vessel's dimension of 1 is not.
 KOCH_DIMENSION = math.log(4.0) / math.log(3.0)
 
+#: How wide the Koch curve's vessels are drawn, as a fraction of every other shape's width.
+#:
+#: **The box dimension of a drawn curve is governed by how thick the vessel is, not by how many
+#: generations it has.** Thickening adds area-like scaling at every box size below the width, which
+#: pulls the estimate towards 2 from underneath: at full width a box count over this frame returns
+#: about 1.41 whatever the depth, and it only falls to the 1.2619 the geometry requires as the
+#: vessel narrows. Half width is where it lands — 1.28 measured against 1.2619 — and 40 µm is an
+#: ordinary arteriole rather than an invention.
+KOCH_WIDTH_FRACTION = 0.5
+
+#: How many times the finest generation must exceed the vessel width before the curve is considered
+#: to be in the image at all.
+#:
+#: Three is a proxy rather than a threshold anybody derived, and it is set from what was measured
+#: across depths and widths on a 2048 px frame. Well above it — at six times, which is where this
+#: shape now sits — the drawn arc-to-chord ratio and box dimension both land within a few percent
+#: of the geometry, the skeleton carries four to six endpoints against the two a clean curve has,
+#: and turning the picture moves the ratio by about 1%. Below one, which is where four generations
+#: at full width sat, the arc-to-chord ratio collapses by 31%, the box dimension rises to 1.51, and
+#: the skeleton sprouts a dozen endpoints out of merged spikes.
+#:
+#: Deeper is not better once this is understood. A curve is only worth the generations it can carry,
+#: and each one it cannot costs endpoints, rotation stability and nothing gained in dimension.
+KOCH_RESOLVABLE = 3.0
+
 
 def _koch(start, heading: float, reach: float, depth: int) -> np.ndarray:
     """One Koch curve, as a polyline: each segment replaced by four a third as long."""
@@ -831,6 +856,29 @@ def _koch(start, heading: float, reach: float, depth: int) -> np.ndarray:
     return np.array(points)
 
 
+def _needs_the_koch_inside_its_own_width(base: float, depth: int, widest: float) -> None:
+    """Refuse a Koch curve whose finest generation is narrower than the vessel drawn along it.
+
+    This is the fractal equivalent of the two refusals above, and it is the one that is easy to
+    miss, because nothing about the picture looks truncated: the curve is entirely inside the
+    frame, it simply is not the curve that was asked for. Where a generation is finer than the
+    brush, the spikes merge into the stroke, and the image carries a shallower Koch curve than the
+    ground truth derived beside it — which charges every implementation with an error none of them
+    can avoid, and is exactly what this shape exists to prevent.
+
+    It is a guard rather than a proof: clearing it does not make a drawing faithful, it only rules
+    out the way this one went wrong. `KOCH_RESOLVABLE` says what the ratio was chosen from.
+    """
+    finest = base / 3.0**depth
+    if finest < KOCH_RESOLVABLE * widest:
+        raise ValueError(
+            f"a Koch curve of {depth} generations over {base:.0f} px has a finest generation of "
+            f"{finest:.1f} px, which a {widest:.1f} px vessel paints over: it needs to be at least "
+            f"{KOCH_RESOLVABLE:.0f}× the width. Use fewer generations, a longer reach, or a "
+            f"narrower vessel."
+        )
+
+
 def koch(
     side: int,
     rotation: float = 0.0,
@@ -838,7 +886,7 @@ def koch(
     artery_um: float = ARTERY_WIDTH_UM,
     vein_um: float = VEIN_WIDTH_UM,
     reach: float = 0.34,
-    depth: float = 4,
+    depth: float = 2,
 ) -> Shape:
     """A Koch curve per class, leaving the disc margin: the shape with a known fractal dimension.
 
@@ -850,8 +898,30 @@ def koch(
 
     It is also self-similar rather than merely fractal, which is why the same number answers for
     the capacity, information and correlation dimensions: a monofractal's spectrum is a point.
+
+    **Two generations, at half the usual vessel width.** The curve leaves the disc and must stay
+    inside the field, so its span is fixed at about 700 px; each further generation divides the
+    finest detail by three while the vessel width stays put. At four generations that detail was
+    8.6 px under a 24 px vein — the brush wider than what it was painting — and the drawing carried
+    an arc-to-chord ratio of 2.18 against a derived 3.16, with a box dimension of 1.51 against
+    1.2619. Neither number was in the image, so neither was a fair question to ask, and all six
+    implementations duly returned about 1.3 for a ratio of 3.16.
+
+    Two things decide the parameters, and only one of them is what you would guess. The **box
+    dimension** is set by the vessel width rather than the depth, because thickening adds area-like
+    scaling below the width: at full width a box count returns about 1.41 at every depth tried, and
+    only narrowing brings it down. The **arc-to-chord ratio** is what depth buys, but each
+    generation the drawing cannot resolve costs a spurious endpoint per merged spike — four
+    generations leave the skeleton with about 60 endpoints where the curve has 2, and three leave
+    about 20 — and costs rotation stability with it.
+
+    So: the fewest generations that still make the curve self-similar over a useful range of
+    scales, at the width where the dimension lands. Two generations and half width gives 1.84
+    against a derived 1.78, a box dimension of 1.28 against 1.2619, four to six endpoints, and
+    about 1% movement when the picture is turned.
     """
-    wa, wv = _widths(um_per_px, artery_um, vein_um)
+    wa, wv = _widths(um_per_px, artery_um * KOCH_WIDTH_FRACTION, vein_um * KOCH_WIDTH_FRACTION)
+    _needs_the_koch_inside_its_own_width(reach * side, int(depth), max(wa, wv))
     disc = _disc(side, um_per_px)
     generations = int(depth)
     parts = {}

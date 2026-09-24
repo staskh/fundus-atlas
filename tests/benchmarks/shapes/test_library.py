@@ -401,3 +401,71 @@ def test_every_shape_but_the_disjoint_one_leaves_the_optic_disc() -> None:
             assert starts > radius * 1.5, "the disjoint lines are nowhere near the disc"
         else:
             assert starts == pytest.approx(radius, abs=1.0), f"{name} does not start on the margin"
+
+
+def test_the_drawn_koch_carries_the_arc_length_its_theory_claims() -> None:
+    """A ground truth the picture cannot carry charges every implementation with somebody's bug.
+
+    This is the check that was missing when the curve was drawn at four generations: the finest
+    generation was 8.6 px under a 24 px vein, so two of the four were painted over and the drawing
+    held an arc-to-chord ratio of 2.18 where the theory beside it said 3.16. All six implementations
+    duly returned about 1.3, and the benchmark reported six independent failures where there was
+    one fixture defect.
+
+    Measuring the skeleton is the only way to catch that. Deriving the theory *from* the drawing
+    would make them agree by construction and test nothing, so the two are computed apart and
+    compared here.
+    """
+    from skimage.morphology import skeletonize
+
+    shape = library.build("koch", side=2048)
+    skeleton = skeletonize(shape.artery > 0)
+    # Arc length as every implementation measures it: each 8-connected step, straight or diagonal.
+    arc = float(
+        np.logical_and(skeleton[:, :-1], skeleton[:, 1:]).sum()
+        + np.logical_and(skeleton[:-1, :], skeleton[1:, :]).sum()
+        + np.sqrt(2.0) * np.logical_and(skeleton[:-1, :-1], skeleton[1:, 1:]).sum()
+        + np.sqrt(2.0) * np.logical_and(skeleton[:-1, 1:], skeleton[1:, :-1]).sum()
+    )
+    ys, xs = np.nonzero(skeleton)
+    points = np.column_stack([xs, ys]).astype(float)
+    chord = float(
+        np.hypot(points[:, 0] - points[:, 0, None], points[:, 1] - points[:, 1, None]).max()
+    )
+
+    drawn = arc / chord
+    theory = shape.theory["tortuosity/hart-tau1/artery"]
+    assert abs(drawn - theory) / theory < 0.10, (
+        f"the drawn Koch curve has an arc-to-chord ratio of {drawn:.3f} where its theory says "
+        f"{theory:.3f}: the picture does not carry the value derived beside it"
+    )
+
+
+def test_a_koch_curve_finer_than_its_own_vessel_is_refused_rather_than_drawn() -> None:
+    """The refusal that would have caught the four-generation curve before it reached a run.
+
+    Nothing about such a picture looks wrong — the curve is well inside the frame — so the only
+    thing that separates it from a correct one is the arithmetic this guard does.
+    """
+    with pytest.raises(ValueError, match="paints over"):
+        library.koch(2048, 0.0, 5.0, 80.0, 120.0, depth=4)
+
+    library.koch(2048, 0.0, 5.0, 80.0, 120.0, depth=2)
+
+
+def test_the_koch_curve_is_drawn_thinner_than_every_other_shape() -> None:
+    """Half width, so that its finest generation is six times the vessel rather than half of it.
+
+    The manifest records what was actually drawn rather than what was asked for, so a reader
+    comparing this shape's calibre against another's is not quietly comparing two different
+    vessels.
+    """
+    koch = library.build("koch", side=2048)
+    straight = library.build("straight", side=2048)
+
+    assert koch.parameters["artery_width"] == pytest.approx(
+        straight.parameters["artery_width"] * library.KOCH_WIDTH_FRACTION
+    )
+    assert koch.theory["vessel-calibre/mean-width/artery"] == pytest.approx(
+        straight.theory["vessel-calibre/mean-width/artery"] * library.KOCH_WIDTH_FRACTION
+    )

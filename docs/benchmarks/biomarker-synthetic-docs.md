@@ -117,6 +117,7 @@ but the catalogue cannot name keeps its own name — recognisable by carrying no
 A stored result is kept only while everything it depends on is unchanged. This benchmark fingerprints:
 
 - this benchmark's name and `VERSION`
+- a sha256 of the masks this shape is drawn as, so a redrawing re-measures it
 - the facts each implementation declares that bear on its numbers: slug, needs, keys, units
 - the pinned commit of the code that will run, as the adapter reports it
 - the rendering: a 2048px grid at 5 µm per pixel, drawn at 0°, 30°, 60°, 90°

@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spokes-disc-centred",
-  "fingerprint": "6a043a9e1572b7ea4aa5208960357d83be1009301d250f4dcff411b16b9db592",
+  "fingerprint": "72bbba4bbed4895547a7ed3abeae1fae1fbab9fa15dfc636df60e9198cc5c72b",
   "model": "automorphclass",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 4,
     "renderings": 4,
-    "seconds_per_photograph": 1.20825,
-    "seconds_per_rendering": 1.20825,
+    "seconds_per_photograph": 0.43025,
+    "seconds_per_rendering": 0.43025,
     "side": 2048,
     "timed_photographs": 4,
     "total": 4,

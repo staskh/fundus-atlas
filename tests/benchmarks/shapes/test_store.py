@@ -191,3 +191,35 @@ def test_the_committed_store_and_the_library_settle_the_same_quantities() -> Non
         f"only in the store:   {sorted(stored - drawn)}\n"
         f"only in the library: {sorted(drawn - stored)}"
     )
+
+
+def test_a_redrawn_shape_gets_a_different_digest(tmp_path) -> None:
+    """The fingerprint a benchmark needs: redrawing a shape must not leave its scores standing.
+
+    Nothing else a run fingerprints would notice a redrawing — the grid, the scale and the angles
+    are all unchanged when a shape is drawn from different parameters — so without this a stored
+    result goes on describing a picture that no longer exists. That is exactly what happened when
+    the Koch curve's generations changed.
+    """
+    first = tmp_path / "first"
+    store.write(first, families=("koch",), side=1024, rotations=(0.0,))
+    before = store.digest("koch", first)
+
+    second = tmp_path / "second"
+    store.write(second, families=("koch",), side=1024, rotations=(0.0,))
+    assert store.digest("koch", second) == before, "drawing the same shape twice is the same shape"
+
+    # A wider vein is a different picture, and at 1024 it is also one the guard still allows.
+    third = tmp_path / "third"
+    store.write(third, families=("koch",), side=1024, rotations=(0.0,), vein_um=90.0)
+    assert store.digest("koch", third) != before, "a different vessel is a different picture"
+
+
+def test_a_digest_covers_one_family_and_not_its_neighbours(tmp_path) -> None:
+    """Scoped per shape, so redrawing one does not throw away the measurements of the others."""
+    # An arc rather than a straight vessel because at the store's 5 µm per pixel a 1024 px frame
+    # covers half the retina that `library.UM_PER_PX` assumes, and a straight vessel runs off it.
+    store.write(tmp_path, families=("koch", "arc"), side=1024, rotations=(0.0,))
+
+    assert store.digest("koch", tmp_path) != store.digest("arc", tmp_path)
+    assert store.digest("nothing-drawn", tmp_path) == "unbuilt"

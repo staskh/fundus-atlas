@@ -2,6 +2,7 @@
 # ABOUTME: a manifest of how each was framed, and the values its geometry requires.
 
 import csv
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -158,6 +159,29 @@ def _truth_columns(truths: list[dict[str, object]]) -> tuple[str, ...]:
 
     ordered = [name for name in canonical.names() if name in seen]
     return ("key", *ordered, *sorted(seen - set(ordered)))
+
+
+def digest(family: str, store: Path = STORE) -> str:
+    """A sha256 of the pictures one family is drawn as, so a redrawing cannot go unnoticed.
+
+    A benchmark fingerprints everything that could change a score, and for this benchmark the thing
+    most able to change one is the drawing itself. Nothing else in the fingerprint would catch it:
+    the grid, the scale and the angles are all unchanged when a shape is redrawn from different
+    parameters, so a stored result would quietly go on describing a picture that no longer exists.
+
+    It hashes **the masks and the manifest rows, and not the ground truth**, which is the line this
+    benchmark draws everywhere: a run never reads what the geometry requires, so correcting a
+    derivation must not throw away hours of measurement. Only redrawing does.
+    """
+    rows = [row for row in read(store) if row["family"] == family]
+    if not rows:
+        return "unbuilt"
+    running = hashlib.sha256()
+    for row in sorted(rows, key=lambda entry: entry["key"]):
+        running.update("|".join(f"{column}={row[column]}" for column in COLUMNS).encode())
+        for which in ("artery", "vein", "fov"):
+            running.update((store / row[which]).read_bytes())
+    return running.hexdigest()
 
 
 def read(store: Path = STORE) -> list[dict[str, str]]:

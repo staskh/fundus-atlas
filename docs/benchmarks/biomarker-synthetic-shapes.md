@@ -16,7 +16,7 @@ measuring every implementation against them is a third:
 3. [What lands in the store](#3-what-lands-in-the-store)
 4. [`manifest.csv` — how each picture was framed](#4-manifestcsv--how-each-picture-was-framed)
 5. [`ground_truth.csv` — what each picture's geometry requires](#5-ground_truthcsv--what-each-pictures-geometry-requires)
-6. [The eight families](#6-the-eight-families)
+6. [The nine families](#6-the-nine-families)
 7. [Everything is stated in microns](#7-everything-is-stated-in-microns)
 8. [What the utility refuses to draw](#8-what-the-utility-refuses-to-draw)
 9. [What this utility does not do](#9-what-this-utility-does-not-do)
@@ -37,7 +37,7 @@ command. Separating them buys three things:
 
 The store is **committed to this repository** — the only generated pictures here that are. These
 are shapes we drew ourselves rather than anybody else's photographs, so no licence question arises
-(`CLAUDE.md` §2.3), and at 752 KB for 32 pictures the cost of keeping them is small against being
+(`CLAUDE.md` §2.3), and at 864 KB for 36 pictures the cost of keeping them is small against being
 able to repeat a measurement on the exact images it was taken on.
 
 ## 2. How to run it
@@ -51,7 +51,7 @@ That writes the whole store with the settings below. Every one can be overridden
 | Option | Default | What it means |
 | --- | --- | --- |
 | `--into` | `data/synthetic/av` | where the store is written |
-| `--family` | all eight | one family, or several separated by commas |
+| `--family` | all nine | one family, or several separated by commas |
 | `--side` | `2048` | the square grid, in pixels |
 | `--um-per-px` | `5` | microns per pixel — how much retina one pixel covers |
 | `--rotations` | `0,30,60,90` | the angles each family is drawn at, in degrees |
@@ -90,7 +90,7 @@ data/synthetic/av/
   …
 ```
 
-At the defaults that is **32 pictures** — eight families at four angles — and **96 mask files**,
+At the defaults that is **36 pictures** — nine families at four angles — and **108 mask files**,
 three per picture.
 
 Each picture is named `<family>-<side>-<angle>`, so `straight-2048-030` is the straight family on a
@@ -116,7 +116,7 @@ One row per picture, seventeen columns.
 | Column | What it means |
 | --- | --- |
 | `key` | the picture's name, `<family>-<side>-<angle>` |
-| `family` | which of the eight shapes it is |
+| `family` | which of the nine shapes it is |
 | `side` | the square grid, in pixels |
 | `rotation` | the angle it was turned through, in degrees |
 | `um_per_px` | microns per pixel |
@@ -134,7 +134,7 @@ order to read the store.
 
 ## 5. `ground_truth.csv` — what each picture's geometry requires
 
-One row per picture, `key` and then **37 columns**, each a canonical biomarker name of the form
+One row per picture, `key` and then **70 columns**, each a canonical biomarker name of the form
 `biomarker/variant/structure` — the vocabulary in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md). So
 `tortuosity/hart-tau1/artery` is one column, and a value in it is what that picture's arteries
 must measure under that particular definition of tortuosity.
@@ -144,7 +144,7 @@ Two rules matter more than the rest:
 - **An empty cell is not a zero.** A straight vessel does not have a central retinal equivalent of
   nought; it has none, because nothing here reaches the ring such an equivalent is measured over. A
   zero in that cell would be averaged into somebody's table as though it were a measurement. Each
-  family fills between 15 and 25 of the 37 columns.
+  family fills between 30 and 50 of the 70 columns.
 - **The values do not change with the angle.** All four rotations of a family carry identical
   numbers, which is exactly the property the benchmark tests an implementation for. The shapes
   notebook asserts it rather than trusting it.
@@ -153,7 +153,7 @@ These values are **derived, not measured**: they come from the geometry of the c
 drawn, never from counting the pixels that came out. Computing them from the drawing would make
 them agree by construction and test nothing.
 
-## 6. The eight families
+## 6. The nine families
 
 | Family | What it settles |
 | --- | --- |
@@ -162,9 +162,38 @@ them agree by construction and test nothing.
 | `sinusoid` | arc length and the curvature integrals, by numerical integration — there is no elementary formula for the length of a sine wave |
 | `bifurcation` | a Y per class splitting at exactly 60°: one junction and three ends each |
 | `disjoint` | four parallel vessels per class, alternating artery and vein: no junctions, eight separate pieces, and a neighbour of the other class for every vessel |
-| `artery-vein-pair` | one vessel per class, so the arteriovenous ratio is exactly the ratio of the two widths — and the degenerate case of the equivalents, where one formula passes a lone vessel through and the other has nothing to pair it with and must decline |
+| `deep-bifurcation` | three generations of forking per class, some branches forked again and some carrying a short spur, so the junction and endpoint counts are large enough that an off-by-one shows and a skeleton with a defect cannot pass by luck |
+| `koch` | the one family with a **known fractal dimension**, `log 4 / log 3` ≈ 1.2619 — every other shape here is smooth, and a smooth curve's dimension is exactly 1, which no box count returns from a bounded raster. It is drawn at **two generations and half the usual vessel width** (40 µm and 60 µm, recorded as such in the manifest): a drawn curve's box dimension is governed by how thick the vessel is rather than how many generations it has, and a generation finer than the vessel is painted over rather than measured. §6.1 |
 | `spokes-macula-centred` | twelve vessels radiating from the disc, six per class, every one crossing the ring the central retinal equivalents are measured over. All the widths of a class are equal, so every order of combining them gives the same answer and the shape tests the formula rather than a sorting convention |
 | `spokes-disc-centred` | the same retina photographed with the disc in the middle of the frame instead of off to one side |
+
+### 6.1 Why the Koch curve is drawn thinner, and shallower
+
+It is the one family whose parameters are not obvious, and getting them wrong is invisible: the
+curve sits well inside the frame and looks exactly as intended.
+
+Drawn at four generations and the usual width, its finest detail was 8.6 pixels under a 24-pixel
+vein — the brush wider than what it was painting. Two of the four generations were therefore not in
+the picture, and the picture carried an arc-to-chord ratio of 2.18 where the geometry beside it
+said 3.16, with a box dimension of 1.51 against 1.2619. Every implementation measured against it
+duly disagreed, and the benchmark reported six independent failures where there was one drawing
+defect.
+
+Two facts decide the parameters, and only one is the obvious one:
+
+- **The box dimension follows the vessel width, not the depth.** Thickening a curve adds area-like
+  scaling at every box size below the width, which pulls the estimate up towards 2: at full width a
+  box count returns about 1.41 at every depth tried, and only narrowing brings it down to the
+  1.2619 the geometry requires.
+- **Depth buys arc length and costs everything else.** Each generation the drawing cannot resolve
+  leaves a spurious endpoint where two spikes merged — four generations leave a skeleton with about
+  sixty endpoints where the curve has two — and makes the measurement less stable under rotation.
+
+So: the fewest generations that still make the curve self-similar over a useful range, at the width
+where the dimension lands. Two and half-width gives an arc-to-chord ratio of 1.84 against a derived
+1.78, a box dimension of 1.28 against 1.2619, and about 1% movement when the picture is turned.
+`library.koch` refuses to draw a curve whose finest generation is under three times the vessel,
+so this cannot silently come back.
 
 **Every family draws both an artery and a vein.** A segmentation of a real eye has both, so a shape
 offering one would test a case no implementation ever meets — and it means every family pins the
