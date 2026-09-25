@@ -46,8 +46,8 @@ trouble.
 
 Two markers in the Dataset column: **←** means the photographs come from another dataset, named
 after the arrow (section 2 has the detail); **(SLO)**, **(IR)**,
-**+UWF**, **+OCT**, **+surgical** and **(dual-modal)** mean the collection is wholly or partly not
-standard colour fundus photography (section 3). The date each page's links and licence were last
+**+UWF**, **+OCT**, **+surgical**, **(video)** and **(dual-modal)** mean the collection is wholly or
+partly not standard colour fundus photography (section 3). The date each page's links and licence were last
 checked is on the page itself.
 
 **Down** is how much effort it takes to actually get the data:
@@ -110,6 +110,7 @@ labelled.
 | [RIGA](datasets/riga.md) ← MESSIDOR | 750 | mixed — three sources | 2018 | — | — | — | ✅ **×6 ophthalmologists** | ✅ **×6 ophthalmologists** | — | each annotator's CDR; RIGA+ domain splits | **CC BY-NC 4.0** | 🟡 |
 | [RIM-ONE DL](datasets/rim-one-dl.md) ← r1–r3 | 485 | not stated by the distributor | 2020 | — | — | — | ✅ | ✅ | ✅ normal 313 / glaucoma 172 | **hospital-based split** | research and educational use | ✅ |
 | [RITE](datasets/rite.md) ← DRIVE | 40 | 565×584 | 2013 | — | ✅ (differs from DRIVE's) | ✅ | — | — | — | overlap and uncertain vessel classes | research use, citation required | ⛔ |
+| [RVD](datasets/rvd.md) **(video)** | 635 videos — **1,270 annotated frames** | 1800×1800 stated; deposit says `1080_crop` | 2023 | — | ✅ | ✅ | — | — | — | **eight vessel-width classes**; venous pulsation — presence, timing, peak and trough | **CC BY-NC-ND 4.0** — non-commercial, no derivatives | ✅ |
 | [STARE](datasets/stare.md) | 20 (vessel subset of 397) | 700×605 | 2000 | — | ✅ **×2 observers** | — | — | — | ✅ 10 of 20 with pathology | — | **not stated** | ✅ |
 | [UNAF](datasets/unaf.md) | 15 | 1444×1444 as redistributed | 2024 | — | — | ✅ | — | — | ✅ DR | Paraguay — geographic coverage | **not established** | ❓ |
 | [UoA-DR](datasets/uoa-dr.md) | 200 | 2124×2056 | — | — | ✅ | — | ✅ boundary **and centre** | — | ✅ DR severity | **fovea centre** | custom signed agreement | ⛔ |
@@ -151,6 +152,7 @@ in the Vessels column of the summary and are not repeated here.
 
 | Dataset | Images | What is labelled | Notes |
 | --- | --- | --- | --- |
+| [RVD](datasets/rvd.md) **(video)** | 1,270 frames | Artery/vein, plus a **fine-grained eight-class** map sorting each vessel into four width bands | **Handheld smartphone video**, not bench-top photography — the only moving-picture source here, and the only one labelling vessel width as a class |
 | [REYIA](datasets/reyia.md) ← 9 sources | 589 | Artery/vein maps | A compilation: 478 of the 589 photographs come from other datasets. Scoring REYIA and its sources counts the same eyes twice |
 | [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | Arterioles and venules | **Two readers kept separate** on the test split — a junior drawing and a senior's correction |
 | [RAV](datasets/rav.md) | 206 | Artery/vein segmentation | Population cohort (Rotterdam Study); quality mixed by design |
