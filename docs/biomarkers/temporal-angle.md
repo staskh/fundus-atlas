@@ -18,8 +18,9 @@ It is computed only by VascX among the catalogued projects.
 
 ## 2. Definition of record
 
-- Vargas Quiros JV, Beyeler MJ, Vela SO, Bergmann S, Klaver CCW, Liefers B. *retinalysis-vascx: An
-  explainable software toolbox for the extraction of retinal vascular biomarkers.* arXiv, 2026.
+- [Vargas 2026](../papers/vargas-2026.md). Vargas Quiros JD, Beyeler MJ, Vela SO, Bergmann S,
+  Klaver CCW, Liefers B. *retinalysis-vascx: An explainable software toolbox for the extraction of
+  retinal vascular biomarkers.* arXiv, 2026.
   [arXiv:2602.08580](https://arxiv.org/abs/2602.08580)
 - **The formula, in words:** on circles centred at the optic disc, starting two thirds of the way to
   the fovea and moving outward, find the two largest-calibre vessels on the fovea side of the disc

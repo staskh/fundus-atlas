@@ -81,8 +81,11 @@ relying on it.
 
 OCULAR does not output a biomarker table. `extract_zones.py` produces the intermediate masks from
 which biomarkers are computed, and it does so using **PVBM's code**: the file
-`utils/GeometricalVBMs.py` is a modified copy of PVBM's class and imports `PVBM.helpers.tortuosity`,
-`PVBM.helpers.perimeter`, `PVBM.helpers.branching_angle` and PVBM's graph regularisation at runtime.
+`utils/GeometricalVBMs.py` is a modified copy of PVBM's `CREVBMs` class — the one in
+`PVBM/CentralRetinalAnalysis.py`, not `GeometricalAnalysis` — and imports
+`PVBM.helpers.tortuosity`, `PVBM.helpers.perimeter`, `PVBM.helpers.branching_angle` and PVBM's
+graph regularisation at runtime. It keeps that class's `extract_subgraphs`, `recursive_subgraph`
+and `apply_roi`, and grows from PVBM's 338 lines to 486.
 
 | Output | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
@@ -95,6 +98,35 @@ So OCULAR's numbers are, by construction, PVBM's numbers computed on OCULARNet's
 That makes them directly comparable to PVBM results on other segmentations, and it means the
 segmentation is the only variable being changed — which is precisely the comparison the authors set
 out to make.
+
+### 6.1 Where it diverges from PVBM: the recursive walks
+
+*Our finding, 2026-09-22, from reading `utils/GeometricalVBMs.py`:* the substantive change this copy
+makes is to **replace recursion with a stack** — but only in one of the three places PVBM recurses,
+and the switch that appears to control it does not.
+
+PVBM walks a vessel by calling a function once per skeleton pixel, so a vessel longer than Python's
+recursion limit raises `RecursionError`. This atlas measured that in the
+[synthetic biomarker benchmark](../benchmarks/biomarker-synthetic-results.md) §3: it cost the
+central retinal equivalents on 8 of 36 renderings — every angle of the two shapes carrying the most
+skeleton — so what triggers it is how much vessel there is rather than anything malformed.
+
+OCULAR's copy addresses that unevenly:
+
+| Walk | In PVBM | In OCULAR |
+| --- | --- | --- |
+| Topology traversal | recursive | **iterative** — a new `iterative_topology` method using an explicit stack, called unconditionally |
+| Tree-regularisation drawing | recursive | **selectable**, via `compute_geomVBMs(iterative_or_recursive=...)`, which defaults to `'recursive'` |
+| Subgraph extraction | recursive | **still recursive** |
+
+The third row is the one to know about. `extract_subgraphs` accepts an `iterative_or_recursive`
+argument, documents it, and defaults it to `'iterative'` — and then never reads it: its body calls
+`self.recursive_subgraph(...)` unconditionally. The parameter has no effect, so subgraph extraction
+carries PVBM's recursion limit however it is called.
+
+The practical reading: OCULAR removed the recursion from the walk that dominates a long vessel, left
+it in the one that labels connected components, and offers an iterative drawing path that a caller
+gets only by asking for it by name.
 
 ## 7. Examples and notebooks
 

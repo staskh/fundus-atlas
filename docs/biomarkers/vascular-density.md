@@ -13,6 +13,18 @@ as the eye. A model that draws vessels a pixel thicker raises density everywhere
 - **Also known as:** vessel density, vessel area density, VD.
 - **Direction of concern:** lower is generally treated as adverse.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `vascular-density/over-field-of-view/<structure>` | vessel area as a fraction of the field of view — over artery, vein, vessels |
+| `vascular-density/over-image/<structure>` | vessel area as a fraction of the whole frame, lit or not — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 No single origin — the measure is elementary and appears independently across the literature.

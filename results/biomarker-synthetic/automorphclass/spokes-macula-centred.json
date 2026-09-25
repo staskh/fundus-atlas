@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "spokes-macula-centred",
+  "fingerprint": "97a3c1960e0b94dee20a0778a38b25cc136f18a88ee8fbe3e928752d31957ae6",
+  "model": "automorphclass",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 4,
+    "renderings": 4,
+    "seconds_per_photograph": 0.42774999999999996,
+    "seconds_per_rendering": 0.42774999999999996,
+    "side": 2048,
+    "timed_photographs": 4,
+    "total": 4,
+    "um_per_px": 5.0
+  }
+}

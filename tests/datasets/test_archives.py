@@ -16,7 +16,11 @@ def a_repository(tmp_path):
     (repo / "images" / "a.txt").write_text("a")
     (repo / "elsewhere").mkdir()
     (repo / "elsewhere" / "b.txt").write_text("b")
-    run = lambda *a: subprocess.run(["git", "-C", str(repo), *a], check=True, capture_output=True)
+    def run(*arguments):
+        return subprocess.run(
+            ["git", "-C", str(repo), *arguments], check=True, capture_output=True
+        )
+
     run("init", "-q")
     run("add", "-A")
     run("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "data")

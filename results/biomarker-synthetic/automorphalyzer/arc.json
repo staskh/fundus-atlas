@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "arc",
+  "fingerprint": "b1ff5b7586b957c33a0ffb50419df75787318da8a94fb6a1fc5793d84b63355a",
+  "model": "automorphalyzer",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 4,
+    "renderings": 4,
+    "seconds_per_photograph": 3.421,
+    "seconds_per_rendering": 3.421,
+    "side": 2048,
+    "timed_photographs": 4,
+    "total": 4,
+    "um_per_px": 5.0
+  }
+}

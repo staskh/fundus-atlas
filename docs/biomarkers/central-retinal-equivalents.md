@@ -17,14 +17,29 @@ arteriolar narrowing has been most often reported.
 - **Direction of concern:** lower CRAE (narrower arterioles) and higher CRVE (wider venules) are
   both reported as adverse.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `central-retinal-equivalents/hubbard/<structure>` | the Hubbard equivalent over the same ring — over artery, vein, vessels |
+| `central-retinal-equivalents/knudtson/<structure>` | the Knudtson equivalent over the disc-centred ring — CRAE on arteries, CRVE on veins — over artery, vein, vessels |
+
 ## 2. Definition of record
 
 Two publications define the two formulas in use, and the field never converged on one:
 
-- Hubbard LD, et al. *Methods for evaluation of retinal microvascular abnormalities associated with
-  hypertension/sclerosis in the Atherosclerosis Risk in Communities study.* Ophthalmology 1999.
-- Knudtson MD, Lee KE, Hubbard LD, Wong TY, Klein R, Klein BEK. *Revised formulas for summarizing
-  retinal vessel diameters.* Current Eye Research 2003.
+- [Hubbard 1999](../papers/hubbard-1999.md). Hubbard LD, et al. *Methods for evaluation of retinal
+  microvascular abnormalities associated with hypertension/sclerosis in the Atherosclerosis Risk in
+  Communities study.* Ophthalmology 1999. DOI:
+  [10.1016/S0161-6420(99)90525-0](https://doi.org/10.1016/S0161-6420(99)90525-0)
+- [Knudtson 2003](../papers/knudtson-2003.md). Knudtson MD, Lee KE, Hubbard LD, Wong TY, Klein R,
+  Klein BEK. *Revised formulas for summarizing retinal vessel diameters.* Current Eye Research 2003.
+  DOI: [10.1076/ceyr.27.3.143.16049](https://doi.org/10.1076/ceyr.27.3.143.16049)
 
 - **The formula, in words:** take the widths of the vessels crossing a ring around the disc, sort
   them, pair the widest with the narrowest, combine each pair into one estimated parent width, and
@@ -55,8 +70,11 @@ Two publications define the two formulas in use, and the field never converged o
 - **Implemented by:** [PVBM](../projects/pvbm.md) (`crae_knudtson`, `crve_knudtson`),
   [AutoMorph](../projects/automorph.md) via retipy's `Knudtson_cal`,
   [AutoMorphalyzer](../projects/automorphalyzer.md) (**Knudtson only** — its authors removed
-  Hubbard), [VascX](../projects/vascx.md) (`CRE`, described in code as a Hubbard-style recursion
-  using the 0.88 and 0.95 constants, which is the Knudtson formula).
+  Hubbard), [VascX](../projects/vascx.md) — **twice**, in `CRE` and in
+  `CREKnudtson`, which differ in protocol rather than formula: both combine pairs with the 0.88 and
+  0.95 constants, while only the second follows Knudtson's zone-B selection of the six largest
+  segments. `cre.py`'s docstring calls that combination "the Hubbard reduction", which it is not;
+  Hubbard's constants appear nowhere in the package.
 - Being purely multiplicative, this variant **is** scale-invariant: it can be computed on pixel
   widths and rescaled afterwards.
 

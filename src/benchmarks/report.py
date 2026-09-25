@@ -56,8 +56,9 @@ def _docs(
         "It is generated **before** a run measures anything, and again whenever the benchmark's "
         "code changes, so it describes the run that is happening rather than the one that happened "
         "to finish. A column added to the evidence and not explained here is a bug rather than an "
-        f"omission. What came out is a separate page: [{benchmark}-results.md]"
-        f"({benchmark}-results.md)."
+        "omission. What came out is written up separately: "
+        f"to finish. What came out is written up separately, in "
+        f"[{benchmark}-results.md]({benchmark}-results.md)."
     )
     yield ""
     yield from _module(benchmark).docs_sections(configured, missing_models, missing_datasets)
@@ -216,9 +217,7 @@ def _index(results: Path) -> Iterable[str]:
     # the index walks the benchmarks this repository declares and keeps those with results on disk.
     from . import __main__ as entry
 
-    for benchmark in sorted(
-        name for name in entry.BENCHMARKS if (results / name).is_dir()
-    ):
+    for benchmark in sorted(name for name in entry.BENCHMARKS if (results / name).is_dir()):
         module = _module(benchmark)
         records = list(_stored(results / benchmark))
         yield ""
@@ -282,4 +281,5 @@ def _module(benchmark: str):
     What a benchmark measures decides how its pages read, so the sections describing that live
     beside the code that measures it rather than in a switch here.
     """
-    return importlib.import_module(f"{__package__}.{benchmark}")
+    # A benchmark's name may carry a hyphen — `biomarker-synthetic` — and a module name may not.
+    return importlib.import_module(f"{__package__}.{benchmark.replace('-', '_')}")

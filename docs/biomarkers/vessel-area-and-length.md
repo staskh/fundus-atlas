@@ -16,11 +16,25 @@ computed on.
   length.
 - **Direction of concern:** lower is generally treated as adverse, mirroring density.
 
+### 1.1 Canonical names
+
+The names this repository measures this biomarker under. A number is comparable with
+another only when both carry the same one — the variant says which definition, and the
+structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
+and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+
+| Canonical name | What it is |
+| --- | --- |
+| `vessel-area-and-length/area/<structure>` | total vessel area, in pixels squared — over artery, vein, vessels |
+| `vessel-area-and-length/skeleton-length/<structure>` | total centreline length, in pixels — over artery, vein, vessels |
+
 ## 2. Definition of record
 
-- Fhima J, Van Eijgen J, Stalmans I, Men Y, Freiman M, Behar JA. *PVBM: A Python Vasculature
-  Biomarker Toolbox Based on Retinal Blood Vessel Segmentation.* ECCV 2022 Workshops. DOI:
-  [10.1007/978-3-031-25066-8_15](https://doi.org/10.1007/978-3-031-25066-8_15)
+- [Martinez-Perez 2000](../papers/martinez-perez-2000.md). Martínez-Pérez ME, Hughes AD, Stanton AV,
+  Thom SA, Chapman N, Bharath AA, Parker KH. *Geometrical and Morphological Analysis of Vascular
+  Branches from Fundus Retinal Images.* MICCAI 2000. DOI:
+  [10.1007/978-3-540-40899-4_78](https://doi.org/10.1007/978-3-540-40899-4_78).
+  The implementation later pipelines run is [Fhima 2022](../papers/fhima-2022.md).
 - **The formula, in words:** area is the count of segmented vessel pixels. Length is the distance
   required to traverse the whole skeleton — the number of skeleton steps, diagonal steps counting
   more than orthogonal ones.
@@ -97,4 +111,4 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 
 ---
 
-**Links and definitions last checked:** 2026-09-10
+**Links and definitions last checked:** 2026-09-22

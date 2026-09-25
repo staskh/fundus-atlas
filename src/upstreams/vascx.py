@@ -57,3 +57,17 @@ def provenance() -> dict[str, object]:
         "runner": RUNNER.provenance(),
         "preparation": PREPARATION.provenance(),
     }
+
+
+def features():
+    """VascX's feature machinery: the retina, its vessel layers, and the shipped feature sets.
+
+    Imported here rather than at module level so that this module stays importable for its
+    provenance alone, on a machine where nothing has been installed yet.
+    """
+    from vascx.fundus import feature_sets
+    from vascx.fundus.layer import VesselTreeLayer
+    from vascx.fundus.retina import Retina
+    from vascx.fundus.vessels_layer import FundusVesselsLayer
+
+    return Retina, VesselTreeLayer, FundusVesselsLayer, feature_sets

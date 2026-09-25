@@ -31,6 +31,24 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 **A vessel score is not a second opinion on a class score.** In most of these datasets the vessel annotation *is* the artery/vein annotation, so the two columns are one measurement seen twice — [what came out](benchmarks/av-results.md) says which, and holds the per-dataset detail these pooled figures hide.
 
+## Biomarkers against arithmetic
+
+**Does a biomarker implementation compute the quantity it is said to compute?** Every other benchmark here compares software with a human judgement; this one compares it with a number derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of exactly 1/r, and an implementation that disagrees is wrong rather than different. It selects nothing: which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence.
+
+[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/biomarker-synthetic.ipynb) · [Every score](../results/biomarker-synthetic/)
+
+Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so **turns with the image** is the largest spread one quantity showed across the four, and anything above zero there is the implementation or the pixel grid rather than the eye. How far each measurement is from what the geometry requires is on the results page, which reads the drawn store's ground truth.
+
+| Implementation | Renderings | Columns | Values returned | Turns with the image |
+| --- | --- | --- | --- | --- |
+| [automorph](projects/automorph.md) | 36 | 18 | 648 | 100.0% |
+| [automorphalyzer](projects/automorphalyzer.md) | 36 | 54 | 1344 | 100.0% |
+| [automorphclass](projects/automorphclass.md) | 36 | 18 | 648 | 100.0% |
+| [ocular](projects/ocularnet.md) | 36 | 18 | 568 | 100.0% |
+| [pvbm](projects/pvbm.md) | 36 | 32 | 912 | 100.0% |
+| [vascx](projects/vascx.md) | 36 | 20 | 424 | 98.6% |
+
+
 ## Disc and cup
 
 **Where exactly are the optic disc and the cup inside it?** Each model's outline is compared with the one an ophthalmologist drew on the same photograph — every ophthalmologist separately, never an averaged consensus — and with the cup-to-disc ratio computed from it, which is the number a glaucoma referral rests on.
@@ -84,4 +102,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-09-20
+**Generated:** 2026-09-25

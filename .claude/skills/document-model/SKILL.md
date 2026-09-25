@@ -50,7 +50,8 @@ Use `template.md` verbatim and keep its section numbering. The sections are:
    source. Weights are frequently the more restrictive of the two, and are what a user actually
    redistributes.
 3. **Major publications by the authors** — the paper that introduced the model, with a DOI or stable
-   link, plus any later paper that changed it.
+   link, plus any later paper that changed it. **Where that paper has a page under `docs/papers/`,
+   link it.**
 4. **What it produces** — begins with the **purpose class**, which is one of exactly five values
    and never a new one:
 

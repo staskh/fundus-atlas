@@ -53,3 +53,30 @@ def architecture(classes: int = len(CLASSES)):
 
 def provenance() -> dict[str, object]:
     return {**CODE.provenance(), "weights": {"url": PUBLISHED, "sha256": SHA256}}
+
+
+def geometry():
+    """OCULAR's `GeometricalVBMs`: PVBM's measuring code as this project modified it.
+
+    The class imports PVBM's helpers at runtime, so PVBM must be installed for it to load — which
+    is the whole point of cataloguing the two together.
+
+    **Loaded by path, under a name of its own.** It lives in a package called `utils`, and so does
+    AutoMorphalyzer's measuring code; whichever upstream is imported first takes that name for the
+    process. Reaching this one through the bare name therefore returns the wrong module once both
+    are in play, and it does so **silently** — the class still loads and still measures, and only
+    the numbers change. That was caught here by a test comparing OCULAR's tortuosity with PVBM's,
+    which it imports and must agree with.
+    """
+    import importlib.util
+    import sys
+
+    name = "ocular_geometrical_vbms"
+    loaded = sys.modules.get(name)
+    if loaded is None:
+        source_file = CODE.obtain() / "utils" / "GeometricalVBMs.py"
+        spec = importlib.util.spec_from_file_location(name, source_file)
+        loaded = importlib.util.module_from_spec(spec)
+        sys.modules[name] = loaded
+        spec.loader.exec_module(loaded)
+    return loaded.GeometricalVBMs

@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "bifurcation",
+  "fingerprint": "21e78eda28b5f30ae62dc5bf50933bb9c3dac238a95540344b5812ee7cea6ce9",
+  "model": "vascx",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 4,
+    "renderings": 4,
+    "seconds_per_photograph": 2.354,
+    "seconds_per_rendering": 2.354,
+    "side": 2048,
+    "timed_photographs": 4,
+    "total": 4,
+    "um_per_px": 5.0
+  }
+}

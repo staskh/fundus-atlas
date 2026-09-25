@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "spokes-disc-centred",
+  "fingerprint": "82cba3befe7ff76e23e6cc0630b7f60aa785d17a4c45e9e98db8025e7b7f97e0",
+  "model": "automorphalyzer",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 4,
+    "renderings": 4,
+    "seconds_per_photograph": 3.9285,
+    "seconds_per_rendering": 3.9285,
+    "side": 2048,
+    "timed_photographs": 4,
+    "total": 4,
+    "um_per_px": 5.0
+  }
+}

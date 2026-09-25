@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "spokes-disc-centred",
+  "fingerprint": "74fa73a6a4bdde3502f3e50912470f246252580f09476edc51f95e8c44b8cad4",
+  "model": "ocular",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 4,
+    "renderings": 4,
+    "seconds_per_photograph": 2.35675,
+    "seconds_per_rendering": 2.35675,
+    "side": 2048,
+    "timed_photographs": 4,
+    "total": 4,
+    "um_per_px": 5.0
+  }
+}
