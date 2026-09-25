@@ -7,7 +7,9 @@ optic disc 1800 µm across. Nothing here was photographed and nothing was annota
 anybody's opinion.
 
 Every number on this page comes from `results/biomarker-synthetic/`; the reading of them comes from
-[notebooks/biomarker-synthetic.ipynb](../../notebooks/biomarker-synthetic.ipynb). How the benchmark
+[notebooks/biomarker-synthetic.ipynb](../../notebooks/biomarker-synthetic.ipynb). **The measurements
+are reproducible**: clearing `results/` and running all 54 pairs again reproduces every stored value
+exactly, to the last decimal, and the only columns that move are the timings. How the benchmark
 is configured is a separate page, [biomarker-synthetic-docs.md](biomarker-synthetic-docs.md), and
 the shapes with their derivations are in
 [the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb).
@@ -267,11 +269,14 @@ AutoMorphalyzer at 3.6 are two percentage points apart on agreement and nine tim
 - **That 25% and 10% are standards.** They are reporting conveniences, chosen so that a table shows
   the handful of quantities worth looking at rather than two hundred rows of nothing. Nothing here
   passes or fails.
-- **That the timings are a property of the software alone.** They were measured on one machine, and
-  the ratios between them are more trustworthy than any of the absolute figures. They also fell
-  across the board when the Koch curve was redrawn, because a shorter skeleton is less work — which
-  is a reminder that a figure like "36 seconds an image" describes this fixture as much as this
-  program.
+- **That the timings are a property of the software alone.** Of everything recorded here they are
+  the only figures that are not reproducible, and the gap is wide: running the whole benchmark
+  again on the same machine, against the same pictures, with every measured value coming back
+  identical, moved the per-implementation timings by **5% to 40%**. They also fell across the board
+  when the Koch curve was redrawn, because a shorter skeleton is less work. So treat the **ratios**
+  as the finding — PVBM is about ninety times AutoMorphClass, on any run — and treat a figure like
+  "36 seconds an image" as describing this machine on one afternoon, against this fixture, rather
+  than the program.
 
 ---
 
