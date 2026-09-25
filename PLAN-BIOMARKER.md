@@ -81,6 +81,68 @@ length measured in pixels is a real measurement — but nothing in the name, and
 stored evidence, says which unit a column is in. Two datasets at different resolutions cannot be
 pooled, and nothing currently stops someone doing it.
 
+### 3.1 Why the tortuosity family splits three ways
+
+Curvature κ is one over the radius of curvature, so it carries units **1/L**; the arc element `ds`
+carries **L**. Every one of Hart's seven is built from two integrals, and the dimensions follow
+mechanically:
+
+| | Formula | Dimensions | Units | Measured ratio at 2× resolution |
+| --- | --- | --- | --- | --- |
+| τ1 | arc / chord | L / L | **1** | ×1.000 |
+| τ2 | ∫κ ds | (1/L)·L | **1** | ×1.000 |
+| τ3 | ∫κ² ds | (1/L²)·L | **1/L** | ×0.500 |
+| τ4 | ∫κ ds / s | 1 / L | **1/L** | ×0.500 |
+| τ5 | ∫κ² ds / s | (1/L) / L | **1/L²** | ×0.250 |
+| τ6 | ∫κ ds / chord | 1 / L | **1/L** | ×0.500 |
+| τ7 | ∫κ² ds / chord | (1/L) / L | **1/L²** | ×0.250 |
+
+- **τ2 is dimensionless because the single κ cancels exactly against ds.** It is the total turning
+  angle in radians — the 90° arc gives 1.5708 = π/2, which is the check that the derivation is
+  right rather than merely plausible.
+- **τ3 is 1/L because the square leaves one κ uncancelled.** It is the elastic bending energy.
+- **τ4 and τ6 are τ2 divided by a length**, so a pure number over a length: 1/L. τ4 divides by arc
+  length and τ6 by the chord, which makes them different numbers of the same dimension.
+- **τ5 and τ7 are τ3 divided by a length again**, so 1/L².
+
+τ4 is the case worth holding on to: for a circular arc of radius R subtending θ, `s = Rθ`, so
+`τ4 = θ/(Rθ) = 1/R`. **τ4 is literally the curvature.** Its unit is an inverse length because that
+is what the quantity is, not because of anything Hart did — which is an argument for converting it
+to physical units rather than for dropping it.
+
+### 3.2 Physical units are necessary and not sufficient
+
+**Fact, measured.** The obvious fix for section 3 is to report lengths in microns. It is required,
+and on its own it does almost nothing. The same arc was drawn at four grids covering one physical
+retina, every value converted to microns before comparison:
+
+| | τ1 | τ2 *(already dimensionless)* | τ3 | τ4 | τ5 |
+| --- | --- | --- | --- | --- | --- |
+| Spread across grids, curvature from adjacent pixels | 1.1% | **145%** | **241%** | **145%** | **241%** |
+| Spread, curvature estimated over a fixed **150 µm** window | 0.8% | **12%** | **16%** | **12%** | **17%** |
+
+**τ2 is the proof that this is not a units problem.** It is dimensionless, there is nothing to
+convert, and it still moves by 145%. What moves it is that a skeleton is a staircase: curvature
+estimated from adjacent pixels is about 1/h for a pixel of size h, so τ2 grows like 1/h and τ3 like
+1/h². Halving the pixel doubles τ2 and quadruples τ3, which is what the measurement shows.
+
+So a curvature-family number is comparable only when **both** hold: the unit is physical, *and* the
+curvature was estimated over a declared physical scale. An implementation smoothing over 50 µm and
+one smoothing over 500 µm are not comparable however carefully either reports its units.
+
+The implementations already know this and the vocabulary does not: VascX emits
+`lw_tort_dist_max_segment_len_0p15…` and `…0p25`, the same tortuosity at two segment lengths. That
+parameter *is* the estimation scale.
+
+**The residual matters too.** A fixed physical window takes the spread from 241% to 16%, not to
+zero, and the coarsest grid is the worst of the four. That is enough to make these numbers arguable
+and not enough to call them interchangeable, and the plan should not pretend otherwise.
+
+Both tables above come from a one-off script rather than from anything committed, which is a
+weakness in this document: nobody can re-run them. Section 8 makes turning them into a test part of
+the work, because a claim about comparability that cannot be re-checked is the kind of claim this
+repository exists to distrust.
+
 Two findings fall out of the same experiment:
 
 - **Hubbard and Knudtson equivalents come out in different units.** Hubbard's fitted constants are
@@ -128,6 +190,7 @@ And three things have to be recorded *about* the name, none of which are today:
 | **Unit / dimension** | The pooling question of section 3. A name must say whether it is dimensionless, a length, an area, an inverse length, or an angle |
 | **Defining paper** | The primary goal. A variant whose definition nobody can cite is a name two people will fill differently |
 | **Normalisation** | What turns the raw number into something comparable — see section 6 |
+| **Estimation scale** | For the curvature family, the physical window the derivative was taken over — see 3.2. It is a number in microns rather than a category, so it belongs beside the name rather than in it, but a curvature reported without it is not comparable with anything |
 
 ## 6. Normalisation — what "normalised" should mean
 
@@ -141,6 +204,10 @@ And three things have to be recorded *about* the name, none of which are today:
    **Available everywhere, and changes what the number means.**
 3. **Report the raw number and its unit, and let the analysis convert.** The benchmark stores
    pixels plus the scale it had; the notebook converts. **Least lossy, most room for error downstream.**
+
+None of the three is sufficient on its own for the curvature family, which needs a declared
+estimation scale as well (3.2). For calibre, area, length and sparsity — which are first-order
+quantities — units alone do settle it.
 
 My reading: (3) as the storage rule — the evidence stays raw and reversible — with (1) and (2) as
 *declared, named* normalisations, so `vessel-calibre/mean-width/artery` in microns and in
@@ -179,7 +246,10 @@ These change the work substantially and are Stas's call.
 2. Add the axes agreed in 7.1, and re-map all six adapters — the 44 region-axis and 15
    statistic-axis columns are the measure of success.
 3. Make every variant cite a paper, and catalogue the papers still missing.
-4. Teach the synthetic shapes to settle the new names, so the benchmark can check them.
+4. Teach the synthetic shapes to settle the new names, so the benchmark can check them — and
+   **turn 3.2 into a test**: one physical retina built at several grids, every name that claims to
+   be normalised asserted to hold its value across them. That test is what stops a name silently
+   returning to pixels, and it is the only part of this plan that can fail loudly.
 5. Regenerate `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and the benchmark's configuration page from the
    record, so code and prose cannot disagree again.
 6. Re-run the analysis notebook. **No re-measurement** — see 7.5.
