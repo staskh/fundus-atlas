@@ -126,6 +126,12 @@ convert, and it still moves by 145%. What moves it is that a skeleton is a stair
 estimated from adjacent pixels is about 1/h for a pixel of size h, so τ2 grows like 1/h and τ3 like
 1/h². Halving the pixel doubles τ2 and quadruples τ3, which is what the measurement shows.
 
+**The 150 µm window in that table is consistent and wrong**, which is worth dwelling on. Measured
+against the arc's exact curvature — for a circular arc τ4 is exactly 1/R, so there is a right
+answer — a 150 µm window overestimates by **79%, 72% and 81%** at the three grids. It agrees with
+itself to about 11% and is three-quarters too large everywhere. **Agreement across resolutions is
+not accuracy**, and a normalisation validated only by consistency would have shipped this.
+
 So a curvature-family number is comparable only when **both** hold: the unit is physical, *and* the
 curvature was estimated over a declared physical scale. An implementation smoothing over 50 µm and
 one smoothing over 500 µm are not comparable however carefully either reports its units.
@@ -138,10 +144,53 @@ parameter *is* the estimation scale.
 zero, and the coarsest grid is the worst of the four. That is enough to make these numbers arguable
 and not enough to call them interchangeable, and the plan should not pretend otherwise.
 
+### 3.3 How long the window should be
+
+**Fact, measured against the exact answer.** Sweeping the window from 40 µm to 3 mm on the arc,
+whose true curvature is known, and recording the band of windows that land within a tolerance:
+
+| Shape | Its radius of curvature | Grid | Within 1% | Within 5% |
+| --- | --- | --- | --- | --- |
+| `arc` | 2253 µm | 1024 px, h=10 µm | 522–1251 µm | 443–1557 µm |
+| | | 2048 px, h=5 µm | 615–1251 µm | 494–1557 µm |
+| | | 4096 px, h=2.5 µm | 686–1396 µm | 494–1557 µm |
+| `sinusoid` | 597 µm | 1024 px | 765 µm only | 724–808 µm |
+| | | 2048 px | **nothing qualifies** | 724–808 µm |
+| | | 4096 px | **nothing qualifies** | 724–854 µm |
+
+Four things follow, and the first is the one the plan needs:
+
+- **The right window does not depend on the resolution.** The three bands for the arc are nearly
+  the same physical length — 522–1251, 615–1251, 686–1396 µm — over a sixteenfold change in pixel
+  area. *One physical window serves every grid*, which is exactly the property a normalisation
+  needs and is not something to take on faith.
+- **It depends strongly on the curvature being measured.** In units of the curve's own radius the
+  arc wants 0.23R–0.56R and the sinusoid 1.21R–1.43R. There is no universal fraction-of-radius
+  rule, and a single number cannot be right for every vessel in an image.
+- **There is a plateau, not an optimum.** Anywhere from about 600 to 1200 µm puts the arc within
+  1%, and the best window inside that range moves around — 762, 594, 1061 µm at the three grids —
+  because within the plateau the error is dominated by fluctuation rather than by the window. So
+  the useful output of this experiment is a **range**, and the useful instruction is *stay off the
+  short end*: below 300 µm the error runs from 16% to 350%.
+- **For a curve whose curvature varies, no window may be right at all.** The sinusoid cannot be
+  brought within 1% at 2048 or 4096 px by any window. The band that works at 5% works because two
+  errors cancel, not because the estimate is good, which is why it is narrow and why it fails as
+  the pixels get finer.
+
+Two practical consequences for retinal vessels, neither yet measured here and both worth being
+explicit about before any number is written into code:
+
+- A window of 600–1200 µm is a **large fraction of a real vessel segment**. Segments between
+  branch points are often shorter than that, so the window cannot be applied to them at all —
+  which is very likely why VascX parameterises `max_segment_len` rather than fixing it.
+- The values above come from two synthetic curves of known curvature, not from retinal vasculature.
+  **They fix the method, not the number.** What window suits real arterioles has to be measured on
+  real arterioles, and this plan should not pretend otherwise.
+
 Both tables above come from a one-off script rather than from anything committed, which is a
 weakness in this document: nobody can re-run them. Section 8 makes turning them into a test part of
 the work, because a claim about comparability that cannot be re-checked is the kind of claim this
-repository exists to distrust.
+repository exists to distrust. The same applies to 3.3.
 
 Two findings fall out of the same experiment:
 
@@ -190,7 +239,7 @@ And three things have to be recorded *about* the name, none of which are today:
 | **Unit / dimension** | The pooling question of section 3. A name must say whether it is dimensionless, a length, an area, an inverse length, or an angle |
 | **Defining paper** | The primary goal. A variant whose definition nobody can cite is a name two people will fill differently |
 | **Normalisation** | What turns the raw number into something comparable — see section 6 |
-| **Estimation scale** | For the curvature family, the physical window the derivative was taken over — see 3.2. It is a number in microns rather than a category, so it belongs beside the name rather than in it, but a curvature reported without it is not comparable with anything |
+| **Estimation scale** | For the curvature family, the physical window the derivative was taken over — see 3.2 and 3.3. It is a number in microns rather than a category, so it belongs beside the name rather than in it, but a curvature reported without it is not comparable with anything |
 
 ## 6. Normalisation — what "normalised" should mean
 
