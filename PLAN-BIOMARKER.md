@@ -261,10 +261,54 @@ thing these four subsections have established.
 placement rule. It shows the τ family *can* be made comparable, not that 914 µm is the number for
 retinal vessels — which, as 3.3 says, has to be measured on vessels.
 
-Both tables above come from a one-off script rather than from anything committed, which is a
+### 3.6 A better estimator than either, and the one thing it gets wrong
+
+**Fact, measured.** Pheno AutoMorph's `tortuosity_calculations.py` estimates curvature a third way,
+and it is Hart's own recipe rather than anybody's improvisation: low-pass the coordinates with a
+Gaussian, then take **κ = dα/ds as the slope of a least-squares line through a window of (arc
+length, tangent angle) samples**. Curvature comes out of a *first* derivative of the tangent angle
+rather than a second derivative of position, which is where the difference comes from — every
+differentiation amplifies quantisation noise, and this one does it once instead of twice.
+
+On the same paths, shapes and grids as 3.4 and 3.5, each method at its own best setting, worst case
+over all seven metrics:
+
+| Estimator | Its scale | Worst error |
+| --- | --- | --- |
+| Boxcar + finite differences | — | 34.5% |
+| Least-squares cubic spline | knots every 928 µm | 8.1% |
+| **Angle regression (Pheno AutoMorph)** | **σ = 45 µm** | **6.9%** |
+
+**But as shipped its parameters are in pixels**, `σ = 6 px` and a 10-sample window, and that is the
+whole difference between working and not:
+
+| | 1024 px | 2048 px | 4096 px |
+| --- | --- | --- | --- |
+| Angle regression **as shipped** (σ = 6 px) | 10.4% | 4.5% | **40.4%** |
+| Angle regression at **σ = 45 µm** | 6.9% | 6.9% | 6.9% |
+| Cubic spline, knots 928 µm | 7.6% | 7.2% | 8.1% |
+
+The shipped configuration is excellent at 2048 — 4.5%, better than anything else here — and six
+times worse at 4096, because 6 px is 15 µm there and no longer suppresses the raster staircase.
+**It is tuned to a grid, not to an eye.** Converting the same two constants to microns makes the
+error identical at all three resolutions, to the decimal. That is the strongest evidence in this
+document for the whole normalisation argument, and it cost two divisions.
+
+Three things follow for the plan:
+
+- **The estimation scale is meaningless without the estimator.** Angle regression wants σ = 45 µm
+  and the spline wants knots every 928 µm — a factor of twenty apart, both correct for their
+  method. A canonical name recording "estimated at 500 µm" and nothing else has recorded nothing.
+- **Hart's own recipe beats the obvious numerical one.** The paper specifies the angle regression;
+  implementations that differentiate coordinates instead are not computing a worse approximation of
+  the same thing, they are measuring the raster.
+- **A pixel-parameterised estimator is the defect this plan exists to catch.** It is invisible on
+  the grid it was tuned on, and nothing in a results table would reveal it.
+
+ rather than from anything committed, which is a
 weakness in this document: nobody can re-run them. Section 8 makes turning them into a test part of
 the work, because a claim about comparability that cannot be re-checked is the kind of claim this
-repository exists to distrust. The same applies to 3.3, 3.4 and 3.5.
+repository exists to distrust. The same applies to 3.3 through 3.6.
 
 Two findings fall out of the same experiment:
 
@@ -314,7 +358,7 @@ And three things have to be recorded *about* the name, none of which are today:
 | **Defining paper** | The primary goal. A variant whose definition nobody can cite is a name two people will fill differently |
 | **Normalisation** | What turns the raw number into something comparable — see section 6 |
 | **Estimation scale** | For the curvature family, the physical window the derivative was taken over — see 3.2 and 3.3. A number in microns rather than a category, so it belongs beside the name rather than in it |
-| **Estimator** | *How* the derivative was taken — boxcar and finite differences, or a spline, and which. Section 3.5 measures the same metric on the same data differing by a factor of eighteen on this choice alone, which is more than any other property on this list is worth |
+| **Estimator** | *How* the derivative was taken — finite differences, a spline, or Hart's angle regression. Section 3.5 measures a factor of eighteen on this choice alone and 3.6 shows the scales are not even commensurable between estimators, so a scale recorded without the estimator that goes with it records nothing |
 
 ## 6. Normalisation — what "normalised" should mean
 
