@@ -41,7 +41,9 @@ def model_file() -> Path:
     tree = CODE.obtain()
     found = tree / CHECKPOINT
     if not found.exists():
-        raise FileNotFoundError(f"{CHECKPOINT} is not in {tree}; the checkout is not what was pinned")
+        raise FileNotFoundError(
+            f"{CHECKPOINT} is not in {tree}; the checkout is not what was pinned"
+        )
     return found
 
 

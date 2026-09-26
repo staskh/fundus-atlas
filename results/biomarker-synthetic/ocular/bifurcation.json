@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "bifurcation",
-  "fingerprint": "094c3f17bde92ac1107afad70e350c5e74584c5da9e51844375df592e21e4a8e",
+  "fingerprint": "42130a360f1bc504c1e66abb6079347a1fdc130a76111d22dfb2d52fb7b75f12",
   "model": "ocular",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 4,
     "renderings": 4,
-    "seconds_per_photograph": 1.96125,
-    "seconds_per_rendering": 1.96125,
+    "seconds_per_photograph": 2.07075,
+    "seconds_per_rendering": 2.07075,
     "side": 2048,
     "timed_photographs": 4,
     "total": 4,

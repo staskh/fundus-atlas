@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "arc",
-  "fingerprint": "4025d2aa4280fc06265ee24e6b5810c9be0395b5af905f054fa508d154407904",
+  "fingerprint": "4ddda9dbefebc25d177b13bd67bd9d0be25602b68c4ab5f272023c945b5ae015",
   "model": "ocular",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 4,
     "renderings": 4,
-    "seconds_per_photograph": 1.9855,
-    "seconds_per_rendering": 1.9855,
+    "seconds_per_photograph": 2.1109999999999998,
+    "seconds_per_rendering": 2.1109999999999998,
     "side": 2048,
     "timed_photographs": 4,
     "total": 4,

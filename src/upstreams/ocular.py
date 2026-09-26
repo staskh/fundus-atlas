@@ -52,14 +52,29 @@ def architecture(classes: int = len(CLASSES)):
 
 
 def provenance() -> dict[str, object]:
-    return {**CODE.provenance(), "weights": {"url": PUBLISHED, "sha256": SHA256}}
+    """What the run records — including the PVBM whose helpers this measures with.
+
+    Recorded because it is a real dependency of the numbers: OCULAR's class is a modified copy of
+    PVBM's, and which PVBM supplies the helpers it did not modify changes what it returns.
+    """
+    from . import pvbm
+
+    return {
+        **CODE.provenance(),
+        "weights": {"url": PUBLISHED, "sha256": SHA256},
+        "pvbm": pvbm.CODE.provenance(),
+    }
 
 
 def geometry():
     """OCULAR's `GeometricalVBMs`: PVBM's measuring code as this project modified it.
 
-    The class imports PVBM's helpers at runtime, so PVBM must be installed for it to load — which
-    is the whole point of cataloguing the two together.
+    **It imports PVBM's helpers at runtime** — `compute_tortuosity`, `compute_perimeter_`,
+    `compute_angles_dictionary` and `TreeReg` — so PVBM has to be importable before this module
+    will load at all, which is the whole point of cataloguing the two together. PVBM is no longer a
+    pip dependency, so the pinned clone is put on the path here rather than left to whatever
+    happened to be installed. That makes the version OCULAR measures with an explicit, recorded
+    fact instead of a property of somebody's environment.
 
     **Loaded by path, under a name of its own.** It lives in a package called `utils`, and so does
     AutoMorphalyzer's measuring code; whichever upstream is imported first takes that name for the
@@ -71,6 +86,9 @@ def geometry():
     import importlib.util
     import sys
 
+    from . import pvbm
+
+    pvbm.CODE.on_path()
     name = "ocular_geometrical_vbms"
     loaded = sys.modules.get(name)
     if loaded is None:

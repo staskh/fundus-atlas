@@ -45,7 +45,7 @@ Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identica
 | [automorphalyzer](projects/automorphalyzer.md) | 36 | 54 | 1344 | 100.0% |
 | [automorphclass](projects/automorphclass.md) | 36 | 18 | 648 | 100.0% |
 | [ocular](projects/ocularnet.md) | 36 | 18 | 568 | 100.0% |
-| [pvbm](projects/pvbm.md) | 36 | 32 | 912 | 100.0% |
+| [pvbm](projects/pvbm.md) | 36 | 30 | 976 | 100.0% |
 | [vascx](projects/vascx.md) | 36 | 20 | 424 | 98.6% |
 
 
@@ -102,4 +102,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-09-25
+**Generated:** 2026-09-26

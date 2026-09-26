@@ -1,5 +1,5 @@
 key,shape,rotation,side,um_per_px,outcome,seconds,note,said_area_artery,said_pooled_tortuosity_artery,said_median_tortuosity_artery,said_length_weighted_tortuosity_artery,said_length_artery,said_median_branching_angle_artery,said_start_points_artery,said_endpoints_artery,said_intersections_artery,said_area_vein,said_pooled_tortuosity_vein,said_median_tortuosity_vein,said_length_weighted_tortuosity_vein,said_length_vein,said_median_branching_angle_vein,said_start_points_vein,said_endpoints_vein,said_intersections_vein
-disjoint-2048-000,disjoint,0.0,2048,5.0,measured,2.076,,45371.000000,,,,0.000000,,0.000000,0.000000,0.000000,68654.000000,,,,0.000000,,0.000000,0.000000,0.000000
-disjoint-2048-030,disjoint,30.0,2048,5.0,measured,2.004,,45371.000000,,,,0.000000,,0.000000,0.000000,0.000000,68654.000000,,,,0.000000,,0.000000,0.000000,0.000000
-disjoint-2048-060,disjoint,60.0,2048,5.0,measured,2.028,,45370.000000,,,,0.000000,,0.000000,0.000000,0.000000,68658.000000,,,,0.000000,,0.000000,0.000000,0.000000
-disjoint-2048-090,disjoint,90.0,2048,5.0,measured,2.076,,45371.000000,,,,0.000000,,0.000000,0.000000,0.000000,68654.000000,,,,0.000000,,0.000000,0.000000,0.000000
+disjoint-2048-000,disjoint,0.0,2048,5.0,measured,2.231,,45371.000000,,,,0.000000,,0.000000,0.000000,0.000000,68654.000000,,,,0.000000,,0.000000,0.000000,0.000000
+disjoint-2048-030,disjoint,30.0,2048,5.0,measured,2.216,,45371.000000,,,,0.000000,,0.000000,0.000000,0.000000,68654.000000,,,,0.000000,,0.000000,0.000000,0.000000
+disjoint-2048-060,disjoint,60.0,2048,5.0,measured,2.250,,45370.000000,,,,0.000000,,0.000000,0.000000,0.000000,68658.000000,,,,0.000000,,0.000000,0.000000,0.000000
+disjoint-2048-090,disjoint,90.0,2048,5.0,measured,2.221,,45371.000000,,,,0.000000,,0.000000,0.000000,0.000000,68654.000000,,,,0.000000,,0.000000,0.000000,0.000000
