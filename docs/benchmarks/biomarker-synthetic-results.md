@@ -52,12 +52,12 @@ difference **across a boundary** is two independent readings of the same definit
 | | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
 | Biomarkers produced | 32 | 18 | 18 | 54 | 18 | 20 |
-| …matching a canonical name | 20 | 10 | 15 | 17 | 15 | 8 |
-| Comparable measurements | 256 | 312 | 216 | 232 | 216 | **80** |
-| Median disagreement | 3.8% | 4.6% | 8.0% | 7.0% | 7.3% | **0.7%** |
-| Within 25% of the geometry | 88% | 74% | 76% | **91%** | 89% | 90% |
+| …matching a canonical name | 20 | 8 | 15 | 17 | 15 | 8 |
+| Comparable measurements | 256 | 240 | 216 | 232 | 216 | **80** |
+| Median disagreement | 3.8% | 2.2% | 8.0% | 7.0% | 7.3% | **0.7%** |
+| Within 25% of the geometry | 88% | **93%** | 76% | 91% | 89% | 90% |
 | Quantities that move when the image turns | **3 / 32** | 8 / 18 | 16 / 18 | 19 / 40 | 11 / 18 | 4 / 20 |
-| Biomarkers disagreeing with the geometry | 5 / 20 | 7 / 10 | 6 / 10 | **2 / 12** | 3 / 10 | 2 / 6 |
+| Biomarkers disagreeing with the geometry | 5 / 20 | 5 / 8 | 6 / 10 | **2 / 12** | 3 / 10 | 2 / 6 |
 | Exceptions | **32** | 0 | 0 | 0 | 0 | 0 |
 | Seconds per image | **24.5** | 2.1 | 0.8 | 3.6 | **0.4** | 2.6 |
 
@@ -123,11 +123,17 @@ PVBM ships two classes named `GeometricalVBMs` at the pinned commit. The one in
 | Branching angle | mean, deviation **and** median | median only |
 | Perimeter | yes | **none** — see `docs/projects/pvbm.md` §8 |
 
-**Mostly this made PVBM better, and in one case exactly right.** Its junction count was the worst
-number on the previous version of this page — out by 785% and reading 1, 4, 4, 3 across four angles
-of an unchanged shape. It is now **exact on every shape and every angle**, 0.0% error and 0.0%
-spread. Hart τ1 went from 33% out to 7.8%, and the count of quantities that move when the image
-turns fell from 13 of 32 to **3 of 32**.
+**Mostly this made PVBM better.** Its junction count was the worst number on the previous version
+of this page — out by 785% and reading 1, 4, 4, 3 across four angles of an unchanged shape. It is
+now exact, 0.0% error and 0.0% spread. Hart τ1 went from 33% out to 7.8%, and the count of
+quantities that move when the image turns fell from 13 of 32 to **3 of 32**.
+
+*Read that junction figure with section 3's exceptions beside it.* PVBM's 0.0% is over the **one**
+shape that both settles a junction count and survives its recursion limit: `bifurcation`. On
+`deep-bifurcation` it has no junction count at all, because the geometry call raised. So it is not
+that PVBM counts junctions better than OCULAR — on `bifurcation` the two agree exactly, at 0.0%
+each — it is that PVBM is **absent** on the harder shape where OCULAR scores 42.9%. A perfect score
+over the easy half of a question is not a better answer than an imperfect one over all of it.
 
 **Three things got worse, and all three are honest.** The geometry now fails on dense shapes
 (above). On **`disjoint`**, whose vessels never reach the optic disc, there are no trunks to walk
@@ -136,13 +142,14 @@ requires otherwise, and is a real property of a disc-anchored measurement rather
 the **mean and standard deviation of the branching angle no longer exist**: the code that produced
 them is the code that was retired.
 
-**One mapping was withdrawn.** The canonical endpoint count means every free end a network has. The
+**Two mappings were withdrawn — PVBM's and OCULAR's.** The canonical endpoint count means every free end a network has. The
 deprecated class counted those; the replacement calls the end at the disc a *start point*, so its
 `endpoints` is the free ends **excluding** the one it started from — a straight vessel reads 1
 where the geometry requires 2. `endpoints + start_points` is what answers the catalogued question,
 but summing them here would report a number PVBM never returned, so the mapping is withdrawn and
 both columns are kept under PVBM's own names. That is why PVBM names twenty canonical biomarkers on
-this page and twenty-two on the last one.
+this page and twenty-two on the last one. OCULAR forks the same class and inherits the same split,
+so its mapping goes for the same reason and it names eight rather than ten.
 
 An implementation that raises has at least told you it could not answer; the rest of this page is
 about the harder case, where a program returns a confident number instead.
@@ -176,11 +183,11 @@ Three findings, and each is legible only because the columns are ordered by line
 - **Across the boundary, VascX is steadiest where it measures at all** — 1.7% on vein calibre where
   its neighbours are at 14% to 60%. It also has its own unique failure: `spline-mean-curvature` at
   280.5%, a quantity only VascX computes and which nothing else here would have caught.
-- **PVBM's junction count is now exact and OCULAR's is not**, 0.0% against 240%. They were 107%
-  and 160% on the previous version of this page, when both ran the same deprecated class. PVBM has
-  moved to its replacement and OCULAR — which is a *modified copy* of the deprecated one — cannot
-  follow without its authors porting it. On `bifurcation`, a single fork with one junction, PVBM
-  now answers 1 at every angle where it used to read **1, 4, 4, 3**.
+- **PVBM's junction count is steady where it answers and OCULAR's is not**, 0.0% against 240%.
+  They were 107% and 160% when PVBM still ran the deprecated class. The two are now running *almost
+  the same code* — OCULAR is a fork of the same `GeometryAnalysis` PVBM moved to — so the remaining
+  gap is down to OCULAR's own edits rather than to a different lineage. On `bifurcation` PVBM now
+  answers 1 at every angle where it used to read **1, 4, 4, 3**.
 
 The unnamed quantities are no better. AutoMorphalyzer's `tortuosity_density` at zones B and C moves
 by **400%**; AutoMorph's and AutoMorphClass's `squared_curvature_tortuosity` by 400% and 203%.
@@ -299,11 +306,13 @@ measurements with a column of 392 as though they answered the same question. Wha
 - **Do not use Grisan density from any AutoMorph implementation.** It is non-zero where the
   geometry requires zero, out by up to 89,966% on the sinusoid, and moves by 231% to 400% when the
   image is turned. Nothing here suggests a threshold at which it becomes usable.
-- **Use PVBM's junction count, not OCULAR's** — the reverse of the advice this page gave before
-  2026-09-26. PVBM's is exact on every shape and angle since it moved to `GeometryAnalysis`;
-  OCULAR's is a modified copy of the class PVBM retired, and is out by up to 85% and unstable by up
-  to 240% under rotation. Neither's *endpoint* count answers the catalogued question: PVBM's now
-  excludes the end at the disc (section 3.1) and OCULAR's is out by 100%.
+- **For junction counts the two are now hard to separate, and the page no longer recommends one.**
+  Before 2026-09-26 it said to prefer OCULAR's; that was right against the deprecated PVBM and is
+  not right now. On the one shape both measure, they agree exactly. Beyond it PVBM raises and
+  OCULAR answers with a 42.9% error, which is a trade between a number you cannot have and one you
+  may not want. Neither's **endpoint** count answers the catalogued question at all: both fork the
+  class that calls the end at the disc a start point, and both mappings are withdrawn (section
+  3.1).
 - **Do not use AutoMorph's own measuring stage for tortuosity** where either descendant is
   available. Its Hart τ1 is out by 542% on a circular arc and moves by 202% under rotation; both
   rewrites fixed exactly that.
