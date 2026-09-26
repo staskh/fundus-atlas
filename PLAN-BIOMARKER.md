@@ -383,6 +383,47 @@ that makes τ5 correct depends on the vessel, so two pipelines agreeing on σ ar
 comparable unless they also agree on what they pointed it at. That is an argument for recording
 the estimator and its scale with every value, and against ever writing one σ into the vocabulary.
 
+### 3.8 The arc gives the same answer, and the two together give a law
+
+**Fact, measured.** The same protocol on circular arcs of radius 1000, 2000 and 3000 µm — three
+grids, four rotations, all seven metrics, drawing checked first. Every radius is 12 to 37 times the
+vessel's own width, so unlike the short sinusoids there is no drawing-limited regime: the skeleton
+carries τ1 to within 4.7–5.4% at every radius and grid.
+
+| Radius | Best σ | σ ÷ R | Worst at best σ | Worst at σ = 45 µm |
+| --- | --- | --- | --- | --- |
+| 1000 µm | 38 µm | 0.038 | 13% | 16% |
+| 2000 µm | 58 µm | 0.029 | 10% | 20% |
+| 3000 µm | 72 µm | 0.024 | 8% | 42% |
+
+The same picture as the sinusoid: the optimum rises with the feature scale, **sub-linearly** — 38
+to 72 µm across a threefold change in radius, an exponent of 0.58 against the 0.6 the sinusoid gave.
+
+**Put both shapes on one axis and there is a single law.** The right variable is not the nominal
+wavelength or radius but the **effective radius of curvature**, `R_eff = 1/τ4`, which is what the
+two shapes have in common — a sinusoid of 1000 µm wavelength has an R_eff of 357 µm, not 1000.
+Over nine points spanning R_eff from 37 µm to 3000 µm, an eightyfold range and two different
+shapes:
+
+> **σ ≈ 0.32 · R_eff^0.68**, with no point deviating from it by more than **17%**.
+
+That is worth more than any single number in this document. It says the estimation scale is
+neither a constant nor a fixed fraction, but a **weak power of the curvature being measured** — so
+it can be set adaptively from a first pass over the vessel, which is what 3.7 left as an open
+question. Whether it holds on real vasculature is still open; it holds on everything measured here.
+
+**And one outlier worth keeping.** At R = 3000 µm, 1024 px and 90°, σ = 45 µm reads 48% out — but
+the error is entirely in τ3, τ5 and τ7 (45%, 48%, 47%) while τ1, τ4 and τ6 sit at 0.3%, 7.4% and
+7.0%. At the same radius and grid rotated to 0°, the squared metrics are 5–7%. At 2048 px and 90°,
+0.1–2.0%.
+
+The mechanism is worth stating because it explains the whole squared family. An axis-aligned arc on
+a coarse grid rasterises into long straight runs with occasional single-pixel steps, so the same
+total turning is concentrated into fewer, sharper events. **∫κ ds does not care how the turning is
+distributed — it is the total turning angle either way — but ∫κ² ds cares enormously**, because
+squaring rewards concentration. That is why τ3, τ5 and τ7 have been the hard ones throughout 3.4 to
+3.6, and it is a property of the measure rather than of any estimator.
+
 ## 4. Gap C — a definition is a sentence, not a reference
 
 **Fact.**
