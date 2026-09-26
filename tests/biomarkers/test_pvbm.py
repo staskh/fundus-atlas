@@ -68,7 +68,9 @@ def test_a_column_the_catalogue_cannot_name_is_still_measured() -> None:
 
     measured = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
 
-    for own in ("perimeter_artery", "singularity_length_artery", "std_branching_angle_artery"):
+    # `tortuosity_index` and `start_points` arrived with `GeometryAnalysis`; the mean and standard
+    # deviation of the branching angle left with `GeometricalAnalysis`, which no longer runs here.
+    for own in ("perimeter_artery", "singularity_length_artery", "tortuosity_index_artery"):
         assert own in measured, f"{own} was not kept"
     assert measured["perimeter_artery"] is not None, "and it was actually measured"
 

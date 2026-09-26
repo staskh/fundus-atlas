@@ -16,6 +16,12 @@ an API rather than a whole-image pipeline.
 - **Most recent commit:** 2026-01
 - **Language and how it runs:** Python, `pip install pvbm`, used as a library from a script or
   notebook. Documentation at https://pvbm.readthedocs.io/.
+- **How this atlas runs it:** as a **pinned clone** rather than a pip install, from 2026-09-26.
+  Installing it was equivalent and is no longer, for one reason: [OCULARNet](ocularnet.md)'s
+  measuring class is a modified copy of PVBM's and imports the unmodified helpers at run time, so
+  the two have to agree about which PVBM that is. With a clone both reach the same tree and the run
+  records the commit; with an install the answer depended on the environment and was never written
+  down.
 - **Training code included:** No. The biomarker code needs no training, and the bundled optic disc
   segmenter is shipped as a ready-made ONNX model; training code for it would belong to
   [LUNet](https://github.com/aim-lab/LUNet).
@@ -95,8 +101,41 @@ sizes without a resolution conversion of the user's own.
 
 ## 8. Known defects
 
-None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health. Nothing in this
-project's issue tracker or code was found to change the numbers a user would report.
+- **`compute_perimeter_` empties the mask it is given.** *Our finding, 2026-09-26, from reading
+  `PVBM/helpers/perimeter.py`.* The helper walks the vasculature and sets each pixel it visits to
+  zero, so it returns its input erased. The deprecated `GeometricalAnalysis.compute_perimeter`
+  conceals this by passing a copy; anyone calling the helper directly — which is now the only way
+  to get a perimeter, since the replacement class exposes none — gets an emptied array back with no
+  error and no warning. A caller who then measures anything else from the same array gets an area
+  of zero and a fractal analysis that fails an assertion, which is how this was found here. Not
+  reported upstream by this atlas as of 2026-09-26. This repository passes a copy, in
+  `src/upstreams/pvbm.py`.
+
+### 8.1 Two classes called `GeometricalVBMs`, one of them deprecated
+
+At the pinned commit the package ships **both** `PVBM/GeometricalAnalysis.py` and
+`PVBM/GeometryAnalysis.py`, and both export a class named `GeometricalVBMs`. The first warns on
+construction that it "is deprecated and will be removed in version 3.0", and names the second as
+its replacement. An import that differs by one word therefore decides which of two different
+measuring codes runs, and nothing but the warning distinguishes them.
+
+**This atlas measures with `GeometryAnalysis`**, from 2026-09-26. It is not a rename, and what
+changes is worth listing because it changes the evidence:
+
+| | `GeometricalAnalysis` (deprecated) | `GeometryAnalysis` (used here) |
+| --- | --- | --- |
+| Shape of the interface | five methods, called separately | one `compute_geomVBMs`, returning a list of eight |
+| Needs the optic disc | no | **yes** — centre and radius |
+| How it finds vessels | over the whole mask | walks each tree from where it leaves the disc |
+| Branching angle | mean, standard deviation **and** median | median only |
+| Perimeter | `compute_perimeter` | **none** — see the defect above |
+| New quantities | — | a tortuosity index, and a count of start points |
+
+Two consequences for anyone reading numbers from this atlas. **A class whose vessels do not reach
+the optic disc now measures as zero** rather than being measured where it lies — there are no
+trunks to walk — which is a property of the measurement and not a failure. And the mean and the
+standard deviation of the branching angle are **gone from the evidence**, because the code that
+produced them no longer runs here.
 
 ## 9. Notes
 
@@ -110,4 +149,4 @@ project's issue tracker or code was found to change the numbers a user would rep
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-09-26

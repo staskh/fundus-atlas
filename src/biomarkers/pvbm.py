@@ -10,7 +10,10 @@ from upstreams import pvbm as upstream
 #: answers to. `{side}` is filled with `artery` or `vein`.
 #:
 #: **Every row is a claim** about what somebody else's code computes — usually read out of its
-#: source — and the synthetic shapes are what test it. `median_branching_angle` was mapped to the
+#: source — and the synthetic shapes are what test it. The rows come from `GeometryAnalysis`, which
+#: replaced the deprecated `GeometricalAnalysis` here: that dropped the mean and the standard
+#: deviation of the branching angle, which no longer exist to measure, and added a tortuosity index
+#: and a count of start points, which do. `median_branching_angle` was mapped to the
 #: angle between daughters until a shape showed that it medians *every* pairwise angle at every
 #: junction, the trunk included, and reads ~120° where the daughters are 60° apart. That mapping is
 #: now `None`, which is a finding rather than an omission.
@@ -25,13 +28,16 @@ PER_CLASS: dict[str, str | None] = {
     # exists to make two numbers comparable, so it waits for a second implementation to need one.
     "perimeter": None,
     "median_tortuosity": "tortuosity/hart-tau1/{side}",
-    # All three come back from one call. PVBM's own docstring names the mean and the median and
-    # omits the standard deviation, which it returns between them.
-    "mean_branching_angle": None,
-    "std_branching_angle": None,
+    # `GeometryAnalysis` returns this beside the median and PVBM's docstring calls it the
+    # "tortuosity index". Its definition is not stated and it is not one of Hart's seven, so it
+    # waits for a reading of the code rather than being mapped on the strength of its name.
+    "tortuosity_index": None,
     # *Our finding, 2026-09-20, from reading `compute_angles_dictionary`:* not the angle between
     # the daughters of a bifurcation. See the note above.
     "median_branching_angle": None,
+    # Where the walk starts: one per vessel leaving the optic disc. A count of trunks rather than
+    # of branch points, which nothing in the catalogue names.
+    "start_points": None,
     "endpoints": "junction-counts/endpoints/{side}",
     "intersections": "junction-counts/junctions/{side}",
     # PVBM's three dimensions are of the multifractal analysis, not the plain box count, which is
@@ -71,6 +77,20 @@ GEOMETRY = (
     "endpoints",
     "intersections",
 )
+#: The order `GeometryAnalysis.compute_geomVBMs` returns its list in, from PVBM's own docstring.
+#: One call replaces the five the deprecated class needed, so the order *is* the interface and a
+#: silent change to it would be unnoticeable — which is why `zip` below is strict.
+GEOMETRY = (
+    "area",
+    "tortuosity_index",
+    "median_tortuosity",
+    "length",
+    "median_branching_angle",
+    "start_points",
+    "endpoints",
+    "intersections",
+)
+
 FRACTALS = (
     "capacity_dimension",
     "entropy_dimension",
@@ -89,8 +109,9 @@ def _answers() -> dict[str, str]:
     """
     pairs: dict[str, str] = {}
     for side in CLASSES:
-        for own in GEOMETRY + FRACTALS:
-            mapped = PER_CLASS[own]
+        # Over `PER_CLASS` rather than over the call tuples, because perimeter comes from a helper
+        # of its own rather than from either of them and would otherwise go undeclared.
+        for own, mapped in PER_CLASS.items():
             pairs[mapped.format(side=side) if mapped else f"{own}_{side}"] = f"{own}_{side}"
     for own, mapped in PER_PAIR.items():
         pairs[mapped or own] = own
@@ -126,6 +147,9 @@ def _calls() -> dict[str, list[str]]:
             where[f"{own}_{side}"] = [f"geometry_{side}"]
         for own in FRACTALS:
             where[f"{own}_{side}"] = [f"fractals_{side}"]
+        # Its own call since `GeometryAnalysis` stopped exposing one: the perimeter can fail, or
+        # succeed, independently of the eight quantities the geometry call returns together.
+        where[f"perimeter_{side}"] = [f"perimeter_{side}"]
     for own, _mapped in PER_PAIR.items():
         # A ratio needs both classes, so it is lost if either call fails.
         sides = (
@@ -243,40 +267,42 @@ class Pvbm:
         for side, mask in (("artery", artery), ("vein", vein)):
             if mask is None or not mask.any():
                 continue
-            computed.update(self._per_class(mask, side))
+            computed.update(self._per_class(mask, side, disc))
         computed.update(self._per_pair(artery, vein, disc, um_per_px))
         return {own: computed.get(own) for own in CANONICAL}
 
-    def _per_class(self, mask: np.ndarray, side: str) -> dict[str, float | None]:
-        """The measurements PVBM takes over one class at a time."""
+    def _per_class(
+        self, mask: np.ndarray, side: str, disc: tuple[float, float, float]
+    ) -> dict[str, float | None]:
+        """The measurements PVBM takes over one class at a time.
+
+        `GeometryAnalysis` needs the **optic disc**, which `GeometricalAnalysis` did not: it finds
+        the vessels leaving the disc and walks each tree from there, so everything below comes back
+        from one call rather than five. A class whose vessels do not reach the disc therefore has
+        no trunks to walk and answers with zeros — which is a real property of the measurement and
+        not a failure, so it is recorded as measured.
+        """
         found: dict[str, float | None] = {}
         binary = np.asarray(mask, dtype=self.DTYPE)
+        x, y, radius = disc
+        try:
+            # The border's length, from the helper both analysis classes call. `GeometryAnalysis`
+            # exposes no perimeter of its own, and the deprecated class is not revived for it.
+            # The second value is the skeletonised **border** — a closed outline with no endpoints
+            # — and is not a centreline whatever its name suggests.
+            perimeter, _border = upstream.perimeter(binary)
+            found[f"perimeter_{side}"] = float(perimeter)
+        except Exception as failure:  # noqa: BLE001
+            self.trouble[f"perimeter_{side}"] = repr(failure)
         try:
             geometry = self._loaded_geometry()
-            # `compute_perimeter` returns a second value it calls `segmentation_skeleton`, and it
-            # is **not** a centreline: it skeletonises the vessel's *border*, so it is a closed
-            # outline with no endpoints at all. Feeding it to the tortuosity call — which the name
-            # invites — yields a median of nan and a length of zero, because the walk looks for
-            # endpoints and junctions and a loop has neither. The centreline is taken here, which
-            # is what every one of PVBM's own docstrings asks for.
-            perimeter, _border = geometry.compute_perimeter(binary)
-            found[f"perimeter_{side}"] = float(perimeter)
             spine = skeletonize(np.asarray(mask) > 0).astype(self.DTYPE)
-            found[f"area_{side}"] = float(geometry.area(binary))
-            median_tortuosity, length, _chord, _arc, _connections = (
-                geometry.compute_tortuosity_length(spine)
+            measured, _plots = geometry.compute_geomVBMs(
+                binary, spine, int(round(x)), int(round(y)), int(round(radius))
             )
-            found[f"median_tortuosity_{side}"] = _number(median_tortuosity)
-            found[f"length_{side}"] = _number(length)
-            endpoints, intersections, _ends, _inters = geometry.compute_particular_points(spine)
-            found[f"endpoints_{side}"] = _number(endpoints)
-            found[f"intersections_{side}"] = _number(intersections)
-            mean_angle, spread, median_angle, _angles, _centroid = (
-                geometry.compute_branching_angles(spine)
-            )
-            found[f"mean_branching_angle_{side}"] = _number(mean_angle)
-            found[f"std_branching_angle_{side}"] = _number(spread)
-            found[f"median_branching_angle_{side}"] = _number(median_angle)
+            # The order PVBM's own docstring gives for the list it returns.
+            for name, value in zip(GEOMETRY, measured, strict=True):
+                found[f"{name}_{side}"] = _number(value)
         except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
             # Recorded rather than swallowed. Silence here once made an adapter's own bug look
             # like PVBM declining to answer, which is the most expensive kind of quiet there is.
