@@ -101,6 +101,15 @@ sizes without a resolution conversion of the user's own.
 
 ## 8. Known defects
 
+- **Its geometry recurses one frame per skeleton pixel, and CPython's default limit is not
+  enough.** *Our finding, 2026-09-26.* `GeometryAnalysis` walks each vessel tree through
+  `recursive_subgraph` and `TreeReg.recursive_reg`, so the depth it needs grows with how much
+  vessel there is. On a densely branched segmentation it raises `RecursionError` and loses the
+  whole geometry call — eight quantities per class — rather than returning what it managed.
+  [OCULARNet](ocularnet.md), whose measuring code is a fork of this class, sets
+  `sys.setrecursionlimit(5000)` at module import; PVBM sets nothing, so the same code raises in one
+  project and not the other. This atlas raises the limit to 5000 around PVBM's call and restores it
+  afterwards. Not reported upstream as of 2026-09-26.
 - **`compute_perimeter_` empties the mask it is given.** *Our finding, 2026-09-26, from reading
   `PVBM/helpers/perimeter.py`.* The helper walks the vasculature and sets each pixel it visits to
   zero, so it returns its input erased. The deprecated `GeometricalAnalysis.compute_perimeter`

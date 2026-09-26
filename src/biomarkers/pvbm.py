@@ -1,6 +1,8 @@
 # ABOUTME: PVBM's measuring code, reached from this repository: one call per class, and the table
 # ABOUTME: saying which catalogued biomarker each of its columns answers to.
 
+import sys
+
 import numpy as np
 from skimage.morphology import skeletonize
 
@@ -208,6 +210,23 @@ class Pvbm:
     #: hand it.
     DTYPE = np.float64
 
+    #: How deep Python is allowed to recurse while PVBM measures.
+    #:
+    #: `GeometryAnalysis` walks each vessel tree with mutual recursion — `recursive_subgraph` and
+    #: `TreeReg.recursive_reg` — one frame per skeleton pixel, so the depth it needs is a function
+    #: of how much vessel there is. At CPython's default of 1000 it raises on the two densest
+    #: shapes here and loses the whole geometry call, eight quantities per class.
+    #:
+    #: **5000 is OCULAR's number, not one chosen here.** OCULAR's fork sets exactly this at module
+    #: import, and the two are measured side by side — so running PVBM at the default while its
+    #: fork runs at 5000 would report a difference in Python settings as a difference between the
+    #: programs. It clears both shapes, at 17-20 seconds each rather than an immediate failure.
+    #:
+    #: It is **declared and fingerprinted**, because it changes what comes back: raising it turns
+    #: thirty-two exceptions into measurements, and a stored score taken at another limit is not
+    #: the same measurement.
+    RECURSION_LIMIT = 5000
+
     def __init__(self, device: str | None = None) -> None:
         self.device = "cpu"
         #: What went wrong during the last call, by where, so a run can record it rather than
@@ -230,6 +249,9 @@ class Pvbm:
             # Which call each column comes out of, so a run's `note` can be attributed to the
             # columns it actually cost rather than to every column of that rendering.
             "calls": {name: list(calls) for name, calls in CALLS.items()},
+            # Declared as a number rather than described in a sentence, because it changes what
+            # comes back and a benchmark fingerprints the numbers a declaration carries.
+            "recursion": self.RECURSION_LIMIT,
             "units": {
                 "vessel-area-and-length/area/artery": "px²",
                 "vessel-area-and-length/skeleton-length/artery": "px",
@@ -269,8 +291,28 @@ class Pvbm:
         The measuring is done under PVBM's own names and translated once, here, so that what is
         computed and what it is called stay separable: a mapping that turns out to be wrong is
         corrected in the table above without touching a line of the measuring.
+
+        The recursion limit is raised for the duration and **put back afterwards**. It is a
+        property of the interpreter rather than of this adapter, so leaving it raised would change
+        how every implementation measured after PVBM in the same run — which is a way of making a
+        benchmark depend on the order its subjects happen to run in.
         """
         self.trouble = {}
+        previous = sys.getrecursionlimit()
+        sys.setrecursionlimit(max(previous, self.RECURSION_LIMIT))
+        try:
+            return self._measure(artery, vein, disc, um_per_px)
+        finally:
+            sys.setrecursionlimit(previous)
+
+    def _measure(
+        self,
+        artery: np.ndarray | None,
+        vein: np.ndarray | None,
+        disc: tuple[float, float, float],
+        um_per_px: float | None,
+    ) -> dict[str, float | None]:
+        """The measuring itself, with the recursion limit already raised around it."""
         computed: dict[str, float | None] = dict.fromkeys(ANSWERS.values())
         for side, mask in (("artery", artery), ("vein", vein)):
             if mask is None or not mask.any():

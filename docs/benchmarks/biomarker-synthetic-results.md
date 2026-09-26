@@ -40,7 +40,7 @@ difference **across a boundary** is two independent readings of the same definit
 
 1. [Summary](#1-summary)
 2. [What could be compared, and what could not](#2-what-could-be-compared-and-what-could-not)
-3. [The one implementation that raised](#3-the-one-implementation-that-raised)
+3. [Nothing raised, once PVBM was given the same recursion limit as its fork](#3-nothing-raised-once-pvbm-was-given-the-same-recursion-limit-as-its-fork)
 4. [Turning the picture changes the answer](#4-turning-the-picture-changes-the-answer)
 5. [Disagreement with the geometry](#5-disagreement-with-the-geometry)
 6. [The Koch curve, redrawn](#6-the-koch-curve-redrawn)
@@ -53,13 +53,13 @@ difference **across a boundary** is two independent readings of the same definit
 | --- | --- | --- | --- | --- | --- | --- |
 | Biomarkers produced | 30 | 18 | 18 | 54 | 18 | 20 |
 | …matching a canonical name | 20 | 8 | 15 | 17 | 15 | 8 |
-| Comparable measurements | 256 | 240 | 216 | 232 | 216 | **80** |
+| Comparable measurements | 312 | 240 | 216 | 232 | 216 | **80** |
 | Median disagreement | 3.8% | 2.2% | 3.9% | 6.5% | 5.3% | **0.7%** |
-| Within 25% of the geometry | 88% | 93% | 79% | 91% | **98%** | 90% |
-| Quantities that move when the image turns | **3 / 30** | 8 / 18 | 15 / 18 | 19 / 40 | 10 / 18 | 4 / 20 |
-| Biomarkers disagreeing with the geometry | 5 / 20 | 5 / 8 | 6 / 10 | **2 / 12** | 2 / 10 | 2 / 6 |
-| Exceptions | **32** | 0 | 0 | 0 | 0 | 0 |
-| Seconds per image | **16.4** | 2.1 | 0.8 | 3.6 | **0.4** | 2.6 |
+| Within 25% of the geometry | 87% | 93% | 79% | 91% | **98%** | 90% |
+| Quantities that move when the image turns | 9 / 30 | 8 / 18 | 15 / 18 | 19 / 40 | 10 / 18 | **4 / 20** |
+| Biomarkers disagreeing with the geometry | 8 / 20 | 5 / 8 | 6 / 10 | **2 / 12** | 2 / 10 | 2 / 6 |
+| Exceptions | 0 | 0 | 0 | 0 | 0 | 0 |
+| Seconds per image | **19.2** | 2.2 | 0.9 | 3.9 | **0.5** | 2.9 |
 
 **Every figure here is taken against a noise floor of 0.01 in biomarker units**, added 2026-09-26.
 A difference smaller than that counts as agreement, and no percentage is divided by anything
@@ -75,9 +75,10 @@ twenty. Measuring less, more carefully, is a defensible engineering choice and i
 same achievement as measuring more. Section 7 says what can actually be concluded.
 
 Two figures stand out on their own terms. **PVBM takes about forty times longer per image than
-AutoMorphClass** — 16.4 seconds against 0.4 — which over a study of fifty thousand photographs is
-about nine days of compute against six hours. And **PVBM is the only implementation that raised at
-all**, now thirty-two times rather than sixteen (section 3).
+AutoMorphClass** — 19.2 seconds against 0.5 — which over a study of fifty thousand photographs is
+about eleven days of compute against seven hours. **Nothing raises any more**, which took giving
+PVBM the recursion limit its own fork sets, and cost it the appearance of being the steadiest thing
+here (section 3).
 
 ## 2. What could be compared, and what could not
 
@@ -98,22 +99,37 @@ judge, and the counts above only mean something once they are kept apart:
 - **The program may simply never answer.** AutoMorphalyzer returns 54 columns of which 40 ever
   carry a value.
 
-## 3. The one implementation that raised
+## 3. Nothing raised, once PVBM was given the same recursion limit as its fork
 
-**Thirty-two** exceptions, all PVBM, all `RecursionError: maximum recursion depth exceeded`, and
-all on exactly two shapes: **`koch` and `deep-bifurcation`**, at every one of the four angles.
+*This section used to be called "the one implementation that raised" and counted thirty-two
+exceptions, all PVBM's. There are now none, and how that happened is more interesting than the
+exceptions were.*
 
-PVBM walks a vessel tree recursively, so the failure is a function of how much vessel there is
-rather than of anything being malformed — a real photograph of a densely vascularised retina can
-trigger it, and a sparse one will not. The Koch curve now carries a skeleton a little over half its
-former length — 1,238 pixels against 2,201 — and **still** raises: whatever the limit is, it is not
-far above an ordinary branching vessel.
+PVBM's geometry walks each vessel tree with mutual recursion — one Python frame per skeleton pixel
+— so the depth it needs is a function of how much vessel there is. At CPython's default limit of
+1000 it raised on the two densest shapes, `koch` and `deep-bifurcation`, losing the whole geometry
+call at every angle.
 
-**It used to be sixteen, and the doubling is the cost of section 3.1.** Under the deprecated class
-only the central retinal equivalents walked the tree recursively, so only they were lost. The
-replacement walks it too, so on those two shapes the whole geometry call now goes with them — eight
-quantities per class rather than one. Those renderings are still *measured*, because the fractal
-analysis comes back, but the geometry is gone from them.
+**OCULAR never raised, and not because it measures differently.** Its fork sets
+`sys.setrecursionlimit(5000)` at module import; PVBM does not. Measuring the two side by side with
+one at Python's default and one at 5000 was reporting a difference in interpreter settings as a
+difference between the programs. From 2026-09-26 this atlas raises the limit to the same 5000
+around PVBM's call and puts it back afterwards, and declares the number so that a stored score
+taken at another limit is not mistaken for this one.
+
+**What that revealed is the point.** PVBM did not become worse; it stopped being absent:
+
+| | when it raised | now |
+| --- | --- | --- |
+| Exceptions | 32 | **0** |
+| Comparable measurements | 256 | **312** |
+| Quantities that move when the image turns | 3 / 30 | **9 / 30** |
+| Biomarkers disagreeing with the geometry | 5 / 20 | **8 / 20** |
+
+The previous version of this page called PVBM "the steadiest implementation here" on the strength
+of 3 of 30. That was 3 of 30 **over the shapes it could still measure**, and the two it could not
+are the two where the vessels are dense enough to be hard. A program that fails on the difficult
+cases and is steady on the rest is not steady.
 
 ### 3.1 PVBM's measuring class changed, and it is not a rename
 
@@ -130,24 +146,11 @@ PVBM ships two classes named `GeometricalVBMs` at the pinned commit. The one in
 | Branching angle | mean, deviation **and** median | median only |
 | Perimeter | yes | **none**, so this atlas stopped reporting one |
 
-**Mostly this made PVBM better.** Its junction count was the worst number on the previous version
-of this page — out by 785% and reading 1, 4, 4, 3 across four angles of an unchanged shape. It is
-now exact, 0.0% error and 0.0% spread. Hart τ1 went from 33% out to 7.8%, and the count of
-quantities that move when the image turns fell from 13 of 32 to **3 of 32**.
-
-*Read that junction figure with section 3's exceptions beside it.* PVBM's 0.0% is over the **one**
-shape that both settles a junction count and survives its recursion limit: `bifurcation`. On
-`deep-bifurcation` it has no junction count at all, because the geometry call raised. So it is not
-that PVBM counts junctions better than OCULAR — on `bifurcation` the two agree exactly, at 0.0%
-each — it is that PVBM is **absent** on the harder shape where OCULAR scores 42.9%. A perfect score
-over the easy half of a question is not a better answer than an imperfect one over all of it.
-
-**Three things got worse, and all three are honest.** The geometry now fails on dense shapes
-(above). On **`disjoint`**, whose vessels never reach the optic disc, there are no trunks to walk
-and the whole geometry call returns zeros — which reads as 100% error against a geometry that
-requires otherwise, and is a real property of a disc-anchored measurement rather than a bug. And
-the **mean and standard deviation of the branching angle no longer exist**: the code that produced
-them is the code that was retired.
+**The change is real and the improvement is smaller than it first looked.** Its junction count was
+out by 785% under the deprecated class and reading 1, 4, 4, 3 across four angles of an unchanged
+shape; it is now out by 42.9% and moves by 240%. An earlier version of this page reported 0.0% on
+both, which was true of the single shape PVBM could then measure and false of the shape it could
+not.
 
 **The perimeter went too.** `GeometryAnalysis` has no equivalent of the deprecated
 `compute_perimeter`, and the helper both classes call underneath is not an interface either of them
@@ -156,17 +159,42 @@ a benchmark of the current version should report. Nothing in the catalogue named
 comparison is lost; PVBM produces 30 columns here rather than 32, and runs 8 seconds an image
 faster for it.
 
-**Two mappings were withdrawn — PVBM's and OCULAR's.** The canonical endpoint count means every free end a network has. The
-deprecated class counted those; the replacement calls the end at the disc a *start point*, so its
-`endpoints` is the free ends **excluding** the one it started from — a straight vessel reads 1
-where the geometry requires 2. `endpoints + start_points` is what answers the catalogued question,
-but summing them here would report a number PVBM never returned, so the mapping is withdrawn and
-both columns are kept under PVBM's own names. That is why PVBM names twenty canonical biomarkers on
-this page and twenty-two on the last one. OCULAR forks the same class and inherits the same split,
-so its mapping goes for the same reason and it names eight rather than ten.
+**Two mappings were withdrawn — PVBM's and OCULAR's.** The canonical endpoint count means every
+free end a network has. The deprecated class counted those; the replacement calls the end at the
+disc a *start point*, so its `endpoints` is the free ends **excluding** the one it started from — a
+straight vessel reads 1 where the geometry requires 2. `endpoints + start_points` is what answers
+the catalogued question, but summing them here would report a number PVBM never returned, so the
+mapping is withdrawn and both columns are kept under PVBM's own names. OCULAR forks the same class
+and inherits the same split, so its mapping goes for the same reason.
 
-An implementation that raises has at least told you it could not answer; the rest of this page is
-about the harder case, where a program returns a confident number instead.
+**On `disjoint`**, whose vessels never reach the optic disc, there are no trunks to walk and the
+geometry call returns zeros — 100% out against a geometry that requires otherwise. That is a real
+property of a disc-anchored measurement rather than a bug, and it is the one place where moving to
+the replacement made a number worse.
+
+### 3.2 PVBM and OCULAR now return the same numbers
+
+With the recursion limit equalised, **every canonical biomarker the two share comes back
+identical** — not close, identical:
+
+| Biomarker | PVBM | OCULAR |
+| --- | --- | --- |
+| `junction-counts/junctions/artery`, worst error | 42.9% | 42.9% |
+| `junction-counts/junctions/vein`, worst error | 85.7% | 85.7% |
+| `tortuosity/hart-tau1/artery`, worst error | 16.5% | 16.5% |
+| `tortuosity/hart-tau1/vein`, worst error | 31.2% | 31.2% |
+| …and the same four under rotation | 240%, 66.7%, 20.1%, 30.2% | 240%, 66.7%, 20.1%, 30.2% |
+
+That is what reading the two files predicted. OCULAR's geometry is a fork of the same
+`GeometryAnalysis`, 343 of its 486 lines identical, and its edits are a raised recursion limit, one
+extra returned quantity, a `try`/`except` around the tree walk and an optional iterative
+replacement that is off by default. **None of those change a shared number.** The recursion limit
+was the whole of the difference this benchmark was reporting.
+
+Two useful consequences. The pair is now a **control**: if a future change moves one and not the
+other, the change is in the fork rather than in the measurement. And OCULAR's extra
+`length_weighted_tortuosity` is the only thing it adds that PVBM does not have, which is a much
+smaller claim than a page full of differing numbers implied.
 
 ## 4. Turning the picture changes the answer
 
@@ -180,9 +208,9 @@ Seventeen of 35 canonical biomarkers move by more than 10% somewhere. The worst 
 | Biomarker | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
 | `tortuosity/grisan-density/vein` | — | — | 400.0% | 301.7% | **0.0%** | — |
-| `tortuosity/hart-tau1/artery` | **7.0%** | 20.1% | 202.1% | 7.1% | 7.5% | 10.9% |
+| `tortuosity/hart-tau1/artery` | 20.1% | 20.1% | 202.1% | 7.1% | 7.5% | 10.9% |
 | `tortuosity/spline-mean-curvature/artery` | — | — | — | — | — | 280.5% |
-| `junction-counts/junctions/artery` | **0.0%** | 240.0% | — | — | — | — |
+| `junction-counts/junctions/artery` | 240.0% | 240.0% | — | — | — | — |
 | `vessel-calibre/mean-width/vein` | — | — | 60.0% | 14.0% | 14.0% | **1.7%** |
 | `fractal-dimension/box-counting/artery` | — | — | 20.1% | 80.7% | 80.8% | — |
 
@@ -201,11 +229,9 @@ Three findings, and each is legible only because the columns are ordered by line
 - **Across the boundary, VascX is steadiest where it measures at all** — 1.7% on vein calibre where
   its neighbours are at 14% to 60%. It also has its own unique failure: `spline-mean-curvature` at
   280.5%, a quantity only VascX computes and which nothing else here would have caught.
-- **PVBM's junction count is steady where it answers and OCULAR's is not**, 0.0% against 240%.
-  They were 107% and 160% when PVBM still ran the deprecated class. The two are now running *almost
-  the same code* — OCULAR is a fork of the same `GeometryAnalysis` PVBM moved to — so the remaining
-  gap is down to OCULAR's own edits rather than to a different lineage. On `bifurcation` PVBM now
-  answers 1 at every angle where it used to read **1, 4, 4, 3**.
+- **PVBM and OCULAR now move by exactly the same amount**, 240% on the artery junction count and
+  20.1% on Hart τ1, because they are running the same code at the same recursion limit (section
+  3.2). The gap this page used to report between them was the limit and nothing else.
 
 The unnamed quantities are no better. AutoMorphalyzer's `tortuosity_density` at zones B and C moves
 by **400%**; AutoMorph's and AutoMorphClass's `squared_curvature_tortuosity` by 400% and 203%.
@@ -215,16 +241,16 @@ and without this section none of them would be checked at all.
 
 ## 5. Disagreement with the geometry
 
-1,240 measurements have a theoretical value to be judged against, over 28 canonical biomarkers.
+1,296 measurements have a theoretical value to be judged against, over 28 canonical biomarkers.
 Thirteen of the twenty-eight are out by more than 25% somewhere. The worst case each implementation
 produced, over all shapes and all angles:
 
 | Biomarker | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
-| `junction-counts/junctions/artery` | **0.0%** | 42.9% | — | — | — | — |
+| `junction-counts/junctions/artery` | 42.9% | 42.9% | — | — | — | — |
 | `junction-counts/endpoints/vein` | — | 100.0% | — | — | — | — |
 | `central-retinal-equivalents/hubbard/artery` | 81.4% | — | — | — | — | — |
-| `tortuosity/hart-tau1/vein` | 8.1% | 31.2% | 542.2% | 13.4% | **7.4%** | 43.4% |
+| `tortuosity/hart-tau1/vein` | 31.2% | 31.2% | 542.2% | 13.4% | **7.4%** | 43.4% |
 | `vessel-area-and-length/skeleton-length/vein` | 100.0% | 100.0% | — | — | — | — |
 | `vessel-calibre/mean-width/vein` | — | — | 56.5% | 18.6% | 22.3% | **1.1%** |
 | `avr/hubbard/both` | 32.2% | — | — | — | — | — |
@@ -309,39 +335,40 @@ Two caveats remain on this shape:
 ## 7. Which to reach for, and at what question
 
 There is no best implementation here, and pretending otherwise would mean comparing a column of 80
-measurements with a column of 392 as though they answered the same question. What can be said:
+measurements with a column of 312 as though they answered the same question. What can be said:
 
 - **For vessel calibre, VascX**, and not by a small margin: 1.1% worst error on vein width against
   18.6% to 56.5% for the AutoMorph group, and 1.7% movement under rotation against their 14% to
-  60%. The caveat is scope — VascX yields six judged biomarkers against PVBM's twenty-two, and it
+  60%. The caveat is scope — VascX yields six judged biomarkers against PVBM's twenty, and it
   produced nothing comparable at all on the `straight` shape.
 - **For tortuosity, AutoMorphClass**: 8.5% worst on Hart τ1 over every shape and angle, against
   13.7% for its sibling, 31–33% for PVBM and OCULAR and 43% for VascX. It is also the fastest thing
-  here, at 0.4 seconds an image, **and now has the highest share of measurements within tolerance
+  here, at half a second an image, **and now has the highest share of measurements within tolerance
   of anything on this page** — 98%, against 91% for AutoMorphalyzer. That last figure changed when
   the noise floor was introduced and is worth reading carefully: what improved was not
   AutoMorphClass but this page's ability to tell it apart from a sibling that is genuinely
   a hundred times further out on the same quantity.
 - **For breadth, PVBM**, the only implementation that puts twenty canonical biomarkers on the
-  table, including the central retinal equivalents and AVR that nothing else here computes. Since
-  moving to `GeometryAnalysis` it is also the **steadiest under rotation of any implementation
-  here** — 3 of its 30 quantities move by more than 10%, against 8 of 18 for OCULAR and 15 of 18
-  for AutoMorph — and its junction count is exact. Two caveats remain, both real: it costs
-  16 seconds an image, and it loses its whole geometry block on densely vascularised segmentations
-  rather than just the equivalents (section 3).
+  table, including the central retinal equivalents and AVR that nothing else here computes. It is
+  also the slowest by a wide margin, at 19 seconds an image against half a second for
+  AutoMorphClass.
+
+  *An earlier version of this section called PVBM the steadiest implementation here, on 3 of 30
+  quantities moving under rotation.* It now reads 9 of 30, and nothing about PVBM changed except
+  that it stopped raising on the two densest shapes and had to answer for them (section 3). The
+  claim was an artefact of a failure, and it is withdrawn.
 - **Do not use Grisan density from AutoMorph or AutoMorphalyzer**, which return 0.93 and 1.00 for
   a quantity the geometry puts at nought and move by 400% and 302% when the image is turned.
   **AutoMorphClass's is a different matter**: it returns 0.011 on the same question and holds still
   under rotation, which is wrong by about what the rasteriser could account for rather than wrong
   outright. That distinction only became visible once a noise floor was applied (section 1); before
   it, all three read as the same infinite failure.
-- **For junction counts the two are now hard to separate, and the page no longer recommends one.**
-  Before 2026-09-26 it said to prefer OCULAR's; that was right against the deprecated PVBM and is
-  not right now. On the one shape both measure, they agree exactly. Beyond it PVBM raises and
-  OCULAR answers with a 42.9% error, which is a trade between a number you cannot have and one you
-  may not want. Neither's **endpoint** count answers the catalogued question at all: both fork the
-  class that calls the end at the disc a start point, and both mappings are withdrawn (section
-  3.1).
+- **Between PVBM and OCULAR there is nothing to choose on any shared number**, because they now
+  return the same ones — identically, not approximately (section 3.2). Pick on what surrounds the
+  geometry instead: PVBM adds the fractal dimensions and the central retinal equivalents and costs
+  19 seconds an image; OCULAR adds a length-weighted tortuosity and costs two. Neither's
+  **endpoint** count answers the catalogued question at all, and both mappings are withdrawn
+  (section 3.1).
 - **Do not use AutoMorph's own measuring stage for tortuosity** where either descendant is
   available. Its Hart τ1 is out by 542% on a circular arc and moves by 202% under rotation; both
   rewrites fixed exactly that.
