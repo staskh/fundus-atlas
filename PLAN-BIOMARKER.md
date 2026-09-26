@@ -81,6 +81,22 @@ length measured in pixels is a real measurement — but nothing in the name, and
 stored evidence, says which unit a column is in. Two datasets at different resolutions cannot be
 pooled, and nothing currently stops someone doing it.
 
+Two findings fall out of the same experiment:
+
+- **Hubbard and Knudtson equivalents come out in different units.** Hubbard's fitted constants are
+  in microns, so an implementation must convert to microns to apply it, and the answer is physical
+  (×1). Knudtson's formula is purely multiplicative, so it returns whatever unit the widths were in
+  — pixels (×2). *These two variants sit on one page, under one biomarker, and a table holding both
+  is incoherent.* This is the clearest single argument for the plan.
+- **The τ family splits three ways.** τ1 and τ2 are dimensionless; τ3, τ4 and τ6 are inverse
+  lengths; τ5 and τ7 are inverse areas. "Tortuosity" as a column heading spans three different
+  physical dimensions.
+
+**Every table in this section comes from a one-off script rather than from anything committed**,
+which is a weakness in the document: nobody can re-run them. Section 8 makes turning them into a
+test part of the work, because a claim about comparability that cannot be re-checked is the kind of
+claim this repository exists to distrust.
+
 ### 3.1 Why the tortuosity family splits three ways
 
 Curvature κ is one over the radius of curvature, so it carries units **1/L**; the arc element `ds`
@@ -279,6 +295,9 @@ over all seven metrics:
 | Least-squares cubic spline | knots every 928 µm | 8.1% |
 | **Angle regression (Pheno AutoMorph)** | **σ = 45 µm** | **6.9%** |
 
+That σ is **not a constant**, and 3.7 shows what it is a fraction of. It is the best value *for the
+shapes in this test*, whose features are thousands of microns across.
+
 **But as shipped its parameters are in pixels**, `σ = 6 px` and a 10-sample window, and that is the
 whole difference between working and not:
 
@@ -305,21 +324,51 @@ Three things follow for the plan:
 - **A pixel-parameterised estimator is the defect this plan exists to catch.** It is invisible on
   the grid it was tuned on, and nothing in a results table would reveal it.
 
- rather than from anything committed, which is a
-weakness in this document: nobody can re-run them. Section 8 makes turning them into a test part of
-the work, because a claim about comparability that cannot be re-checked is the kind of claim this
-repository exists to distrust. The same applies to 3.3 through 3.6.
+### 3.7 The scale is a fraction of the feature, not a length
 
-Two findings fall out of the same experiment:
+**Fact, measured.** 3.6 found σ = 45 µm best. Testing that on sinusoids whose **wavelength** is
+100, 200 and 300 µm — three grids, four rotations, all seven metrics, against theory — shows what
+the 45 was:
 
-- **Hubbard and Knudtson equivalents come out in different units.** Hubbard's fitted constants are
-  in microns, so an implementation must convert to microns to apply it, and the answer is physical
-  (×1). Knudtson's formula is purely multiplicative, so it returns whatever unit the widths were in
-  — pixels (×2). *These two variants sit on one page, under one biomarker, and a table holding both
-  is incoherent.* This is the clearest single argument for the plan.
-- **The τ family splits three ways.** τ1 and τ2 are dimensionless; τ3, τ4 and τ6 are inverse
-  lengths; τ5 and τ7 are inverse areas. "Tortuosity" as a column heading spans three different
-  physical dimensions.
+| Wavelength | Best σ | σ / wavelength | Worst error at best σ | Worst error at σ = 45 µm |
+| --- | --- | --- | --- | --- |
+| 100 µm | 4 µm | 0.04 | **100%** | **100%** |
+| 200 µm | 5 µm | 0.03 | 28% | 97% |
+| 300 µm | 8 µm | 0.03 | 20% | 74% |
+
+**σ = 45 µm returns essentially zero on all three.** Two Gaussian passes at σ = 45 µm is an
+effective σ of 64 µm, which is 0.64 of a 100 µm wavelength: the wave is gone before the curvature
+is estimated, and the estimator faithfully reports a straight line.
+
+The ratio is the finding. σ/wavelength lands on **0.03–0.04** at all three, and the shapes of 3.6
+obey the same rule — the default sinusoid's wavelength is 1638 µm and 0.03 × 1638 = 49 µm, which is
+the 45 that looked like a constant. **It was never a length. It was three per cent of the feature
+being measured**, and the feature scale varies vessel by vessel within one photograph.
+
+So the three ways of setting the scale rank like this, and only the third is a property of the eye:
+
+| Scale expressed as | Resolution-independent | Shape-independent |
+| --- | --- | --- |
+| Pixels, as shipped | ❌ 4.5% → 40.4% (3.6) | ❌ |
+| Microns | ✅ 74 / 75 / 73% across grids | ❌ 6.9% → 100% |
+| A fraction of the feature scale | ✅ | ✅ *if the feature scale can be estimated first* |
+
+Two more things this measured, worth keeping:
+
+- **Rotation matters, consistently and slightly.** At every wavelength and grid, 0° and 90° score
+  worse than 30° and 60° — 74, 68, 68, 74 at 300 µm — because an axis-aligned curve rasterises onto
+  the lattice differently from a diagonal one. Small beside the wavelength effect, and not noise.
+- **Below a certain feature size nothing works.** At 100 µm the *drawing* already loses 27% of its
+  arc length, because the wave's amplitude is 0.27 of the vessel's own width — the Koch defect of
+  3.3 in another costume. At 200 and 300 µm the drawing is faithful to within 4% and the curvature
+  still cannot be recovered below 20%, because the best σ has fallen to 5–8 µm, under one pixel at
+  1024. The estimator is trapped between annihilating the wave and measuring the staircase.
+
+**This is the sharpest form of the problem the plan exists to solve.** A pipeline reporting τ5 with
+σ fixed at anything — pixels or microns — reports a number whose meaning changes with the vessel it
+was measured on, and no unit conversion repairs that. Whether a fraction-of-feature rule can work
+on real vasculature, where the feature scale must itself be estimated, is an open question this
+plan should not pretend to have answered.
 
 ## 4. Gap C — a definition is a sentence, not a reference
 
@@ -358,7 +407,7 @@ And three things have to be recorded *about* the name, none of which are today:
 | **Defining paper** | The primary goal. A variant whose definition nobody can cite is a name two people will fill differently |
 | **Normalisation** | What turns the raw number into something comparable — see section 6 |
 | **Estimation scale** | For the curvature family, the physical window the derivative was taken over — see 3.2 and 3.3. A number in microns rather than a category, so it belongs beside the name rather than in it |
-| **Estimator** | *How* the derivative was taken — finite differences, a spline, or Hart's angle regression. Section 3.5 measures a factor of eighteen on this choice alone and 3.6 shows the scales are not even commensurable between estimators, so a scale recorded without the estimator that goes with it records nothing |
+| **Estimator** | *How* the derivative was taken — finite differences, a spline, or Hart's angle regression. Section 3.5 measures a factor of eighteen on this choice alone; 3.6 shows the scales are not commensurable between estimators; 3.7 shows the scale is not even a length. A scale recorded without its estimator records nothing |
 
 ## 6. Normalisation — what "normalised" should mean
 
