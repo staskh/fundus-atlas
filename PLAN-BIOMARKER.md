@@ -187,59 +187,84 @@ explicit about before any number is written into code:
   **They fix the method, not the number.** What window suits real arterioles has to be measured on
   real arterioles, and this plan should not pretend otherwise.
 
-### 3.4 At a 10% tolerance there is no common window, and that is the finding
+### 3.4 With a boxcar smoother there is no common window
 
 **Fact, measured.** 3.3 asked how long the window should be for one metric. Asking it for **all
 seven at once**, against their theoretical values, on `straight`, `arc` and `sinusoid` at 1024,
-2048 and 4096 px — 45 (shape, grid, metric) cases with a non-zero theoretical value — gives a
-different answer: there is no such window.
+2048 and 4096 px — 45 (shape, grid, metric) cases with a non-zero theoretical value — gives no such
+window. Smoothing with a boxcar and differentiating by finite differences:
 
-Each metric alone, at its best window, worst case over every shape and grid:
-
-| Metric | Units | Best achievable | At window | Reaches 10% at |
-| --- | --- | --- | --- | --- |
-| τ1 | 1 | **0.4%** | 40 µm | 40–549 µm |
-| τ2 | 1 | **5.0%** | 338 µm | 307–431 µm |
-| τ6 | 1/L | **1.9%** | 577 µm | 391–700 µm |
-| τ4 | 1/L | **1.4%** | 771 µm | 667–892 µm |
-| τ3 | 1/L | 25.3% | 498 µm | **never** |
-| τ7 | 1/L² | 23.2% | 635 µm | **never** |
-| τ5 | 1/L² | 22.3% | 667 µm | **never** |
-
-And the best compromise window for each group:
-
-| Group | Best worst-case | At | Common 10% window |
+| Metric | Units | Best achievable | Reaches 10% at |
 | --- | --- | --- | --- |
-| All seven | 34.5% | 577 µm | **none** |
-| The four that individually reach 10% | 14.1% | 391 µm | **none** |
-| The 1/L group — τ3, τ4, τ6 | 25.3% | 498 µm | **none** |
-| τ1 + τ4 | 11.2% | 635 µm | **none** |
-| **τ1 + τ2 — the dimensionless pair** | **5.4%** | 338 µm | **307–431 µm** |
+| τ1 | 1 | 0.4% | 40–549 µm |
+| τ2 | 1 | 5.0% | 307–431 µm |
+| τ6 | 1/L | 1.9% | 391–700 µm |
+| τ4 | 1/L | 1.4% | 667–892 µm |
+| τ3 | 1/L | 25.3% | **never** |
+| τ7 | 1/L² | 23.2% | **never** |
+| τ5 | 1/L² | 22.3% | **never** |
 
-Three conclusions, and they point the same way:
+The best compromise over all seven is 34.5%; over the four that individually reach 10%, 14.1%. The
+only group with a common band is the dimensionless pair τ1 and τ2, at 307–431 µm.
 
-- **The only group with a common window is the dimensionless pair.** τ1 and τ2 agree within 10%
-  anywhere from 307 to 431 µm. Every group containing a dimensioned metric has an empty band. *The
-  measurements that need no unit conversion are also the only ones a single smoothing choice can
-  pin down*, which is a tidier result than it has any right to be.
-- **τ2 and τ4 want incompatible windows** — 307–431 µm against 667–892 µm — although they differ
-  only by a division by arc length. That is not an estimator artefact: smoothing shortens the
-  measured arc length too, so in τ4 the error in ∫κ ds is partly cancelled by the error in `s`,
-  and the two quantities are optimal at different places. Nothing can reconcile them.
-- **The squared-curvature metrics never reach 10%** — τ3, τ5 and τ7 bottom out at 22–25%. Squaring
-  squares the estimation error, and no window recovers it.
+One part of that survives section 3.5 and is worth keeping: **τ2 and τ4 want incompatible windows**
+— 307–431 µm against 667–892 µm — although they differ only by a division by arc length. Smoothing
+shortens the measured arc length too, so in τ4 the error in ∫κ ds is partly cancelled by the error
+in `s`. That is a property of the quantities, not of the smoother.
 
-**What this is evidence about.** One estimator — a boxcar smoother and finite differences — on two
-curved synthetic shapes. A spline-based estimator will do better, and the plan should not conclude
-that τ3, τ5 and τ7 are unmeasurable in principle. What it can conclude is that **a single declared
-window is not enough to make the τ family comparable**, because the requirement is not one number
-but a different number per metric, and two of them conflict outright. If the vocabulary is going to
-carry an estimation scale (section 5), that scale belongs **per name, not per implementation**.
+### 3.5 With a spline estimator there is one, and the earlier conclusion was wrong
+
+**Fact, measured.** 3.4 concluded that the squared-curvature metrics were beyond recovery because
+"squaring squares the estimation error". **That was wrong**, and it was wrong because it
+generalised from one bad estimator. Replacing the boxcar and finite differences with a
+**least-squares cubic spline** — knots at a physical spacing, derivatives taken analytically, which
+is what VascX already does — on exactly the same paths, shapes and grids:
+
+| Metric | Boxcar, best | **Spline, best** | |
+| --- | --- | --- | --- |
+| τ1 | 0.4% | **0.1%** | |
+| τ2 | 5.0% | **2.3%** | |
+| τ3 | 25.3% | **1.4%** | **recovered** |
+| τ4 | 1.4% | **2.5%** | |
+| τ5 | 22.3% | **2.0%** | **recovered** |
+| τ6 | 1.9% | **1.4%** | |
+| τ7 | 23.2% | **1.9%** | **recovered** |
+
+**Every one of the seven now reaches 10%, and there is a common window: 711–1507 µm**, with the
+best compromise 7.6% at 914 µm. At that spacing, the error per metric at each grid:
+
+| Metric | 1024 px | 2048 px | 4096 px |
+| --- | --- | --- | --- |
+| τ1 | 3.3% | 3.8% | 3.8% |
+| τ2 | 5.7% | 5.9% | 5.8% |
+| τ3 | 7.5% | 7.2% | 6.9% |
+| τ4 | 4.5% | 4.1% | 3.8% |
+| τ5 | 7.4% | 6.9% | 6.5% |
+| τ6 | 4.6% | 4.2% | 4.0% |
+| τ7 | 7.6% | 7.0% | 6.6% |
+
+**The columns barely differ.** One declared physical window, one estimator, and all seven
+tortuosity measures hold their value to within about 8% over a sixteenfold change in pixel area.
+That is the demonstration section 6 needed: normalising by physical units is not just
+dimensionally correct, it *works* — provided the estimator is stated too.
+
+Which is the conclusion that replaces 3.4's: **the estimator matters more than the window.** Going
+from a boxcar to a spline improved τ3 by a factor of eighteen; no choice of window could do
+anything comparable. Two implementations reporting τ3 at the same declared scale can differ by
+twenty percentage points purely from how they take a second derivative.
+
+**So an estimation scale is not enough for a name to promise comparability — the estimator has to
+be named as well.** That is a heavier requirement than section 5 first recorded, and it is the main
+thing these four subsections have established.
+
+**What this is still evidence about.** Two curved synthetic shapes, one spline variant, one knot
+placement rule. It shows the τ family *can* be made comparable, not that 914 µm is the number for
+retinal vessels — which, as 3.3 says, has to be measured on vessels.
 
 Both tables above come from a one-off script rather than from anything committed, which is a
 weakness in this document: nobody can re-run them. Section 8 makes turning them into a test part of
 the work, because a claim about comparability that cannot be re-checked is the kind of claim this
-repository exists to distrust. The same applies to 3.3 and 3.4.
+repository exists to distrust. The same applies to 3.3, 3.4 and 3.5.
 
 Two findings fall out of the same experiment:
 
@@ -288,7 +313,8 @@ And three things have to be recorded *about* the name, none of which are today:
 | **Unit / dimension** | The pooling question of section 3. A name must say whether it is dimensionless, a length, an area, an inverse length, or an angle |
 | **Defining paper** | The primary goal. A variant whose definition nobody can cite is a name two people will fill differently |
 | **Normalisation** | What turns the raw number into something comparable — see section 6 |
-| **Estimation scale** | For the curvature family, the physical window the derivative was taken over — see 3.2 and 3.3. It is a number in microns rather than a category, so it belongs beside the name rather than in it, but a curvature reported without it is not comparable with anything |
+| **Estimation scale** | For the curvature family, the physical window the derivative was taken over — see 3.2 and 3.3. A number in microns rather than a category, so it belongs beside the name rather than in it |
+| **Estimator** | *How* the derivative was taken — boxcar and finite differences, or a spline, and which. Section 3.5 measures the same metric on the same data differing by a factor of eighteen on this choice alone, which is more than any other property on this list is worth |
 
 ## 6. Normalisation — what "normalised" should mean
 
