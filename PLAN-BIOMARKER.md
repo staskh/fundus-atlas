@@ -324,51 +324,64 @@ Three things follow for the plan:
 - **A pixel-parameterised estimator is the defect this plan exists to catch.** It is invisible on
   the grid it was tuned on, and nothing in a results table would reveal it.
 
-### 3.7 The scale is a fraction of the feature, not a length
+### 3.7 One σ cannot serve every feature scale, and the failures are not where they looked
 
-**Fact, measured.** 3.6 found σ = 45 µm best. Testing that on sinusoids whose **wavelength** is
-100, 200 and 300 µm — three grids, four rotations, all seven metrics, against theory — shows what
-the 45 was:
+**Fact, measured.** 3.6 found σ = 45 µm best on shapes whose features are thousands of microns
+across. Testing it on sinusoids of six wavelengths — three grids, four rotations, all seven
+metrics, against theory, with the drawing checked first — gives this:
 
-| Wavelength | Best σ | σ / wavelength | Worst error at best σ | Worst error at σ = 45 µm |
-| --- | --- | --- | --- | --- |
-| 100 µm | 4 µm | 0.04 | **100%** | **100%** |
-| 200 µm | 5 µm | 0.03 | 28% | 97% |
-| 300 µm | 8 µm | 0.03 | 20% | 74% |
+| Wavelength | Amplitude ÷ vessel width | Drawing's own τ1 error | Best σ | σ ÷ wavelength | Worst at best σ | Worst at σ = 45 µm |
+| --- | --- | --- | --- | --- | --- | --- |
+| 100 µm | 0.27 | **−21 to −27%** | 4 µm | 0.040 | **100%** | **100%** |
+| 200 µm | 0.55 | −1.6 to −3.8% | 5 µm | 0.025 | 28% | 97% |
+| 300 µm | 0.82 | +0.2 to +2.6% | 8 µm | 0.027 | 20% | 74% |
+| 1000 µm | 2.73 | +3.8 to +4.1% | 20 µm | 0.020 | **7%** | 17% |
+| 2000 µm | 5.47 | +4.0 to +4.3% | 25 µm | 0.013 | **9%** | 15% |
+| 3000 µm | 8.20 | +4.2 to +4.5% | 31 µm | 0.010 | **7%** | 13% |
 
-**σ = 45 µm returns essentially zero on all three.** Two Gaussian passes at σ = 45 µm is an
-effective σ of 64 µm, which is 0.64 of a 100 µm wavelength: the wave is gone before the curvature
-is estimated, and the estimator faithfully reports a straight line.
+**The regime boundary is the amplitude against the vessel's own width, not the wavelength.** Where
+the wave is narrower than the vessel drawn along it, the drawing loses a quarter of its arc length
+before any estimator sees it — the Koch defect of 3.3 in another costume — and no σ helps. Where
+the wave is two to eight times the vessel width, the drawing is faithful to about 4% and the
+estimator reaches 7–9%.
 
-The ratio is the finding. σ/wavelength lands on **0.03–0.04** at all three, and the shapes of 3.6
-obey the same rule — the default sinusoid's wavelength is 1638 µm and 0.03 × 1638 = 49 µm, which is
-the 45 that looked like a constant. **It was never a length. It was three per cent of the feature
-being measured**, and the feature scale varies vessel by vessel within one photograph.
+**Retinal vessels live in the second regime**, so the practical news is better than the top of the
+table suggests: at feature scales of 1 mm and above, Hart's angle regression at its best σ holds
+every one of the seven metrics to within 9%, and even at an untuned σ = 45 µm to within 17%.
 
-So the three ways of setting the scale rank like this, and only the third is a property of the eye:
+**But one σ still cannot serve them all.** The best σ runs from 4 µm to 31 µm across the range,
+and σ = 45 µm — optimal for the 1638 µm shapes of 3.6 — reads 100% wrong at 100 µm and 13% wrong
+at 3000 µm. A pipeline fixing σ once is choosing which vessels it measures correctly.
 
-| Scale expressed as | Resolution-independent | Shape-independent |
+**How σ scales is not a fixed fraction.** σ ÷ wavelength falls from 0.040 to 0.010 as the
+wavelength grows, so the optimum rises *sub-linearly* — about λ^0.6 over the thirtyfold range
+measured. An earlier draft of this section claimed a constant three per cent; that was fitted to
+the three shortest wavelengths, which is exactly the regime where the estimator was failing for a
+different reason, and it does not survive the rest of the range.
+
+So the three ways of setting a scale rank like this, and the third is still the only one that is a
+property of the eye:
+
+| Scale expressed as | Resolution-independent | Feature-scale-independent |
 | --- | --- | --- |
 | Pixels, as shipped | ❌ 4.5% → 40.4% (3.6) | ❌ |
-| Microns | ✅ 74 / 75 / 73% across grids | ❌ 6.9% → 100% |
-| A fraction of the feature scale | ✅ | ✅ *if the feature scale can be estimated first* |
+| Microns | ✅ 16 / 16 / 16% across grids at 1 mm | ❌ 7% → 100% across feature scales |
+| Tied to the feature scale | ✅ | ✅ *if the feature scale can be estimated first* |
 
-Two more things this measured, worth keeping:
+Two smaller things this measured:
 
-- **Rotation matters, consistently and slightly.** At every wavelength and grid, 0° and 90° score
-  worse than 30° and 60° — 74, 68, 68, 74 at 300 µm — because an axis-aligned curve rasterises onto
-  the lattice differently from a diagonal one. Small beside the wavelength effect, and not noise.
-- **Below a certain feature size nothing works.** At 100 µm the *drawing* already loses 27% of its
-  arc length, because the wave's amplitude is 0.27 of the vessel's own width — the Koch defect of
-  3.3 in another costume. At 200 and 300 µm the drawing is faithful to within 4% and the curvature
-  still cannot be recovered below 20%, because the best σ has fallen to 5–8 µm, under one pixel at
-  1024. The estimator is trapped between annihilating the wave and measuring the staircase.
+- **Resolution independence holds where the method works.** At 1000 µm the error reads 16, 16, 16%
+  across the three grids; at 3000 µm, 13, 11, 11%. Converting σ to microns does what 3.6 said it
+  does.
+- **Rotation matters and is not noise.** At 3000 µm and 1024 px the four angles read 5, 9, 13, 4%,
+  and at every short wavelength 0° and 90° beat 30° and 60°. It is second-order beside the feature
+  scale and it is consistent.
 
-**This is the sharpest form of the problem the plan exists to solve.** A pipeline reporting τ5 with
-σ fixed at anything — pixels or microns — reports a number whose meaning changes with the vessel it
-was measured on, and no unit conversion repairs that. Whether a fraction-of-feature rule can work
-on real vasculature, where the feature scale must itself be estimated, is an open question this
-plan should not pretend to have answered.
+**What the plan takes from this.** Not that the τ family is unusable — at retinal feature scales it
+is good to within about 9%. What it cannot do is carry a **fixed** estimation scale: the number
+that makes τ5 correct depends on the vessel, so two pipelines agreeing on σ are still not
+comparable unless they also agree on what they pointed it at. That is an argument for recording
+the estimator and its scale with every value, and against ever writing one σ into the vocabulary.
 
 ## 4. Gap C — a definition is a sentence, not a reference
 
