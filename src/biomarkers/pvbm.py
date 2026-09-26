@@ -38,7 +38,15 @@ PER_CLASS: dict[str, str | None] = {
     # Where the walk starts: one per vessel leaving the optic disc. A count of trunks rather than
     # of branch points, which nothing in the catalogue names.
     "start_points": None,
-    "endpoints": "junction-counts/endpoints/{side}",
+    # *Our finding, 2026-09-26:* **mapped to the catalogued endpoint count until `GeometryAnalysis`
+    # replaced `GeometricalAnalysis`, and withdrawn now.** The canonical name means every free end
+    # the network has. The deprecated class counted those; the new one walks each tree from the
+    # optic disc and calls the origin a *start point*, so `endpoints` is now the free ends
+    # **excluding** the one it started from — a straight vessel reads 1 where the geometry requires
+    # 2, and `endpoints + start_points` is what answers the catalogued question. Summing them here
+    # would repair the comparison at the cost of reporting a number PVBM never returned, so the
+    # mapping is withdrawn rather than patched, and the two columns are kept under its own names.
+    "endpoints": None,
     "intersections": "junction-counts/junctions/{side}",
     # PVBM's three dimensions are of the multifractal analysis, not the plain box count, which is
     # why they map to the multifractal names and not to `fractal-dimension/box-counting`.

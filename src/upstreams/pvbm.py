@@ -38,23 +38,36 @@ def geometry() -> object:
 def perimeter(segmentation):
     """The vessel border's length, which the new analysis class no longer exposes.
 
-    `GeometricalAnalysis` had a `compute_perimeter`; `GeometryAnalysis` has none, so the helper
-    both of them call is reached directly rather than reviving a deprecated class for one number.
+    `GeometricalAnalysis.compute_perimeter` did this in four lines and `GeometryAnalysis` has no
+    equivalent, so those four are **transcribed here** rather than a deprecated class being revived
+    for one number. What they do is worth stating, because the helper's name does not: an eight-
+    neighbour Laplacian marks the mask's border, the border is skeletonised, and
+    `compute_perimeter_` measures *that skeleton's* length. It is a length-of-skeleton routine, not
+    a perimeter routine — handing it the mask itself returns a number an order of magnitude too
+    large, which is what happened here before this was read properly.
 
-    **The copy is not defensive tidiness — it is required.** `compute_perimeter_` walks the mask
-    and sets each pixel it visits to zero, so it returns its input emptied. The deprecated wrapper
-    hid that by calling it on `segmentation_skeleton.copy()`; calling the helper directly does not,
-    and a caller who reuses the array afterwards gets zeros with no error. That cost an afternoon
-    here: the geometry call that followed reported an area of 0 and the fractal analysis failed an
-    assertion that its input contains a 1.
+    **The copy is required, not defensive.** `compute_perimeter_` walks what it is given and zeroes
+    every pixel it visits, so it returns its input erased. The deprecated wrapper copied for the
+    same reason.
+
+    A test pins this against the values the deprecated class produced, because a transcription that
+    drifts from its original is worse than no transcription at all.
 
     :return: the perimeter, and the skeletonised **border** — a closed outline with no endpoints,
         which is not a centreline whatever its variable name suggests.
     """
+    import numpy as np
+    from scipy.signal import convolve2d
+    from skimage.morphology import skeletonize
+
     CODE.on_path()
     from PVBM.helpers.perimeter import compute_perimeter_
 
-    return compute_perimeter_(segmentation.copy())
+    edges = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
+    border = convolve2d(segmentation, edges, mode="same") > 0
+    outline = skeletonize(np.ascontiguousarray(border))
+    length, _ = compute_perimeter_(outline.copy())
+    return length, outline
 
 
 def fractals() -> object:
