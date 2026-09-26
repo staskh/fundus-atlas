@@ -178,7 +178,15 @@ Three findings, and each is legible only because the columns are ordered by line
   Grisan density.** AutoMorph's Hart τ1 moves by 202% on a shape that did not change;
   AutoMorphalyzer's and AutoMorphClass's move by about 7%. That is a change somebody made on
   purpose, and it worked. Grisan density moves by 231% to 400% in all three, which is the part
-  nobody touched. The box-counting dimension is a third case again — **worse** in the descendants
+  nobody touched.
+
+  **Those three percentages are not three equal findings**, and the notebook's section 3.2 is where
+  that shows. A spread is a ratio, so it says nothing about the size of what moved. On shapes whose
+  Grisan density must be exactly nought, AutoMorphalyzer reaches **0.998** and AutoMorph **0.295**,
+  while AutoMorphClass reaches **0.00998** — a hundredfold difference between siblings, all of it
+  invisible in a column of percentages. AutoMorphClass's number is still wrong, because the
+  geometry requires zero and it does not return zero; it is wrong by a hundredth of what its
+  siblings manage. The box-counting dimension is a third case again — **worse** in the descendants
   (80.7% and 80.8%) than in AutoMorph (20.1%), so something one of them changed made it unstable.
 - **Across the boundary, VascX is steadiest where it measures at all** — 1.7% on vein calibre where
   its neighbours are at 14% to 60%. It also has its own unique failure: `spline-mean-curvature` at
@@ -343,9 +351,9 @@ to read the date beside a claim rather than the claim alone.
   the only figures that are not reproducible, and the gap is wide: running the whole benchmark
   again on the same machine, against the same pictures, with every measured value coming back
   identical, moved the per-implementation timings by **5% to 40%**. They also fell across the board
-  when the Koch curve was redrawn, because a shorter skeleton is less work. So treat the **ratios**
-  as the finding — PVBM is about ninety times AutoMorphClass, on any run — and treat a figure like
-  "36 seconds an image" as describing this machine on one afternoon, against this fixture, rather
+  when the Koch curve was redrawn, and again when PVBM changed measuring class. So treat the **ratios**
+  as the finding — PVBM is sixty-odd times AutoMorphClass, on any run — and treat a figure like
+  "24 seconds an image" as describing this machine on one afternoon, against this fixture, rather
   than the program.
 
 ---
