@@ -39,7 +39,7 @@ name rather than dropped.
 <!-- generated: subjects -->
 | Implementation | Pinned at | Columns it returns | Took part |
 | --- | --- | --- | --- |
-| [pvbm](../projects/pvbm.md) | `5edb79a` | 32 | yes |
+| [pvbm](../projects/pvbm.md) | `5edb79a` | 30 | yes |
 | [ocular](../projects/ocularnet.md) | `34b1ecc` | 18 | yes |
 | [automorph](../projects/automorph.md) | `9a953e5` | 18 | yes |
 | [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 54 | yes |

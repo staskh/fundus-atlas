@@ -13,7 +13,15 @@ from upstreams import pvbm as upstream
 #: source — and the synthetic shapes are what test it. The rows come from `GeometryAnalysis`, which
 #: replaced the deprecated `GeometricalAnalysis` here: that dropped the mean and the standard
 #: deviation of the branching angle, which no longer exist to measure, and added a tortuosity index
-#: and a count of start points, which do. `median_branching_angle` was mapped to the
+#: and a count of start points, which do.
+#:
+#: **The perimeter is gone with them.** It was never `GeometryAnalysis`'s to give: the deprecated
+#: class had a `compute_perimeter` and its replacement has no equivalent, so measuring one here
+#: meant transcribing four lines out of the retired code and calling a helper that neither class
+#: exposes as an interface. A benchmark of somebody's implementation measures what that
+#: implementation offers, and this one no longer offers a perimeter. Nothing in the catalogue
+#: named it, so no comparison is lost — only PVBM's own column, and it was PVBM's own column under
+#: a class nobody should still be running. `median_branching_angle` was mapped to the
 #: angle between daughters until a shape showed that it medians *every* pairwise angle at every
 #: junction, the trunk included, and reads ~120° where the daughters are 60° apart. That mapping is
 #: now `None`, which is a finding rather than an omission.
@@ -24,9 +32,6 @@ from upstreams import pvbm as upstream
 PER_CLASS: dict[str, str | None] = {
     "area": "vessel-area-and-length/area/{side}",
     "length": "vessel-area-and-length/skeleton-length/{side}",
-    # The boundary length of a vessel mask. Nothing else in the catalogue computes it, and a name
-    # exists to make two numbers comparable, so it waits for a second implementation to need one.
-    "perimeter": None,
     "median_tortuosity": "tortuosity/hart-tau1/{side}",
     # `GeometryAnalysis` returns this beside the median and PVBM's docstring calls it the
     # "tortuosity index". Its definition is not stated and it is not one of Hart's seven, so it
@@ -117,8 +122,6 @@ def _answers() -> dict[str, str]:
     """
     pairs: dict[str, str] = {}
     for side in CLASSES:
-        # Over `PER_CLASS` rather than over the call tuples, because perimeter comes from a helper
-        # of its own rather than from either of them and would otherwise go undeclared.
         for own, mapped in PER_CLASS.items():
             pairs[mapped.format(side=side) if mapped else f"{own}_{side}"] = f"{own}_{side}"
     for own, mapped in PER_PAIR.items():
@@ -155,9 +158,6 @@ def _calls() -> dict[str, list[str]]:
             where[f"{own}_{side}"] = [f"geometry_{side}"]
         for own in FRACTALS:
             where[f"{own}_{side}"] = [f"fractals_{side}"]
-        # Its own call since `GeometryAnalysis` stopped exposing one: the perimeter can fail, or
-        # succeed, independently of the eight quantities the geometry call returns together.
-        where[f"perimeter_{side}"] = [f"perimeter_{side}"]
     for own, _mapped in PER_PAIR.items():
         # A ratio needs both classes, so it is lost if either call fails.
         sides = (
@@ -293,15 +293,6 @@ class Pvbm:
         found: dict[str, float | None] = {}
         binary = np.asarray(mask, dtype=self.DTYPE)
         x, y, radius = disc
-        try:
-            # The border's length, from the helper both analysis classes call. `GeometryAnalysis`
-            # exposes no perimeter of its own, and the deprecated class is not revived for it.
-            # The second value is the skeletonised **border** — a closed outline with no endpoints
-            # — and is not a centreline whatever its name suggests.
-            perimeter, _border = upstream.perimeter(binary)
-            found[f"perimeter_{side}"] = float(perimeter)
-        except Exception as failure:  # noqa: BLE001
-            self.trouble[f"perimeter_{side}"] = repr(failure)
         try:
             geometry = self._loaded_geometry()
             spine = skeletonize(np.asarray(mask) > 0).astype(self.DTYPE)

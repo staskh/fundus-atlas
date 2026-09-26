@@ -35,40 +35,12 @@ def geometry() -> object:
     return GeometricalVBMs()
 
 
-def perimeter(segmentation):
-    """The vessel border's length, which the new analysis class no longer exposes.
-
-    `GeometricalAnalysis.compute_perimeter` did this in four lines and `GeometryAnalysis` has no
-    equivalent, so those four are **transcribed here** rather than a deprecated class being revived
-    for one number. What they do is worth stating, because the helper's name does not: an eight-
-    neighbour Laplacian marks the mask's border, the border is skeletonised, and
-    `compute_perimeter_` measures *that skeleton's* length. It is a length-of-skeleton routine, not
-    a perimeter routine — handing it the mask itself returns a number an order of magnitude too
-    large, which is what happened here before this was read properly.
-
-    **The copy is required, not defensive.** `compute_perimeter_` walks what it is given and zeroes
-    every pixel it visits, so it returns its input erased. The deprecated wrapper copied for the
-    same reason.
-
-    A test pins this against the values the deprecated class produced, because a transcription that
-    drifts from its original is worse than no transcription at all.
-
-    :return: the perimeter, and the skeletonised **border** — a closed outline with no endpoints,
-        which is not a centreline whatever its variable name suggests.
-    """
-    import numpy as np
-    from scipy.signal import convolve2d
-    from skimage.morphology import skeletonize
-
-    CODE.on_path()
-    from PVBM.helpers.perimeter import compute_perimeter_
-
-    edges = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
-    border = convolve2d(segmentation, edges, mode="same") > 0
-    outline = skeletonize(np.ascontiguousarray(border))
-    length, _ = compute_perimeter_(outline.copy())
-    return length, outline
-
+#: **No perimeter is published here.** `GeometricalAnalysis` had a `compute_perimeter`;
+#: `GeometryAnalysis`, which this atlas measures with, has no equivalent. Offering one anyway meant
+#: transcribing four lines out of the retired class and calling `PVBM.helpers.perimeter`, which
+#: neither class exposes as an interface — so a benchmark reporting it would be reporting a number
+#: this version of PVBM does not produce. The defect that transcription uncovered is still recorded
+#: on `docs/projects/pvbm.md` §8, because it is PVBM's defect and outlives our use of it.
 
 def fractals() -> object:
     """The multifractal dimensions and the singularity length.

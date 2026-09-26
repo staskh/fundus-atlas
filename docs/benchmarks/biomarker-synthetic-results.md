@@ -51,15 +51,15 @@ difference **across a boundary** is two independent readings of the same definit
 
 | | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
-| Biomarkers produced | 32 | 18 | 18 | 54 | 18 | 20 |
+| Biomarkers produced | 30 | 18 | 18 | 54 | 18 | 20 |
 | …matching a canonical name | 20 | 8 | 15 | 17 | 15 | 8 |
 | Comparable measurements | 256 | 240 | 216 | 232 | 216 | **80** |
 | Median disagreement | 3.8% | 2.2% | 3.9% | 6.5% | 5.3% | **0.7%** |
 | Within 25% of the geometry | 88% | 93% | 79% | 91% | **98%** | 90% |
-| Quantities that move when the image turns | **3 / 32** | 8 / 18 | 15 / 18 | 19 / 40 | 10 / 18 | 4 / 20 |
+| Quantities that move when the image turns | **3 / 30** | 8 / 18 | 15 / 18 | 19 / 40 | 10 / 18 | 4 / 20 |
 | Biomarkers disagreeing with the geometry | 5 / 20 | 5 / 8 | 6 / 10 | **2 / 12** | 2 / 10 | 2 / 6 |
 | Exceptions | **32** | 0 | 0 | 0 | 0 | 0 |
-| Seconds per image | **24.5** | 2.1 | 0.8 | 3.6 | **0.4** | 2.6 |
+| Seconds per image | **16.4** | 2.1 | 0.8 | 3.6 | **0.4** | 2.6 |
 
 **Every figure here is taken against a noise floor of 0.01 in biomarker units**, added 2026-09-26.
 A difference smaller than that counts as agreement, and no percentage is divided by anything
@@ -74,9 +74,9 @@ columns are not ranked by them, because the columns are not answering the same q
 twenty. Measuring less, more carefully, is a defensible engineering choice and it is not the
 same achievement as measuring more. Section 7 says what can actually be concluded.
 
-Two figures stand out on their own terms. **PVBM takes about sixty times longer per image than
-AutoMorphClass** — 24.5 seconds against 0.4 — which over a study of fifty thousand photographs is
-about two weeks of compute against six hours. And **PVBM is the only implementation that raised at
+Two figures stand out on their own terms. **PVBM takes about forty times longer per image than
+AutoMorphClass** — 16.4 seconds against 0.4 — which over a study of fifty thousand photographs is
+about nine days of compute against six hours. And **PVBM is the only implementation that raised at
 all**, now thirty-two times rather than sixteen (section 3).
 
 ## 2. What could be compared, and what could not
@@ -113,7 +113,7 @@ far above an ordinary branching vessel.
 only the central retinal equivalents walked the tree recursively, so only they were lost. The
 replacement walks it too, so on those two shapes the whole geometry call now goes with them — eight
 quantities per class rather than one. Those renderings are still *measured*, because the fractal
-analysis and the perimeter come back, but the geometry is gone from them.
+analysis comes back, but the geometry is gone from them.
 
 ### 3.1 PVBM's measuring class changed, and it is not a rename
 
@@ -128,7 +128,7 @@ PVBM ships two classes named `GeometricalVBMs` at the pinned commit. The one in
 | Needs the optic disc | no | **yes** |
 | Finds vessels by | scanning the whole mask | walking each tree from where it leaves the disc |
 | Branching angle | mean, deviation **and** median | median only |
-| Perimeter | yes | **none** — see `docs/projects/pvbm.md` §8 |
+| Perimeter | yes | **none**, so this atlas stopped reporting one |
 
 **Mostly this made PVBM better.** Its junction count was the worst number on the previous version
 of this page — out by 785% and reading 1, 4, 4, 3 across four angles of an unchanged shape. It is
@@ -148,6 +148,13 @@ and the whole geometry call returns zeros — which reads as 100% error against 
 requires otherwise, and is a real property of a disc-anchored measurement rather than a bug. And
 the **mean and standard deviation of the branching angle no longer exist**: the code that produced
 them is the code that was retired.
+
+**The perimeter went too.** `GeometryAnalysis` has no equivalent of the deprecated
+`compute_perimeter`, and the helper both classes call underneath is not an interface either of them
+offers — so measuring one meant transcribing four lines out of the retired code, which is not what
+a benchmark of the current version should report. Nothing in the catalogue named it, so no
+comparison is lost; PVBM produces 30 columns here rather than 32, and runs 8 seconds an image
+faster for it.
 
 **Two mappings were withdrawn — PVBM's and OCULAR's.** The canonical endpoint count means every free end a network has. The
 deprecated class counted those; the replacement calls the end at the disc a *start point*, so its
@@ -318,9 +325,9 @@ measurements with a column of 392 as though they answered the same question. Wha
 - **For breadth, PVBM**, the only implementation that puts twenty canonical biomarkers on the
   table, including the central retinal equivalents and AVR that nothing else here computes. Since
   moving to `GeometryAnalysis` it is also the **steadiest under rotation of any implementation
-  here** — 3 of its 32 quantities move by more than 10%, against 8 of 18 for OCULAR and 15 of 18
-  for AutoMorph — and its junction count is exact. Two caveats remain, both real: it costs 24
-  seconds an image, and it loses its whole geometry block on densely vascularised segmentations
+  here** — 3 of its 30 quantities move by more than 10%, against 8 of 18 for OCULAR and 15 of 18
+  for AutoMorph — and its junction count is exact. Two caveats remain, both real: it costs
+  16 seconds an image, and it loses its whole geometry block on densely vascularised segmentations
   rather than just the equivalents (section 3).
 - **Do not use Grisan density from AutoMorph or AutoMorphalyzer**, which return 0.93 and 1.00 for
   a quantity the geometry puts at nought and move by 400% and 302% when the image is turned.
@@ -366,8 +373,8 @@ to read the date beside a claim rather than the claim alone.
   again on the same machine, against the same pictures, with every measured value coming back
   identical, moved the per-implementation timings by **5% to 40%**. They also fell across the board
   when the Koch curve was redrawn, and again when PVBM changed measuring class. So treat the **ratios**
-  as the finding — PVBM is sixty-odd times AutoMorphClass, on any run — and treat a figure like
-  "24 seconds an image" as describing this machine on one afternoon, against this fixture, rather
+  as the finding — PVBM is forty-odd times AutoMorphClass, on any run — and treat a figure like
+  "16 seconds an image" as describing this machine on one afternoon, against this fixture, rather
   than the program.
 
 ---

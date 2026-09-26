@@ -108,8 +108,10 @@ sizes without a resolution conversion of the user's own.
   to get a perimeter, since the replacement class exposes none — gets an emptied array back with no
   error and no warning. A caller who then measures anything else from the same array gets an area
   of zero and a fractal analysis that fails an assertion, which is how this was found here. Not
-  reported upstream by this atlas as of 2026-09-26. This repository passes a copy, in
-  `src/upstreams/pvbm.py`.
+  reported upstream by this atlas as of 2026-09-26. This repository no longer calls it: measuring a
+  perimeter under `GeometryAnalysis` meant transcribing four lines out of the retired class, and
+  that is not what a benchmark of the current code should be reporting. The defect is recorded here
+  because it is PVBM's and outlives our use of it.
 
 ### 8.1 Two classes called `GeometricalVBMs`, one of them deprecated
 
@@ -128,8 +130,13 @@ changes is worth listing because it changes the evidence:
 | Needs the optic disc | no | **yes** — centre and radius |
 | How it finds vessels | over the whole mask | walks each tree from where it leaves the disc |
 | Branching angle | mean, standard deviation **and** median | median only |
-| Perimeter | `compute_perimeter` | **none** — see the defect above |
+| Perimeter | `compute_perimeter` | **none** — so this atlas stopped reporting one |
 | New quantities | — | a tortuosity index, and a count of start points |
+
+**The perimeter went with it.** It has no equivalent in the replacement, and the helper both
+classes call is not an interface either offers, so from 2026-09-26 this atlas reports no perimeter
+for PVBM. Nothing in the catalogue named it, so no comparison is lost — the column was PVBM's own,
+under a class nobody should still be running.
 
 Two consequences for anyone reading numbers from this atlas. **A class whose vessels do not reach
 the optic disc now measures as zero** rather than being measured where it lies — there are no
