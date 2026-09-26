@@ -187,10 +187,59 @@ explicit about before any number is written into code:
   **They fix the method, not the number.** What window suits real arterioles has to be measured on
   real arterioles, and this plan should not pretend otherwise.
 
+### 3.4 At a 10% tolerance there is no common window, and that is the finding
+
+**Fact, measured.** 3.3 asked how long the window should be for one metric. Asking it for **all
+seven at once**, against their theoretical values, on `straight`, `arc` and `sinusoid` at 1024,
+2048 and 4096 px — 45 (shape, grid, metric) cases with a non-zero theoretical value — gives a
+different answer: there is no such window.
+
+Each metric alone, at its best window, worst case over every shape and grid:
+
+| Metric | Units | Best achievable | At window | Reaches 10% at |
+| --- | --- | --- | --- | --- |
+| τ1 | 1 | **0.4%** | 40 µm | 40–549 µm |
+| τ2 | 1 | **5.0%** | 338 µm | 307–431 µm |
+| τ6 | 1/L | **1.9%** | 577 µm | 391–700 µm |
+| τ4 | 1/L | **1.4%** | 771 µm | 667–892 µm |
+| τ3 | 1/L | 25.3% | 498 µm | **never** |
+| τ7 | 1/L² | 23.2% | 635 µm | **never** |
+| τ5 | 1/L² | 22.3% | 667 µm | **never** |
+
+And the best compromise window for each group:
+
+| Group | Best worst-case | At | Common 10% window |
+| --- | --- | --- | --- |
+| All seven | 34.5% | 577 µm | **none** |
+| The four that individually reach 10% | 14.1% | 391 µm | **none** |
+| The 1/L group — τ3, τ4, τ6 | 25.3% | 498 µm | **none** |
+| τ1 + τ4 | 11.2% | 635 µm | **none** |
+| **τ1 + τ2 — the dimensionless pair** | **5.4%** | 338 µm | **307–431 µm** |
+
+Three conclusions, and they point the same way:
+
+- **The only group with a common window is the dimensionless pair.** τ1 and τ2 agree within 10%
+  anywhere from 307 to 431 µm. Every group containing a dimensioned metric has an empty band. *The
+  measurements that need no unit conversion are also the only ones a single smoothing choice can
+  pin down*, which is a tidier result than it has any right to be.
+- **τ2 and τ4 want incompatible windows** — 307–431 µm against 667–892 µm — although they differ
+  only by a division by arc length. That is not an estimator artefact: smoothing shortens the
+  measured arc length too, so in τ4 the error in ∫κ ds is partly cancelled by the error in `s`,
+  and the two quantities are optimal at different places. Nothing can reconcile them.
+- **The squared-curvature metrics never reach 10%** — τ3, τ5 and τ7 bottom out at 22–25%. Squaring
+  squares the estimation error, and no window recovers it.
+
+**What this is evidence about.** One estimator — a boxcar smoother and finite differences — on two
+curved synthetic shapes. A spline-based estimator will do better, and the plan should not conclude
+that τ3, τ5 and τ7 are unmeasurable in principle. What it can conclude is that **a single declared
+window is not enough to make the τ family comparable**, because the requirement is not one number
+but a different number per metric, and two of them conflict outright. If the vocabulary is going to
+carry an estimation scale (section 5), that scale belongs **per name, not per implementation**.
+
 Both tables above come from a one-off script rather than from anything committed, which is a
 weakness in this document: nobody can re-run them. Section 8 makes turning them into a test part of
 the work, because a claim about comparability that cannot be re-checked is the kind of claim this
-repository exists to distrust. The same applies to 3.3.
+repository exists to distrust. The same applies to 3.3 and 3.4.
 
 Two findings fall out of the same experiment:
 
