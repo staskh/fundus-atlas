@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "sinusoid",
-  "fingerprint": "a2b43344b2955627ead3b6d70dd768cc447a74c6ea46800dbe8b4aa1195f3471",
+  "fingerprint": "d942c0e4c3cf7770d62b8ba6906692e349f863eac609edd79eee86af82a8a46a",
   "model": "automorphalyzer",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 4,
     "renderings": 4,
-    "seconds_per_photograph": 3.137,
-    "seconds_per_rendering": 3.137,
+    "seconds_per_photograph": 3.34575,
+    "seconds_per_rendering": 3.34575,
     "side": 2048,
     "timed_photographs": 4,
     "total": 4,

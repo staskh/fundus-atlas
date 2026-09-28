@@ -59,18 +59,23 @@ def test_it_translates_its_own_columns_onto_catalogued_names() -> None:
 def test_a_column_the_catalogue_cannot_name_is_still_measured() -> None:
     """A quantity without a catalogued name is a gap in the catalogue, not a thing to throw away.
 
-    PVBM's perimeter, its singularity length and the mean and spread of its branching angles have
-    no catalogued name yet. Dropping them would make the benchmark quietly measure less than the
-    implementation computes, and would hide what the catalogue is missing.
+    PVBM's singularity length, its tortuosity index and its count of start points have no catalogued
+    name yet. Dropping them would make the benchmark quietly measure less than the implementation
+    computes, and would hide what the catalogue is missing.
+
+    **The distinction this guards is between "unnamed" and "not computed".** The perimeter used to
+    be in this list and is not, because `GeometryAnalysis` does not compute one — which is a reason
+    to stop reporting a column, where having no catalogued name for it never was.
     """
     adapter = an_adapter()
     shape = library.build("straight", side=SIDE)
 
     measured = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
 
-    for own in ("perimeter_artery", "singularity_length_artery", "std_branching_angle_artery"):
+    for own in ("singularity_length_artery", "tortuosity_index_artery", "start_points_artery"):
         assert own in measured, f"{own} was not kept"
-    assert measured["perimeter_artery"] is not None, "and it was actually measured"
+        assert measured[own] is not None, f"{own} was kept but never measured"
+    assert "perimeter_artery" not in measured, "GeometryAnalysis computes no perimeter"
 
 
 def test_a_class_it_was_not_given_comes_back_as_nothing() -> None:

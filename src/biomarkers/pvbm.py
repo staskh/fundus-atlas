@@ -1,6 +1,8 @@
 # ABOUTME: PVBM's measuring code, reached from this repository: one call per class, and the table
 # ABOUTME: saying which catalogued biomarker each of its columns answers to.
 
+import sys
+
 import numpy as np
 from skimage.morphology import skeletonize
 
@@ -10,7 +12,18 @@ from upstreams import pvbm as upstream
 #: answers to. `{side}` is filled with `artery` or `vein`.
 #:
 #: **Every row is a claim** about what somebody else's code computes — usually read out of its
-#: source — and the synthetic shapes are what test it. `median_branching_angle` was mapped to the
+#: source — and the synthetic shapes are what test it. The rows come from `GeometryAnalysis`, which
+#: replaced the deprecated `GeometricalAnalysis` here: that dropped the mean and the standard
+#: deviation of the branching angle, which no longer exist to measure, and added a tortuosity index
+#: and a count of start points, which do.
+#:
+#: **The perimeter is gone with them.** It was never `GeometryAnalysis`'s to give: the deprecated
+#: class had a `compute_perimeter` and its replacement has no equivalent, so measuring one here
+#: meant transcribing four lines out of the retired code and calling a helper that neither class
+#: exposes as an interface. A benchmark of somebody's implementation measures what that
+#: implementation offers, and this one no longer offers a perimeter. Nothing in the catalogue
+#: named it, so no comparison is lost — only PVBM's own column, and it was PVBM's own column under
+#: a class nobody should still be running. `median_branching_angle` was mapped to the
 #: angle between daughters until a shape showed that it medians *every* pairwise angle at every
 #: junction, the trunk included, and reads ~120° where the daughters are 60° apart. That mapping is
 #: now `None`, which is a finding rather than an omission.
@@ -21,18 +34,26 @@ from upstreams import pvbm as upstream
 PER_CLASS: dict[str, str | None] = {
     "area": "vessel-area-and-length/area/{side}",
     "length": "vessel-area-and-length/skeleton-length/{side}",
-    # The boundary length of a vessel mask. Nothing else in the catalogue computes it, and a name
-    # exists to make two numbers comparable, so it waits for a second implementation to need one.
-    "perimeter": None,
     "median_tortuosity": "tortuosity/hart-tau1/{side}",
-    # All three come back from one call. PVBM's own docstring names the mean and the median and
-    # omits the standard deviation, which it returns between them.
-    "mean_branching_angle": None,
-    "std_branching_angle": None,
+    # `GeometryAnalysis` returns this beside the median and PVBM's docstring calls it the
+    # "tortuosity index". Its definition is not stated and it is not one of Hart's seven, so it
+    # waits for a reading of the code rather than being mapped on the strength of its name.
+    "tortuosity_index": None,
     # *Our finding, 2026-09-20, from reading `compute_angles_dictionary`:* not the angle between
     # the daughters of a bifurcation. See the note above.
     "median_branching_angle": None,
-    "endpoints": "junction-counts/endpoints/{side}",
+    # Where the walk starts: one per vessel leaving the optic disc. A count of trunks rather than
+    # of branch points, which nothing in the catalogue names.
+    "start_points": None,
+    # *Our finding, 2026-09-26:* **mapped to the catalogued endpoint count until `GeometryAnalysis`
+    # replaced `GeometricalAnalysis`, and withdrawn now.** The canonical name means every free end
+    # the network has. The deprecated class counted those; the new one walks each tree from the
+    # optic disc and calls the origin a *start point*, so `endpoints` is now the free ends
+    # **excluding** the one it started from — a straight vessel reads 1 where the geometry requires
+    # 2, and `endpoints + start_points` is what answers the catalogued question. Summing them here
+    # would repair the comparison at the cost of reporting a number PVBM never returned, so the
+    # mapping is withdrawn rather than patched, and the two columns are kept under its own names.
+    "endpoints": None,
     "intersections": "junction-counts/junctions/{side}",
     # PVBM's three dimensions are of the multifractal analysis, not the plain box count, which is
     # why they map to the multifractal names and not to `fractal-dimension/box-counting`.
@@ -71,6 +92,20 @@ GEOMETRY = (
     "endpoints",
     "intersections",
 )
+#: The order `GeometryAnalysis.compute_geomVBMs` returns its list in, from PVBM's own docstring.
+#: One call replaces the five the deprecated class needed, so the order *is* the interface and a
+#: silent change to it would be unnoticeable — which is why `zip` below is strict.
+GEOMETRY = (
+    "area",
+    "tortuosity_index",
+    "median_tortuosity",
+    "length",
+    "median_branching_angle",
+    "start_points",
+    "endpoints",
+    "intersections",
+)
+
 FRACTALS = (
     "capacity_dimension",
     "entropy_dimension",
@@ -89,8 +124,7 @@ def _answers() -> dict[str, str]:
     """
     pairs: dict[str, str] = {}
     for side in CLASSES:
-        for own in GEOMETRY + FRACTALS:
-            mapped = PER_CLASS[own]
+        for own, mapped in PER_CLASS.items():
             pairs[mapped.format(side=side) if mapped else f"{own}_{side}"] = f"{own}_{side}"
     for own, mapped in PER_PAIR.items():
         pairs[mapped or own] = own
@@ -176,6 +210,23 @@ class Pvbm:
     #: hand it.
     DTYPE = np.float64
 
+    #: How deep Python is allowed to recurse while PVBM measures.
+    #:
+    #: `GeometryAnalysis` walks each vessel tree with mutual recursion — `recursive_subgraph` and
+    #: `TreeReg.recursive_reg` — one frame per skeleton pixel, so the depth it needs is a function
+    #: of how much vessel there is. At CPython's default of 1000 it raises on the two densest
+    #: shapes here and loses the whole geometry call, eight quantities per class.
+    #:
+    #: **5000 is OCULAR's number, not one chosen here.** OCULAR's fork sets exactly this at module
+    #: import, and the two are measured side by side — so running PVBM at the default while its
+    #: fork runs at 5000 would report a difference in Python settings as a difference between the
+    #: programs. It clears both shapes, at 17-20 seconds each rather than an immediate failure.
+    #:
+    #: It is **declared and fingerprinted**, because it changes what comes back: raising it turns
+    #: thirty-two exceptions into measurements, and a stored score taken at another limit is not
+    #: the same measurement.
+    RECURSION_LIMIT = 5000
+
     def __init__(self, device: str | None = None) -> None:
         self.device = "cpu"
         #: What went wrong during the last call, by where, so a run can record it rather than
@@ -198,6 +249,9 @@ class Pvbm:
             # Which call each column comes out of, so a run's `note` can be attributed to the
             # columns it actually cost rather than to every column of that rendering.
             "calls": {name: list(calls) for name, calls in CALLS.items()},
+            # Declared as a number rather than described in a sentence, because it changes what
+            # comes back and a benchmark fingerprints the numbers a declaration carries.
+            "recursion": self.RECURSION_LIMIT,
             "units": {
                 "vessel-area-and-length/area/artery": "px²",
                 "vessel-area-and-length/skeleton-length/artery": "px",
@@ -237,46 +291,59 @@ class Pvbm:
         The measuring is done under PVBM's own names and translated once, here, so that what is
         computed and what it is called stay separable: a mapping that turns out to be wrong is
         corrected in the table above without touching a line of the measuring.
+
+        The recursion limit is raised for the duration and **put back afterwards**. It is a
+        property of the interpreter rather than of this adapter, so leaving it raised would change
+        how every implementation measured after PVBM in the same run — which is a way of making a
+        benchmark depend on the order its subjects happen to run in.
         """
         self.trouble = {}
+        previous = sys.getrecursionlimit()
+        sys.setrecursionlimit(max(previous, self.RECURSION_LIMIT))
+        try:
+            return self._measure(artery, vein, disc, um_per_px)
+        finally:
+            sys.setrecursionlimit(previous)
+
+    def _measure(
+        self,
+        artery: np.ndarray | None,
+        vein: np.ndarray | None,
+        disc: tuple[float, float, float],
+        um_per_px: float | None,
+    ) -> dict[str, float | None]:
+        """The measuring itself, with the recursion limit already raised around it."""
         computed: dict[str, float | None] = dict.fromkeys(ANSWERS.values())
         for side, mask in (("artery", artery), ("vein", vein)):
             if mask is None or not mask.any():
                 continue
-            computed.update(self._per_class(mask, side))
+            computed.update(self._per_class(mask, side, disc))
         computed.update(self._per_pair(artery, vein, disc, um_per_px))
         return {own: computed.get(own) for own in CANONICAL}
 
-    def _per_class(self, mask: np.ndarray, side: str) -> dict[str, float | None]:
-        """The measurements PVBM takes over one class at a time."""
+    def _per_class(
+        self, mask: np.ndarray, side: str, disc: tuple[float, float, float]
+    ) -> dict[str, float | None]:
+        """The measurements PVBM takes over one class at a time.
+
+        `GeometryAnalysis` needs the **optic disc**, which `GeometricalAnalysis` did not: it finds
+        the vessels leaving the disc and walks each tree from there, so everything below comes back
+        from one call rather than five. A class whose vessels do not reach the disc therefore has
+        no trunks to walk and answers with zeros — which is a real property of the measurement and
+        not a failure, so it is recorded as measured.
+        """
         found: dict[str, float | None] = {}
         binary = np.asarray(mask, dtype=self.DTYPE)
+        x, y, radius = disc
         try:
             geometry = self._loaded_geometry()
-            # `compute_perimeter` returns a second value it calls `segmentation_skeleton`, and it
-            # is **not** a centreline: it skeletonises the vessel's *border*, so it is a closed
-            # outline with no endpoints at all. Feeding it to the tortuosity call — which the name
-            # invites — yields a median of nan and a length of zero, because the walk looks for
-            # endpoints and junctions and a loop has neither. The centreline is taken here, which
-            # is what every one of PVBM's own docstrings asks for.
-            perimeter, _border = geometry.compute_perimeter(binary)
-            found[f"perimeter_{side}"] = float(perimeter)
             spine = skeletonize(np.asarray(mask) > 0).astype(self.DTYPE)
-            found[f"area_{side}"] = float(geometry.area(binary))
-            median_tortuosity, length, _chord, _arc, _connections = (
-                geometry.compute_tortuosity_length(spine)
+            measured, _plots = geometry.compute_geomVBMs(
+                binary, spine, int(round(x)), int(round(y)), int(round(radius))
             )
-            found[f"median_tortuosity_{side}"] = _number(median_tortuosity)
-            found[f"length_{side}"] = _number(length)
-            endpoints, intersections, _ends, _inters = geometry.compute_particular_points(spine)
-            found[f"endpoints_{side}"] = _number(endpoints)
-            found[f"intersections_{side}"] = _number(intersections)
-            mean_angle, spread, median_angle, _angles, _centroid = (
-                geometry.compute_branching_angles(spine)
-            )
-            found[f"mean_branching_angle_{side}"] = _number(mean_angle)
-            found[f"std_branching_angle_{side}"] = _number(spread)
-            found[f"median_branching_angle_{side}"] = _number(median_angle)
+            # The order PVBM's own docstring gives for the list it returns.
+            for name, value in zip(GEOMETRY, measured, strict=True):
+                found[f"{name}_{side}"] = _number(value)
         except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
             # Recorded rather than swallowed. Silence here once made an adapter's own bug look
             # like PVBM declining to answer, which is the most expensive kind of quiet there is.

@@ -74,7 +74,12 @@ UM_PER_PX = 5.0
 ROTATIONS = (0.0, 30.0, 60.0, 90.0)
 
 #: What an implementation declares that could change its numbers.
-FINGERPRINTED = ("slug", "needs", "keys", "units")
+#: The declared facts that change what an implementation returns, and so decide whether a stored
+#: result still describes anything. `recursion` is here because PVBM's geometry walks a vessel tree
+#: with one Python frame per skeleton pixel: at one limit it raises on the densest shapes and at
+#: another it measures them, and those are not the same measurement. An implementation that
+#: declares no such number simply has none.
+FINGERPRINTED = ("slug", "needs", "keys", "units", "recursion")
 
 
 def implementations(slugs: list[str]) -> tuple[list, dict[str, str]]:

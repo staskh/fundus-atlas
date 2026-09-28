@@ -95,8 +95,7 @@ def _build(directory: Path) -> None:
         (directory / "atlas-build.log").write_text(finished.stdout + finished.stderr)
         if finished.returncode != 0:
             raise RuntimeError(
-                f"building Betti matching failed: {' '.join(command)}\n"
-                f"{finished.stderr[-2000:]}"
+                f"building Betti matching failed: {' '.join(command)}\n{finished.stderr[-2000:]}"
             )
 
 

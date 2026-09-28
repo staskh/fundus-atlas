@@ -39,7 +39,7 @@ name rather than dropped.
 <!-- generated: subjects -->
 | Implementation | Pinned at | Columns it returns | Took part |
 | --- | --- | --- | --- |
-| [pvbm](../projects/pvbm.md) | `5edb79a` | 32 | yes |
+| [pvbm](../projects/pvbm.md) | `5edb79a` | 30 | yes |
 | [ocular](../projects/ocularnet.md) | `34b1ecc` | 18 | yes |
 | [automorph](../projects/automorph.md) | `9a953e5` | 18 | yes |
 | [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 54 | yes |
@@ -118,7 +118,7 @@ A stored result is kept only while everything it depends on is unchanged. This b
 
 - this benchmark's name and `VERSION`
 - a sha256 of the masks this shape is drawn as, so a redrawing re-measures it
-- the facts each implementation declares that bear on its numbers: slug, needs, keys, units
+- the facts each implementation declares that bear on its numbers: slug, needs, keys, units, recursion
 - the pinned commit of the code that will run, as the adapter reports it
 - the rendering: a 2048px grid at 5 µm per pixel, drawn at 0°, 30°, 60°, 90°
 

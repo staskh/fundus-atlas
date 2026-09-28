@@ -34,7 +34,12 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
     ("median_branching_angle", None),
     # Where the walk began, which need not be one per connected component.
     ("start_points", None),
-    ("endpoints", "junction-counts/endpoints/{side}"),
+    # *Our finding, 2026-09-26:* **withdrawn**, for the same reason as PVBM's. OCULAR is a fork of
+    # `GeometryAnalysis`, which walks each tree from the optic disc and calls the origin a *start
+    # point*, so `endpoints` counts the free ends **excluding** that one: a straight vessel reads 1
+    # where the geometry requires 2, and `endpoints + start_points` is what answers the catalogued
+    # question. Kept under OCULAR's own name rather than summed into a number it never returned.
+    ("endpoints", None),
     ("intersections", "junction-counts/junctions/{side}"),
 )
 
@@ -71,9 +76,14 @@ CANONICAL: dict[str, str | None] = {
 class Ocular:
     """OCULAR's geometry, run as it ships.
 
-    Its `utils/GeometricalVBMs.py` is a modified copy of PVBM's `CREVBMs`, and it imports PVBM's
-    tortuosity, perimeter and branching-angle helpers at runtime — so this adapter measures PVBM's
-    code as OCULAR changed it, which is exactly the comparison the two pages are for.
+    Its `utils/GeometricalVBMs.py` is a modified copy of **PVBM's `GeometryAnalysis.GeometricalVBMs`**
+    — 343 of its 486 lines are identical, and it carries the same five methods — and it imports
+    PVBM's tortuosity, perimeter and branching-angle helpers at runtime. So this adapter measures
+    PVBM's code as OCULAR changed it, which is exactly the comparison the two pages are for.
+
+    *Corrected 2026-09-26: this said `CREVBMs`, which is the class OCULAR's **equivalents** file
+    forks. The geometry file forks the geometry class, and it forks the current one rather than the
+    deprecated `GeometricalAnalysis`.*
 
     Everything is in **pixels**; no scale is taken and none is applied.
     """

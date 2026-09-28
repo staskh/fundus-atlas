@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "koch",
-  "fingerprint": "48632f9bb356b11b33eb43098f048d1bd3310d6d76763d77c1fe7f8b7d59c1ee",
+  "fingerprint": "00271bdb45a271f514d7f668a2caca61dee87fad5f84217ecd8aa33193e79e8d",
   "model": "automorphclass",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 4,
     "renderings": 4,
-    "seconds_per_photograph": 0.3715,
-    "seconds_per_rendering": 0.3715,
+    "seconds_per_photograph": 0.42425,
+    "seconds_per_rendering": 0.42425,
     "side": 2048,
     "timed_photographs": 4,
     "total": 4,
