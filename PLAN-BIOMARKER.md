@@ -19,7 +19,7 @@ definitions nobody has pinned down.
 | 2 | What every canonical biomarker must carry |
 | 3 | How the existing implementations map onto it |
 | 4 | What an implementation of one has to get right |
-| 5 | Whether we write a reference implementation, and where it lives |
+| 5 | The reference implementation: what it is for, and what may not cross into this repository |
 
 ---
 
@@ -312,55 +312,97 @@ is not mistaken for one taken at another.
 
 ## 5. `fundus-biomarkers` — a reference implementation
 
-### 5.1 What it would be for
+**Decided, 2026-09-29.** It exists, it is **proprietary**, and it lives at
+`git@github.com:PhenoAI/fundus-biomarkers.git`. Four decisions settle what that means here.
+
+### 5.1 What it is for
 
 Chapters 2 and 4 describe biomarkers precisely enough to implement. A reference implementation is
 what turns that description into something testable: **the definition, executable**, against which a
-catalogued project's answer is a measurable distance rather than a matter of reading its source.
+catalogued project's answer is a measurable distance rather than a matter of reading its source. It
+also settles chapter 3's conversion rules in the only way that really settles them, by being the
+thing both sides convert *to*.
 
-It would also settle chapter 3's conversion rules in the only way that really settles them, by
-being the thing both sides convert *to*.
+### 5.2 The scope boundary holds, because nothing is shipped from here
 
-### 5.2 It conflicts with `CLAUDE.md` §2.1, and that has to be resolved first
+`CLAUDE.md` §2.1 rules out *"shipping another segmentation model, biomarker calculation, or
+pipeline"* without exception, and this plan previously raised that as blocking. It is resolved
+without amending anything: **the library is a separate repository that this atlas catalogues and
+benchmarks like any other project.** An adapter in `src/biomarkers/`, a page in `docs/projects/`, a
+column in the results table beside PVBM and VascX, and no special standing anywhere.
 
-**Open, and blocking.** The repository's scope boundary says, without exception:
+That is the more honest design as well as the compliant one. Our implementation is measured by the
+same benchmark, on the same shapes, against the same derived ground truth, with the same
+tolerances — and an implementation that marks its own homework is worth very little.
 
-> **2.1** Shipping another segmentation model, biomarker calculation, or pipeline. The projects
-> catalogued here are cited, not vendored and not replaced.
+### 5.3 Definitions flow one way
 
-A library of our own biomarker calculations is exactly that. §2 also says to stop and raise it
-rather than work around it, which is what this section is.
+**The public atlas is the source of truth for what a biomarker is; the private library implements
+it.** Names, definitions, units, the papers, the region rule and the estimation requirements are all
+decided here, in the open, and consumed there.
 
-Three ways out, and the choice changes what gets built:
+The rule that keeps that from eroding: **a definition that exists only in the private library is a
+definition that does not exist.** If implementing something reveals that the definition is
+ambiguous — and chapter 4 suggests it will, repeatedly — the fix belongs in this repository, where
+anybody can read it and disagree with it.
 
-1. **A separate repository**, `fundus-biomarkers`, which this atlas **catalogues and benchmarks
-   like any other project** — an adapter in `src/biomarkers/`, a page in `docs/projects/`, a column
-   in the results table beside PVBM and VascX. `CLAUDE.md` §2.1 stays exactly as written, because
-   nothing is shipped from here.
-2. **Amend §2.1** to permit a reference implementation of the canonical definitions, distinguishing
-   it from re-implementing somebody else's pipeline.
-3. **Do not build it.** Keep the definitions as prose and let the synthetic shapes be the only
-   executable statement of what a biomarker should return.
+### 5.4 Nothing proprietary enters this repository
 
-**My reading is (1), and not only because it preserves the boundary.** It is the more honest design:
-our implementation gets measured by the same benchmark, on the same shapes, with the same tolerances
-as everybody else's, and appears in the same table with no special standing. An implementation that
-marks its own homework is worth very little, and this repository's whole method is that the
-measurement is independent of the thing measured. (3) is a real option and should not be dismissed —
-the synthetic shapes with their derived ground truth already *are* an executable definition, and
-they cannot be wrong in the way a library can.
+No algorithm, no constant, no source. What may appear here is what appears for any catalogued
+project: that it exists, what it claims to compute, the commit a result is attributable to, and what
+it measured.
 
-### 5.3 What it must do, if it is built
+Two mechanisms keep that true rather than merely intended:
 
-**Open**, pending 5.2. Sketch only:
+- **It is cloned, never installed.** `source.Checkout` against the SSH remote, into the git-ignored
+  `.atlas_code/`, per `add-upstream` §2. It is deliberately **not** a dependency in
+  `pyproject.toml`, so the private code never enters the public dependency graph and a clone of this
+  repository without access to that remote is a repository that cannot run one benchmark column —
+  which is the honest failure rather than a confusing one.
+- **What the adapter declares is a digest, not the constants.** See 5.5, which is the part of this
+  that is not yet solved.
 
-- Implement each canonical entry **to its published definition**, citing the paper in the code.
+### 5.5 The fingerprint problem, and the proposed way round it
+
+**Open.** `add-model` §7.4 and `build-benchmark` §5 both require that *every number an adapter acts
+on is declared as a number*, because a constant that changes a result and is not fingerprinted is
+one a stale score can outlive. Chapter 4 is the argument for that rule at its strongest: the
+estimator and its scale move τ3 by a factor of eighteen, and PVBM's recursion limit turned 32
+exceptions into measurements.
+
+**Those are exactly the constants a proprietary library would not publish.** So the fingerprint has
+a hole precisely where it matters most.
+
+Proposed: the library exposes a **configuration digest** — a hash over everything it acts on,
+computed inside the library — which the adapter declares and the benchmark fingerprints in place of
+the values. Any change to any constant changes the digest and invalidates the stored scores, which
+is the whole guarantee the rule exists for, and nothing is published. It costs one thing worth
+naming: a reader can see *that* the configuration changed and not *what* changed, so the results
+page must carry the digest and say which runs share it.
+
+### 5.6 Two things to decide before the first run lands
+
+**Open**, and both are Stas's call rather than mine.
+
+- **A results column nobody outside can reproduce.** Every other column in this benchmark can be
+  checked by anyone who downloads the code. This one cannot. That is not a reason to leave it out —
+  the atlas already catalogues datasets behind signed agreements — but it **is** a fact that changes
+  how the column should be read, in the way a contamination mark is. It should be marked on the
+  project page, in the results page, and in the index, and the atlas must never present that column
+  as independently verified.
+- **Whether the per-image evidence is published at all.** `results/` is committed and public, and
+  for this column it would be the library's exact output on 36 renderings for every biomarker it
+  computes. That is a great deal of information about an algorithm's behaviour. Publishing it is
+  consistent with everything else here; withholding it while publishing the summary is defensible
+  and would be the first exception to `build-benchmark` §6. Decide before the first run, not after.
+
+### 5.7 What it must do
+
+- Implement each canonical entry **to the definition in this repository**, citing the paper.
 - Take a physical scale and refuse to guess one.
-- Declare its estimator and scale per 4.2, and make both settable.
-- Be measured by the synthetic benchmark **before** anybody's results are compared against it.
+- Declare its estimator and how its scale is set, per 4.2, and expose the digest of 5.5.
 - Carry no segmentation model: masks in, numbers out.
-
----
+- Be measured by the synthetic benchmark **before** anybody's results are compared against it.
 
 ## 6. Open decisions
 
@@ -374,7 +416,10 @@ they cannot be wrong in the way a library can.
   be clutter. A rule is needed, not a case-by-case purge.
 - **6.4 How tightly does a definition constrain tracing** (4.1)? A definition that leaves the
   centreline open is not a definition; one that fixes it forbids a better skeletoniser.
-- **6.5 Does `fundus-biomarkers` exist, and where** (5.2)? Blocking for chapter 5 and nothing else.
+- **6.5 How a proprietary library is fingerprinted** (5.5). The configuration-digest proposal keeps
+  the guarantee without publishing the constants; it needs the library to cooperate.
+- **6.6 Is the per-image evidence published for that column** (5.6)? And how the column is marked so
+  that nobody reads it as independently verified.
 
 ## 7. Order of work
 
@@ -398,4 +443,4 @@ which is a weakness in this document: nobody can re-run them. Step 4 is where th
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29.
