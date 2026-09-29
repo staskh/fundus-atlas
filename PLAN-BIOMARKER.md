@@ -357,8 +357,8 @@ Two mechanisms keep that true rather than merely intended:
 - **It is cloned, never installed.** `source.Checkout` against the SSH remote, into the git-ignored
   `.atlas_code/`, per `add-upstream` §2. It is deliberately **not** a dependency in
   `pyproject.toml`, so the private code never enters the public dependency graph and a clone of this
-  repository without access to that remote is a repository that cannot run one benchmark column —
-  which is the honest failure rather than a confusing one.
+  repository without access to that remote is a repository that cannot **re-run** one benchmark
+  column — though it can read every number that column produced, per 5.6.
 - **What the adapter declares is a digest, not the constants.** See 5.5, which is the part of this
   that is not yet solved.
 
@@ -380,21 +380,29 @@ is the whole guarantee the rule exists for, and nothing is published. It costs o
 naming: a reader can see *that* the configuration changed and not *what* changed, so the results
 page must carry the digest and say which runs share it.
 
-### 5.6 Two things to decide before the first run lands
+### 5.6 The results are published in full, like everybody else's
 
-**Open**, and both are Stas's call rather than mine.
+**Decided, 2026-09-29.** The **implementation** is private; the **measurements are not**. The
+per-image evidence goes into `results/biomarker-synthetic/fundus-biomarkers/` exactly as every
+other implementation's does, the column sits in the same tables, and the comparison against PVBM,
+OCULAR, the three AutoMorph projects and VascX is the point of measuring it at all. No exception to
+`build-benchmark` §6 is needed and none is taken.
 
-- **A results column nobody outside can reproduce.** Every other column in this benchmark can be
-  checked by anyone who downloads the code. This one cannot. That is not a reason to leave it out —
-  the atlas already catalogues datasets behind signed agreements — but it **is** a fact that changes
-  how the column should be read, in the way a contamination mark is. It should be marked on the
-  project page, in the results page, and in the index, and the atlas must never present that column
-  as independently verified.
-- **Whether the per-image evidence is published at all.** `results/` is committed and public, and
-  for this column it would be the library's exact output on 36 renderings for every biomarker it
-  computes. That is a great deal of information about an algorithm's behaviour. Publishing it is
-  consistent with everything else here; withholding it while publishing the summary is defensible
-  and would be the first exception to `build-benchmark` §6. Decide before the first run, not after.
+That is the arrangement to aim for and not a concession: a proprietary implementation whose numbers
+nobody may see is a claim, and one whose every number is on the table alongside its competitors' is
+a measurement.
+
+**One fact still needs stating on the page, and it is narrower than "unreproducible".** A reader can
+check every number we publish, every comparison drawn from it and every conclusion on the results
+page — all of that is as open as the rest. What they cannot do without access to the remote is
+**re-derive the measurements from the masks**, because they cannot run the library. So the column
+is marked the way access restrictions are marked elsewhere in this atlas — several catalogued
+datasets need a signed agreement and several model weights need registration — and for the same
+reason: it tells a reader what they would need in order to check it themselves, and nothing more.
+
+What the atlas must not do is present that column as **independently verified** when the
+verification and the implementation share an owner. That is not about disclosure, which is total;
+it is the same rule that makes this repository refuse to let a model mark its own homework.
 
 ### 5.7 What it must do
 
@@ -418,8 +426,10 @@ page must carry the digest and say which runs share it.
   centreline open is not a definition; one that fixes it forbids a better skeletoniser.
 - **6.5 How a proprietary library is fingerprinted** (5.5). The configuration-digest proposal keeps
   the guarantee without publishing the constants; it needs the library to cooperate.
-- **6.6 Is the per-image evidence published for that column** (5.6)? And how the column is marked so
-  that nobody reads it as independently verified.
+- ~~**6.6 Is the per-image evidence published for that column?**~~ **Decided 2026-09-29: yes, in
+  full, in the same tables as everybody else** (5.6). What remains is wording, not policy — the
+  column says what access a reader needs to re-run it, and the atlas never calls it independently
+  verified.
 
 ## 7. Order of work
 
