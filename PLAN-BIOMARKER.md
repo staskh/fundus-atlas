@@ -64,56 +64,98 @@ who decides. The same rule tells us when a family is needed rather than an entry
 
 ### 2.1 The name
 
-**Decided.** Four parts:
+**Decided.** Five parts, the last two optional:
 
 ```
-family / biomarker / structure / [statistic]
+family / biomarker / structure / [roi] / [statistic]
 ```
 
-| Part | What it is | Examples |
-| --- | --- | --- |
-| `family` | the page in `docs/biomarkers/`, the kind of thing being measured | `tortuosity`, `vessel-calibre`, `fractal-dimension` |
-| `biomarker` | **the definition, not the word** — which formula | `hart-tau1`, `grisan-density`, `knudtson` |
-| `structure` | what it was measured over | `artery`, `vein`, `vessels`, `both` |
-| `statistic` | *optional* — how per-segment values were pooled | `mean`, `median`, `std`, `length-weighted` |
+| Part | What it is | Examples | Default |
+| --- | --- | --- | --- |
+| `family` | the page in `docs/biomarkers/`, the kind of thing measured | `tortuosity`, `vessel-calibre` | required |
+| `biomarker` | **the definition, not the word** — which formula | `hart-tau1`, `knudtson` | required |
+| `structure` | what it was measured over | `artery`, `vein`, `vessels`, `both` | required |
+| `roi` | the region it was measured within | `fov`, `B`, `C`, and any name added later | **`fov`** |
+| `statistic` | how per-segment values were pooled | `mean`, `median`, `std`, `length-weighted` | **`median`** |
 
-**The statistic is optional and that is deliberate.** Most biomarkers are one number per image and
-carry none. Where an implementation reports the mean *and* the median *and* the standard deviation
-of the same per-segment quantity — PVBM's branching angle does, OCULAR's tortuosity does — those
-are three different numbers and the vocabulary has to say which is which. Omitting the part when
-there is nothing to pool keeps the common case short.
+So `tortuosity/hart-tau1/artery` is the median τ1 over the whole field of view, and
+`vessel-calibre/mean-width/artery/B/mean` says all five parts outright. Both optional parts may be
+omitted, and **the statistic may be given while the region is not** — in which case the region is
+the field of view.
 
-**Region of interest is deliberately not in the name.** See 2.4, which is the hardest question in
-this chapter.
+That last rule creates the one thing this naming scheme has to be careful about.
 
-This replaces the current three-part `biomarker/variant/structure`: `family` is today's
-`biomarker`, `biomarker` is today's `variant`, and `statistic` is new.
+#### 2.1.1 The four-part form is ambiguous unless the vocabularies are disjoint
 
-### 2.2 Units, and the thirty names that do not carry one
+`vessel-calibre/mean-width/artery/B` and `vessel-calibre/mean-width/artery/mean` are both four-part
+names, and nothing in the *shape* of either says whether the fourth token is a region or a
+statistic. Only the token itself does.
 
-**Fact, measured.** The same physical retina was built at 1024 px / 10 µm per pixel and at
-2048 px / 5 µm per pixel — one eye, two cameras — and every theoretical value compared:
+**So the two vocabularies must be fixed and provably disjoint**, and `check()` is where that is
+enforced rather than assumed: a region named `mean` or a statistic named `B` would make every
+four-part name ambiguous the day it was added, and the failure would be silent. The check costs
+nothing and the alternative is a name that parses differently depending on what else exists.
+
+#### 2.1.2 A default region is wrong for at least one family
+
+**Open.** `fov` is the right default for calibre, tortuosity, density and the fractal dimensions.
+It is **meaningless for the central retinal equivalents**, which are *defined* over a ring around
+the disc: there is no field-of-view-wide CRAE, so `central-retinal-equivalents/knudtson/artery`
+resolving to `fov` names something that does not exist.
+
+Two ways to fix it, and one has to be chosen before the first name is written:
+
+1. **A family declares its own default** — `fov` for most, `B` for the equivalents — so the short
+   form always means the conventional thing.
+2. **A family may declare the region required**, and the equivalents do, so the short form is a
+   `LookupError` rather than a wrong answer.
+
+My reading is (2) for the equivalents specifically. A default that quietly supplies the
+conventional choice is convenient right up to the first reader who did not know there was a choice,
+and this is a family where the region is part of what the number *means*.
+
+### 2.2 Units — microns, never pixels
+
+**Decided.** A canonical biomarker is **never expressed in pixels.** Anything with a length
+dimension is in microns, anything with an area dimension in microns squared, and the inverses
+likewise — `1/µm` for a curvature, `1/µm²` for the squared-curvature measures. Dimensionless stays
+dimensionless, and `1` is a unit rather than a blank. This applies to the central retinal
+equivalents and the tortuosity family exactly as it applies to calibre.
+
+**Why it has to be a rule rather than a preference.** The same physical retina was built at
+1024 px / 10 µm per pixel and at 2048 px / 5 µm per pixel — one eye, two cameras — and every
+theoretical value compared:
 
 | Behaviour | Count | Names |
 | --- | --- | --- |
-| **Scale-free** (×1) | 40 | τ1, τ2, Grisan density, inflection count, all fractal dimensions, all junction counts, densities, AVR, bifurcation angle, **Hubbard** equivalents |
+| **Scale-free** (×1) | 40 | τ1, τ2, Grisan density, inflection count, fractal dimensions, junction counts, densities, AVR, bifurcation angle, **Hubbard** equivalents |
 | **Length in pixels** (×2) | 15 | calibre mean and median, skeleton length, sparsity, **Knudtson** equivalents |
 | **Inverse length** (×0.5) | 8 | τ3, τ4, τ6, spline mean curvature |
 | **Inverse area** (×0.25) | 4 | τ5, τ7 |
 | **Area in pixels²** (×4) | 3 | vessel area |
 
-**Thirty of seventy give a different answer for the same eye**, and nothing in the name or the
-stored evidence says which unit a column is in. Two consequences that make this chapter's
-requirement non-negotiable:
+**Thirty of seventy give a different answer for the same eye.** The rule removes that whole column
+of the problem: in microns every one of those thirty is the same number at both resolutions.
 
-- **Hubbard and Knudtson equivalents come out in different units.** Hubbard's constants are fitted
-  in microns so an implementation must convert, and the answer is physical. Knudtson's formula is
-  purely multiplicative so it returns whatever the widths were — pixels. *Two variants, one family,
-  incomparable units.*
-- **The τ family spans three dimensions.** τ1 and τ2 are dimensionless, τ3/τ4/τ6 are inverse
-  lengths, τ5/τ7 are inverse areas. "Tortuosity" as a column heading is not one kind of quantity.
+It also settles a contradiction the catalogue has been carrying. **Hubbard and Knudtson equivalents
+currently come out in different units** — Hubbard's constants are fitted in microns so an
+implementation must convert, while Knudtson's formula is purely multiplicative and returns whatever
+the widths were, which is pixels. Two variants, one family, incomparable. Under this rule both are
+microns and the family is coherent.
 
-**Decided:** every entry declares a unit, and `1` (dimensionless) is a unit rather than a blank.
+**Three consequences, none of them free:**
+
+- **A biomarker with a length dimension cannot be computed without a scale.** Most datasets publish
+  no microns-per-pixel figure, which is why `fetch-um-resolution` infers one from the median optic
+  disc. A dataset with neither a published nor an inferred scale can support the dimensionless
+  biomarkers and **must refuse the rest** rather than silently reporting pixels.
+- **Every conversion is the adapter's job**, per 3.2. An implementation reporting pixels has its
+  output multiplied by the scale the store recorded; one reporting millimetres is converted; one
+  applying micron-fitted constants to pixel widths is **wrong**, and the benchmark reports the
+  number rather than repairing it.
+- **The synthetic shapes' ground truth is in pixels today** and has to be restated in microns. The
+  shapes know their own scale so the conversion is mechanical, but it changes every stored
+  theoretical value and therefore every comparison drawn against it.
 
 ### 2.3 The definition
 
@@ -134,41 +176,32 @@ ratio (`Clinical measure`). One, the vascular curvature index, is **proprietary 
 its paper declines to give a formula. It should never get a canonical name, and the vocabulary
 should be able to record *why* rather than being silently short of it.
 
-### 2.4 Region of interest — the hard case
+### 2.4 Region of interest — what the decision costs
 
-**Open.** This is where the naming decision of 2.1 has to be paid for.
+**Decided** in 2.1: the region is **its own optional name part**, defaulting to the field of view.
+This section records what that buys and what it leaves to do.
 
 **Fact:** 44 of the 73 implementation columns the catalogue cannot name are quantities it *already*
-names, measured over a region it cannot express. AutoMorphalyzer reports most quantities three
+names, measured over a region it could not express. AutoMorphalyzer reports most quantities three
 times — `@whole`, `@B`, `@C` — and VascX reports several over a disc-centred circle at 7/6 disc
 radii. Zones B and C are the conventional annuli from the ARIC literature, so this is the field's
-standard practice rather than an implementation's quirk.
+standard practice rather than an implementation's quirk. **That is the single largest gap in the
+vocabulary and the region part closes it.**
 
-**The difficulty is that ROI is sometimes part of the definition and sometimes a choice**, and the
-two need opposite treatment:
+Two things it does *not* settle, both of which need a per-family judgement when chapter 7 rewrites
+the pages:
 
-| Family | How the region enters | Consequence |
-| --- | --- | --- |
-| Central retinal equivalents, AVR | **Definitional.** CRAE *is* the equivalent over zone B; the same formula over zone C is a different published quantity | a name that omits it is ambiguous |
-| Calibre, tortuosity, density, fractal dimension | **A choice.** The same measurement restricted to a region | a name that includes it multiplies by three |
-| Temporal angle, disc–fovea distance | **Anchored, not regional.** Defined relative to landmarks, not over an area | region does not apply |
-
-Three candidate rules, and the plan needs one:
-
-1. **Region in the name for every family.** Explicit and self-describing; multiplies the list by the
-   number of regions and most combinations are never computed.
-2. **Region beside the name, as a required field on every measurement.** Names stay short; a column
-   heading no longer identifies a measurement on its own, which is what 1.1 wanted from it.
-3. **Region in the `biomarker` part where it is definitional, beside the name where it is a
-   choice.** `central-retinal-equivalents/knudtson-zone-b/artery` is one entry and
-   `vessel-calibre/mean-width/artery` measured over zone B is one entry with a field. Follows the
-   distinction above and asks a person to make a judgement per family.
-
-My reading is (3): it is the only one that treats CRAE@B and CRAE@C as the different published
-quantities they are, without tripling the families where the region is genuinely a knob. It costs a
-per-family decision, which chapter 3 has to make anyway.
-
----
+- **Whether the region is definitional or a choice.** For the central retinal equivalents it is part
+  of what the number means — there is no CRAE without a ring — which is why 2.1.2 proposes that
+  family require it. For calibre, tortuosity, density and the fractal dimensions the same
+  measurement is simply restricted to an area, and the default is right. For the temporal angle and
+  the disc–fovea distance the region does not apply at all: they are defined relative to landmarks,
+  not over an area, and should refuse a region rather than accept one that means nothing.
+- **What a region name denotes, exactly.** `B` and `C` are conventional but not self-explaining, and
+  VascX's `crcl_multiplier_1p16666666667` is 7/6 disc radii written as a float. The vocabulary needs
+  a short list with a definition each — the inner and outer radius in disc diameters, and the paper
+  that fixed them — or two implementations will use the same letter for different annuli and the
+  benchmark will report that as disagreement about vessels.
 
 ## 3. How the existing implementations map onto it
 
@@ -414,8 +447,12 @@ it is the same rule that makes this repository refuse to let a model mark its ow
 
 ## 6. Open decisions
 
-- **6.1 The region rule** (2.4). Three candidates; my reading is the third, region in the
-  `biomarker` part where it is definitional and beside the name where it is a choice.
+- ~~**6.1 The region rule**~~ **Decided 2026-09-29: its own optional name part, defaulting to the
+  field of view** (2.1, 2.4). What remains is 6.1a and 6.1b below.
+- **6.1a Does a family declare a default region, or may it require one** (2.1.2)? `fov` is
+  meaningless for the central retinal equivalents. My reading is that the equivalents require it.
+- **6.1b What does each region name denote** (2.4)? `B` and `C` need radii and a paper, or two
+  implementations will use one letter for two annuli.
 - **6.2 Is a defining paper mandatory** (2.3)? Making it so is this plan's primary goal and would
   block vascular density and cup-to-disc ratio, which are real measurements with no single origin.
   The alternative is a required field whose value may be `no single origin`.
@@ -433,24 +470,53 @@ it is the same rule that makes this repository refuse to let a model mark its ow
 
 ## 7. Order of work
 
-Once 6.1 and 6.2 are settled — the rest can follow later.
+**Decided.** Once chapter 6 is settled, **the documentation changes before any code does.** The
+vocabulary is a set of claims about what quantities mean; writing those claims into Python before
+they have been checked against the literature only means discovering they were wrong with an
+adapter and a benchmark run already built on top of them.
 
-1. Extend `canonical.py` from a name→sentence map to a name→record carrying family, biomarker,
-   structure, optional statistic, unit, definitions, paper and estimation requirements. `check()`
-   stays the single gate.
-2. Add the statistic part and whatever 6.1 decides for region, then re-map all six adapters. **The
-   44 region columns and 15 statistic columns of 3.1 are the measure of success.**
-3. Make every entry cite a paper, and catalogue the papers still missing.
-4. Teach the synthetic shapes to settle the new names — and **turn 4.2 into a test**: one physical
-   retina at several grids, every name claiming to be normalised asserted to hold its value across
-   them. That test is what stops a name silently returning to pixels.
-5. Regenerate `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and the benchmark's configuration page from the
-   record, so code and prose cannot disagree again.
-6. Re-run the analysis notebook. **No re-measurement** — 3.2 rule 4, confirmed in practice.
+### 7.1 First, the documentation
+
+1. **Redefine the families.** `docs/biomarkers/` currently has fifteen pages, and the chapter 2
+   naming makes `family` the first part of every name — so the pages *are* the families, and the
+   split between them has to be right before anything maps onto it. Five pages have no canonical
+   name at all today; one, the vascular curvature index, should never get one and needs the page to
+   say why.
+2. **Verify every definition against its paper**, and write the long form: the formula, what it is
+   computed over, and enough that two people implementing it separately would agree. This is where
+   the withdrawals of 3.2 would have been caught before they cost a benchmark run.
+3. **Fix the units on every page** to microns per 2.2, and mark which biomarkers a dataset without a
+   scale cannot support at all.
+4. **Write the region vocabulary** per 2.4 — the short list, each with its radii and its paper, and
+   which families require a region rather than defaulting.
+5. **Build the mapping tables**: canonical name → each implementation's own column, **with the
+   conversion rule beside it**, for PVBM, OCULAR, the three AutoMorph projects, VascX and
+   `fundus-biomarkers`. A conversion is a unit change or nothing; where an implementation's number
+   is *wrong* rather than differently scaled — Hubbard's constants on pixel widths — the table says
+   so and the benchmark still reports what it returned.
+6. **Say what evidence a new entry needs**, per 1.3, so the list grows by decision.
+
+The output of this stage is prose a person can disagree with, and every disagreement is cheaper
+here than it is in step 7.2.
+
+### 7.2 Then the code
+
+7. Extend `canonical.py` from a name→sentence map to a name→record carrying family, biomarker,
+   structure, region, statistic, unit, both definitions, the paper and the estimation requirements.
+   `check()` stays the single gate, and gains the disjointness check of 2.1.1.
+8. Re-map all six adapters. **The 44 region columns and 15 statistic columns of 3.1 are the measure
+   of success**, and the conversions come from the tables written in 7.1 step 5.
+9. Restate the synthetic shapes' ground truth in microns, per 2.2.
+10. Teach the shapes to settle the new names — and **turn 4.2 into a test**: one physical retina at
+    several grids, every name asserted to hold its value across them. That test is what stops a name
+    silently returning to pixels.
+11. Regenerate `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and the benchmark's configuration page **from
+    the record**, so that after this the code and the prose cannot disagree again.
+12. Re-run the analysis notebook. **No re-measurement** — 3.2 rule 4, confirmed in practice.
 
 Every table in chapters 2 and 4 comes from a one-off script rather than from anything committed,
-which is a weakness in this document: nobody can re-run them. Step 4 is where that is repaid.
+which is a weakness in this document: nobody can re-run them. Step 10 is where that is repaid.
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29.
