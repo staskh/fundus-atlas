@@ -136,12 +136,24 @@ It also settles what a **pooled statistic** pools. `tortuosity/hart-tau1/artery`
 statistic is the median over *segments*; `tortuosity/vessel-hart-tau1/artery` is the median over
 *vessels*. Those were the same name until now, over different populations.
 
-**One thing still to pin down:** what counts as a start-to-end pair. Root-to-tip — every path from
-the vessel's origin at the disc to a leaf — needs a rooted trace and gives one vessel per leaf.
-Every-terminal-pair needs no root and gives a path for each pair of free ends, which is a much
-larger population. The implementations that already have a rooted walk make the first natural; the
-second is what an unrooted tracer would produce. This has to be written into the definition in
-chapter 7 step 2, because it is the difference between *N* vessels and *N(N−1)/2* of them.
+**A vessel is root-to-tip, as PVBM traces it.** Each path from the vessel's origin at the optic
+disc to one leaf is one vessel, so a tree with *N* leaves has *N* vessels — not the *N(N−1)/2* that
+taking every pair of free ends would give. Three consequences follow, and each is a requirement
+rather than an observation:
+
+- **The `vessel-` forms need a rooted trace, and therefore need the disc.** An implementation with
+  no disc cannot compute them at all — the same kind of dependency the central retinal equivalents
+  have on their ring, and it belongs in the family record beside them.
+- **Vessels that never reach the disc are not vessels.** PVBM already behaves this way: on the
+  `disjoint` shape, whose segments are nowhere near the disc, its rooted walk finds no trunks and
+  returns zeros. Under this definition that is *correct* rather than a defect, and the synthetic
+  shapes must settle the `vessel-` names accordingly — which means `disjoint` settles none of them.
+- **It makes sense of a mapping this atlas withdrew.** Under a rooted model PVBM's `start_points`
+  counts roots and its `endpoints` counts tips — and tips are exactly vessels. The endpoint mapping
+  was withdrawn because the catalogued name meant *every free end* and PVBM's excluded the one at
+  the disc; under the rooted definition that is not an error but a different, nameable quantity.
+  Chapter 7 should look at whether `junction-counts` wants a rooted pair of names — free ends
+  against tips — rather than leaving two implementations' columns unmapped.
 
 ### 2.2 Units — microns, never pixels
 
@@ -541,8 +553,8 @@ it is the same rule that makes this repository refuse to let a model mark its ow
 - ~~**6.4 How tightly does a definition constrain tracing?**~~ **Decided 2026-09-30: not at all —
   it is the implementation's, and must be documented** (4.1). The one decision that *is*
   definitional, segment against whole vessel, moves into the name instead (2.1.2).
-- **6.4a What is a start-to-end pair** (2.1.2)? Root-to-tip gives one vessel per leaf;
-  every-terminal-pair gives *N(N−1)/2*. Has to be settled before `vessel-` names are written.
+- ~~**6.4a What is a start-to-end pair?**~~ **Decided 2026-09-30: root-to-tip, as PVBM traces it**
+  (2.1.2) — one vessel per leaf, and the `vessel-` forms therefore require the optic disc.
 - ~~**6.5 How a proprietary library is fingerprinted?**~~ **Decided 2026-09-30: by its commit id**
   (5.5).
 - ~~**6.6 Is the per-image evidence published for that column?**~~ **Decided 2026-09-29: yes, in
@@ -571,7 +583,10 @@ adapter and a benchmark run already built on top of them.
 3. **Fix the units on every page** to microns per 2.2, and mark which biomarkers a dataset without a
    scale cannot support at all.
 4. **Write the region vocabulary** per 2.4 — the short list, each with its radii and its paper, and
-   which families require a region rather than defaulting.
+   which families require a region rather than defaulting. **Record which families have a `vessel-`
+   form**, per 2.1.2, and that those require the disc. Revisit `junction-counts` while there: a
+   rooted pair of names — free ends against tips — may recover the PVBM and OCULAR mappings this
+   atlas withdrew.
 5. **Build the mapping tables**: canonical name → each implementation's own column, **with the
    conversion rule beside it**, for PVBM, OCULAR, the three AutoMorph projects, VascX and
    `fundus-biomarkers`. Each row must now also say whether the implementation's column is the
@@ -605,4 +620,4 @@ which is a weakness in this document: nobody can re-run them. Step 10 is where t
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing and five of the six open questions:** 2026-09-30.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing, and all but one open question:** 2026-09-30.
