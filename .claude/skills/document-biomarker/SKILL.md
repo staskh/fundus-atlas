@@ -38,14 +38,21 @@ several biomarkers cannot be read without them.
 
 ## 2. What you produce
 
-1. **A row in the family page's canonical-names table**, plus a `### 3.x` variant subsection if the
+1. **An entry in `src/biomarkers/canonical.py`**, which is what `check()` gates on and what every
+   generated table is rendered from. Prose without a name is a page nothing can be measured
+   against, so this comes first.
+2. **A row in the family page's canonical-names table**, plus a `### 3.x` variant subsection if the
    biomarker is a competing definition of something already there.
-2. **A row in [`docs/BIOMARKER-NAMES.md`](../../docs/BIOMARKER-NAMES.md)** §2, under its family, with
-   the ✅ / ⚠️ coverage marks of §5 below.
-3. **An entry in `src/biomarkers/canonical.py`**, which is what `check()` gates on. Prose without a
-   name is a page nothing can be measured against.
+3. **A row in [`docs/BIOMARKER-NAMES.md`](../../docs/BIOMARKER-NAMES.md)** §3, under its family,
+   with the ✅ / ⚠️ coverage marks of §5 below. That section is hand-written because the marks are
+   judgements; a test checks its left-hand column against the vocabulary in **both** directions, so
+   a biomarker with no row fails just as loudly as a row with no biomarker.
+4. **`python -m biomarkers.pages`**, which refreshes the generated blocks in
+   `docs/BIOMARKERS.md` and `docs/BIOMARKER-NAMES.md` §2 — the family counts, the units, the
+   statistics each biomarker admits. Never type those by hand; §8.8.
 
-Updating `docs/BIOMARKERS.md` is only needed when a family's biomarker **count** changes.
+Then `python -m benchmarks --benchmark biomarker-synthetic --docs`, which regenerates the
+benchmark's own vocabulary table from the same record.
 
 ## 3. The canonical name
 
@@ -143,8 +150,8 @@ of the source rather than the documentation — and this catalogue has been wron
 withdrawn the mapping each time. The [synthetic benchmark](../../docs/benchmarks/biomarker-synthetic-docs.md)
 is what tests a claim; a shape where two variants give different known values separates them.
 
-**A withdrawn mapping is a finding.** Record it in §4 of that file with its date and the evidence,
-and keep the column under the implementation's own name in §3. Never delete the measurement.
+**A withdrawn mapping is a finding.** Record it in §5 of that file with its date and the evidence,
+and keep the column under the implementation's own name in §4. Never delete the measurement.
 
 ## 8. Rules that apply to every entry
 
@@ -159,6 +166,17 @@ and keep the column under the implementation's own name in §3. Never delete the
 - **8.7 Keep the catalogues consistent.** A family page naming a project as an implementer requires
   that project's page to name the biomarker, in the same commit — and the same for a definition
   paper that has a page under `docs/papers/`.
-- **8.8 Never hand-edit a generated page.** `docs/benchmarks/*-docs.md` is generated from
-  `canonical.py`; editing it makes a test fail and the edit is lost on the next run. Change the
-  source and regenerate.
+- **8.8 Never hand-edit a generated block.** Three pages carry them, all rendered from
+  `canonical.py`: `docs/benchmarks/*-docs.md`, `docs/BIOMARKERS.md` §1 and
+  `docs/BIOMARKER-NAMES.md` §2. Everything between `<!-- generated: … -->` and `<!-- /generated -->`
+  is replaced on the next run, and a test fails meanwhile. Change the record and regenerate.
+
+  *Why there is a generator at all.* Grisan's tortuosity density was declared dimensionless in a
+  vocabulary table for a week while its own derivation, two sections below on the same page, gave
+  it as an inverse length. Nothing caught it until the units became physical and one shape
+  disagreed with itself across two resolutions. A unit is a fact the record holds; a table that
+  restates a fact is a table that can contradict it.
+- **8.9 A unit is never pixels.** A length is in microns, an area in µm², a curvature in 1/µm.
+  `PLAN-BIOMARKER.md` §2.2 is the decision and
+  `test_one_retina_photographed_at_two_resolutions_gives_one_set_of_numbers` is what holds it: the
+  same retina at 1024/10 µm and 2048/5 µm must settle every name to the same number.

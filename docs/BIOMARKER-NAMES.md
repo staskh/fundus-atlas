@@ -57,7 +57,78 @@ is documented on its project page.
 **Every length is in microns.** Never pixels — see each family page's units section, and
 `PLAN-BIOMARKER.md` §2.2 for why.
 
-## 2. The canonical names
+## 2. Every name, and the unit it is in
+
+Generated from `src/biomarkers/canonical.py`, which is the record. A unit stated here and a unit
+the shapes convert by cannot drift apart, because both are read from the same field — and that is
+not hypothetical: Grisan's density was declared dimensionless in a table for a week while its own
+derivation two pages away called it an inverse length.
+
+A **whole-vessel form** means the biomarker also exists as `family/vessel-<biomarker>`, measured
+over root-to-tip paths rather than over segments between intersection points.
+
+<!-- generated: units -->
+**[`calibre`](biomarkers/calibre.md)**
+
+| Canonical name | What it measures | Unit | Statistics | Whole-vessel form |
+| --- | --- | --- | :-: | :-: |
+| `calibre/width/{artery,vein,vessels}` | the width of a vessel, measured along it | µm | `mean`, `median`, `std`, `length-weighted` | — |
+| `calibre/CRE-knudtson/{artery,vein}` | Knudtson's equivalent — CRAE on arteries, CRVE on veins | µm | — | — |
+| `calibre/CRE-hubbard/{artery,vein}` | Hubbard's equivalent over the same ring | µm | — | — |
+| `calibre/AVR-knudtson/both` | arteriolar over venular equivalent, both Knudtson | 1 | — | — |
+| `calibre/AVR-hubbard/both` | the same, both Hubbard | 1 | — | — |
+| `calibre/AVR-ratio/both` | mean artery width over mean vein width, no ring and no equivalent | 1 | — | — |
+
+**[`tortuosity`](biomarkers/tortuosity.md)**
+
+| Canonical name | What it measures | Unit | Statistics | Whole-vessel form |
+| --- | --- | --- | :-: | :-: |
+| `tortuosity/hart-tau1/{artery,vein,vessels}` | arc length over chord length; 1 for a straight vessel | 1 | `mean`, `median`, `std`, `length-weighted` | yes |
+| `tortuosity/hart-tau2/{artery,vein,vessels}` | total curvature, ∫κ ds — the total turning angle | 1 | `mean`, `median`, `std`, `length-weighted` | yes |
+| `tortuosity/hart-tau3/{artery,vein,vessels}` | total squared curvature, ∫κ² ds | 1/µm | `mean`, `median`, `std`, `length-weighted` | yes |
+| `tortuosity/hart-tau4/{artery,vein,vessels}` | mean curvature, ∫κ ds / s — compositional | 1/µm | `mean`, `median`, `std`, `length-weighted` | yes |
+| `tortuosity/hart-tau5/{artery,vein,vessels}` | mean squared curvature, ∫κ² ds / s — compositional | 1/µm² | `mean`, `median`, `std`, `length-weighted` | yes |
+| `tortuosity/hart-tau6/{artery,vein,vessels}` | total curvature over chord | 1/µm | `mean`, `median`, `std`, `length-weighted` | yes |
+| `tortuosity/hart-tau7/{artery,vein,vessels}` | total squared curvature over chord | 1/µm² | `mean`, `median`, `std`, `length-weighted` | yes |
+| `tortuosity/grisan-density/{artery,vein,vessels}` | Grisan's density over constant-sign subsegments | 1/µm | `mean`, `median`, `std`, `length-weighted` | — |
+| `tortuosity/inflection-count/{artery,vein,vessels}` | how many times the curvature changes sign | 1 | — | — |
+| `tortuosity/arc-chord-times-inflections/{artery,vein,vessels}` | τ1 multiplied by the inflection count | 1 | `mean`, `median`, `std`, `length-weighted` | — |
+| `tortuosity/spline-curvature/{artery,vein,vessels}` | curvature sampled along a fitted spline | 1/µm | `mean`, `median`, `std`, `length-weighted` | — |
+
+**[`density`](biomarkers/density.md)**
+
+| Canonical name | What it measures | Unit | Statistics | Whole-vessel form |
+| --- | --- | --- | :-: | :-: |
+| `density/area/{artery,vein,vessels}` | total vessel area | µm² | — | — |
+| `density/skeleton-length/{artery,vein,vessels}` | total centreline length | µm | — | — |
+| `density/over-fov/{artery,vein,vessels}` | vessel area as a fraction of the field of view | 1 | — | — |
+| `density/over-image/{artery,vein,vessels}` | the same over the whole frame, lit or not — it names its own denominator | 1 | — | — |
+| `density/sparsity/{artery,vein,vessels}` | distance from retina to the nearest vessel | µm | `mean`, `max` | — |
+| `density/box-counting/{artery,vein,vessels}` | box-counting dimension | 1 | — | — |
+| `density/multifractal-d0/{artery,vein,vessels}` | capacity dimension | 1 | — | — |
+| `density/multifractal-d1/{artery,vein,vessels}` | information dimension | 1 | — | — |
+| `density/multifractal-d2/{artery,vein,vessels}` | correlation dimension | 1 | — | — |
+
+**[`topology`](biomarkers/topology.md)**
+
+| Canonical name | What it measures | Unit | Statistics | Whole-vessel form |
+| --- | --- | --- | :-: | :-: |
+| `topology/junctions/{artery,vein,vessels}` | how many places three or more branches meet | 1 | — | — |
+| `topology/endpoints/{artery,vein,vessels}` | how many free ends the network has | 1 | — | — |
+| `topology/components/{artery,vein,vessels}` | how many separate pieces the network is in | 1 | — | — |
+| `topology/branching-angle/{artery,vein}` | the angle between the two daughter vessels at a bifurcation | degrees | `mean`, `median`, `std` | — |
+| `topology/temporal-angle/{artery,vein}` | the angle between the superior and inferior temporal arcades | degrees | `mean`, `median`, `std` | — |
+
+**[`landmarks`](biomarkers/landmarks.md)**
+
+| Canonical name | What it measures | Unit | Statistics | Whole-vessel form |
+| --- | --- | --- | :-: | :-: |
+| `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | — | — |
+| `landmarks/CDR-area` | the cup's area over the disc's | 1 | — | — |
+| `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — | — |
+<!-- /generated -->
+
+## 3. What each project computes
 
 **✅ means a project implements this and we believe its number is comparable.** ⚠️ means it computes
 something close that is **not** interchangeable, for a reason given in the note — a different
@@ -69,7 +140,7 @@ what tests them.** A mapping says *we believe this column computes this quantity
 reading the source rather than the documentation, and this repository has been wrong three times
 and withdrawn the mapping each time.
 
-### 2.1 [`calibre`](biomarkers/calibre.md) — how wide the vessels are
+### 3.1 [`calibre`](biomarkers/calibre.md) — how wide the vessels are
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
 | --- | :-: | :-: | :-: | --- |
@@ -80,19 +151,24 @@ and withdrawn the mapping each time.
 | `calibre/AVR-hubbard/both` | | ⚠️ | | Inherits CRE-hubbard's defect |
 | `calibre/AVR-ratio/both` | | | | Mean artery width over mean vein width, no ring. Nothing catalogued computes it |
 
-### 2.2 [`tortuosity`](biomarkers/tortuosity.md) — the shape of a vessel's path
+### 3.2 [`tortuosity`](biomarkers/tortuosity.md) — the shape of a vessel's path
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
 | --- | :-: | :-: | :-: | --- |
 | `tortuosity/hart-tau1/{artery,vein,vessels}` | ⚠️ | ✅ | ⚠️ | AutoMorph returns **0.0 on failure**, which is impossible for an arc over a chord and averages in as a measurement. VascX subdivides at a configurable `max_segment_len`, so it pools a different population |
-| `tortuosity/hart-tau2` … `tau7` | | | | In Hart's table; nothing catalogued computes them |
+| `tortuosity/hart-tau2/{artery,vein,vessels}` | | | | Total curvature. In Hart's table; nothing catalogued computes it |
+| `tortuosity/hart-tau3/{artery,vein,vessels}` | | | | Total squared curvature, in **1/µm** |
+| `tortuosity/hart-tau4/{artery,vein,vessels}` | | | | Mean curvature, in **1/µm**. Compositional, and the closest thing to what VascX's spline curvature attempts |
+| `tortuosity/hart-tau5/{artery,vein,vessels}` | | | | Mean squared curvature, in **1/µm²** |
+| `tortuosity/hart-tau6/{artery,vein,vessels}` | | | | Total curvature over chord, in **1/µm** |
+| `tortuosity/hart-tau7/{artery,vein,vessels}` | | | | Total squared curvature over chord, in **1/µm²** |
 | `tortuosity/grisan-density/{artery,vein,vessels}` | ⚠️ | | | Non-zero where the geometry requires exactly nought, by up to 1.00 on a straight vessel |
 | `tortuosity/inflection-count` | | | | |
 | `tortuosity/arc-chord-times-inflections` | | | | |
 | `tortuosity/spline-curvature/{artery,vein}` | | | ⚠️ | VascX only; moves by 280% under rotation |
 | `tortuosity/vessel-*` | | | | The whole-vessel forms. Nothing catalogued computes them yet |
 
-### 2.3 [`density`](biomarkers/density.md) — how much vasculature there is, and how it is spread
+### 3.3 [`density`](biomarkers/density.md) — how much vasculature there is, and how it is spread
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
 | --- | :-: | :-: | :-: | --- |
@@ -102,9 +178,11 @@ and withdrawn the mapping each time.
 | `density/skeleton-length/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels**, and its rooted walk excludes vessels that do not reach the disc |
 | `density/sparsity/{artery,vein,vessels}` | | | ⚠️ | VascX only, and **not comparable**: its `mean_sparsity` is normalised by the optic-disc-to-fovea distance, so it is a dimensionless ratio rather than the distance in microns this name means |
 | `density/box-counting/{artery,vein,vessels}` | ✅ | | | |
-| `density/multifractal-d0/d1/d2/{artery,vein}` | | ✅ | | PVBM's three dimensions are of the **multifractal** analysis, not a plain box count |
+| `density/multifractal-d0/{artery,vein}` | | ✅ | | PVBM's `capacity_dimension`. Its three dimensions are of the **multifractal** analysis, not a plain box count |
+| `density/multifractal-d1/{artery,vein}` | | ✅ | | PVBM's `entropy_dimension` |
+| `density/multifractal-d2/{artery,vein}` | | ✅ | | PVBM's `correlation_dimension` |
 
-### 2.4 [`topology`](biomarkers/topology.md) — where the network branches and how it connects
+### 3.4 [`topology`](biomarkers/topology.md) — where the network branches and how it connects
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
 | --- | :-: | :-: | :-: | --- |
@@ -114,7 +192,7 @@ and withdrawn the mapping each time.
 | `topology/branching-angle/{artery,vein}` | | ⚠️ | | PVBM medians **every pairwise angle at every junction**, the trunk included — not the angle between daughters |
 | `topology/temporal-angle/{artery,vein}` | | | ✅ | VascX only, statistic `median` |
 
-### 2.5 [`landmarks`](biomarkers/landmarks.md) — the optic nerve head and the fovea
+### 3.5 [`landmarks`](biomarkers/landmarks.md) — the optic nerve head and the fovea
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
 | --- | :-: | :-: | :-: | --- |
@@ -122,13 +200,13 @@ and withdrawn the mapping each time.
 | `landmarks/CDR-area` | | | | |
 | `landmarks/disc-fovea-distance` | | | ⚠️ | VascX returns pixels, and reports two variants — to the retina's centre and to the fovea |
 
-## 3. What each project computes that has no canonical name
+## 4. What each project computes that has no canonical name
 
 A quantity here is **measured and stored under the project's own name**, and appears in no
 comparison. That is a gap in the catalogue rather than a reason to discard a measurement: each one
 is either a biomarker nobody else computes, or a mapping nobody has made yet.
 
-### 3.1 AutoMorph, AutoMorphalyzer, AutoMorphClass
+### 4.1 AutoMorph, AutoMorphalyzer, AutoMorphClass
 
 | Their name | What it appears to be |
 | --- | --- |
@@ -141,7 +219,7 @@ is either a biomarker nobody else computes, or a mapping nobody has made yet.
 **Nine of AutoMorphalyzer's fourteen unmapped quantities are region variants** of something already
 named, and close when the `roi` part lands.
 
-### 3.2 PVBM
+### 4.2 PVBM
 
 | Their name | What it appears to be |
 | --- | --- |
@@ -151,7 +229,7 @@ named, and close when the `roi` part lands.
 | `median_branching_angle` | Listed above as ⚠️ against `topology/branching-angle`; kept under its own name because it is not the angle between daughters |
 | `endpoints` | Listed above as ⚠️; the rooted tip count rather than every free end |
 
-### 3.3 VascX
+### 4.3 VascX
 
 | Their name | What it appears to be |
 | --- | --- |
@@ -164,7 +242,7 @@ named, and close when the `roi` part lands.
 `crcl_multiplier_1p16666666667` is **7/6 disc radii written as a float**, and is a region the ARIC
 convention does not name. See [regions of interest](biomarkers/regions-of-interest.md).
 
-## 4. Where a mapping has been withdrawn
+## 5. Where a mapping has been withdrawn
 
 Three, each found by a synthetic shape rather than by reading a name:
 

@@ -686,10 +686,19 @@ here than it is in step 7.2.
     `test_one_retina_photographed_at_two_resolutions_gives_one_set_of_numbers` asserts every
     settled value over 1024/10 µm against 2048/5 µm. That test is what stops a name silently
     returning to pixels.
-11. **Still to do.** Regenerate `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and the benchmark's
+11. ✅ **Done 2026-09-30.** Regenerate `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and the benchmark's
     configuration page **from the record**, so that after this the code and the prose cannot
-    disagree again. The configuration page already is generated; the two catalogue pages are
-    still hand-written, and the Grisan unit defect is exactly the disagreement that costs.
+    disagree again. `src/biomarkers/pages.py` renders the family summary and the units table into
+    marked blocks with `python -m biomarkers.pages`, reusing the benchmark pages' machinery.
+
+    *What could not be generated, and what was done instead.* The ✅ and ⚠️ marks against each
+    project are judgements a person makes from reading somebody's source; rendering them would be
+    inventing them. So they stay hand-written and are **tested** against the record in both
+    directions: every biomarker named in those tables must exist in the vocabulary, and every
+    biomarker in the vocabulary must have a row. The second direction caught two abbreviated rows
+    — `hart-tau2 … tau7` and `multifractal-d0/d1/d2` — which hid that τ3 is in 1/µm and τ5 in
+    1/µm², the very distinction the catalogue exists to make. Generating the count caught another:
+    the density family was described as ten biomarkers and enumerated as nine.
 12. ✅ **Done 2026-09-30.** Re-run the analysis notebook. **No re-measurement** — 3.2 rule 4,
     confirmed in practice: not one stored value in `results/` changed.
 

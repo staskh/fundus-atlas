@@ -25,13 +25,18 @@ def config_of(benchmark) -> dict[str, object]:
     return benchmark.config()
 
 
-def render(page: str, config: dict[str, object]) -> str:
+def render(page: str, config: dict[str, object], blocks: dict | None = None) -> str:
     """The page with every marked block replaced, and everything else untouched.
 
+    :param blocks: which renderers the markers may name, defaulting to a benchmark configuration
+        page's. The biomarker catalogue pages pass their own, because the machinery — a marker, a
+        renderer and nothing in between — is the same wherever a generated table sits inside prose
+        somebody wrote.
     :raises ValueError: on a marker naming a block nothing renders, or one never closed. Both are
         mistakes that would otherwise be silent — the first leaves a block permanently stale, the
         second would swallow the rest of the page.
     """
+    blocks = BLOCKS if blocks is None else blocks
     out: list[str] = []
     rest = page
     while True:
@@ -46,12 +51,12 @@ def render(page: str, config: dict[str, object]) -> str:
         closing = rest.find(CLOSE)
         if closing < 0:
             raise ValueError(f"the `{name}` block is never closed; add `{CLOSE}` after it")
-        if name not in BLOCKS:
-            known = ", ".join(sorted(BLOCKS))
+        if name not in blocks:
+            known = ", ".join(sorted(blocks))
             raise ValueError(f"nothing renders a `{name}` block; there are {known}")
         out.append(head)
         out.append(marker + "\n")
-        body = "\n".join(BLOCKS[name](config)).rstrip("\n")
+        body = "\n".join(blocks[name](config)).rstrip("\n")
         out.append(body + "\n" if body else "")
         rest = rest[closing:]
         out.append(CLOSE + "\n")

@@ -16,13 +16,21 @@ whether the number survives a change of camera.
 
 ## 1. The five families
 
-| Family | What it measures | Biomarkers | Inputs | Units | Defined in |
-| --- | --- | --- | --- | --- | --- |
-| [calibre](biomarkers/calibre.md) | how wide the vessels are, and what is built from widths | 6 — width, two central retinal equivalents, three arteriovenous ratios | A/V, disc for the equivalents | µm; the ratios dimensionless | [Bankhead 2012](papers/bankhead-2012.md), [Hubbard 1999](papers/hubbard-1999.md), [Knudtson 2003](papers/knudtson-2003.md) |
-| [tortuosity](biomarkers/tortuosity.md) | the shape of a vessel's path | 11 — Hart τ1–τ7, Grisan density, inflections, and two more | vessels or A/V | **three different dimensions** — see the page | [Hart 1999](papers/hart-1999.md), [Grisan 2008](papers/grisan-2008.md) |
-| [density](biomarkers/density.md) | how much vasculature there is, and how it is spread | 10 — area, length, two densities, sparsity, four fractal dimensions | vessels or A/V, field of view | µm, µm², and dimensionless fractions | [Martinez-Perez 2000](papers/martinez-perez-2000.md), [Stosic 2006](papers/stosic-2006.md), [Vargas 2026](papers/vargas-2026.md) |
-| [topology](biomarkers/topology.md) | where the network branches and how it connects | 5 — junctions, endpoints, components, two angles | a centreline; disc and fovea for the temporal angle | counts and degrees, **scale-invariant** | [Martinez-Perez 2000](papers/martinez-perez-2000.md), [Vargas 2026](papers/vargas-2026.md) |
-| [landmarks](biomarkers/landmarks.md) | the optic nerve head and the fovea | 3 — two cup-to-disc ratios, the disc–fovea distance | disc, cup, fovea. **No vessel mask** | ratios dimensionless; the distance in µm | no single origin for the ratios; [Vargas 2026](papers/vargas-2026.md) |
+<!-- generated: families -->
+| Family | What it measures | Biomarkers | Structures | Units |
+| --- | --- | --- | --- | --- |
+| [calibre](biomarkers/calibre.md) | how wide the vessels are, and everything built from widths | 6 | `artery`, `vein`, `vessels` | 1, µm |
+| [tortuosity](biomarkers/tortuosity.md) | the shape of a vessel's path | 11 | `artery`, `vein`, `vessels` | 1, 1/µm, 1/µm² |
+| [density](biomarkers/density.md) | how much vasculature there is, and how it is spread | 9 | `artery`, `vein`, `vessels` | 1, µm, µm² |
+| [topology](biomarkers/topology.md) | where the network branches and how it connects | 5 | `artery`, `vein`, `vessels` | 1, degrees |
+| [landmarks](biomarkers/landmarks.md) | the optic nerve head and the fovea | 3 | — | 1, µm |
+
+**551 canonical names** in all, once each biomarker is expanded over the structures it applies to, the regions it admits and the statistics it can be pooled by.
+<!-- /generated -->
+
+Each family page says which competing definitions share its name, what the formula is, what it
+needs as input, and which pipelines compute it. The **papers of record** are on those pages, beside
+the definition each one fixes.
 
 **Two pages here are not biomarkers**, and are catalogued because several biomarkers cannot be read
 without them:
@@ -45,7 +53,7 @@ without them:
   the microns rule gave a different answer for the same eye at a different resolution.
 - **What the implementation actually computes.** Three mappings in this catalogue have been
   withdrawn after a synthetic shape showed a column computing something other than its name — they
-  are listed in [BIOMARKER-NAMES.md](BIOMARKER-NAMES.md) §4.
+  are listed in [BIOMARKER-NAMES.md](BIOMARKER-NAMES.md) §5.
 
 ## 3. How these are measured here
 
