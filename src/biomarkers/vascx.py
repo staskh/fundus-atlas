@@ -52,9 +52,15 @@ NAMES: dict[str, str | None] = {
 RETINA_NAMES: dict[str, str | None] = {
     "disc_fovea_distance_retina": None,
     "disc_fovea_distance_center_retina": None,
-    # How far the retina is from a vessel, over the whole field: catalogued since the family
-    # was rebuilt, and independent of the axis the fixture invented.
-    "mean_sparsity_vessels": "density/sparsity/vessels/mean",
+    # *Our finding, 2026-09-30, from `features/sparsity.py`:* **not a distance.** The family was
+    # rebuilt with `density/sparsity` in microns, and this was mapped to it on the strength of the
+    # name — then disagreed with the shapes by a factor of about 3,900. Its constructor takes
+    # `normalize=True` by default and the docstring says what that means: "sparsity is normalized
+    # by the OD-fovea distance". So the number is dimensionless, expressed in disc-to-fovea
+    # distances, and on a synthetic shape that distance is the convention this adapter supplied
+    # (see `FOVEA`) rather than anything about the vessels. Twice uncatalogued, and the mapping is
+    # withdrawn rather than divided by something.
+    "mean_sparsity_vessels": None,
     f"mean_sparsity_{CIRCLE}_full_vessels": None,
 }
 

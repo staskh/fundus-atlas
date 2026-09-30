@@ -485,3 +485,44 @@ def test_the_koch_curve_is_drawn_thinner_than_every_other_shape() -> None:
     assert koch.theory["calibre/width/artery/mean"] == pytest.approx(
         straight.theory["calibre/width/artery/mean"] * library.KOCH_WIDTH_FRACTION
     )
+
+
+def test_one_retina_photographed_at_two_resolutions_gives_one_set_of_numbers() -> None:
+    """The point of stating every canonical biomarker in microns, asserted over all of them.
+
+    `PLAN-BIOMARKER.md` §2.2 is the decision and this is what enforces it. A 1024-pixel frame at
+    10 µm per pixel and a 2048-pixel frame at 5 covers exactly the same retina: same field, same
+    vessels, same widths in microns. So every value the shapes settle must be the same number on
+    both, and any that is not has fallen back into pixels — which is precisely the regression this
+    catches, because it is invisible at any single resolution.
+
+    The tolerance is 2% rather than exact: the disc radius and the vessel widths are rounded to
+    whole pixels when a shape is drawn, so the two grids do not describe *quite* the same picture.
+    A quantity still in pixels would be out by a factor of two or four, not by one per cent.
+    """
+    moved = []
+    for name in library.SHAPES:
+        coarse = library.build(name, side=1024, um_per_px=10.0)
+        fine = library.build(name, side=2048, um_per_px=5.0)
+        assert set(coarse.theory) == set(fine.theory), f"{name} settles different names per grid"
+        for quantity, value in coarse.theory.items():
+            if value != pytest.approx(fine.theory[quantity], rel=2e-2, abs=1e-9):
+                moved.append(f"{name} {quantity}: {value:.6g} vs {fine.theory[quantity]:.6g}")
+    assert not moved, "these are still in pixels:\n  " + "\n  ".join(moved)
+
+
+def test_every_settled_name_is_expressed_in_the_unit_the_vocabulary_declares() -> None:
+    """A width of 80 µm reads 80, whatever grid it was drawn on, and an area reads in µm².
+
+    The test above proves the values do not move; this one proves they landed on the right side.
+    Two quantities of known physical size are enough, because both would be wrong by the same
+    factor if `_physical` converted in the wrong direction.
+    """
+    shape = library.build("straight", side=SIDE, um_per_px=10.0)
+
+    assert canonical.unit("calibre/width/artery/mean") == "µm"
+    assert shape.theory["calibre/width/artery/mean"] == pytest.approx(
+        shape.parameters["artery_width"] * shape.um_per_px
+    )
+    assert canonical.unit("density/area/artery") == "µm²"
+    assert shape.theory["density/area/artery"] > shape.parameters["artery_width"] ** 2

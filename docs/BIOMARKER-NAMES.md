@@ -100,7 +100,7 @@ and withdrawn the mapping each time.
 | `density/over-image/{artery,vein,vessels}` | ✅ | | | |
 | `density/area/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels squared** |
 | `density/skeleton-length/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels**, and its rooted walk excludes vessels that do not reach the disc |
-| `density/sparsity/{artery,vein,vessels}` | | | ⚠️ | VascX only; returns pixels, statistic `mean` |
+| `density/sparsity/{artery,vein,vessels}` | | | ⚠️ | VascX only, and **not comparable**: its `mean_sparsity` is normalised by the optic-disc-to-fovea distance, so it is a dimensionless ratio rather than the distance in microns this name means |
 | `density/box-counting/{artery,vein,vessels}` | ✅ | | | |
 | `density/multifractal-d0/d1/d2/{artery,vein}` | | ✅ | | PVBM's three dimensions are of the **multifractal** analysis, not a plain box count |
 

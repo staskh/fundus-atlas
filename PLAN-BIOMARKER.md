@@ -324,6 +324,25 @@ quantities the catalogue has never heard of:
 **The vocabulary is not missing biomarkers. It is missing axes** — one of which 2.1 adds and one of
 which 2.4 must settle.
 
+**Settled 2026-09-30, and the count is now 67 of a larger total.** Both axes exist: a name carries
+a region and a statistic, and `length-weighted` joined `mean`, `median` and `std` because three
+implementations report it. What remains uncatalogued, by cause:
+
+| Count | Cause | Example |
+| --- | --- | --- |
+| **25** | a quantity computed over a **region the catalogue does not define**: zone C, which is 2–5 disc radii, and an equivalent over the whole image, which is not what an equivalent means | `tortuosity_density@C_artery`, `CRAE_Knudtson@whole_artery` |
+| **12** | a **class the column was not computed for** — AutoMorphalyzer runs every column over all three maps, so CRAE over the veins and CRVE over the arteries exist and answer nothing | `CRAE_Knudtson@B_vein` |
+| 9 | an **aggregation or variant the catalogue does not separate**: a mean of per-vessel widths that excludes branch points, a ratio of sums, two further segment caps | `average_local_calibre@*`, `pooled_tortuosity_artery` |
+| 8 | **withdrawn as wrong**, each with its date and its reason | `squared_curvature_tortuosity_*`, `mean_sparsity_vessels` |
+| 6 | **anchored to a fovea** this fixture invents, so nothing here can settle it | `median_temporal_angle_arteries`, `disc_fovea_distance_retina` |
+| 4 | a **rooted walk's own vocabulary** — start points and the free ends that exclude them | `start_points_artery`, `endpoints_artery` |
+| 3 | genuinely new quantity | `singularity_length_artery`, `tortuosity_index_artery` |
+
+The two axes did their work: AutoMorphalyzer's zone-B tortuosity columns are now catalogued, the
+AutoMorph group's width and tortuosity aggregations are named apart, OCULAR's third tortuosity has
+a name, and the perimeter left with PVBM's deprecated class. **What is left is mostly not a
+missing axis but a region nobody has defined** — 25 of the 67 — which is 2.4's remaining work.
+
 ### 3.2 Conversion rules
 
 **Open.** Mapping an implementation's column onto a canonical name is **a claim that has to be
@@ -335,6 +354,11 @@ testable**, and this repository has already been wrong about several:
   every pairwise angle at every junction, trunk included. *Withdrawn.*
 - `endpoints` was mapped to the catalogued endpoint count until PVBM's replacement class began
   calling the end at the disc a *start point*. *Withdrawn for PVBM and OCULAR both.*
+- `mean_sparsity_vessels` was mapped to `density/sparsity` the day that name existed, and the
+  shapes disagreed by a factor of 3,900. VascX normalises it by the optic-disc-to-fovea distance,
+  so it is a dimensionless ratio rather than a distance in microns — and on a synthetic shape that
+  denominator is a convention this repository supplied. *Withdrawn 2026-09-30, and the fastest of
+  these withdrawals: the shapes caught it within one run of the mapping being written.*
 
 So the rules a mapping must satisfy:
 
@@ -346,6 +370,12 @@ So the rules a mapping must satisfy:
    *defect of the implementation* and the benchmark reports the number rather than fixing it. **The
    difference between those two cases is the whole of this section**, and each mapping has to say
    which it is.
+
+   *Implemented 2026-09-30 as one rule in one place:* every adapter reports pixels, and
+   `canonical.from_pixels` raises them to the power of length the name declares. VascX, the only
+   upstream that hands back a physical length, converts *towards* pixels so that it lines up with
+   its five siblings. The shapes' ground truth is built by the same rule, so the two sides of
+   every comparison cannot disagree about the conversion.
 3. **A withdrawn mapping is a finding, not an omission**, and is recorded as such with its date.
 4. **The evidence stores the implementation's own names**, and the mapping is applied in the
    analysis. *Fact:* this is why the three withdrawals above cost a notebook re-run and **no
@@ -635,23 +665,37 @@ here than it is in step 7.2.
 
 ### 7.2 Then the code
 
-7. Extend `canonical.py` from a name→sentence map to a name→record carrying family, biomarker,
-   structure, region, statistic, unit, both definitions, the paper and the estimation requirements —
-   and **add the `vessel-` variants of 2.1.2** for every family where the distinction arises.
-   `check()` stays the single gate, and gains the disjointness check of 2.1.1.
-8. Re-map all six adapters. **The 44 region columns and 15 statistic columns of 3.1 are the measure
-   of success**, and the conversions come from the tables written in 7.1 step 5.
-9. Restate the synthetic shapes' ground truth in microns, per 2.2.
-10. Teach the shapes to settle the new names — and **turn 4.2 into a test**: one physical retina at
-    several grids, every name asserted to hold its value across them. That test is what stops a name
-    silently returning to pixels.
-11. Regenerate `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and the benchmark's configuration page **from
-    the record**, so that after this the code and the prose cannot disagree again.
-12. Re-run the analysis notebook. **No re-measurement** — 3.2 rule 4, confirmed in practice.
+7. ✅ **Done 2026-09-30.** Extend `canonical.py` from a name→sentence map to a name→record
+   carrying family, biomarker, structure, region, statistic, unit, the paper and the whole-vessel
+   flag — and **add the `vessel-` variants of 2.1.2** for every family where the distinction
+   arises. `check()` stays the single gate, and gained the disjointness check of 2.1.1.
+   *34 biomarkers; 551 names once structure, region and statistic are expanded.*
+8. ✅ **Done 2026-09-30.** Re-map all six adapters. The statistic turned out to be the part that
+   mattered: reading the code showed AutoMorph and AutoMorphalyzer divide by vessel count while
+   AutoMorphClass weights by length, so `length-weighted` was added to the vocabulary and names
+   three implementations' columns plus VascX's `lw_` family and OCULAR's third aggregation.
+   *One mapping was made on a name and withdrawn on the code — VascX's sparsity, which is
+   normalised by the disc-fovea distance and is not a length at all.*
+9. ✅ **Done 2026-09-30.** Restate the synthetic shapes' ground truth in microns, per 2.2. The
+   conversion is driven by each name's own declared unit, so a biomarker cannot be converted one
+   way and declared another. *It found two defects: Grisan's density is an inverse length, and
+   Hubbard's equivalent was being converted to microns twice.*
+10. ✅ **Done 2026-09-30.** Teach the shapes to settle the new names — 271 of the 280 whole-field
+    names, the remaining nine needing an optic cup, a fovea or the temporal arcades, which these
+    shapes do not draw — and **turn 4.2 into a test**:
+    `test_one_retina_photographed_at_two_resolutions_gives_one_set_of_numbers` asserts every
+    settled value over 1024/10 µm against 2048/5 µm. That test is what stops a name silently
+    returning to pixels.
+11. **Still to do.** Regenerate `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and the benchmark's
+    configuration page **from the record**, so that after this the code and the prose cannot
+    disagree again. The configuration page already is generated; the two catalogue pages are
+    still hand-written, and the Grisan unit defect is exactly the disagreement that costs.
+12. ✅ **Done 2026-09-30.** Re-run the analysis notebook. **No re-measurement** — 3.2 rule 4,
+    confirmed in practice: not one stored value in `results/` changed.
 
 Every table in chapters 2 and 4 comes from a one-off script rather than from anything committed,
 which is a weakness in this document: nobody can re-run them. Step 10 is where that is repaid.
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing, regions — every open question closed:** 2026-09-30.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing, regions — every open question closed:** 2026-09-30. **Chapter 7.2 carried out but for step 11:** 2026-09-30.
