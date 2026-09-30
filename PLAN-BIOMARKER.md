@@ -272,11 +272,39 @@ the pages:
   measurement is simply restricted to an area, and the default is right. For the temporal angle and
   the disc–fovea distance the region does not apply at all: they are defined relative to landmarks,
   not over an area, and should refuse a region rather than accept one that means nothing.
-- **What a region name denotes, exactly.** `B` and `C` are conventional but not self-explaining, and
-  VascX's `crcl_multiplier_1p16666666667` is 7/6 disc radii written as a float. The vocabulary needs
-  a short list with a definition each — the inner and outer radius in disc diameters, and the paper
-  that fixed them — or two implementations will use the same letter for different annuli and the
-  benchmark will report that as disagreement about vessels.
+- **Where the region vocabulary is written down.** Zones B and C are **well defined in the
+  literature** — the ARIC convention behind Hubbard's and Knudtson's equivalents — and this
+  repository already encodes one of them (`ZONE_B_RADII = (2.0, 3.0)`, in disc radii) and records
+  what each implementation does in `docs/biomarkers/central-retinal-equivalents.md` §5. What is
+  missing is a **single page that states the vocabulary**, so that the `roi` part of a name points
+  at a definition rather than at a convention everybody is assumed to know. See 2.4.1.
+
+#### 2.4.1 The regions get their own reference page
+
+**Decided, 2026-09-30.** `docs/biomarkers/regions-of-interest.md`, a sibling of
+`vessel-tracing.md` — which is also not a biomarker and is catalogued there for the same reason,
+that several biomarkers cannot be read without it. It carries:
+
+- **Each standard zone**, with its inner and outer bound and the paper that fixed them. Zone A, B
+  and C come from the ARIC convention behind [Hubbard 1999](docs/papers/hubbard-1999.md) and
+  [Knudtson 2003](docs/papers/knudtson-2003.md); the bounds must be **checked against those papers
+  when the page is written** rather than copied from this plan.
+- **The units, unambiguously, in both forms.** The classical convention is stated in disc
+  *diameters* from the disc margin and this repository's code in disc *radii* from the disc centre.
+  `docs/biomarkers/central-retinal-equivalents.md` §5 already calls that "a factor-of-two trap when
+  reading code", and it is the single most likely way for two implementations to look like they
+  disagree about vessels while agreeing about everything except arithmetic.
+- **`fov`**, the default: the whole field of view, which is a region like any other and needs
+  saying so.
+- **The non-standard regions implementations actually use**, because they exist and the vocabulary
+  has to accommodate them. VascX measures over several concentric circles between a configurable
+  inner and outer radius, keeping the largest six vessels per circle and taking the median across
+  them; its `crcl_multiplier_1p16666666667` column is 7/6 written as a float. A region that is not
+  one of the standard zones gets a name that says what it is, or the number is reported under the
+  implementation's own column name and mapped to nothing.
+
+The page is reference, not plan: it is where `check()`'s region vocabulary comes from, and adding a
+region means adding it there first.
 
 ## 3. How the existing implementations map onto it
 
@@ -537,15 +565,19 @@ it is the same rule that makes this repository refuse to let a model mark its ow
 - Carry no segmentation model: masks in, numbers out.
 - Be measured by the synthetic benchmark **before** anybody's results are compared against it.
 
-## 6. Open decisions
+## 6. Decisions
 
 - ~~**6.1 The region rule**~~ **Decided 2026-09-29: its own optional name part, defaulting to the
   field of view** (2.1, 2.4). What remains is 6.1a and 6.1b below.
 - ~~**6.1a Does a family declare a default region, or may it require one?**~~ **Decided 2026-09-30:
   a family declares which parts apply and what they default to, and may require one** (2.1.1). The
   equivalents require a region; three families carry no structure at all.
-- **6.1b What does each region name denote** (2.4)? `B` and `C` need radii and a paper, or two
-  implementations will use one letter for two annuli.
+- ~~**6.1b What does each region name denote?**~~ **Decided 2026-09-30: they are defined in the
+  literature and we document them** (2.4.1) — a reference page, `regions-of-interest.md`, stating
+  each zone with its bounds and its paper, both unit conventions, `fov`, and the non-standard
+  regions implementations use.
+
+**None remain open.** What is left is the work in chapter 7.
 - ~~**6.2 Is a defining paper mandatory?**~~ **Decided 2026-09-30: no, but the alternative is
   heavier, not lighter** (2.3).
 - ~~**6.3 Do we keep names nothing implements?**~~ **Decided 2026-09-30: yes, where a paper names
@@ -582,8 +614,10 @@ adapter and a benchmark run already built on top of them.
    the withdrawals of 3.2 would have been caught before they cost a benchmark run.
 3. **Fix the units on every page** to microns per 2.2, and mark which biomarkers a dataset without a
    scale cannot support at all.
-4. **Write the region vocabulary** per 2.4 — the short list, each with its radii and its paper, and
-   which families require a region rather than defaulting. **Record which families have a `vessel-`
+4. **Write `docs/biomarkers/regions-of-interest.md`** per 2.4.1 — each zone with its bounds checked
+   against the ARIC papers, both unit conventions stated so the factor-of-two trap cannot be walked
+   into, `fov`, and the non-standard regions implementations use. Record which families require a
+   region rather than defaulting. **Record which families have a `vessel-`
    form**, per 2.1.2, and that those require the disc. Revisit `junction-counts` while there: a
    rooted pair of names — free ends against tips — may recover the PVBM and OCULAR mappings this
    atlas withdrew.
@@ -620,4 +654,4 @@ which is a weakness in this document: nobody can re-run them. Step 10 is where t
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing, and all but one open question:** 2026-09-30.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing, regions — every open question closed:** 2026-09-30.
