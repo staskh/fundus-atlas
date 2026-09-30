@@ -85,34 +85,28 @@ the field of view.
 
 That last rule creates the one thing this naming scheme has to be careful about.
 
-#### 2.1.1 The four-part form is ambiguous unless the vocabularies are disjoint
+#### 2.1.1 The family decides which parts apply
 
-`vessel-calibre/mean-width/artery/B` and `vessel-calibre/mean-width/artery/mean` are both four-part
-names, and nothing in the *shape* of either says whether the fourth token is a region or a
-statistic. Only the token itself does.
+**Decided.** The table above gives the **global** defaults; a **family overrides them**. A family
+record says which parts apply to it at all, and what each defaults to when omitted:
 
-**So the two vocabularies must be fixed and provably disjoint**, and `check()` is where that is
-enforced rather than assumed: a region named `mean` or a statistic named `B` would make every
-four-part name ambiguous the day it was added, and the failure would be silent. The check costs
-nothing and the alternative is a name that parses differently depending on what else exists.
+| Family | `structure` | `roi` | `statistic` |
+| --- | --- | --- | --- |
+| `vessel-calibre`, `tortuosity`, `vascular-density`, `fractal-dimension` | applies | defaults to `fov` | defaults to `median` |
+| `central-retinal-equivalents`, `avr` | applies | **required** — there is no field-of-view-wide CRAE | none |
+| `cup-to-disc-ratio`, `disc-fovea-distance`, `temporal-angle` | **none** — they are not measured over a vessel class | does not apply | none |
 
-#### 2.1.2 A default region is wrong for at least one family
+So `cup-to-disc-ratio/vertical` is a complete two-part name, and
+`central-retinal-equivalents/knudtson/artery` is an **error** rather than a default, because the
+region is part of what that number means and a reader who did not know there was a choice would
+otherwise never learn there was one.
 
-**Open.** `fov` is the right default for calibre, tortuosity, density and the fractal dimensions.
-It is **meaningless for the central retinal equivalents**, which are *defined* over a ring around
-the disc: there is no field-of-view-wide CRAE, so `central-retinal-equivalents/knudtson/artery`
-resolving to `fov` names something that does not exist.
-
-Two ways to fix it, and one has to be chosen before the first name is written:
-
-1. **A family declares its own default** — `fov` for most, `B` for the equivalents — so the short
-   form always means the conventional thing.
-2. **A family may declare the region required**, and the equivalents do, so the short form is a
-   `LookupError` rather than a wrong answer.
-
-My reading is (2) for the equivalents specifically. A default that quietly supplies the
-conventional choice is convenient right up to the first reader who did not know there was a choice,
-and this is a family where the region is part of what the number *means*.
+**This also removes most of the parsing problem.** A name's shape alone cannot say whether the
+fourth token of `vessel-calibre/mean-width/artery/B` is a region or a statistic — but the family
+record can, because it says which parts that family has. Where a family has **both** optional parts,
+their two vocabularies must still be **provably disjoint**, and `check()` enforces it rather than
+assuming it: a region named `mean` would make every such name ambiguous the day it was added, and
+silently.
 
 ### 2.2 Units — microns, never pixels
 
@@ -145,36 +139,70 @@ microns and the family is coherent.
 
 **Three consequences, none of them free:**
 
-- **A biomarker with a length dimension cannot be computed without a scale.** Most datasets publish
-  no microns-per-pixel figure, which is why `fetch-um-resolution` infers one from the median optic
-  disc. A dataset with neither a published nor an inferred scale can support the dimensionless
-  biomarkers and **must refuse the rest** rather than silently reporting pixels.
+- **A scale is always available, so nothing has to be refused.** Where a dataset publishes microns
+  per pixel, that figure is used. Where it does not, one is **inferred from the optic disc on the
+  assumption that a disc is 1800 µm across** — which is what `fetch-um-resolution` already does and
+  what the synthetic shapes are already drawn to. A `None` scale is therefore a bug in the fetch
+  rather than a state a biomarker has to cope with.
+
+  The price is the one that assumption always carries, and it is recorded on every page that quotes
+  an inferred scale: **a length derived from an inferred scale cannot then be used to say anything
+  about disc size**, because the disc was defined to be 1800 µm to obtain it. Anything anchored to
+  the disc — the equivalents' zones, the disc–fovea distance — inherits that circularity and must
+  say so.
 - **Every conversion is the adapter's job**, per 3.2. An implementation reporting pixels has its
   output multiplied by the scale the store recorded; one reporting millimetres is converted; one
   applying micron-fitted constants to pixel widths is **wrong**, and the benchmark reports the
   number rather than repairing it.
-- **The synthetic shapes' ground truth is in pixels today** and has to be restated in microns. The
-  shapes know their own scale so the conversion is mechanical, but it changes every stored
-  theoretical value and therefore every comparison drawn against it.
+- **The synthetic shapes are rebuilt, not converted.** Their ground truth is in pixels today and
+  the whole store is redrawn to emit microns, so the committed `ground_truth.csv` is in the units
+  the vocabulary requires rather than in units plus a note. It changes every stored theoretical
+  value and therefore every comparison drawn against it.
 
 ### 2.3 The definition
 
-**Decided.** Every entry carries, and a benchmark may refuse an entry that does not:
+**Decided.** Every entry carries:
 
 | Field | Why |
 | --- | --- |
 | **Short definition** | one line, for a table |
 | **Long definition** | enough that two people implementing it separately would agree — the formula, and what it is computed over |
-| **Defining paper** | the primary goal of this plan; see the open question in 6.2 |
+| **Defining paper**, *or* the substitute below | the primary goal of this plan |
 | **Units** | 2.2 |
 | **Estimation requirements** | where the answer depends on how a derivative is taken — chapter 4 |
 
-**Fact:** five biomarker pages have no canonical name at all today — `cup-to-disc-ratio`,
-`disc-fovea-distance`, `temporal-angle`, `vascular-curvature-index`, `vessel-tracing` — and two
-documented biomarkers have no defining paper: vascular density (`No single origin`) and cup-to-disc
-ratio (`Clinical measure`). One, the vascular curvature index, is **proprietary and uncomputable**:
-its paper declines to give a formula. It should never get a canonical name, and the vocabulary
-should be able to record *why* rather than being silently short of it.
+#### 2.3.1 A paper is not mandatory, and what replaces it is heavier
+
+Some real measurements have no single origin. Vascular density is one, cup-to-disc ratio another —
+both are clinical practice rather than somebody's proposal, and demanding a citation would either
+block them or invite a dishonest one.
+
+**Where there is no defining paper, the page carries a detailed description in its place**: the
+formula written out, what it is computed over, the conventions it assumes, and **optionally a
+pointer to an open-source implementation** that can be read as a worked example. That is a heavier
+obligation than a citation, not a lighter one — a reader following a DOI gets the authors' own
+account, and a reader following this gets ours, which had better be good enough to implement from.
+
+An implementation is a *pointer*, never the definition. Code changes and the entry must not, which
+is 5.3's rule pointing the other way.
+
+#### 2.3.2 A name with no implementation is kept if a paper asks for it
+
+**Fact:** 53 of 90 canonical names are claimed by no implementation in this catalogue.
+
+They stay, on one condition: **a paper names or recommends the quantity.** Hart's τ4 and τ5 are in
+his table and marked compositional whether or not anybody has written code for them; the vocabulary
+records what the literature asks for rather than what happens to exist in Python today. Some of them
+may end up implemented in `fundus-biomarkers` precisely because nothing else implements them, which
+is a reason to name them now and not later.
+
+A name that no paper asks for and no implementation computes is clutter, and goes.
+
+**Fact, and the exception that proves the rule:** five biomarker pages have no canonical name at all
+— `cup-to-disc-ratio`, `disc-fovea-distance`, `temporal-angle`, `vascular-curvature-index`,
+`vessel-tracing`. Four should get one. The fifth, the vascular curvature index, should never: its
+paper declines to give a formula, so it cannot be defined under 2.3.1 either, and the page must say
+that rather than leaving the absence to be guessed at.
 
 ### 2.4 Region of interest — what the decision costs
 
@@ -395,23 +423,25 @@ Two mechanisms keep that true rather than merely intended:
 - **What the adapter declares is a digest, not the constants.** See 5.5, which is the part of this
   that is not yet solved.
 
-### 5.5 The fingerprint problem, and the proposed way round it
+### 5.5 The fingerprint is the commit id
 
-**Open.** `add-model` §7.4 and `build-benchmark` §5 both require that *every number an adapter acts
-on is declared as a number*, because a constant that changes a result and is not fingerprinted is
-one a stale score can outlive. Chapter 4 is the argument for that rule at its strongest: the
-estimator and its scale move τ3 by a factor of eighteen, and PVBM's recursion limit turned 32
-exceptions into measurements.
+**Decided, 2026-09-30.** The adapter declares `fundus-biomarkers`' **commit**, and the benchmark
+fingerprints that, exactly as it does for every other cloned upstream.
 
-**Those are exactly the constants a proprietary library would not publish.** So the fingerprint has
-a hole precisely where it matters most.
+`add-model` §7.4 and `build-benchmark` §5 both require that every number an adapter acts on is
+declared, because a constant that changes a result and is not fingerprinted is one a stale score
+can outlive — and chapter 4 is that rule at its strongest, since the estimator and its scale move
+τ3 by a factor of eighteen. For a library whose constants live **in its code**, the commit id
+covers all of them at once: change any constant, change the commit, invalidate the scores. It
+publishes nothing, and it needs no cooperation from the library beyond being a git repository.
 
-Proposed: the library exposes a **configuration digest** — a hash over everything it acts on,
-computed inside the library — which the adapter declares and the benchmark fingerprints in place of
-the values. Any change to any constant changes the digest and invalidates the stored scores, which
-is the whole guarantee the rule exists for, and nothing is published. It costs one thing worth
-naming: a reader can see *that* the configuration changed and not *what* changed, so the results
-page must carry the digest and say which runs share it.
+**The one gap, recorded so it is not discovered later.** A commit id covers what is *baked in*, not
+what is *passed in*. Any setting the adapter chooses at run time — a scale, a smoothing window, a
+region — is invisible to it, and is exactly the kind of number chapter 4 shows changes everything.
+So the rule that goes with this decision: **the adapter passes as little as possible**, and whatever
+it does pass it declares as a number, publicly, because a parameter this repository chooses is this
+repository's to publish. A constant that must stay private belongs inside the library and inside the
+commit.
 
 ### 5.6 The results are published in full, like everybody else's
 
@@ -449,20 +479,20 @@ it is the same rule that makes this repository refuse to let a model mark its ow
 
 - ~~**6.1 The region rule**~~ **Decided 2026-09-29: its own optional name part, defaulting to the
   field of view** (2.1, 2.4). What remains is 6.1a and 6.1b below.
-- **6.1a Does a family declare a default region, or may it require one** (2.1.2)? `fov` is
-  meaningless for the central retinal equivalents. My reading is that the equivalents require it.
+- ~~**6.1a Does a family declare a default region, or may it require one?**~~ **Decided 2026-09-30:
+  a family declares which parts apply and what they default to, and may require one** (2.1.1). The
+  equivalents require a region; three families carry no structure at all.
 - **6.1b What does each region name denote** (2.4)? `B` and `C` need radii and a paper, or two
   implementations will use one letter for two annuli.
-- **6.2 Is a defining paper mandatory** (2.3)? Making it so is this plan's primary goal and would
-  block vascular density and cup-to-disc ratio, which are real measurements with no single origin.
-  The alternative is a required field whose value may be `no single origin`.
-- **6.3 Do we keep names nothing implements?** 53 of 90 are claimed by no implementation. Some are
-  right to keep — τ4 and τ5 are in Hart's paper whether or not anybody computes them — and some may
-  be clutter. A rule is needed, not a case-by-case purge.
+- ~~**6.2 Is a defining paper mandatory?**~~ **Decided 2026-09-30: no, but the alternative is
+  heavier, not lighter** (2.3).
+- ~~**6.3 Do we keep names nothing implements?**~~ **Decided 2026-09-30: yes, where a paper names
+  or recommends them** (2.3).
 - **6.4 How tightly does a definition constrain tracing** (4.1)? A definition that leaves the
-  centreline open is not a definition; one that fixes it forbids a better skeletoniser.
-- **6.5 How a proprietary library is fingerprinted** (5.5). The configuration-digest proposal keeps
-  the guarantee without publishing the constants; it needs the library to cooperate.
+  centreline open is not a definition; one that fixes it forbids a better skeletoniser. **The last
+  one open, and the next thing to discuss.**
+- ~~**6.5 How a proprietary library is fingerprinted?**~~ **Decided 2026-09-30: by its commit id**
+  (5.5).
 - ~~**6.6 Is the per-image evidence published for that column?**~~ **Decided 2026-09-29: yes, in
   full, in the same tables as everybody else** (5.6). What remains is wording, not policy — the
   column says what access a reader needs to re-run it, and the atlas never calls it independently
@@ -519,4 +549,4 @@ which is a weakness in this document: nobody can re-run them. Step 10 is where t
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, and four of the six open questions:** 2026-09-30.
