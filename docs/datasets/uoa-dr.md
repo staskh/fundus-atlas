@@ -55,7 +55,7 @@ Access is the obstacle: a signed licence, negotiated case by case.
 - **Catalogued models trained on these images:** None established — held out of every model here.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** held-out vessel accuracy *and* a disc boundary *and* a fovea on the same
-  200 eyes — enough to build the [disc-to-fovea axis](../biomarkers/disc-fovea-distance.md) that
+  200 eyes — enough to build the [disc-to-fovea axis](../biomarkers/landmarks.md) that
   VascX's region conventions depend on, and to check a whole pipeline rather than one stage.
 
 ## 7. Known defects

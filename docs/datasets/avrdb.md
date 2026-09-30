@@ -4,7 +4,7 @@
 veins were drawn by four ophthalmologists, under **CC BY 4.0**.
 
 The paper describes more: an arteriovenous ratio per image — which would be the check for
-[calibre biomarkers](../biomarkers/avr.md) that [ORIGA](origa.md) provides for the cup-to-disc
+[calibre biomarkers](../biomarkers/calibre.md) that [ORIGA](origa.md) provides for the cup-to-disc
 ratio — plus the optic nerve head, hard exudates, cotton-wool spots and disease labels. **None of
 that is in the deposit**, which holds the artery/vein drawings and nothing else (section 7).
 
@@ -92,7 +92,7 @@ Three things about the archive a person running this will meet, all handled by t
   AutoMorph family and of [LUNet](../models/lunet.md).
 - **Below a model's measuring grid:** No.
 - **What it can answer:** the one thing nothing else here can — whether a pipeline's computed
-  [AVR](../biomarkers/avr.md) agrees with a clinician's published AVR on the same eye, on
+  [AVR](../biomarkers/calibre.md) agrees with a clinician's published AVR on the same eye, on
   hypertensive retinopathy, under a permissive licence.
 
 ## 7. Known defects

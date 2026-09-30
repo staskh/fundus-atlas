@@ -49,26 +49,93 @@ implemented by nobody here.** And AutoMorph reports τ3, which Hart's table mark
 and which grows with vessel length by construction: for a circular arc of angle θ and radius r,
 τ3 = θ/r, so measuring more of the same arc raises it, while τ5 = 1/r² depends on the radius alone.
 
-### 1.1 Canonical names
+### 1.2 Canonical names
 
-The names this repository measures this biomarker under. A number is comparable with
-another only when both carry the same one — the variant says which definition, and the
-structure says what it was measured over. They are fixed in `src/biomarkers/canonical.py`
-and mapped to each implementation's own column in [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md).
+`family / biomarker / structure / [roi] / [statistic]`, with the region defaulting to `fov` and the
+statistic to `median` — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. A number is comparable
+with another only when all five agree.
 
-| Canonical name | What it is |
+| Canonical name | What it is | Units |
+| --- | --- | --- |
+| `tortuosity/hart-tau1` | arc length over chord length; 1 for a straight vessel | 1 |
+| `tortuosity/hart-tau2` | total curvature, ∫κ ds — the total turning angle | 1 |
+| `tortuosity/hart-tau3` | total squared curvature, ∫κ² ds | **1/µm** |
+| `tortuosity/hart-tau4` | mean curvature, ∫κ ds / s — **compositional**, and implemented here by nobody | **1/µm** |
+| `tortuosity/hart-tau5` | mean squared curvature, ∫κ² ds / s — likewise | **1/µm²** |
+| `tortuosity/hart-tau6` | total curvature over chord, ∫κ ds / chord | **1/µm** |
+| `tortuosity/hart-tau7` | total squared curvature over chord | **1/µm²** |
+| `tortuosity/grisan-density` | Grisan's density over constant-sign subsegments | 1 |
+| `tortuosity/inflection-count` | how many times the curvature changes sign | 1 |
+| `tortuosity/arc-chord-times-inflections` | τ1 multiplied by the inflection count | 1 |
+| `tortuosity/spline-curvature` | curvature sampled along a fitted spline | **1/µm** |
+
+Each takes a structure — `artery`, `vein` or `vessels` — and the optional region and statistic.
+
+**The family spans three physical dimensions.** τ1 and τ2 are dimensionless; τ3, τ4, τ6 and the
+spline curvature are inverse lengths; τ5 and τ7 are inverse areas. "Tortuosity" as a column heading
+is not one kind of quantity, which is the single best argument for naming the variant.
+
+**`spline-curvature`, not `spline-mean-curvature`.** The mean is a *statistic*, and lives in the
+statistic part where it can be swapped for a median.
+
+### 1.3 Segments or whole vessels
+
+Tortuosity is computed per piece and then pooled, and **what counts as a piece is part of the
+definition rather than of the tracing**:
+
+| Name | Measured over |
 | --- | --- |
-| `tortuosity/arc-chord-times-inflections/<structure>` | τ1 multiplied by the number of curvature sign changes — over artery, vein, vessels |
-| `tortuosity/grisan-density/<structure>` | Grisan's tortuosity density over constant-sign subsegments — over artery, vein, vessels |
-| `tortuosity/hart-tau1/<structure>` | arc length over chord length; 1 for a straight vessel — over artery, vein, vessels |
-| `tortuosity/hart-tau2/<structure>` | total curvature, ∫κ ds — over artery, vein, vessels |
-| `tortuosity/hart-tau3/<structure>` | total squared curvature, ∫κ² ds — over artery, vein, vessels |
-| `tortuosity/hart-tau4/<structure>` | mean curvature, ∫κ ds / s — compositional, and implemented here by nobody — over artery, vein, vessels |
-| `tortuosity/hart-tau5/<structure>` | mean squared curvature, ∫κ² ds / s — likewise — over artery, vein, vessels |
-| `tortuosity/hart-tau6/<structure>` | total curvature over chord, ∫κ ds / chord — over artery, vein, vessels |
-| `tortuosity/hart-tau7/<structure>` | total squared curvature over chord, ∫κ² ds / chord — over artery, vein, vessels |
-| `tortuosity/inflection-count/<structure>` | how many times the curvature changes sign — over artery, vein, vessels |
-| `tortuosity/spline-mean-curvature/<structure>` | mean curvature sampled along a fitted spline — over artery, vein, vessels |
+| `tortuosity/hart-tau1` | **segments** — the pieces between intersection points, after pruning. What most implementations compute |
+| `tortuosity/vessel-hart-tau1` | **whole vessels** — each root-to-tip path from the optic disc counted as one vessel |
+
+The `vessel-` prefix applies to every measure on this page. The two pool different populations and
+are different numbers; for the **compositional** pair τ4 and τ5 they are related by construction,
+and for the rest they are not.
+
+**A vessel is root-to-tip**, so a tree with *N* leaves has *N* vessels, and the whole-vessel forms
+**require an optic disc** to root the trace. Vessels that never reach the disc are not vessels.
+
+### 1.4 How the curvature is estimated is part of the measurement
+
+Every measure here except τ1 is an integral of curvature, and **curvature cannot be read off a
+skeleton directly**. A skeleton is a staircase, so differencing adjacent pixels measures the
+staircase: on a drawn arc it reads 150 to 2500 times too large and tracks the pixel count rather
+than the vessel.
+
+This repository has measured what the choice is worth. On the same paths and shapes, each estimator
+at its best setting, worst error over all seven measures:
+
+| Estimator | Worst error |
+| --- | --- |
+| Boxcar smoothing then finite differences | 34.5% |
+| Least-squares cubic spline | 8.1% |
+| **Angle regression** — κ = dα/ds by least squares, **Hart's own recipe** | **6.9%** |
+
+A boxcar cannot bring τ3, τ5 or τ7 within 10% at any smoothing scale; a spline takes τ3 from 25.3%
+to 1.4%. Hart's published recipe wins because it takes a **first** derivative of the tangent angle
+rather than a second derivative of position.
+
+**And the scale it is estimated at is not a constant.** A smoothing scale fixed in *pixels* fails
+across resolutions — one implementation reads 4.5% on the grid it was tuned on and 40.4% one
+doubling later. Fixed in *microns* it is resolution-independent but still wrong for vessels of
+different curvature: the optimum rises with the feature being measured, as
+`σ ≈ 0.32 · R_eff^0.68` over an eightyfold range, where `R_eff` is the effective radius of
+curvature.
+
+**So an implementation must declare its estimator and how its scale is set**, and a scale recorded
+without its estimator records nothing. `PLAN-BIOMARKER.md` §4.2 carries the measurements.
+
+### 1.5 One measure that can never be named
+
+[Giesser 2024](../papers/giesser-2024.md) proposes a tenth measure, the **vascular curvature index**,
+and reports it as more stable than the published formulas on a five-minute retest of healthy eyes.
+Its paper calls the metric **proprietary and gives no formula a reader can compute**.
+
+It therefore gets **no canonical name, ever** — not because nobody implements it, but because it
+cannot be defined under this catalogue's rules at all: there is no paper formula and no detailed
+description could be written in its place. That is recorded here rather than left as an absence, so
+a reader who meets the abbreviation knows why it is missing. AutoMorph supplied the masks in that
+study, not the VCI numbers.
 
 ## 2. Definitions of record
 
@@ -129,7 +196,7 @@ Two papers define everything in the table above.
 - **Scale response:** `1/γ` — a vessel photographed twice as large has half the mean curvature.
 - **Implemented by:** **nobody in this catalogue.** Hart's own recommendation is the one measure
   no catalogued project computes.
-- **Canonical name:** `tortuosity/hart-tau4/<structure>`.
+- **Canonical name:** `tortuosity/hart-tau4/<structure>`, in **1/µm**.
 
 ### 3.4 Mean squared curvature — Hart τ5
 
@@ -140,7 +207,7 @@ Two papers define everything in the table above.
 - **Scale response:** `1/γ²`.
 - **Implemented by:** nobody in this catalogue. AutoMorph reports τ3, which is this quantity
   **without** the normalisation and therefore grows with vessel length by construction.
-- **Canonical name:** `tortuosity/hart-tau5/<structure>`.
+- **Canonical name:** `tortuosity/hart-tau5/<structure>`, in **1/µm²**.
 
 ### 3.5 Arc-chord ratio times inflection count
 

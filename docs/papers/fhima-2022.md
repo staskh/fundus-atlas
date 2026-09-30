@@ -37,8 +37,8 @@ vessels; the masks have to come from somewhere else.
 ## 3. Why it is in this atlas
 
 - **Kind:** definition
-- It is the toolbox that later pipelines actually run for [junction counts](../biomarkers/junction-counts.md)
-  and [vessel area and length](../biomarkers/vessel-area-and-length.md). The first published
+- It is the toolbox that later pipelines actually run for [junction counts](../biomarkers/topology.md)
+  and [vessel area and length](../biomarkers/density.md). The first published
   measurement of those tree sums is [Martinez-Perez 2000](martinez-perez-2000.md); this paper is
   the implementation, plus new algorithms for tortuosity and branching angle, and the multifractal
   set whose retinal definition is [Stosic 2006](stosic-2006.md).
@@ -60,13 +60,13 @@ are separate.
 
 | Entry | Relationship |
 | --- | --- |
-| [Junction counts](../biomarkers/junction-counts.md) | Implements [Martinez-Perez 2000](martinez-perez-2000.md)'s endpoint and intersection counts, and adds startpoints on the disc |
-| [Vessel area and length](../biomarkers/vessel-area-and-length.md) | Implements the pixel-area and skeleton-length measures |
+| [Junction counts](../biomarkers/topology.md) | Implements [Martinez-Perez 2000](martinez-perez-2000.md)'s endpoint and intersection counts, and adds startpoints on the disc |
+| [Vessel area and length](../biomarkers/density.md) | Implements the pixel-area and skeleton-length measures |
 | [PVBM](../projects/pvbm.md) | The software this paper introduced |
 | [Martinez-Perez 2000](martinez-perez-2000.md) | The tree-measurement paper this toolbox cites for length, area, endpoints, intersections, tortuosity and branching angle |
 | [Tortuosity](../biomarkers/tortuosity.md) | Introduces a median tortuosity algorithm; not the definition of record |
-| [Bifurcation angle](../biomarkers/bifurcation-angle.md) | Introduces a branching-angle algorithm; not the definition of record |
-| [Fractal dimension](../biomarkers/fractal-dimension.md) | Implements D₀, D₁, D₂ and singularity length; the retinal definition is [Stosic 2006](stosic-2006.md) |
+| [Bifurcation angle](../biomarkers/topology.md) | Introduces a branching-angle algorithm; not the definition of record |
+| [Fractal dimension](../biomarkers/density.md) | Implements D₀, D₁, D₂ and singularity length; the retinal definition is [Stosic 2006](stosic-2006.md) |
 | [Stosic 2006](stosic-2006.md) | Cited for D₀ > D₁ > D₂; this toolbox then computes those numbers by box-counting, not the sandbox |
 | [Leuven-Haifa](../datasets/leuven-haifa.md) | Later public high-resolution set from the same groups; not the 69 UZFG photographs |
 

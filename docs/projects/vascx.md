@@ -107,15 +107,15 @@ to the modules in `vascx/fundus/features/`.
 
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| [Caliber (vessel width)](../biomarkers/vessel-calibre.md) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
-| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) (CRAE, CRVE) | **Knudtson's** combination, `c·√(d₁²+d₂²)` with c = 0.88 for arteries and 0.95 for veins — in both `cre.py` and `cre_knudtson.py`; see §6.3 | — | Reimplemented twice, differing in protocol rather than formula: `cre.py` applies the combination over configurable concentric circles (number of circles, inner and outer radius in disc-diameter multiples, how many largest vessels per circle, orientation mode), and `cre_knudtson.py` follows Knudtson's own zone-B protocol — the 6 largest zone-B segments in full mode, 4 in temporal or nasal, diameters as segment medians |
+| [Caliber (vessel width)](../biomarkers/calibre.md) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
+| [Central retinal equivalents](../biomarkers/calibre.md) (CRAE, CRVE) | **Knudtson's** combination, `c·√(d₁²+d₂²)` with c = 0.88 for arteries and 0.95 for veins — in both `cre.py` and `cre_knudtson.py`; see §6.3 | — | Reimplemented twice, differing in protocol rather than formula: `cre.py` applies the combination over configurable concentric circles (number of circles, inner and outer radius in disc-diameter multiples, how many largest vessels per circle, orientation mode), and `cre_knudtson.py` follows Knudtson's own zone-B protocol — the 6 largest zone-B segments in full mode, 4 in temporal or nasal, diameters as segment medians |
 | Artery-vein ratio | Ratio of the two equivalents above | — | Derived from the CRE values |
 | [Tortuosity](../biomarkers/tortuosity.md) | Three published families: distance ratio (arc length over chord length), mean curvature along a spline, and inflection counts | — | Reimplemented; selectable per segment or per whole vessel, spline or skeleton length, with optional caps on segment length and on implausible values |
-| [Vascular density](../biomarkers/vascular-density.md) | Prior literature | — | Reimplemented |
-| [Sparsity](../biomarkers/sparsity.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented, with mode options |
-| [Bifurcation angles](../biomarkers/bifurcation-angle.md) and [counts](../biomarkers/junction-counts.md) | Prior literature | — | Reimplemented |
-| [Temporal angles](../biomarkers/temporal-angle.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented |
-| Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/disc-fovea-distance.md)) | [Vargas 2026](../papers/vargas-2026.md) | — | Implemented here; also the scale reference for other biomarkers |
+| [Vascular density](../biomarkers/density.md) | Prior literature | — | Reimplemented |
+| [Sparsity](../biomarkers/density.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented, with mode options |
+| [Bifurcation angles](../biomarkers/topology.md) and [counts](../biomarkers/topology.md) | Prior literature | — | Reimplemented |
+| [Temporal angles](../biomarkers/topology.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented |
+| Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/landmarks.md)) | [Vargas 2026](../papers/vargas-2026.md) | — | Implemented here; also the scale reference for other biomarkers |
 | Image quality metrics (edge strength, sharpness, variance of Laplacian) | Standard image-quality measures | — | Implemented here, alongside the learned quality model |
 
 ### 6.1 It implements Knudtson's formula, and no Hubbard variant

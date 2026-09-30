@@ -75,7 +75,7 @@ it, the fetcher says so and stops rather than looking for a way round the login.
 `ExpCDR` is the reason to reach for ORIGA. Measuring the vertical extents of the shipped masks
 reproduces it closely — to within 0.001 on every image in checks run for this atlas — which means the
 masks and the published ratio are consistent, and that a pipeline's own
-[cup-to-disc ratio](../biomarkers/cup-to-disc-ratio.md) can be compared against a human-recorded
+[cup-to-disc ratio](../biomarkers/landmarks.md) can be compared against a human-recorded
 value rather than against another algorithm's mask.
 
 ## 5. Inheritance

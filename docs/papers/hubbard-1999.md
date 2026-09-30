@@ -31,8 +31,8 @@ reproducibility figures for that ratio.
 ## 3. Why it is in this atlas
 
 - **Kind:** definition
-- It is one of the two definitions of record for [central retinal equivalents](../biomarkers/central-retinal-equivalents.md)
-  and therefore for [AVR](../biomarkers/avr.md). The pairing rule, the zone around the disc, and
+- It is one of the two definitions of record for [central retinal equivalents](../biomarkers/calibre.md)
+  and therefore for [AVR](../biomarkers/calibre.md). The pairing rule, the zone around the disc, and
   the additive constants that only make sense in microns all start here. Knudtson later revised the
   formulas; this page is the original.
 
@@ -51,15 +51,15 @@ These are the authors' measurements on ARIC photographs. This atlas's own compar
 
 | Entry | Relationship |
 | --- | --- |
-| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) | Defines the Hubbard variant (the pairing formulas with additive constants) |
-| [AVR](../biomarkers/avr.md) | Defines the ratio of those two equivalents |
+| [Central retinal equivalents](../biomarkers/calibre.md) | Defines the Hubbard variant (the pairing formulas with additive constants) |
+| [AVR](../biomarkers/calibre.md) | Defines the ratio of those two equivalents |
 | [Knudtson 2003](knudtson-2003.md) | The revision that most catalogued pipelines actually run |
 
 ## 6. Notes
 
 - The additive constants were fitted in **microns**. Feeding pixel widths into the Hubbard formulas
   is not a rescaled Hubbard value; it is a different number. That trap is recorded on the
-  [equivalents](../biomarkers/central-retinal-equivalents.md) page, not as a defect in this paper.
+  [equivalents](../biomarkers/calibre.md) page, not as a defect in this paper.
 - Parr and Spears's earlier branching work is the source Hubbard fitted; it is not catalogued here
   yet, because the operational definition the field used is this one.
 

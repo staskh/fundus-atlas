@@ -212,7 +212,7 @@ retina photographed twice, not two retinas**.
 
 Note that 1800 µm is the disc's **diameter**. Its radius — 900 µm — is what every zone around it is
 counted in, and the two are confused often enough that
-[central-retinal-equivalents.md](../biomarkers/central-retinal-equivalents.md) §5 records it as a
+[central-retinal-equivalents.md](../biomarkers/calibre.md) §5 records it as a
 trap.
 
 Stating sizes physically makes one consequence visible that is easy to get backwards:

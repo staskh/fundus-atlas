@@ -42,9 +42,9 @@ and venous trees in people with and without hypertension.
 
 - **Kind:** definition
 - It is the first published measurement of several quantities this atlas already catalogues as
-  [vessel area and length](../biomarkers/vessel-area-and-length.md),
-  [junction counts](../biomarkers/junction-counts.md) and
-  [bifurcation angle](../biomarkers/bifurcation-angle.md). [Fhima 2022](fhima-2022.md) is the
+  [vessel area and length](../biomarkers/density.md),
+  [junction counts](../biomarkers/topology.md) and
+  [bifurcation angle](../biomarkers/topology.md). [Fhima 2022](fhima-2022.md) is the
   toolbox that later pipelines actually run; this paper is the source that toolbox cites.
 - It also names measures this atlas has not catalogued yet — perimeter, expansion factors, Strahler
   ratio, altitude, external path length — so a reader can see what is missing rather than assuming
@@ -65,10 +65,10 @@ separate. Exact figures stay in the papers; this page does not restate tables.
 
 | Entry | Relationship |
 | --- | --- |
-| [Vessel area and length](../biomarkers/vessel-area-and-length.md) | First published the tree-sum area and length measures |
-| [Junction counts](../biomarkers/junction-counts.md) | First published branch, crossing and terminal-edge counts on the skeleton |
-| [Bifurcation angle](../biomarkers/bifurcation-angle.md) | First published automatic branching angles on a whole retinal tree |
-| [Vessel calibre](../biomarkers/vessel-calibre.md) | Measures diameters on the tree; not the image-edge method of [Bankhead 2012](bankhead-2012.md) |
+| [Vessel area and length](../biomarkers/density.md) | First published the tree-sum area and length measures |
+| [Junction counts](../biomarkers/topology.md) | First published branch, crossing and terminal-edge counts on the skeleton |
+| [Bifurcation angle](../biomarkers/topology.md) | First published automatic branching angles on a whole retinal tree |
+| [Vessel calibre](../biomarkers/calibre.md) | Measures diameters on the tree; not the image-edge method of [Bankhead 2012](bankhead-2012.md) |
 | [Tortuosity](../biomarkers/tortuosity.md) | A derived geometrical property here; the formula papers remain [Hart 1999](hart-1999.md) and [Grisan 2008](grisan-2008.md) |
 | [Fhima 2022](fhima-2022.md) / [PVBM](../projects/pvbm.md) | Implements a subset (area, length, endpoints, intersections, tortuosity, branching angle) |
 
