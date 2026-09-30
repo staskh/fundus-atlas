@@ -108,6 +108,41 @@ their two vocabularies must still be **provably disjoint**, and `check()` enforc
 assuming it: a region named `mean` would make every such name ambiguous the day it was added, and
 silently.
 
+#### 2.1.2 What the measurement is taken over goes in the name
+
+**Decided, 2026-09-30.** Where a quantity can be computed over a **segment** or over a **whole
+vessel**, those are two biomarkers and they get two names:
+
+| Name | Measured over |
+| --- | --- |
+| `tortuosity/hart-tau1` | **segments** — the pieces between intersection points, after pruning. What most implementations compute |
+| `tortuosity/vessel-hart-tau1` | **whole vessels** — each start-to-end path through the tree taken as one vessel |
+
+The `vessel-` prefix is the general convention, available to any family where the distinction
+arises, and the unprefixed name is the segment form because that is what the field mostly does.
+
+**This is Hart's own distinction, not a convenience.** The 1999 paper classified *vessel segments*
+at about 91% and *vessel networks* at about 95% against ophthalmologists' judgement, and its
+central argument is **compositionality** — that the score of a whole vessel should be recoverable
+from the scores of its parts. Its table marks which of the seven compose and which do not, and that
+is exactly the axis this naming exposes:
+
+- For the **compositional** measures — τ4 and τ5, the pair Hart's argument favours — the two
+  variants are related by construction, and a reader can move between them.
+- For the **non-compositional** ones, including τ1 and τ3, they are simply different numbers.
+  Reporting one under the other's name is the error this split exists to prevent.
+
+It also settles what a **pooled statistic** pools. `tortuosity/hart-tau1/artery` with the default
+statistic is the median over *segments*; `tortuosity/vessel-hart-tau1/artery` is the median over
+*vessels*. Those were the same name until now, over different populations.
+
+**One thing still to pin down:** what counts as a start-to-end pair. Root-to-tip — every path from
+the vessel's origin at the disc to a leaf — needs a rooted trace and gives one vessel per leaf.
+Every-terminal-pair needs no root and gives a path for each pair of free ends, which is a much
+larger population. The implementations that already have a rooted walk make the first natural; the
+second is what an unrooted tracer would produce. This has to be written into the definition in
+chapter 7 step 2, because it is the difference between *N* vessels and *N(N−1)/2* of them.
+
 ### 2.2 Units — microns, never pixels
 
 **Decided.** A canonical biomarker is **never expressed in pixels.** Anything with a length
@@ -283,24 +318,39 @@ So the rules a mapping must satisfy:
 Chapters 2 and 3 are about names. This one is about the numbers, and it is where most of the
 measurement in this plan has gone.
 
-### 4.1 Vessel tracing
+### 4.1 Vessel tracing — the implementation's, and documented
 
-**Open.** Every biomarker beyond area and density is computed from a **centreline**, and nothing in
-the catalogue currently specifies how that centreline is obtained. What is known:
+**Decided, 2026-09-30.** A canonical definition **does not specify how the centreline is obtained.**
+Tracing is engineering rather than a published measurement — `docs/biomarkers/vessel-tracing.md`
+says so already, and there is no paper to cite for it. Fixing it in a definition would make the
+benchmark a conformance test for one algorithm and forbid a better skeletoniser.
 
-- Skeletonisation of a thick vessel leaves **spurs** at every sharp corner. The drawn Koch curve
-  carries four to six endpoints where the curve has two, which is why the catalogued endpoint count
-  is unmeasurable on it.
-- **Pruning strategy changes tortuosity.** On the Koch shape every implementation undershoots the
-  drawn arc-to-chord ratio, and the ordering between them is partly an ordering of how aggressively
-  each prunes.
-- PVBM's walk is **recursive, one Python frame per skeleton pixel**, and raises on a dense tree at
-  CPython's default limit. OCULAR's fork sets 5000 and does not. *Fact:* with the limits equalised
-  the two return **identical numbers on every shared biomarker** — so that setting, not the code,
-  was the whole of the difference this atlas had been reporting between them.
+What is required instead is that **every implementation documents its tracing**, on its project
+page, in the terms that page already sets out: how the centreline is extracted, how junctions are
+treated, how points are put into path order, and whether the centreline is smoothed or branches
+rejoined before derivatives are taken.
 
-A canonical definition that does not constrain tracing is not a definition. What it should
-constrain, and how tightly, is open.
+**The one decision that does not stay with the implementation is what the measurement is taken
+over**, and 2.1.2 moves that into the name rather than into the tracer. Segments and whole vessels
+are two biomarkers; how you find either is yours.
+
+What this leaves genuinely open, and what the benchmark is for measuring rather than legislating:
+
+- **Spur pruning.** Skeletonising sharp corners leaves spurs — the drawn Koch curve carries four to
+  six endpoints where the curve has two. Pruning shortens the arc and lowers tortuosity, and the
+  ordering of the six implementations on that shape is partly an ordering of how aggressively each
+  prunes.
+- **Inclusion thresholds.** PVBM's current class requires a subgraph of at least 50 pixels beginning
+  within `100 + radius` of the disc. That is why `disjoint` returns zeros for it — a definitional
+  consequence of a disc-anchored walk, not a failure.
+- **The centreline algorithm itself**, worth about 4–5% on arc length from staircase inflation alone
+  on shapes drawn here.
+
+**Fact, and the reason documentation is not a soft requirement:** PVBM and OCULAR return *identical*
+numbers on every shared biomarker once their recursion limits match. Everything this atlas had been
+reporting as a difference between two programs was one interpreter setting that neither had written
+down. A tracing difference that nobody documents is the same failure waiting to happen with more
+digits.
 
 ### 4.2 Curvature, smoothing, and the scale it is estimated at
 
@@ -488,9 +538,11 @@ it is the same rule that makes this repository refuse to let a model mark its ow
   heavier, not lighter** (2.3).
 - ~~**6.3 Do we keep names nothing implements?**~~ **Decided 2026-09-30: yes, where a paper names
   or recommends them** (2.3).
-- **6.4 How tightly does a definition constrain tracing** (4.1)? A definition that leaves the
-  centreline open is not a definition; one that fixes it forbids a better skeletoniser. **The last
-  one open, and the next thing to discuss.**
+- ~~**6.4 How tightly does a definition constrain tracing?**~~ **Decided 2026-09-30: not at all —
+  it is the implementation's, and must be documented** (4.1). The one decision that *is*
+  definitional, segment against whole vessel, moves into the name instead (2.1.2).
+- **6.4a What is a start-to-end pair** (2.1.2)? Root-to-tip gives one vessel per leaf;
+  every-terminal-pair gives *N(N−1)/2*. Has to be settled before `vessel-` names are written.
 - ~~**6.5 How a proprietary library is fingerprinted?**~~ **Decided 2026-09-30: by its commit id**
   (5.5).
 - ~~**6.6 Is the per-image evidence published for that column?**~~ **Decided 2026-09-29: yes, in
@@ -512,8 +564,9 @@ adapter and a benchmark run already built on top of them.
    split between them has to be right before anything maps onto it. Five pages have no canonical
    name at all today; one, the vascular curvature index, should never get one and needs the page to
    say why.
-2. **Verify every definition against its paper**, and write the long form: the formula, what it is
-   computed over, and enough that two people implementing it separately would agree. This is where
+2. **Verify every definition against its paper**, and write the long form: the formula, **what it
+   is measured over** per 2.1.2, and enough that two people implementing it separately would agree.
+   Each project page gains its tracing description, per 4.1. This is where
    the withdrawals of 3.2 would have been caught before they cost a benchmark run.
 3. **Fix the units on every page** to microns per 2.2, and mark which biomarkers a dataset without a
    scale cannot support at all.
@@ -521,7 +574,9 @@ adapter and a benchmark run already built on top of them.
    which families require a region rather than defaulting.
 5. **Build the mapping tables**: canonical name → each implementation's own column, **with the
    conversion rule beside it**, for PVBM, OCULAR, the three AutoMorph projects, VascX and
-   `fundus-biomarkers`. A conversion is a unit change or nothing; where an implementation's number
+   `fundus-biomarkers`. Each row must now also say whether the implementation's column is the
+   **segment** or the **whole-vessel** form of 2.1.2 — which requires reading its tracing, and is
+   where several of today's mappings will turn out to be the wrong one of the two. A conversion is a unit change or nothing; where an implementation's number
    is *wrong* rather than differently scaled — Hubbard's constants on pixel widths — the table says
    so and the benchmark still reports what it returned.
 6. **Say what evidence a new entry needs**, per 1.3, so the list grows by decision.
@@ -532,7 +587,8 @@ here than it is in step 7.2.
 ### 7.2 Then the code
 
 7. Extend `canonical.py` from a name→sentence map to a name→record carrying family, biomarker,
-   structure, region, statistic, unit, both definitions, the paper and the estimation requirements.
+   structure, region, statistic, unit, both definitions, the paper and the estimation requirements —
+   and **add the `vessel-` variants of 2.1.2** for every family where the distinction arises.
    `check()` stays the single gate, and gains the disjointness check of 2.1.1.
 8. Re-map all six adapters. **The 44 region columns and 15 statistic columns of 3.1 are the measure
    of success**, and the conversions come from the tables written in 7.1 step 5.
@@ -549,4 +605,4 @@ which is a weakness in this document: nobody can re-run them. Step 10 is where t
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, and four of the six open questions:** 2026-09-30.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing and five of the six open questions:** 2026-09-30.
