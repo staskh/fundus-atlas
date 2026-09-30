@@ -1215,6 +1215,12 @@ notebooks = [
     { name = "pandas" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "nbclient" },
+    { name = "nbformat" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "bottleneck", marker = "extra == 'benchmarks'", specifier = "==1.4.2" },
@@ -1253,6 +1259,12 @@ requires-dist = [
     { name = "transformers", marker = "extra == 'benchmarks'", specifier = ">=4.44" },
 ]
 provides-extras = ["dev", "benchmarks", "notebooks"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "nbclient", specifier = ">=0.11.0" },
+    { name = "nbformat", specifier = ">=5.11.1" },
+]
 
 [[package]]
 name = "fundus-image-toolbox"

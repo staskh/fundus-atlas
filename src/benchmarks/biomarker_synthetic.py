@@ -361,13 +361,15 @@ def config() -> dict[str, object]:
     # Built once, at the benchmark's own grid, and used for both the shape table and the
     # vocabulary below: a smaller grid cannot hold the ring the equivalents are measured over.
     settles = _ground_truth()
-    # A canonical name is either a template applying to several structures or a literal naming one
-    # — `avr/knudtson/both` is its own name rather than a `{s}` form — so both are recorded.
-    pinned: set[str] = set()
-    for names in settles.values():
-        for name in names:
-            head, _structure = name.rsplit("/", 1)
-            pinned.update({f"{head}/{{s}}", name})
+    # Which *biomarkers* the shapes pin a value for, as `family/biomarker`. A settled name carries
+    # a structure and often a statistic too, and which of those a shape happens to settle is a
+    # property of the shape rather than of the vocabulary — so the page groups by the biomarker,
+    # and the ground-truth table beside it says how many names each shape settles outright.
+    pinned = {
+        "/".join(name.split("/")[:2])
+        for names in settles.values()
+        for name in names
+    }
     return {
         "benchmark": NAME,
         "title": TITLE,
@@ -444,13 +446,16 @@ def config() -> dict[str, object]:
         # more useful than leaving it off the page.
         "biomarkers": [
             {
-                "name": template.replace("{s}", "<structure>"),
-                "biomarker": template.split("/")[0],
-                "variant": template.split("/")[1],
-                "means": means,
-                "settled": template in pinned,
+                "name": (
+                    f"{stem}/<structure>" if canonical.structures(stem) else stem
+                ),
+                "biomarker": stem.split("/")[0],
+                "variant": stem.split("/")[1],
+                "unit": entry.unit,
+                "means": entry.means,
+                "settled": stem in pinned,
             }
-            for template, means in canonical.NAMES.items()
+            for stem, entry in canonical.NAMES.items()
         ],
         "structures": list(canonical.STRUCTURES),
     }

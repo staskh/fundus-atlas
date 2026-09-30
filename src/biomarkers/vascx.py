@@ -25,19 +25,21 @@ CIRCLE = "crcl_multiplier_1p16666666667"
 #: rather than of VascX. Those are measured and stored under VascX's own names and compared against
 #: nothing.
 NAMES: dict[str, str | None] = {
-    f"lw_diam_{CIRCLE}_full_{{layer}}": "vessel-calibre/mean-width/{side}",
+    f"lw_diam_{CIRCLE}_full_{{layer}}": "calibre/width/{side}/length-weighted",
     # *Our finding, 2026-09-22, from reading `cre.py`:* despite the module's name and the project
     # page's description of a "Hubbard reduction", it combines pairs as `c·√(d₁² + d₂²)` with
     # c = 0.88 for arteries and 0.95 for veins — which **is** Knudtson's formula. Hubbard's carries
     # fitted constants and an additive term, and neither appears here.
-    "full_cre_{layer}": "central-retinal-equivalents/knudtson/{side}",
+    "full_cre_{layer}": "calibre/CRE-knudtson/{side}/B",
     # Arc over chord, length-weighted across segments, with segments capped at 0.2 disc diameters.
     # Three caps are shipped; this is the middle one, and the other two are kept unmapped beside it
     # so a reader can see how little the cap changes the answer.
-    f"lw_tort_dist_max_segment_len_0p2_{CIRCLE}_full_{{layer}}": "tortuosity/hart-tau1/{side}",
+    f"lw_tort_dist_max_segment_len_0p2_{CIRCLE}_full_{{layer}}": (
+        "tortuosity/hart-tau1/{side}/length-weighted"
+    ),
     f"lw_tort_dist_max_segment_len_0p15_{CIRCLE}_full_{{layer}}": None,
     f"lw_tort_dist_max_segment_len_0p25_{CIRCLE}_full_{{layer}}": None,
-    f"lw_tort_curv_{CIRCLE}_full_{{layer}}": "tortuosity/spline-mean-curvature/{side}",
+    f"lw_tort_curv_{CIRCLE}_full_{{layer}}": "tortuosity/spline-curvature/{side}/length-weighted",
     # Vessel area over the area of a disc-centred circle — neither the field of view nor the whole
     # frame, so neither catalogued density describes it.
     f"vd_{CIRCLE}_full_{{layer}}": None,
@@ -50,7 +52,9 @@ NAMES: dict[str, str | None] = {
 RETINA_NAMES: dict[str, str | None] = {
     "disc_fovea_distance_retina": None,
     "disc_fovea_distance_center_retina": None,
-    "mean_sparsity_vessels": None,
+    # How far the retina is from a vessel, over the whole field: catalogued since the family
+    # was rebuilt, and independent of the axis the fixture invented.
+    "mean_sparsity_vessels": "density/sparsity/vessels/mean",
     f"mean_sparsity_{CIRCLE}_full_vessels": None,
 }
 
@@ -60,6 +64,14 @@ LAYERS = {"arteries": "artery", "veins": "vein"}
 #: Millimetres per micron, for the one conversion this adapter makes. See `Vascx.measure`.
 MM_PER_UM = 0.001
 
+#: The features VascX returns in **millimetres**, named outright rather than recognised by the
+#: catalogued name they answer to. Which columns carry a physical length is a fact about VascX,
+#: and tying it to the catalogue's spelling would make renaming a biomarker change a unit.
+IN_MILLIMETRES = (
+    f"lw_diam_{CIRCLE}_full_{{layer}}",
+    "full_cre_{layer}",
+)
+
 
 def _answers() -> dict[str, str]:
     """Answered name → the VascX feature behind it."""
@@ -68,8 +80,8 @@ def _answers() -> dict[str, str]:
         for template, mapped in NAMES.items():
             own = template.format(layer=layer)
             pairs[mapped.format(side=side) if mapped else own] = own
-    for own in RETINA_NAMES:
-        pairs[own] = own
+    for own, mapped in RETINA_NAMES.items():
+        pairs[mapped or own] = own
     return pairs
 
 
@@ -146,8 +158,8 @@ class Vascx:
             "circle": "1.1667 disc diameters from the disc centre",
             "fovea": self.FOVEA,
             "units": {
-                "vessel-calibre/mean-width": "px, converted from VascX's mm by the shape's scale",
-                "central-retinal-equivalents/knudtson": "px, likewise",
+                "every measurement": "px",
+                "converted from VascX's mm by the shape's scale": sorted(IN_MILLIMETRES),
                 "everything else": "as VascX returns it",
             },
             "device": self.device,
@@ -235,21 +247,24 @@ class Vascx:
     def _in_pixels(
         answers: dict[str, float | None], um_per_px: float | None
     ) -> dict[str, float | None]:
-        """The two mapped lengths, from VascX's millimetres back into the pixels the theory is in.
+        """The two lengths VascX reports in millimetres, put back onto the pixel grid.
 
-        Exact rather than approximate: the scale used is the one the shape was built with. Every
-        other column is left as VascX returned it.
+        Every adapter in this repository reports what its implementation measured **in pixels**,
+        and the analysis is where a pixel value meets the microns its canonical name is in — one
+        conversion, in one place, driven by `canonical.length_power`. VascX is the only upstream
+        that hands back a physical length, so it is the only adapter that converts, and it
+        converts *towards* pixels rather than away from them so that it lines up with its five
+        siblings. Exact rather than approximate: the scale used is the one the shape was built
+        with. Every other column is left as VascX returned it.
         """
         if not um_per_px:
             return answers
         per_pixel_mm = um_per_px * MM_PER_UM
+        millimetres = {
+            template.format(layer=layer) for template in IN_MILLIMETRES for layer in LAYERS
+        }
         for own, value in answers.items():
-            # Decided by what the column *means* rather than by what it is called: VascX's own
-            # names say nothing about units, and only the two lengths are converted.
-            catalogued = CANONICAL.get(own) or ""
-            if value is not None and catalogued.startswith(
-                ("vessel-calibre/", "central-retinal-equivalents/")
-            ):
+            if value is not None and own in millimetres:
                 answers[own] = value / per_pixel_mm
         return answers
 

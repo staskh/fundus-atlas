@@ -31,6 +31,19 @@ family / biomarker / structure / [roi] / [statistic]
 So `tortuosity/hart-tau1/artery` is the median τ1 over the arteries in the whole field of view, and
 `calibre/width/vein/B/mean` says all five parts outright.
 
+**What may be left out, and what is written out.** A short form is a name a reader may *write*, and
+`tortuosity/hart-tau1/artery` and `tortuosity/hart-tau1/artery/median` are the same measurement. But
+where this repository *records* a number — the synthetic shapes' ground truth, an adapter's mapping,
+a results table — it spells the statistic out, because a file holding both spellings would look like
+two quantities and join against neither.
+
+**The statistics.** `mean`, `median`, `std`, `max`, `min` — and `length-weighted`, which is a mean
+weighting each segment by its own arc length, so a long vessel counts for more than a short one. It
+is a different number from the plain mean rather than a better one, and it is what VascX's
+`lw_diam` and `lw_tort_*` columns report; PVBM and OCULAR return it beside a median. Which
+statistics a biomarker admits is on its family page: a quantity measured *along* a vessel takes the
+length-weighted one, an angle at a junction does not.
+
 **A family overrides these rules.** `calibre`'s equivalents *require* a region — there is no
 field-of-view-wide CRAE — and `landmarks` has no structure at all, because the optic disc is not an
 artery or a vein.
@@ -159,7 +172,7 @@ Three, each found by a synthetic shape rather than by reading a name:
 | --- | --- | --- |
 | `squared_curvature_tortuosity` | `tortuosity/hart-tau3` | off by five orders of magnitude; it squares nothing |
 | `median_branching_angle` | the angle between daughters | it medians every pairwise angle at every junction, trunk included, and reads ~120° where the daughters are 60° apart |
-| `endpoints` (PVBM, OCULAR) | `junction-counts/endpoints` | their rooted walk excludes the end at the disc |
+| `endpoints` (PVBM, OCULAR) | `topology/endpoints` | their rooted walk excludes the end at the disc |
 
 **A withdrawn mapping is a finding, not an omission.** Each is recorded with its date on the
 relevant family page.

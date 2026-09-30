@@ -61,15 +61,15 @@ the pixel grid differs.
 <!-- generated: material -->
 | Shape | What its geometry settles | Available |
 | --- | --- | --- |
-| `straight` | 50 quantities with a known value | yes |
-| `arc` | 46 quantities with a known value | yes |
-| `sinusoid` | 46 quantities with a known value | yes |
-| `bifurcation` | 32 quantities with a known value | yes |
-| `deep-bifurcation` | 32 quantities with a known value | yes |
-| `disjoint` | 30 quantities with a known value | yes |
-| `koch` | 38 quantities with a known value | yes |
-| `spokes-macula-centred` | 34 quantities with a known value | yes |
-| `spokes-disc-centred` | 34 quantities with a known value | yes |
+| `straight` | 247 quantities with a known value | yes |
+| `arc` | 199 quantities with a known value | yes |
+| `sinusoid` | 243 quantities with a known value | yes |
+| `bifurcation` | 58 quantities with a known value | yes |
+| `deep-bifurcation` | 58 quantities with a known value | yes |
+| `disjoint` | 52 quantities with a known value | yes |
+| `koch` | 72 quantities with a known value | yes |
+| `spokes-macula-centred` | 56 quantities with a known value | yes |
+| `spokes-disc-centred` | 56 quantities with a known value | yes |
 <!-- /generated -->
 
 ## 4. How to run it
@@ -164,96 +164,82 @@ with a size. A biomarker with no ground truth is still **measured and stored** �
 implementation's answer for it is in the evidence — but there is nothing to compare it against, so
 the benchmark reports it and says nothing about whether it is right.
 
-A name is `biomarker/variant/structure`. The **variant** is the definition rather than the family
-name, because "tortuosity" names at least three incompatible formulas and a table that merged them
-would be comparing different quantities. The **structure** is what the measurement was taken over;
-`both` is reserved for a measurement that is inherently a ratio of the two classes, which is the
-arteriovenous ratio and nothing else.
+A name is `family / biomarker / structure / [roi] / [statistic]`, and
+[BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1 is the authority on it. The **biomarker** is the
+definition rather than the family name, because "tortuosity" names at least three incompatible
+formulas and a table that merged them would be comparing different quantities. The **structure** is
+what the measurement was taken over; `both` is reserved for a measurement that is inherently a
+ratio of the two classes, which is the arteriovenous ratio and nothing else. The **region** and the
+**statistic** may be left off a name a reader writes, and are spelt out in every name this
+benchmark records — `tortuosity/hart-tau1/artery/median` and `.../length-weighted` are two
+statistics of one measurement, and three of the implementations here differ in exactly that.
+
+The table below lists each definition once, in its short form. The whole field of view is the
+region unless one is named, and the shapes settle values over the field of view only — nothing
+here is drawn to pin a zone-B measurement except the equivalents, which are defined over that
+ring and nowhere else.
 
 <!-- generated: biomarkers -->
-32 definitions, each applying to one or more structures (`artery`, `vein`, `vessels`, `both`). **32 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing.
+34 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **30 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
+
+**[calibre](../biomarkers/calibre.md)**
+
+| Canonical name | What it measures | Units | Ground truth here |
+| --- | --- | --- | --- |
+| `calibre/width/<structure>` | the width of a vessel, measured along it | µm | yes |
+| `calibre/CRE-knudtson/<structure>` | Knudtson's equivalent — CRAE on arteries, CRVE on veins | µm | yes |
+| `calibre/CRE-hubbard/<structure>` | Hubbard's equivalent over the same ring | µm | yes |
+| `calibre/AVR-knudtson/<structure>` | arteriolar over venular equivalent, both Knudtson | 1 | yes |
+| `calibre/AVR-hubbard/<structure>` | the same, both Hubbard | 1 | yes |
+| `calibre/AVR-ratio/<structure>` | mean artery width over mean vein width, no ring and no equivalent | 1 | yes |
 
 **[tortuosity](../biomarkers/tortuosity.md)**
 
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `tortuosity/hart-tau1/<structure>` | arc length over chord length; 1 for a straight vessel | yes |
-| `tortuosity/hart-tau2/<structure>` | total curvature, ∫κ ds | yes |
-| `tortuosity/hart-tau3/<structure>` | total squared curvature, ∫κ² ds | yes |
-| `tortuosity/hart-tau4/<structure>` | mean curvature, ∫κ ds / s — compositional, and implemented here by nobody | yes |
-| `tortuosity/hart-tau5/<structure>` | mean squared curvature, ∫κ² ds / s — likewise | yes |
-| `tortuosity/hart-tau6/<structure>` | total curvature over chord, ∫κ ds / chord | yes |
-| `tortuosity/hart-tau7/<structure>` | total squared curvature over chord, ∫κ² ds / chord | yes |
-| `tortuosity/grisan-density/<structure>` | Grisan's tortuosity density over constant-sign subsegments | yes |
-| `tortuosity/arc-chord-times-inflections/<structure>` | τ1 multiplied by the number of curvature sign changes | yes |
-| `tortuosity/spline-mean-curvature/<structure>` | mean curvature sampled along a fitted spline | yes |
-| `tortuosity/inflection-count/<structure>` | how many times the curvature changes sign | yes |
+| Canonical name | What it measures | Units | Ground truth here |
+| --- | --- | --- | --- |
+| `tortuosity/hart-tau1/<structure>` | arc length over chord length; 1 for a straight vessel | 1 | yes |
+| `tortuosity/hart-tau2/<structure>` | total curvature, ∫κ ds — the total turning angle | 1 | yes |
+| `tortuosity/hart-tau3/<structure>` | total squared curvature, ∫κ² ds | 1/µm | yes |
+| `tortuosity/hart-tau4/<structure>` | mean curvature, ∫κ ds / s — compositional | 1/µm | yes |
+| `tortuosity/hart-tau5/<structure>` | mean squared curvature, ∫κ² ds / s — compositional | 1/µm² | yes |
+| `tortuosity/hart-tau6/<structure>` | total curvature over chord | 1/µm | yes |
+| `tortuosity/hart-tau7/<structure>` | total squared curvature over chord | 1/µm² | yes |
+| `tortuosity/grisan-density/<structure>` | Grisan's density over constant-sign subsegments | 1/µm | yes |
+| `tortuosity/inflection-count/<structure>` | how many times the curvature changes sign | 1 | yes |
+| `tortuosity/arc-chord-times-inflections/<structure>` | τ1 multiplied by the inflection count | 1 | yes |
+| `tortuosity/spline-curvature/<structure>` | curvature sampled along a fitted spline | 1/µm | yes |
 
-**[vessel-calibre](../biomarkers/vessel-calibre.md)**
+**[density](../biomarkers/density.md)**
 
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `vessel-calibre/mean-width/<structure>` | mean vessel width, in pixels unless a scale was supplied | yes |
-| `vessel-calibre/median-width/<structure>` | median vessel width | yes |
+| Canonical name | What it measures | Units | Ground truth here |
+| --- | --- | --- | --- |
+| `density/area/<structure>` | total vessel area | µm² | yes |
+| `density/skeleton-length/<structure>` | total centreline length | µm | yes |
+| `density/over-fov/<structure>` | vessel area as a fraction of the field of view | 1 | yes |
+| `density/over-image/<structure>` | the same over the whole frame, lit or not — it names its own denominator | 1 | yes |
+| `density/sparsity/<structure>` | distance from retina to the nearest vessel | µm | yes |
+| `density/box-counting/<structure>` | box-counting dimension | 1 | yes |
+| `density/multifractal-d0/<structure>` | capacity dimension | 1 | yes |
+| `density/multifractal-d1/<structure>` | information dimension | 1 | yes |
+| `density/multifractal-d2/<structure>` | correlation dimension | 1 | yes |
 
-**[central-retinal-equivalents](../biomarkers/central-retinal-equivalents.md)**
+**[topology](../biomarkers/topology.md)**
 
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `central-retinal-equivalents/knudtson/<structure>` | the Knudtson equivalent over the disc-centred ring — CRAE on arteries, CRVE on veins | yes |
-| `central-retinal-equivalents/hubbard/<structure>` | the Hubbard equivalent over the same ring | yes |
+| Canonical name | What it measures | Units | Ground truth here |
+| --- | --- | --- | --- |
+| `topology/junctions/<structure>` | how many places three or more branches meet | 1 | yes |
+| `topology/endpoints/<structure>` | how many free ends the network has | 1 | yes |
+| `topology/components/<structure>` | how many separate pieces the network is in | 1 | yes |
+| `topology/branching-angle/<structure>` | the angle between the two daughter vessels at a bifurcation | degrees | yes |
+| `topology/temporal-angle/<structure>` | the angle between the superior and inferior temporal arcades | degrees | — |
 
-**[avr](../biomarkers/avr.md)**
+**[landmarks](../biomarkers/landmarks.md)**
 
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `avr/knudtson/both` | arteriolar over venular equivalent, both Knudtson | yes |
-| `avr/hubbard/both` | arteriolar over venular equivalent, both Hubbard | yes |
-| `avr/ratio-of-calibres/both` | mean artery width over mean vein width, with no ring and no equivalent | yes |
-
-**[vascular-density](../biomarkers/vascular-density.md)**
-
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `vascular-density/over-field-of-view/<structure>` | vessel area as a fraction of the field of view | yes |
-| `vascular-density/over-image/<structure>` | vessel area as a fraction of the whole frame, lit or not | yes |
-
-**[fractal-dimension](../biomarkers/fractal-dimension.md)**
-
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `fractal-dimension/box-counting/<structure>` | box-counting dimension | yes |
-| `fractal-dimension/multifractal-d0/<structure>` | capacity dimension of the multifractal spectrum | yes |
-| `fractal-dimension/multifractal-d1/<structure>` | information dimension | yes |
-| `fractal-dimension/multifractal-d2/<structure>` | correlation dimension | yes |
-
-**[vessel-area-and-length](../biomarkers/vessel-area-and-length.md)**
-
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `vessel-area-and-length/area/<structure>` | total vessel area, in pixels squared | yes |
-| `vessel-area-and-length/skeleton-length/<structure>` | total centreline length, in pixels | yes |
-
-**[sparsity](../biomarkers/sparsity.md)**
-
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `sparsity/mean-distance/<structure>` | mean distance from retina to the nearest vessel | yes |
-| `sparsity/max-distance/<structure>` | the furthest any retina is from a vessel | yes |
-
-**[junction-counts](../biomarkers/junction-counts.md)**
-
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `junction-counts/junctions/<structure>` | how many places three or more branches meet | yes |
-| `junction-counts/endpoints/<structure>` | how many free ends the network has | yes |
-| `junction-counts/components/<structure>` | how many separate pieces the network is in | yes |
-
-**[bifurcation-angle](../biomarkers/bifurcation-angle.md)**
-
-| Canonical name | What it measures | Ground truth here |
-| --- | --- | --- |
-| `bifurcation-angle/between-daughters/<structure>` | the angle between the two daughter vessels, in degrees | yes |
+| Canonical name | What it measures | Units | Ground truth here |
+| --- | --- | --- | --- |
+| `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | — |
+| `landmarks/CDR-area` | the cup's area over the disc's | 1 | — |
+| `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — |
 <!-- /generated -->
 
 **A biomarker without a ground truth is a gap in the images, not a verdict on an implementation.**

@@ -72,11 +72,13 @@ def test_the_fovea_follows_the_framing() -> None:
     assert centred[1] == pytest.approx(SIDE / 2)
 
 
-def test_it_converts_its_millimetres_back_to_the_pixels_the_theory_is_in(shape) -> None:
+def test_it_converts_its_millimetres_back_to_the_pixels_every_adapter_reports(shape) -> None:
     """The only conversion it makes, and it is exact: the scale is the shape's own.
 
     VascX is the one implementation here that works in physical units, because it is the one that
-    takes a scale. Its calibre comes back in millimetres; the shapes state theirs in pixels.
+    takes a scale. Its calibre comes back in millimetres and it reports pixels, like every other
+    adapter — and `canonical.from_pixels` is the single place those pixels become the microns the
+    catalogued name is in, which is what this test walks end to end.
     """
     adapter = an_adapter()
 
@@ -84,17 +86,20 @@ def test_it_converts_its_millimetres_back_to_the_pixels_the_theory_is_in(shape) 
 
     # Under VascX's own names, which is what a run records; the ground truth is the shape's.
     names = adapter.declare()["names"]
-    calibre = next(own for own, name in names.items() if name == "vessel-calibre/mean-width/artery")
+    calibre = next(
+        own for own, name in names.items() if name == "calibre/width/artery/length-weighted"
+    )
     equivalent = next(
-        own for own, name in names.items() if name == "central-retinal-equivalents/knudtson/artery"
+        own for own, name in names.items() if name == "calibre/CRE-knudtson/artery/B"
     )
 
-    assert measured[calibre] == pytest.approx(
-        shape.theory["vessel-calibre/mean-width/artery"], rel=0.05
-    ), "an 80 µm artery at 10 µm per pixel is 8 px across"
-    assert measured[equivalent] == pytest.approx(
-        shape.theory["central-retinal-equivalents/knudtson/artery"], rel=0.05
-    )
+    for own, catalogued in (
+        (calibre, "calibre/width/artery/length-weighted"),
+        (equivalent, "calibre/CRE-knudtson/artery/B"),
+    ):
+        assert canonical.from_pixels(
+            catalogued, measured[own], shape.um_per_px
+        ) == pytest.approx(shape.theory[catalogued], rel=0.05), catalogued
 
 
 def test_it_declines_when_handed_one_class(shape) -> None:

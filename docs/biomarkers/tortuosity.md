@@ -64,15 +64,18 @@ with another only when all five agree.
 | `tortuosity/hart-tau5` | mean squared curvature, ∫κ² ds / s — likewise | **1/µm²** |
 | `tortuosity/hart-tau6` | total curvature over chord, ∫κ ds / chord | **1/µm** |
 | `tortuosity/hart-tau7` | total squared curvature over chord | **1/µm²** |
-| `tortuosity/grisan-density` | Grisan's density over constant-sign subsegments | 1 |
+| `tortuosity/grisan-density` | Grisan's density over constant-sign subsegments | **1/µm** |
 | `tortuosity/inflection-count` | how many times the curvature changes sign | 1 |
 | `tortuosity/arc-chord-times-inflections` | τ1 multiplied by the inflection count | 1 |
 | `tortuosity/spline-curvature` | curvature sampled along a fitted spline | **1/µm** |
 
 Each takes a structure — `artery`, `vein` or `vessels` — and the optional region and statistic.
+Every one of them is measured per segment and then pooled, so all of them admit `length-weighted`
+as well as `mean`, `median` and `std`: a tortuosity averaged over segments and one averaged over
+*retina* are different numbers, and VascX, PVBM and OCULAR each report a length-weighted one.
 
-**The family spans three physical dimensions.** τ1 and τ2 are dimensionless; τ3, τ4, τ6 and the
-spline curvature are inverse lengths; τ5 and τ7 are inverse areas. "Tortuosity" as a column heading
+**The family spans three physical dimensions.** τ1 and τ2 are dimensionless; τ3, τ4, τ6, Grisan's
+density and the spline curvature are inverse lengths; τ5 and τ7 are inverse areas. "Tortuosity" as a column heading
 is not one kind of quantity, which is the single best argument for naming the variant.
 
 **`spline-curvature`, not `spline-mean-curvature`.** The mean is a *statistic*, and lives in the
@@ -244,6 +247,9 @@ Two papers define everything in the table above.
      one to the following. The paper is explicit that straight stretches must not be discarded:
      two twists joined by a long straight run would otherwise score the same however far apart they
      sit.
+- **Canonical name:** `tortuosity/grisan-density/<structure>`, in **1/µm** — so a value measured
+  on a 1024-pixel rendition and one measured on the same eye at 2048 are the same number, which
+  they are not while the division by `L_c` is a division by pixels.
 - **Implemented by:** AutoMorph and retipy (`tortuosity_density`, `td`), AutoMorphalyzer.
 - **Implementation note:** retipy's version departs from the formula and skips steps 1, 3 and 4; see
   section 9.4. The count factor also differs between the authors' own sources — the journal paper's
@@ -432,7 +438,7 @@ choices; a value quoted without them is not reproducible.
   broken centreline wrecks τ1 even when the painted pixels look right. Their images are not fundus
   photographs; the failure mode is.
 - Giesser et al. 2024 add another named measure, the
-  [vascular curvature index](vascular-curvature-index.md) (VCI), and report it as more
+  **vascular curvature index** (VCI), and report it as more
   retest-stable than the formulas above on healthy eyes. The formula is unpublished — the paper
   calls it proprietary — and no catalogued project computes it. AutoMorph supplied the masks in
   that study, not the VCI numbers. The same abbreviation also names an unrelated OCTA *vessel

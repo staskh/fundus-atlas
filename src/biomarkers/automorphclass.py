@@ -16,10 +16,15 @@ CLASSES = {"vessels": "vessels", "artery": "artery", "vein": "vein"}
 #: AutoMorph's measurements reimplemented, so it computes the same quantities under clearer names.
 COLUMNS: dict[str, str | None] = {
     # Vessel pixels over every pixel of the frame — it never sees a field of view.
-    "vessel_density": "vascular-density/over-image/{side}",
-    "fractal_dimension": "fractal-dimension/box-counting/{side}",
-    "average_width": "vessel-calibre/mean-width/{side}",
-    "distance_tortuosity": "tortuosity/hart-tau1/{side}",
+    "vessel_density": "density/over-image/{side}",
+    "fractal_dimension": "density/box-counting/{side}",
+    # `np.sum(Z) / np.sum(Z_skeleton)`: area over skeleton length, a length-weighted width.
+    "average_width": "calibre/width/{side}/length-weighted",
+    # *Our finding, from `_tortuosity_per_window`:* `len_weighted=True` is its default, so each
+    # vessel contributes in proportion to its own curve length. AutoMorph and AutoMorphalyzer
+    # divide by the vessel count instead, which makes these **different statistics of the same
+    # measurement** and is part of why the three disagree on one picture.
+    "distance_tortuosity": "tortuosity/hart-tau1/{side}/length-weighted",
     # *Our finding, 2026-09-21:* **not** Hart's τ3, despite the name. `squared_curvature_tortuosity`
     # squares nothing: it accumulates discrete curvature at each sample and integrates it over the
     # sample *index* rather than over arc length. It was mapped to τ3 until the shapes disagreed by
@@ -27,13 +32,18 @@ COLUMNS: dict[str, str | None] = {
     # is 10.3 on the arc and 2.0 on the sinusoid, so no constant relates them. Discrete curvature
     # on a pixel skeleton is its own quantity and the catalogue has no name for it.
     "squared_curvature_tortuosity": None,
-    "tortuosity_density": "tortuosity/grisan-density/{side}",
+    "tortuosity_density": "tortuosity/grisan-density/{side}/length-weighted",
 }
 
 #: It computes **no central retinal equivalents and nothing zonal**: its vessel features take a
 #: segmentation and no disc, so the whole family of disc-anchored measurements is absent rather
 #: than wrong. That is a difference in scope from its two siblings, not a defect.
-ABSENT = ("central-retinal-equivalents", "avr")
+ABSENT = (
+    "calibre/CRE-knudtson",
+    "calibre/CRE-hubbard",
+    "calibre/AVR-knudtson",
+    "calibre/AVR-hubbard",
+)
 
 
 def _answers() -> dict[str, str]:

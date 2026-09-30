@@ -179,10 +179,10 @@ identical** — not close, identical:
 
 | Biomarker | PVBM | OCULAR |
 | --- | --- | --- |
-| `junction-counts/junctions/artery`, worst error | 42.9% | 42.9% |
-| `junction-counts/junctions/vein`, worst error | 85.7% | 85.7% |
-| `tortuosity/hart-tau1/artery`, worst error | 16.5% | 16.5% |
-| `tortuosity/hart-tau1/vein`, worst error | 31.2% | 31.2% |
+| `topology/junctions/artery`, worst error | 42.9% | 42.9% |
+| `topology/junctions/vein`, worst error | 85.7% | 85.7% |
+| `tortuosity/hart-tau1/artery/median`, worst error | 16.5% | 16.5% |
+| `tortuosity/hart-tau1/vein/median`, worst error | 31.2% | 31.2% |
 | …and the same four under rotation | 240%, 66.7%, 20.1%, 30.2% | 240%, 66.7%, 20.1%, 30.2% |
 
 That is what reading the two files predicted. OCULAR's geometry is a fork of the same
@@ -207,12 +207,12 @@ Seventeen of 35 canonical biomarkers move by more than 10% somewhere. The worst 
 
 | Biomarker | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
-| `tortuosity/grisan-density/vein` | — | — | 400.0% | 301.7% | **0.0%** | — |
-| `tortuosity/hart-tau1/artery` | 20.1% | 20.1% | 202.1% | 7.1% | 7.5% | 10.9% |
+| `tortuosity/grisan-density/vein/median` | — | — | 400.0% | 301.7% | **0.0%** | — |
+| `tortuosity/hart-tau1/artery/median` | 20.1% | 20.1% | 202.1% | 7.1% | 7.5% | 10.9% |
 | `tortuosity/spline-mean-curvature/artery` | — | — | — | — | — | 280.5% |
-| `junction-counts/junctions/artery` | 240.0% | 240.0% | — | — | — | — |
-| `vessel-calibre/mean-width/vein` | — | — | 60.0% | 14.0% | 14.0% | **1.7%** |
-| `fractal-dimension/box-counting/artery` | — | — | 20.1% | 80.7% | 80.8% | — |
+| `topology/junctions/artery` | 240.0% | 240.0% | — | — | — | — |
+| `calibre/width/vein/mean` | — | — | 60.0% | 14.0% | 14.0% | **1.7%** |
+| `density/box-counting/artery` | — | — | 20.1% | 80.7% | 80.8% | — |
 
 Three findings, and each is legible only because the columns are ordered by lineage:
 
@@ -247,14 +247,14 @@ produced, over all shapes and all angles:
 
 | Biomarker | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
-| `junction-counts/junctions/artery` | 42.9% | 42.9% | — | — | — | — |
-| `junction-counts/endpoints/vein` | — | 100.0% | — | — | — | — |
-| `central-retinal-equivalents/hubbard/artery` | 81.4% | — | — | — | — | — |
-| `tortuosity/hart-tau1/vein` | 31.2% | 31.2% | 542.2% | 13.4% | **7.4%** | 43.4% |
-| `vessel-area-and-length/skeleton-length/vein` | 100.0% | 100.0% | — | — | — | — |
-| `vessel-calibre/mean-width/vein` | — | — | 56.5% | 18.6% | 22.3% | **1.1%** |
-| `avr/hubbard/both` | 32.2% | — | — | — | — | — |
-| `tortuosity/grisan-density/artery` | — | — | 8,286% | 9,977% | **104%** | — |
+| `topology/junctions/artery` | 42.9% | 42.9% | — | — | — | — |
+| `topology/endpoints/vein` | — | 100.0% | — | — | — | — |
+| `calibre/CRE-hubbard/artery/B` | 81.4% | — | — | — | — | — |
+| `tortuosity/hart-tau1/vein/median` | 31.2% | 31.2% | 542.2% | 13.4% | **7.4%** | 43.4% |
+| `density/skeleton-length/vein` | 100.0% | 100.0% | — | — | — | — |
+| `calibre/width/vein/mean` | — | — | 56.5% | 18.6% | 22.3% | **1.1%** |
+| `calibre/AVR-hubbard/both/B` | 32.2% | — | — | — | — | — |
+| `tortuosity/grisan-density/artery/median` | — | — | 8,286% | 9,977% | **104%** | — |
 
 **Those Grisan figures are against a truth of exactly nought** — a straight vessel has no
 inflections — so the percentage is taken against the noise floor and reflects the floor as much as

@@ -115,3 +115,9 @@ line-length = 100
 # from — one unreadable photograph must not lose a group.
 "src/benchmarks/*.py" = ["BLE001"]
 "src/datasets/fetch_um_resolution.py" = ["BLE001"]
+
+[dependency-groups]
+dev = [
+    "nbclient>=0.11.0",
+    "nbformat>=5.11.1",
+]

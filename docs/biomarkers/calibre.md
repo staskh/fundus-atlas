@@ -29,6 +29,9 @@ exist to summarise the six largest of each class into one number per eye.
 
 **`mean` and `median` are statistics, not biomarkers.** `calibre/width/artery` with statistic
 `mean` and the same name with `median` are one measurement pooled two ways, and the name says which.
+Width also admits `length-weighted` — each segment counted in proportion to its own arc length,
+which is what VascX's `lw_diam` columns report and a materially different number wherever the wide
+vessels are the short ones.
 
 **The equivalents require a region.** There is no field-of-view-wide CRAE: it is defined over an
 annulus around the disc, and a name without one is an error rather than a default. See

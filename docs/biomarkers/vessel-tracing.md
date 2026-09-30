@@ -178,17 +178,17 @@ each pipeline, before any formula is applied.
 | Biomarker | Depends on tracing? | Why |
 | --- | --- | --- |
 | [Tortuosity](tortuosity.md) | **Critically** | Every variant needs points in path order; the variants that split at inflections need curvature signs along that path |
-| [Bifurcation angle](bifurcation-angle.md) | **Critically** | Needs junctions found and branch directions sampled along ordered branches |
-| [Junction counts](junction-counts.md) | **Critically** | It is a count *of* the trace's topology |
-| [Vessel calibre](vessel-calibre.md) | Strongly, for per-segment values | Perpendicular sampling needs a local direction; whole-image averages need segments to average over |
-| [Central retinal equivalents](central-retinal-equivalents.md) | Moderately | Needs a width per vessel crossing a ring, so segments must be identified, but not ordered end to end |
-| [Temporal angle](temporal-angle.md) | Moderately | Needs resolved whole vessels to identify the dominant arcades |
-| [Vessel area and length](vessel-area-and-length.md) | Length only | Skeleton length depends on the thinning algorithm, not on ordering |
-| [Vascular density](vascular-density.md) | **No** | Counts mask pixels |
-| [Fractal dimension](fractal-dimension.md) | **No** | Box-counting on the mask |
-| [Sparsity](sparsity.md) | **No** | Distance transform of the mask |
-| [Cup-to-disc ratio](cup-to-disc-ratio.md) | **No** | Disc and cup masks only |
-| [Disc-fovea distance](disc-fovea-distance.md) | **No** | Two landmarks |
+| [Branching angle](topology.md) | **Critically** | Needs junctions found and branch directions sampled along ordered branches |
+| [Junction counts](topology.md) | **Critically** | It is a count *of* the trace's topology |
+| [Vessel calibre](calibre.md) | Strongly, for per-segment values | Perpendicular sampling needs a local direction; whole-image averages need segments to average over |
+| [Central retinal equivalents](calibre.md) | Moderately | Needs a width per vessel crossing a ring, so segments must be identified, but not ordered end to end |
+| [Temporal angle](topology.md) | Moderately | Needs resolved whole vessels to identify the dominant arcades |
+| [Vessel area and length](density.md) | Length only | Skeleton length depends on the thinning algorithm, not on ordering |
+| [Vascular density](density.md) | **No** | Counts mask pixels |
+| [Fractal dimension](density.md) | **No** | Box-counting on the mask |
+| [Sparsity](density.md) | **No** | Distance transform of the mask |
+| [Cup-to-disc ratio](landmarks.md) | **No** | Disc and cup masks only |
+| [Disc-fovea distance](landmarks.md) | **No** | Two landmarks |
 
 The practical reading: a disagreement between two pipelines in density or fractal dimension points
 at the **segmentation model**; a disagreement in tortuosity, angles or counts points at the

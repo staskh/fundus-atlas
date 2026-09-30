@@ -156,10 +156,14 @@ def _biomarkers(config) -> Iterable[str]:
     structures = ", ".join(f"`{name}`" for name in config["structures"])
     settled = sum(1 for entry in config["biomarkers"] if entry["settled"])
     yield (
-        f"{len(config['biomarkers'])} definitions, each applying to one or more structures "
-        f"({structures}). **{settled} of them have a ground truth here** — a value computed from "
-        f"the geometry of at least one synthetic image, which is what an implementation's answer "
-        f"is compared against. The rest are measured and stored, and compared against nothing."
+        f"{len(config['biomarkers'])} definitions, most applying to one or more structures "
+        f"({structures}) and taking a region and a statistic besides — see "
+        f"[BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **{settled} of them have a ground truth "
+        f"here** — a value computed from the geometry of at least one synthetic image, which is "
+        f"what an implementation's answer is compared against. The rest are measured and stored, "
+        f"and compared against nothing. **Every unit below is physical**: a length in microns, "
+        f"never in pixels, so one number is comparable with another taken at a different "
+        f"resolution."
     )
     family = None
     for entry in config["biomarkers"]:
@@ -168,9 +172,12 @@ def _biomarkers(config) -> Iterable[str]:
             yield ""
             yield f"**[{family}](../biomarkers/{family}.md)**"
             yield ""
-            yield "| Canonical name | What it measures | Ground truth here |"
-            yield "| --- | --- | --- |"
-        yield (f"| `{entry['name']}` | {entry['means']} | {'yes' if entry['settled'] else '—'} |")
+            yield "| Canonical name | What it measures | Units | Ground truth here |"
+            yield "| --- | --- | --- | --- |"
+        yield (
+            f"| `{entry['name']}` | {entry['means']} | {entry['unit']} | "
+            f"{'yes' if entry['settled'] else '—'} |"
+        )
 
 
 #: Every block a page may mark, and what fills it. A marker naming anything else is an error.
