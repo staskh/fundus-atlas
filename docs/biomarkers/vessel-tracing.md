@@ -56,21 +56,75 @@ One per project, in order of how much the trace is reconstructed rather than mer
 
 ### 3.2 VascX — skeleton graph with typed nodes, splines and resolved vessels
 
-- **Centreline:** `skimage.morphology.skeletonize`, with the optic disc masked out of the skeleton
-  so the tangle over the nerve head cannot create spurious junctions.
-- **Junctions:** the skeleton is converted to a **graph** (`sknw.build_sknw`), each edge carrying its
-  ordered pixel run, each node typed as a `Bifurcation` or an `Endpoint`.
+The most complete reconstruction in this catalogue, and the only one that offers per-vessel as well
+as per-segment measurement. *Traced stage by stage through the pinned commit, 2026-10-01*, because
+what it does and does not join turns out to decide several biomarkers:
+
+| Stage | What happens | Where |
+| --- | --- | --- |
+| **1. Binarise and fill** | threshold at 0.5, then `fill_small_holes(area_threshold=25)` — which fills a background region **only where it is fully enclosed** by vessel and smaller than 25 px | `shared/masks.py` |
+| **2. Skeletonise** | `skimage.morphology.skeletonize`, with the optic disc masked out so the tangle over the nerve head cannot create spurious junctions | `fundus/layer.py` |
+| **3. Graph** | `sknw.build_sknw` turns the skeleton into a graph, each edge carrying its ordered pixel run; degree-2 nodes are then collapsed so a run of pixels between two junctions is one edge | `shared/graph.py` |
+| **4. Root** | `make_trees` takes **one tree per connected component**, rooted at whichever degree-1 node is nearest the disc centre | `fundus/layer.py` |
+| **5. Direct and tidy** | a depth-first walk orders every edge away from the root; `correct_digraph(threshold=10)` then deletes spurs under 10 px and merges the two edges either side of the node it removed | `shared/graph.py` |
+| **6. Type the nodes** | each node becomes a `Bifurcation`, an `Endpoint` or a plain `Node` by its in/out degree | `shared/graph.py` |
+| **7. Spline** | a cubic smoothing spline per segment (default error fraction 0.05), used for arc length, curvature and perpendicular diameter sampling | `shared/segment.py` |
+| **8. Resolve into vessels** | `_build_vessels` walks out from each root, and at every bifurcation continues the *vessel* along the daughter with the largest diameter-weighted `agg_value`, merging the remaining daughters as vessels of their own at greater depth | `fundus/layer.py` |
+
+Stage 8 is what "resolved segment" means: a chain of edges concatenated into one `Segment`, so a
+biomarker can be computed per branch (stage 5's output) or per whole vessel (stage 8's).
+
 - **Ordering:** from the graph — each edge's points come out along the path by construction.
-- **Smoothing and joining:** a cubic **smoothing spline** per segment (default error fraction 0.05),
-  used for arc length, curvature and perpendicular diameter sampling; a
-  `RecursiveWeightedAverageResolver` then merges segments across bifurcations into *resolved
-  segments*, so a biomarker can be computed per branch or per whole vessel.
-- **Consequence:** the most complete reconstruction in this catalogue, and the only one that offers
-  per-vessel as well as per-segment measurement. A short segment that cannot support a cubic spline
-  falls back to a retipy-derived diameter method — a small piece of the old lineage surviving inside
-  the new pipeline.
-- **Source:** [VascX](../projects/vascx.md), `vascx/fundus/vessels_layer.py`,
-  `vascx/shared/segment.py`, `vascx/fundus/vessel_resolve.py`.
+- **Consequence:** a short segment that cannot support a cubic spline falls back to a
+  retipy-derived diameter method — a small piece of the old lineage surviving inside the new
+  pipeline.
+- **It joins across junctions and never across a gap.** See 3.2.1, which is the part that matters
+  for VascX's numbers.
+- **Source:** [VascX](../projects/vascx.md), `vascx/shared/masks.py`, `vascx/shared/graph.py`,
+  `vascx/fundus/layer.py`, `vascx/shared/segment.py`.
+
+  *Our finding, 2026-10-01:* `fundus/vessel_resolve.py` holds a `RecursiveWeightedAverageResolver`
+  implementing stage 8, and `layer.py` builds a `default_vessels_resolver` from it at import — but
+  **nothing calls either**. The live path is `_build_vessels`, an inline reimplementation of the
+  same algorithm on the directed graph. A reader following the class name is reading dead code.
+
+#### 3.2.1 A broken vessel stays broken — every gap, at every width
+
+**VascX reconnects nothing.** A vessel severed in the mask is measured as two vessels, and no stage
+above repairs it. Four stages could have and none does:
+
+| Stage | Why it does not bridge |
+| --- | --- |
+| 1. `fill_small_holes` | fills only *enclosed* background. A gap in a vessel is open to the background on both sides, so it is never enclosed |
+| 3. degree-2 collapse | operates inside the existing skeleton graph; two components have no node in common |
+| 5. `correct_digraph` | merges the two edges either side of a node **it has just removed** — there has to be a node there already |
+| 8. `_build_vessels` | `merge_edges` opens by checking the chain is consecutive and raises `ValueError("The edges are not consecutive!")` otherwise. It cannot join edges that do not share a node |
+
+*Measured through VascX's own classes*, on one straight vein with a gap cut into it:
+
+| Gap | Connected components | Trees | Segments | Resolved vessels | Longest vessel |
+| --- | --- | --- | --- | --- | --- |
+| none | 1 | 1 | 1 | **1** | 567 px |
+| 1 px | 2 | 2 | 2 | **2** | 293 px |
+| 9 px | 2 | 2 | 2 | **2** | 289 px |
+| 40 px | 2 | 2 | 2 | **2** | 274 px |
+
+**A single pixel is enough**, and no larger gap behaves differently. One 567-pixel vessel becomes
+two of about 293 and 274, each rooted and splined and measured separately, with two extra free ends
+between them.
+
+Stage 4 is why the pieces are not simply lost: one tree per *connected component* means the orphan
+is kept and rooted at its own nearest end, rather than discarded for not reaching the disc the way
+[PVBM's](../projects/pvbm.md) walk discards a vessel that never touches the nerve head. Keeping it
+is the better behaviour; it is still two vessels where the retina has one.
+
+**Why this is not hypothetical for VascX specifically.** Its own artery/vein model emits a four-way
+softmax, so a pixel is artery *or* vein and an arteriovenous crossing cannot be represented — the
+losing vessel is cut at every crossing. The model page has the evidence
+([vascx-artery-vein](../models/vascx-artery-vein.md) §10). Compare **AutoMorphClass**, which bridges
+gaps up to 22 pixels before tracing (3.6), and **OCULARNet**, whose model segments crossings as
+their own class (3.4). VascX does neither, and is the only artery/vein model in this atlas whose
+two masks never overlap.
 
 ### 3.3 PVBM — skeleton tree rooted at the optic disc
 
@@ -207,6 +261,7 @@ Not a measurement, but two properties propagate into everything above:
 
 ## 6. Known defects and where they were fixed
 
+Six of these belong to the retipy lineage and one, 6.8, cuts across every pipeline here.
 The retipy lineage carries six documented defects in or around tracing. AutoMorph inherited all of
 them; its two derivatives fixed different subsets, and neither fixed all. Established by reading the
 public code of each project against the papers.
@@ -238,6 +293,29 @@ The correct formula is written out, commented, and deliberately not used — pre
 continuity with AutoMorph's output. That is a known deviation rather than an oversight, and it is
 the clearest evidence in this catalogue that these pipelines value comparability with their ancestor
 over agreement with the paper they cite.
+
+### 6.8 Gaps and crossings — a different axis, and VascX sits at one end of it
+
+The six above are the retipy lineage's. This one cuts across every pipeline on the page, because a
+tracer's behaviour at a **break in the mask** is a choice nobody documents:
+
+| Pipeline | At a gap in the mask | At an arteriovenous crossing |
+| --- | --- | --- |
+| [AutoMorphClass](../projects/automorphclass.md) | **bridges** up to 22 px, and connects nearby endpoints, before tracing | treats it as a junction |
+| [OCULARNet](../projects/ocularnet.md) | no bridging | **segments crossings as their own class** and dilates each into a region |
+| [VascX](../projects/vascx.md) | **never bridges** — one pixel severs a vessel permanently (3.2.1) | **cannot represent one**: its model is a four-way softmax, so the two masks never overlap |
+| AutoMorph, AutoMorphalyzer, retipy, ARIA | no bridging | treats it as a junction |
+
+VascX is at the exposed end of both columns, and the two compound: its own segmentation cuts the
+losing vessel at every crossing, and its own tracer then measures the two pieces as two vessels.
+*Our finding, 2026-10-01*, measured in
+[vascx-artery-vein](../models/vascx-artery-vein.md) §10 and §3.2.1 above.
+
+**The direction of the bias is worth stating.** Bridging and non-bridging are not better and worse —
+a bridge can join two vessels that were never one, and refusing to bridge can split one that was.
+What they are is **incomparable**: a vessel count, an endpoint count or a per-vessel tortuosity from
+a bridging pipeline cannot be read against one from a pipeline that refuses, and nothing in either's
+output says which you are holding.
 
 **AutoMorphClass's fixes are real but undocumented.** Its author's only public statement is that the
 project "includes fixed tortuosity measures"
