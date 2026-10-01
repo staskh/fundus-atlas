@@ -169,9 +169,9 @@ description:
 Three of those fields are the reason the file exists at all:
 
 - **`sources`** — *which copy you downloaded*. Several datasets have more than one route serving
-  different bytes: [IDRiD](../../docs/datasets/idrid.md) from IEEE DataPort or a third-party Zenodo
-  mirror, [G1020](../../docs/datasets/g1020.md) from DFKI or a Kaggle bundle,
-  [REFUGE](../../docs/datasets/refuge.md) from the challenge or a mirror nobody guarantees is
+  different bytes: [IDRiD](../../../docs/datasets/idrid.md) from IEEE DataPort or a third-party Zenodo
+  mirror, [G1020](../../../docs/datasets/g1020.md) from DFKI or a Kaggle bundle,
+  [REFUGE](../../../docs/datasets/refuge.md) from the challenge or a mirror nobody guarantees is
   complete. The manifest's per-image checksums prove the files are intact; only this says where they
   came from.
 - **`partial`** — *whether the store is the whole dataset*. A `--limit 5` build, an interrupted
@@ -377,7 +377,7 @@ The rules around it:
   verdict — mapped — is what `quality` holds, even when component ratings are also present, and
   `quality_source` is `published`. Deriving one instead would overwrite the authors' judgement with
   ours, which section 4.4 of `CLAUDE.md` forbids. The difference is not academic: in
-  [DeepDRiD](../../docs/datasets/deepdrid.md), which publishes both, the all-at-best rule calls 295
+  [DeepDRiD](../../../docs/datasets/deepdrid.md), which publishes both, the all-at-best rule calls 295
   of the 576 photographs its ophthalmologists judged good enough for diagnosis `bad`, because a
   perfect field-definition score there means the disc and macula both sit within one disc diameter
   of the centre — excellent framing, not a precondition for reading the image.
@@ -552,7 +552,7 @@ run.** That is a separate command, not a step inside `python -m datasets.<slug>`
 must not load a disc model, and the inferred figure must not be silently written into
 `manifest.csv`. The command samples photographs that share a subset and a native size — 10%
 tolerance on width and height, per the `fetch-um-resolution` skill, section 4 — measures the
-disc with [lunetv2-odc](../../docs/models/lunetv2-odc.md), and writes one camera-level
+disc with [lunetv2-odc](../../../docs/models/lunetv2-odc.md), and writes one camera-level
 `um_per_px` to `results/um_resolution/` when the discs agree closely enough. Re-run it whenever
 the store, the model, or the sampling contract changes — a stale JSON is a wrong millimetre scale
 on every biomarker that trusts it.
@@ -775,8 +775,8 @@ here means a consumer never resamples twice.
   documentation — that is a finding for the page's section 7, `Known defects`.
 - **13.7 Standard colour fundus photographs only, for now.** Several datasets ship an
   **ultra-wide-field** subcollection alongside their ordinary photographs — DeepDRiD's third
-  sub-challenge, REYIA's AV-WIDE subset, [MSHF](../../docs/datasets/mshf.md)'s 500 Optos mosaics —
-  and one, [WIDE](../../docs/datasets/wide.md), is ultra-wide-field throughout. A fetcher **skips
+  sub-challenge, REYIA's AV-WIDE subset, [MSHF](../../../docs/datasets/mshf.md)'s 500 Optos mosaics —
+  and one, [WIDE](../../../docs/datasets/wide.md), is ultra-wide-field throughout. A fetcher **skips
   those subcollections** and builds the standard photographs. They are a different
   instrument: a 200° frame beside a 45° one makes every measurement in the store mean two things at
   once, and the crop and resolution rules in sections 8 and 9 were written for the narrow field. This

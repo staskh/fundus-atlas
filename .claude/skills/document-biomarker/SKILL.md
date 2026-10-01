@@ -21,19 +21,19 @@ that two numbers carrying the same label can be told apart.
 
 | Family | What belongs in it |
 | --- | --- |
-| [`calibre`](../../docs/biomarkers/calibre.md) | vessel width, and anything built from widths — the central retinal equivalents, the arteriovenous ratios |
-| [`tortuosity`](../../docs/biomarkers/tortuosity.md) | the shape of a vessel's path: Hart's seven, Grisan's density, inflection counts, curvature on a fitted spline |
-| [`density`](../../docs/biomarkers/density.md) | how much vasculature there is and how it is spread: area, length, the densities, sparsity, the fractal dimensions |
-| [`topology`](../../docs/biomarkers/topology.md) | the network as a graph: junctions, endpoints, components, branching and temporal angles |
-| [`landmarks`](../../docs/biomarkers/landmarks.md) | the optic nerve head and the fovea — the only family that measures no vessel |
+| [`calibre`](../../../docs/biomarkers/calibre.md) | vessel width, and anything built from widths — the central retinal equivalents, the arteriovenous ratios |
+| [`tortuosity`](../../../docs/biomarkers/tortuosity.md) | the shape of a vessel's path: Hart's seven, Grisan's density, inflection counts, curvature on a fitted spline |
+| [`density`](../../../docs/biomarkers/density.md) | how much vasculature there is and how it is spread: area, length, the densities, sparsity, the fractal dimensions |
+| [`topology`](../../../docs/biomarkers/topology.md) | the network as a graph: junctions, endpoints, components, branching and temporal angles |
+| [`landmarks`](../../../docs/biomarkers/landmarks.md) | the optic nerve head and the fovea — the only family that measures no vessel |
 
 **Adding a sixth family needs Stas's agreement**, and the bar is that the measurement answers a
 question none of the five asks. A new *variant* of tortuosity is a row on the tortuosity page; a new
 *way of pooling* is a statistic, not a biomarker; a new *region* is a row on the regions page.
 
 **Two pages there are not families and take no biomarkers:**
-[`vessel-tracing`](../../docs/biomarkers/vessel-tracing.md) and
-[`regions-of-interest`](../../docs/biomarkers/regions-of-interest.md). They are catalogued because
+[`vessel-tracing`](../../../docs/biomarkers/vessel-tracing.md) and
+[`regions-of-interest`](../../../docs/biomarkers/regions-of-interest.md). They are catalogued because
 several biomarkers cannot be read without them.
 
 ## 2. What you produce
@@ -43,7 +43,7 @@ several biomarkers cannot be read without them.
    against, so this comes first.
 2. **A row in the family page's canonical-names table**, plus a `### 3.x` variant subsection if the
    biomarker is a competing definition of something already there.
-3. **A row in [`docs/BIOMARKER-NAMES.md`](../../docs/BIOMARKER-NAMES.md)** §3, under its family,
+3. **A row in [`docs/BIOMARKER-NAMES.md`](../../../docs/BIOMARKER-NAMES.md)** §3, under its family,
    with the ✅ / ⚠️ coverage marks of §5 below. That section is hand-written because the marks are
    judgements; a test checks its left-hand column against the vocabulary in **both** directions, so
    a biomarker with no row fails just as loudly as a row with no biomarker.
@@ -65,7 +65,7 @@ family / biomarker / structure / [roi] / [statistic]
 | `family` | one of the five above | required |
 | `biomarker` | **which definition**, because the family name does not say | required |
 | `structure` | `artery`, `vein`, `vessels`, or `both` for an inherent ratio | required where the family has one |
-| `roi` | the region, from [regions of interest](../../docs/biomarkers/regions-of-interest.md) | `fov` |
+| `roi` | the region, from [regions of interest](../../../docs/biomarkers/regions-of-interest.md) | `fov` |
 | `statistic` | how per-segment or per-vessel values were pooled | `median` |
 
 Four rules, each of which has already been got wrong here at least once:
@@ -147,7 +147,7 @@ is clutter, and goes.
 
 **Both marks are claims.** A mapping says *we believe this column computes this quantity*, read out
 of the source rather than the documentation — and this catalogue has been wrong three times and
-withdrawn the mapping each time. The [synthetic benchmark](../../docs/benchmarks/biomarker-synthetic-docs.md)
+withdrawn the mapping each time. The [synthetic benchmark](../../../docs/benchmarks/biomarker-synthetic-docs.md)
 is what tests a claim; a shape where two variants give different known values separates them.
 
 **A withdrawn mapping is a finding.** Record it in §5 of that file with its date and the evidence,

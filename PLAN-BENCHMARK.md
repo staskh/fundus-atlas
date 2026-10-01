@@ -168,7 +168,8 @@ so instead of averaging them.
 
 **Decided.**
 
-1. **Quality. Built** — [docs/benchmarks/quality.md](docs/benchmarks/quality.md). Five models on
+1. **Quality. Built** — [what came out](docs/benchmarks/quality-results.md), and
+   [how it is configured](docs/benchmarks/quality-docs.md). Five models on
    [FIVES](docs/datasets/fives.md), [FQS](docs/datasets/fqs.md), [MSHF](docs/datasets/mshf.md) and
    [PAPILA](docs/datasets/papila.md): four datasets, 4,087 photographs each.
    [DeepDRiD](docs/datasets/deepdrid.md) is held back because the toolbox ensemble trained on it;

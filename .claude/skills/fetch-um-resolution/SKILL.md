@@ -111,7 +111,7 @@ Defaults of record. Changing one is a change to this skill, and it invalidates e
 | Default | Value | Why |
 | --- | --- | --- |
 | Sample size | **32** photographs, drawn with a recorded seed | enough for a median to settle; small enough to re-run |
-| Disc model | [lunetv2-odc](../../docs/models/lunetv2-odc.md) | the disc segmenter the biomarker pipelines already use for zones |
+| Disc model | [lunetv2-odc](../../../docs/models/lunetv2-odc.md) | the disc segmenter the biomarker pipelines already use for zones |
 | Disc diameter | equivalent diameter from area (twice the radius of a circle of the same area), measured in the **native** frame | the disc is a vertical oval; horizontal width alone is the wrong ruler |
 | Typical disc | **1,800 µm** | a round population width (~1.7–1.8 mm horizontal, 1.8–1.9 mm vertical) |
 | Spread gate | median absolute deviation **≤ 10% of the median** | on one camera, disc diameter already varies about 10%; more than that is mixed devices, mixed aiming, or a model that did not find the disc |
@@ -239,8 +239,8 @@ they are the only places this method can be checked at all:
 
 | Dataset | From its stated field angle | From the median optic disc | They differ by |
 | --- | --- | --- | --- |
-| [PAPILA](../../docs/datasets/papila.md), 30° | 3.777 | 3.994 | **5.8%** |
-| [HRF](../../docs/datasets/hrf.md), 45° | 4.130 | 4.980 | **21%** |
+| [PAPILA](../../../docs/datasets/papila.md), 30° | 3.777 | 3.994 | **5.8%** |
+| [HRF](../../../docs/datasets/hrf.md), 45° | 4.130 | 4.980 | **21%** |
 
 Read the second row the other way: under HRF's stated field its median disc is **1,490 µm**, not the
 1,800 µm this method assumes; under the disc figure its field spans **54°**, not the stated 45°.

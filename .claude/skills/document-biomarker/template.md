@@ -40,13 +40,13 @@ meaningless without its variant recorded.
 
 Which segmentations are consumed, and what geometry is derived from them. Be specific: most
 disagreement between implementations of one formula comes from this step, not the formula. Where a
-centreline is needed, say so and link [vessel tracing](../../docs/biomarkers/vessel-tracing.md) —
+centreline is needed, say so and link [vessel tracing](vessel-tracing.md) —
 how it is obtained is the implementation's business and is documented on its project page.
 
 ## 5. Measurement region
 
 The default, which biomarkers require one, and what the implementations actually use. Link
-[regions of interest](../../docs/biomarkers/regions-of-interest.md) rather than restating radii.
+[regions of interest](regions-of-interest.md) rather than restating radii.
 
 ## 6. Units and scale dependence
 

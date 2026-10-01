@@ -46,14 +46,14 @@ A vessel map alone cannot be got wrong in the way an artery/vein map can. Show, 
 ## 4. The ground truths are not independent of each other
 
 Three of the built datasets derive their vessel annotation from their artery/vein annotation, and
-[HRF](../../docs/datasets/hrf.md)'s hand-drawn gold standard turns out to *be* its artery/vein map —
+[HRF](../../../docs/datasets/hrf.md)'s hand-drawn gold standard turns out to *be* its artery/vein map —
 they differ by 0.004% of pixels. So a model's vessel Dice and its artery/vein Dice on those datasets
 are one measurement seen twice. Say so wherever both are shown, and never present their agreement as
 corroboration.
 
 ## 5. Where the same eyes appear twice
 
-[REYIA](../../docs/datasets/reyia.md) is a compilation: its subsets are named for the collections
+[REYIA](../../../docs/datasets/reyia.md) is a compilation: its subsets are named for the collections
 its photographs came from, and three of those — GRAPE, PAPILA, FIVES — are built here in their own
 right. **A pooled number over REYIA and its sources counts those eyes twice.** Group by subset, say
 which subsets overlap which datasets, and never average across the two without saying it.
