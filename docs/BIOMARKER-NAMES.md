@@ -244,16 +244,25 @@ convention does not name. See [regions of interest](biomarkers/regions-of-intere
 
 ## 5. Where a mapping has been withdrawn
 
-Three, each found by a synthetic shape rather than by reading a name:
+Five, each found by a measurement disagreeing with something, never by rereading a name:
 
 | Column | Was mapped to | Withdrawn because |
 | --- | --- | --- |
 | `squared_curvature_tortuosity` | `tortuosity/hart-tau3` | off by five orders of magnitude; it squares nothing |
 | `median_branching_angle` | the angle between daughters | it medians every pairwise angle at every junction, trunk included, and reads ~120° where the daughters are 60° apart |
 | `endpoints` (PVBM, OCULAR) | `topology/endpoints` | their rooted walk excludes the end at the disc |
+| `mean_sparsity` (VascX) | `density/sparsity` | **normalised by the optic-disc-to-fovea distance**, so a dimensionless ratio rather than a distance in microns |
+| `lw_tort_curv` (VascX) | `tortuosity/spline-curvature` | **multiplied by the optic-disc-to-fovea distance**, so dimensionless rather than the 1/µm the name means |
+
+**Two of the five are the same defect in one project.** VascX normalises against its disc-to-fovea
+axis in more than one feature, and a canonical name that declares a physical unit cannot hold a
+quantity measured in disc-to-fovea distances. The lesson is cheap to state and was expensive to
+learn twice: **where an upstream has an internal length it normalises by, check every mapping to a
+unit-bearing name, not the one that misbehaved.**
 
 **A withdrawn mapping is a finding, not an omission.** Each is recorded with its date on the
-relevant family page.
+relevant family page, and the column is still measured and stored under the implementation's own
+name — see §4.
 
 ---
 

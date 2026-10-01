@@ -230,7 +230,7 @@ so the geometry at 30° is *identical* to the geometry at 0°. **Any spread at a
 implementation or the pixel grid beneath it** — and this check needs no ground truth, which is why
 it is also the only check the unnamed quantities of section 2 ever get.
 
-Twenty-seven of 49 canonical biomarkers move by more than 10% somewhere. The worst of it — and
+Twenty-five of 47 canonical biomarkers move by more than 10% somewhere. The worst of it — and
 note that the *statistic* is now part of the name, so a row is one aggregation rather than a
 family of them:
 
@@ -238,7 +238,6 @@ family of them:
 | --- | --- | --- | --- | --- | --- | --- |
 | `tortuosity/grisan-density/vein/…` | — | — | 400.0% | 301.7% | 231.4% | — |
 | `tortuosity/hart-tau1/artery/…` | 20.1% | 11.8% | 202.1% | 7.1% | 7.5% | 10.9% |
-| `tortuosity/spline-curvature/artery/length-weighted` | — | — | — | — | — | 280.5% |
 | `topology/junctions/artery` | 240.0% | 240.0% | — | — | — | — |
 | `calibre/width/vein/length-weighted` | — | — | 60.0% | 14.0% | 14.0% | **1.7%** |
 | `density/box-counting/artery` | — | — | 20.1% | 80.7% | 80.8% | — |
@@ -257,9 +256,14 @@ Three findings, and each is legible only because the columns are ordered by line
   real here.* The box-counting dimension is a third case again — **worse** in the descendants
   (80.7% and 80.8%) than in AutoMorph (20.1%), so something one of them changed made it unstable.
 - **Across the boundary, VascX is steadiest where it measures at all** — 1.7% on vein calibre where
-  its neighbours are at 14% to 60%. It also has its own unique failure: `spline-curvature` at
-  280.5% on arteries and 225.0% on veins, a quantity only VascX computes and which nothing else
-  here would have caught.
+  its neighbours are at 14% to 60%.
+
+  *This bullet used to carry a second half, and it is withdrawn.* It reported VascX's
+  `spline-curvature` moving by 280.5% on arteries and 225.0% on veins and called it a unique
+  failure. The column is not a curvature: VascX multiplies the mean curvature by its
+  optic-disc-to-fovea distance, so the number is dimensionless and, on a synthetic shape, that
+  distance is a convention this repository invented. The 280.5% was this benchmark measuring its
+  own fixture. The mapping is withdrawn (§9.6) and the rows are gone from the table above.
 - **PVBM and OCULAR now move by exactly the same amount**, 240% on the artery junction count and
   20.1% on Hart τ1, because they are running the same code at the same recursion limit (section
   3.2). The gap this page used to report between them was the limit and nothing else.
@@ -470,7 +474,7 @@ to read the date beside a claim rather than the claim alone.
 From 2026-09-30 every catalogued biomarker states a physical unit and none of them is in pixels.
 Each implementation still reports what it measured on the pixel grid, under its own column names,
 and that number is converted once — by the rule the ground truth was built with — before the two
-meet. Five things changed on this page, and only the first is cosmetic. **None of them was a
+meet. Six things changed on this page, and only the first is cosmetic. **None of them was a
 re-measurement of anything but VascX, and that one reproduced its own numbers exactly** (§9.4).
 
 **9.1 The names got longer, and one of them split in two.** A canonical name now carries the
@@ -519,6 +523,28 @@ its derivation and denied in its vocabulary table. Its units row now reads `1/µ
 implementation returns changed; what changed is that a value computed at 1024 pixels and one
 computed at 2048 are now the same number, and the noise floor beneath it is set by its own range
 rather than by a constant meant for an area (section 1).
+
+**9.6 A second VascX mapping went the same way as the first, and a photograph is what caught it.**
+`lw_tort_curv` was mapped to `tortuosity/spline-curvature`, which means a curvature in 1/µm.
+Reading `fundus/features/tortuosity.py` says it is not one: `_compute_for_segment` returns
+`np.mean(spline.curvatures()) * self._get_curvature_scale(...)`, and that scale is
+`layer.retina.disc_fovea_distance`. A curvature times a length is **dimensionless**, in
+disc-to-fovea units — the same normalisation that took `mean_sparsity` out in §9.3, in a second
+feature.
+
+**The synthetic shapes could not see it and a real photograph could.** On these shapes the column
+reads 0.0002 to 0.013 and merely looked noisy, which is why this page spent nine days reporting a
+280% rotation spread as a finding about VascX's curvature when it was a finding about the fovea
+this repository invents for a drawn shape. Run on an HRF photograph the same column reads about
+**1.5**, which as 1/µm would be a vessel turning through a radius of two thirds of a micron —
+impossible on sight, and the reason the mapping is now withdrawn
+([BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §5). Nothing was re-measured; VascX's 80 comparable
+measurements and its 2-of-6 disagreements are unchanged, because the column never had a ground
+truth to be judged against. What changed is a claim this page was making about it.
+
+*The general lesson, now paid for twice.* Where an upstream carries an internal length it
+normalises by, every mapping of its columns onto a unit-bearing name is suspect — not only the one
+that misbehaved.
 
 ---
 

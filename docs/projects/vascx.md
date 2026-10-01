@@ -209,6 +209,21 @@ Unknown.
 
 ### 8.1 The optic disc is resized to 1024 pixels whatever the image is
 
+*Our finding, 2026-10-01.* **Two of its features are normalised by the optic-disc-to-fovea
+distance, and neither says so in its name.** `Sparsity` takes `normalize=True` by default and
+divides by that distance; `TortuosityMeasure.Curvature` multiplies by it
+(`np.mean(spline.curvatures()) * self._get_curvature_scale(...)`, where the scale is
+`layer.retina.disc_fovea_distance`). Both are therefore **dimensionless, in disc-to-fovea units**,
+and both were mapped by this atlas onto canonical names that declare a physical unit — `mean_sparsity`
+to a distance in microns, `lw_tort_curv` to a curvature in 1/µm. Both mappings are withdrawn
+([BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §5), and both columns are still measured and stored
+under VascX's own names.
+
+This is a property of the pipeline rather than a defect in it: VascX is built around the
+disc-to-fovea axis and expressing a length in units of it is a reasonable thing for it to do. What
+it means for anyone reading these numbers is that **a VascX feature cannot be compared with another
+project's unless the axis is the same**, and the axis depends on where a fovea model put the fovea.
+
 *Our finding, 2026-09-22.* `rtnls_enface.disc.OpticDisc.__init__` takes `size=1024`, and nothing
 passes the retina's own resolution to it. A disc mask handed to a retina built at any other
 resolution is therefore resized to 1024, after which every feature measured on a circle around the

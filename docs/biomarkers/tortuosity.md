@@ -258,11 +258,28 @@ Two papers define everything in the table above.
 
 ### 3.7 Mean curvature on a spline, and inflection count — VascX
 
-- **Formula:** the mean of κ sampled along a fitted spline; and, separately, the count of curvature
-  sign changes.
+- **Formula:** the mean of κ sampled along a fitted spline, **multiplied by the optic-disc-to-fovea
+  distance**; and, separately, the count of curvature sign changes.
 - **Implemented by:** VascX (`TortuosityMeasure.Curvature` and `TortuosityMeasure.Inflections`).
 - Closest in spirit to Hart's τ4, but normalised by sample count rather than arc length, and no
   source publication is claimed for the exact form.
+- ***Our finding, 2026-10-01, from reading `fundus/features/tortuosity.py`:* the multiplication is
+  the whole story, and this atlas mapped the column wrongly for nine days because of it.**
+  `_compute_for_segment` returns `np.mean(spline.curvatures()) * self._get_curvature_scale(...)`,
+  and that scale is `layer.retina.disc_fovea_distance`. A curvature is an inverse length;
+  multiplying it by a length makes the result **dimensionless**, expressed in disc-to-fovea
+  distances. So `tortuosity/spline-curvature`, which means a curvature in **1/µm**, is not what
+  this column reports, and the mapping is withdrawn — see
+  [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §5.
+
+  What made it visible was running VascX on a real photograph rather than a synthetic shape: the
+  column reads about **1.5**, which as 1/µm would be a vessel turning through a radius of two
+  thirds of a micron. On the synthetic shapes it read 0.0002 to 0.013 and looked merely noisy.
+  **There is a lesson in the pairing**: this is the second VascX feature found to be normalised by
+  its own disc-to-fovea axis, after `mean_sparsity`, and the axis is a model's answer on a
+  photograph and a fixture's invention on a drawn shape. Where an upstream carries an internal
+  length it divides or multiplies by, every mapping of its columns onto a unit-bearing name is
+  suspect, not only the one that misbehaved.
 
 **Comparability:** none of these are interchangeable, and the differences are not monotonic — two
 vessels can be ranked one way by τ1 and the other way by tortuosity density, because one measures

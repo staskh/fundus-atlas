@@ -42,7 +42,20 @@ NAMES: dict[str, str | None] = {
     ),
     f"lw_tort_dist_max_segment_len_0p15_{CIRCLE}_full_{{layer}}": None,
     f"lw_tort_dist_max_segment_len_0p25_{CIRCLE}_full_{{layer}}": None,
-    f"lw_tort_curv_{CIRCLE}_full_{{layer}}": "tortuosity/spline-curvature/{side}/length-weighted",
+    # *Our finding, 2026-10-01, from `features/tortuosity.py`:* **not a curvature.**
+    # `TortuosityMeasure.Curvature` returns `np.mean(spline.curvatures()) *
+    # self._get_curvature_scale(...)`, and that scale is `layer.retina.disc_fovea_distance`. So
+    # the number is a mean curvature **multiplied by a length** — dimensionless, expressed in
+    # disc-to-fovea distances — where `tortuosity/spline-curvature` means a curvature in 1/µm.
+    #
+    # This is `mean_sparsity`'s defect in a second feature, and it was found the same way: on a
+    # real photograph it reads about 1.5, which as 1/µm would be a vessel bending through a radius
+    # of two thirds of a micron. The mapping is withdrawn rather than divided by anything, because
+    # the divisor is the disc-fovea axis — a model's answer on a photograph, and this adapter's own
+    # invented convention on a synthetic shape (see `FOVEA`). It was mapped from 2026-09-22 and
+    # every figure the synthetic benchmark reported for it — a 280% rotation spread, a 43% error —
+    # was measuring that axis rather than any curvature.
+    f"lw_tort_curv_{CIRCLE}_full_{{layer}}": None,
     # Vessel area over the area of a disc-centred circle — neither the field of view nor the whole
     # frame, so neither catalogued density describes it.
     f"vd_{CIRCLE}_full_{{layer}}": None,
