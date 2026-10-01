@@ -83,6 +83,7 @@ class VascxDisc:
 
     def _prepared(self):
         if self._transform is None:
+            vascx.on_path()
             from rtnls_inference.transforms import FundusTestTransform
 
             self._transform = FundusTestTransform(preprocess=False, **PREPARATION)
@@ -90,6 +91,7 @@ class VascxDisc:
 
     def _loaded(self):
         if self._ensemble is None:
+            vascx.on_path()
             from rtnls_inference.ensembles.ensemble_segmentation import SegmentationEnsemble
 
             ensemble = SegmentationEnsemble.from_huggingface(WEIGHTS).to(self.device)

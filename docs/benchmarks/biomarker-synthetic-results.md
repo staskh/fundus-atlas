@@ -56,7 +56,7 @@ difference **across a boundary** is two independent readings of the same definit
 6. [The Koch curve, redrawn](#6-the-koch-curve-redrawn)
 7. [Which to reach for, and at what question](#7-which-to-reach-for-and-at-what-question)
 8. [What these numbers do not say](#8-what-these-numbers-do-not-say)
-9. [What measuring in microns changed](#9-what-measuring-in-microns-changed)
+9. [What changed, and what it did not](#9-what-changed-and-what-it-did-not)
 
 ## 1. Summary
 
@@ -70,7 +70,7 @@ difference **across a boundary** is two independent readings of the same definit
 | Quantities that move when the image turns | 9 / 30 | 8 / 18 | 16 / 18 | 19 / 40 | 11 / 18 | **4 / 20** |
 | Biomarkers disagreeing with the geometry | 7 / 20 | 5 / 10 | 9 / 15 | **3 / 17** | 4 / 15 | 2 / 6 |
 | Exceptions | 0 | 0 | 0 | 0 | 0 | 0 |
-| Seconds per image | **19.2** | 2.2 | 0.9 | 3.9 | **0.5** | 2.9 |
+| Seconds per image | **19.2** | 2.2 | 0.9 | 3.9 | **0.5** | 2.8 |
 
 **Every figure here is taken against a noise floor of 1% of the biomarker's own size**, meaning the
 largest value the shapes require of it anywhere in the store. A difference smaller than that counts
@@ -465,12 +465,13 @@ to read the date beside a claim rather than the claim alone.
   "16 seconds an image" as describing this machine on one afternoon, against this fixture, rather
   than the program.
 
-## 9. What measuring in microns changed
+## 9. What changed, and what it did not
 
 From 2026-09-30 every catalogued biomarker states a physical unit and none of them is in pixels.
 Each implementation still reports what it measured on the pixel grid, under its own column names,
 and that number is converted once — by the rule the ground truth was built with — before the two
-meet. Four things changed on this page, and only the first is cosmetic.
+meet. Five things changed on this page, and only the first is cosmetic. **None of them was a
+re-measurement of anything but VascX, and that one reproduced its own numbers exactly** (§9.4).
 
 **9.1 The names got longer, and one of them split in two.** A canonical name now carries the
 statistic that pooled it, so `tortuosity/hart-tau1/artery/mean` and
@@ -499,7 +500,21 @@ number is a dimensionless ratio rather than a distance — and on a synthetic sh
 convention this repository supplied. The mapping is withdrawn. VascX's share of measurements
 within tolerance was 62% with it and is 90% without, which is what a wrong mapping costs.
 
-**9.4 Grisan's density turned out to be an inverse length**, which its own catalogue page said in
+**9.4 VascX is now four pinned clones**, from 2026-10-01, where it was four pip installs —
+`retinalysis-vascx` and the three Eyened packages it runs on, one of which, `retinalysis-enface`,
+supplies the optic disc and the fundus that every VascX measurement here is built on. Its project
+page §1 carries the pins and what the choice costs.
+
+**Every measured value is unchanged**, which is the point of recording it: re-running all nine
+shapes against the clones reproduced each of VascX's numbers exactly, and only the fingerprint and
+the timing moved — 2.9 seconds an image to 2.8, inside the run-to-run spread §8 already warns
+about. What did change is what a stored score is pinned to. VascX's row in the configuration page
+now names all four commits rather than one, and the adapter's identity hashes all four, because a
+change in `rtnls_enface` moves these numbers exactly as a change in `vascx` would and the old
+fingerprint could not have seen it. OCULAR's row gained PVBM's commit beside its own for the same
+reason.
+
+**9.5 Grisan's density turned out to be an inverse length**, which its own catalogue page said in
 its derivation and denied in its vocabulary table. Its units row now reads `1/µm`. Nothing any
 implementation returns changed; what changed is that a value computed at 1024 pixels and one
 computed at 2048 are now the same number, and the noise floor beneath it is set by its own range

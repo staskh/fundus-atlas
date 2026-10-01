@@ -347,6 +347,23 @@ COLUMNS = {
 }
 
 
+def _pinned(upstream: dict) -> str:
+    """Every commit an implementation's numbers depend on, not only its own repository's.
+
+    VascX is one project and four repositories: its measuring code is in `vascx`, and the optic
+    disc and fundus that code is built on come from `rtnls_enface`. A page naming one of the four
+    would let the other three move underneath a stored score without a reader seeing it, which is
+    the same thing the adapter's `identity` now refuses to allow.
+    """
+    commits = [str(upstream.get("commit", ""))]
+    commits += [
+        str(value["commit"])
+        for value in upstream.values()
+        if isinstance(value, dict) and value.get("commit")
+    ]
+    return ", ".join(f"`{commit[:7]}`" for commit in commits if commit) or "—"
+
+
 def config() -> dict[str, object]:
     """What this benchmark reports about itself, as data rather than prose.
 
@@ -385,9 +402,7 @@ def config() -> dict[str, object]:
                     # An implementation's slug need not name its catalogue page — OCULAR's page
                     # is `ocularnet.md` — so the adapter says, and the slug is only the fallback.
                     "page": f"../projects/{declared.get(slug, {}).get('page', slug)}.md",
-                    "pinned": f"`{str(declared[slug]['upstream'].get('commit', ''))[:7]}`"
-                    if slug in declared
-                    else "—",
+                    "pinned": _pinned(declared[slug]["upstream"]) if slug in declared else "—",
                     "columns": len(declared[slug]["keys"]) if slug in declared else "—",
                     "ran": slug in declared,
                     "why_not": missing.get(slug),

@@ -30,8 +30,34 @@ requiring the user to make choices they may not have known existed.
 - **Related packages by the same group**, installed alongside and worth knowing about because
   behaviour depends on them: `retinalysis-inference` (model execution),
   [retinalysis-fundusprep](https://github.com/Eyened/retinalysis-fundusprep) (image bounds,
-  cropping, contrast enhancement) and `rtnls_enface` (the grid definitions used to place regions on
-  the retina).
+  cropping, contrast enhancement) and
+  [retinalysis-enface](https://github.com/Eyened/retinalysis-enface) (the optic disc, the fundus,
+  and the grid definitions used to place regions on the retina).
+- **How this atlas runs it:** as **four pinned clones** rather than four pip installs, from
+  2026-10-01. VascX is the upstream this repository has had to read most often, and every
+  correction below came from reading these files rather than any documentation — that the quality
+  checkpoint resizes to 224 and names EyeQ, that the "Hubbard reduction" is Knudtson's formula,
+  that `mean_sparsity` is normalised by the disc-to-fovea distance and so is not a distance.
+  Cloning is what keeps that code where a reader can find it instead of inside somebody's
+  `site-packages`. The pins:
+
+  | Repository | Pinned at | Carries |
+  | --- | --- | --- |
+  | [retinalysis-vascx](https://github.com/Eyened/retinalysis-vascx) | `d0cde1c` | the measuring code |
+  | [retinalysis-inference](https://github.com/Eyened/retinalysis-inference) | `e5823fe` | model execution, release 0.7.1 |
+  | [retinalysis-fundusprep](https://github.com/Eyened/retinalysis-fundusprep) | `ff47bfb` | preparation, release 1.3.0 |
+  | [retinalysis-enface](https://github.com/Eyened/retinalysis-enface) | `ec1ca00` | the disc and the grids, release 1.2.0 |
+
+  *Our finding, 2026-10-01:* the inference package's release **0.7.1 is not tagged**. Its
+  repository tags 0.7.0 and stops, and PyPI carries a 0.7.1 built one commit later. The pin above
+  names that commit, identified by what it did — it added the `pydantic` requirement, which
+  0.7.1's metadata carries and 0.7.0's does not.
+
+  A clone brings the code and none of the dependency metadata, so the seventeen ordinary packages
+  these four declare — `lightning`, `monai`, `albumentations`, `opencv`, `simplejpeg` and the rest
+  — are now pinned directly in this repository's `pyproject.toml` instead of arriving behind them.
+  That is a cost of the choice and worth knowing: if a later VascX needs a different `lightning`,
+  nothing here will say so.
 
 ## 2. License
 

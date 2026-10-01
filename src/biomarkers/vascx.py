@@ -1,6 +1,9 @@
 # ABOUTME: VascX's feature machinery, reached from this repository: one pass over a retina built
 # ABOUTME: from the masks, and the table saying what each of its feature names answers to.
 
+import hashlib
+import json
+
 import numpy as np
 
 from upstreams import vascx as upstream
@@ -173,7 +176,17 @@ class Vascx:
         }
 
     def identity(self) -> str:
-        return str(upstream.provenance().get("version") or upstream.provenance().get("commit"))
+        """All four pinned commits, not just VascX's.
+
+        VascX is one repository and the code that produces these numbers is four. Its measuring
+        code lives in `vascx`, but `rtnls_enface` supplies the optic disc and the fundus that
+        `vascx.fundus.retina` is built on, so a change there moves the numbers exactly as a change
+        in `vascx` would. Identifying the run by one commit of the four would let the other three
+        move underneath a stored score.
+        """
+        return hashlib.sha256(
+            json.dumps(upstream.provenance(), sort_keys=True).encode()
+        ).hexdigest()
 
     def keys(self) -> tuple[str, ...]:
         return tuple(CANONICAL)
