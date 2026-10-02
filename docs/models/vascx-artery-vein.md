@@ -36,6 +36,18 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 
 ## 4. What it produces
 
+> **This model does not identify arteriovenous crossings, and the vessels it cuts there cannot be
+> recovered.** Its output is a four-way softmax, so a pixel is artery *or* vein and never both — the
+> only one of the five artery/vein models this atlas has benchmarked whose masks never overlap, the
+> other four producing 1.6% to 4.0% against an expert's 3.4%. Two further models in
+> [MODELS.md](../MODELS.md) §3 cannot express a crossing either, by different routes. At every
+> crossing one vessel wins and the other is interrupted. Nothing downstream repairs it: a gap of a
+> **single pixel** permanently splits a vessel into two in VascX's own tracer, so a long artery or
+> vein crossed three times is measured as four shorter pieces, each separately rooted, splined and
+> counted. Anything measured per vessel or per segment — vessel and endpoint counts, per-vessel
+> tortuosity, segment lengths — is computed on those pieces. §10 has the evidence; the mechanism is
+> in [vessel tracing](../biomarkers/vessel-tracing.md) §3.2.1.
+
 - **Purpose:** `artery/vein`
 - **Output classes:** four — `background`, `artery`, `vein`, `unclassified` — as a **softmax**, not
   as independent probabilities. *Our finding, 2026-10-01:* the four channels sum to exactly
@@ -111,7 +123,11 @@ there is something to miss:
 | **vascx-artery-vein** | **0.000%** |
 | *expert — HRF-AV* | *3.39%* |
 
-It is the only artery/vein model in this catalogue whose two masks never overlap.
+It is the only **benchmarked** artery/vein model whose two masks never overlap. It is not the only
+one in the catalogue that cannot express a crossing: [MODELS.md](../MODELS.md) §3 compares all nine,
+and [Retina-MVP](retina-mvp-av.md) has no fourth class at all while [Big W-Net](big-wnet.md) has one
+it calls *uncertain* and splits evenly into artery and vein before an argmax over three. Three
+routes to the same inability, and this is the one measured here.
 
 **Where the crossing pixels go instead**, by argmax at the expert's crossing pixels:
 

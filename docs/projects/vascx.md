@@ -131,6 +131,13 @@ substitute their own weights — useful, and a reason to record which weights pr
 Each biomarker is a configurable object rather than a fixed formula. The families below correspond
 to the modules in `vascx/fundus/features/`.
 
+> **Read §8.3 before taking a per-vessel number from this table.** VascX's own artery/vein model
+> cannot mark an arteriovenous crossing, so it cuts the losing vessel at every one, and VascX's
+> tracer never rejoins a cut vessel — a gap of one pixel is permanent. Every row below that is
+> counted or aggregated per vessel or per segment is therefore computed on fragments of vessels
+> rather than on vessels: the tortuosities, the bifurcation counts, the densities' skeleton
+> lengths. Calibre is largely spared, because width is measured locally.
+
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
 | [Caliber (vessel width)](../biomarkers/calibre.md) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
