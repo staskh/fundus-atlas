@@ -55,7 +55,7 @@ pixels and inherits the same caution: see section 6.
 - **Below a model's measuring grid:** **Effectively yes.** 768×584 is below the 912 vessel grid and
   the 1024 of the newer models, so measurement happens on an upsampled image and a vessel a few
   pixels wide carries most of the signal.
-- **What it can answer:** whether a pipeline's [calibre](../biomarkers/vessel-calibre.md) agrees with
+- **What it can answer:** whether a pipeline's [calibre](../biomarkers/calibre.md) agrees with
   three experts' measured widths at defined radii — a check only this dataset and
   [INSPIRE-AVR](inspire-avr.md) support.
 

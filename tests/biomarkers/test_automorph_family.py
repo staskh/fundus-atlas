@@ -97,8 +97,8 @@ def test_automorphalyzer_catalogues_zone_b_and_not_zone_c(shape) -> None:
     adapter = catalogue.load("automorphalyzer")
     names = adapter.declare()["names"]
 
-    assert names["CRAE_Knudtson@B_artery"] == "central-retinal-equivalents/knudtson/artery"
-    assert names["CRVE_Knudtson@B_vein"] == "central-retinal-equivalents/knudtson/vein"
+    assert names["CRAE_Knudtson@B_artery"] == "calibre/CRE-knudtson/artery/B"
+    assert names["CRVE_Knudtson@B_vein"] == "calibre/CRE-knudtson/vein/B"
     assert "CRAE_Knudtson@C_artery" in adapter.keys(), "zone C is kept under its own name"
     assert adapter.declare()["zones"]["B"] == "2 to 3 disc radii"
 
@@ -125,25 +125,60 @@ def test_automorph_and_automorphclass_reach_no_equivalents() -> None:
     """
     for slug in ("automorph", "automorphclass"):
         adapter = catalogue.load(slug)
-        assert "central-retinal-equivalents" in adapter.declare()["absent"]
-        assert not [key for key in adapter.keys() if key.startswith("central-retinal")]
+        assert "calibre/CRE-knudtson" in adapter.declare()["absent"]
+        assert "calibre/AVR-knudtson" in adapter.declare()["absent"]
+        assert not [
+            name for name in adapter.declare()["names"].values() if name and "/CRE-" in name
+        ]
 
 
 def test_the_family_answers_the_same_six_quantities(shape) -> None:
     """What makes a side-by-side possible: two of them are rewrites of the first.
 
-    Every one of the six AutoMorph measures is computed by all three, under the same catalogued
-    names, so a difference between their numbers is a change somebody made rather than a different
-    quantity.
+    All three compute the same six measurements, so a difference between their numbers is a
+    change somebody made rather than a different quantity. They do **not** all pool them the same
+    way — see the test below — so what is shared is the measurement, which is the name without its
+    statistic.
     """
     shared = None
     for slug in FAMILY:
-        catalogued = {name for name in catalogue.load(slug).declare()["names"].values() if name}
+        catalogued = {
+            _measurement(name)
+            for name in catalogue.load(slug).declare()["names"].values()
+            if name
+        }
         shared = catalogued if shared is None else shared & catalogued
 
-    assert len(shared) >= 15, f"only {len(shared)} names in common across the family"
-    for name in ("tortuosity/hart-tau1/artery", "fractal-dimension/box-counting/vessels"):
+    assert len(shared) >= 15, f"only {len(shared)} measurements in common across the family"
+    for name in ("tortuosity/hart-tau1/artery", "density/box-counting/vessels"):
         assert name in shared
+
+
+def _measurement(name: str) -> str:
+    """A catalogued name with its statistic taken off — what was measured, not how it was pooled."""
+    head, _, last = name.rpartition("/")
+    return head if last in canonical.STATISTICS else name
+
+
+def test_automorphclass_weights_by_length_where_its_two_siblings_take_a_mean() -> None:
+    """*Our finding, from `_tortuosity_per_window`:* `len_weighted=True` is its default.
+
+    AutoMorph and AutoMorphalyzer sum over vessels and divide by the vessel count; AutoMorphClass
+    multiplies each vessel's value by its own curve length and divides by the total. Those are
+    different statistics of one measurement, and part of why the three disagree on one picture —
+    so the catalogued names they answer to differ in the statistic and nowhere else.
+    """
+    behind = {slug: catalogue.load(slug).declare()["names"] for slug in FAMILY}
+
+    assert behind["automorph"]["distance_tortuosity_artery"] == (
+        "tortuosity/hart-tau1/artery/mean"
+    )
+    assert behind["automorphalyzer"]["tortuosity_distance@whole_artery"] == (
+        "tortuosity/hart-tau1/artery/mean"
+    )
+    assert behind["automorphclass"]["distance_tortuosity_artery"] == (
+        "tortuosity/hart-tau1/artery/length-weighted"
+    )
 
 
 def test_a_crash_is_recorded_rather_than_raised() -> None:

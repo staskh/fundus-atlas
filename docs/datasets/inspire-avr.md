@@ -57,7 +57,7 @@ Tromsø subset that is not yet available.
   lists INSPIRE in its **training** collection, so it is in-sample for that model;
   [LUNet](../models/lunet.md) uses it as a held-out external test.
 - **Below a model's measuring grid:** No.
-- **What it can answer:** whether a pipeline's [AVR](../biomarkers/avr.md) agrees with two experts'
+- **What it can answer:** whether a pipeline's [AVR](../biomarkers/calibre.md) agrees with two experts'
   IVAN measurements — the same check [AVRDB](avrdb.md) supports, on a different population and with
   the tool epidemiological studies actually used.
 

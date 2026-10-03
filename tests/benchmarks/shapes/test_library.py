@@ -26,20 +26,24 @@ def test_every_theoretical_value_is_named_from_the_fixed_vocabulary() -> None:
     """A value under a name nothing can be compared against is not a test.
 
     Every key goes through `canonical.check`, so a typo fails here rather than becoming a row that
-    silently matches no implementation's column for ever.
+    silently matches no implementation's column for ever — and every key is one the vocabulary
+    *enumerates*, which is the stronger statement: `check` accepts the short form that means the
+    default statistic, and a ground truth written in short forms would meet an implementation
+    reporting a median under a name that is the same measurement spelt differently.
     """
+    enumerated = set(canonical.names())
     for name in library.SHAPES:
         for key in library.build(name, side=SIDE).theory:
             canonical.check(key)
-            assert key.count("/") == 2, f"{name}: {key} is not 'biomarker/variant/structure'"
+            assert key in enumerated, f"{name}: {key} is a name the vocabulary does not enumerate"
 
 
 def test_a_straight_vessel_is_exactly_as_tortuous_as_a_straight_line() -> None:
     shape = library.build("straight", side=SIDE)
 
-    assert shape.theory["tortuosity/hart-tau1/artery"] == 1.0
-    assert shape.theory["tortuosity/hart-tau2/artery"] == 0.0
-    assert shape.theory["tortuosity/hart-tau4/artery"] == 0.0
+    assert shape.theory["tortuosity/hart-tau1/artery/median"] == 1.0
+    assert shape.theory["tortuosity/hart-tau2/artery/median"] == 0.0
+    assert shape.theory["tortuosity/hart-tau4/artery/median"] == 0.0
 
 
 def test_an_arcs_tortuosity_matches_the_closed_form_and_the_arithmetic() -> None:
@@ -47,23 +51,26 @@ def test_an_arcs_tortuosity_matches_the_closed_form_and_the_arithmetic() -> None
     shape = library.build("arc", side=SIDE, angle=90.0)
 
     theta = np.deg2rad(90.0)
-    assert shape.theory["tortuosity/hart-tau1/artery"] == pytest.approx(
+    assert shape.theory["tortuosity/hart-tau1/artery/median"] == pytest.approx(
         theta / (2 * np.sin(theta / 2))
     )
     # And the same number, arrived at by walking the curve rather than by the formula.
     points = np.asarray(shape.centreline)
     arc = float(np.hypot(*np.diff(points, axis=0).T).sum())
     chord = float(np.hypot(*(points[-1] - points[0])))
-    assert arc / chord == pytest.approx(shape.theory["tortuosity/hart-tau1/artery"], rel=1e-3)
+    assert arc / chord == pytest.approx(shape.theory["tortuosity/hart-tau1/artery/median"], rel=1e-3)
 
 
 def test_an_arc_curves_by_one_over_its_radius() -> None:
     shape = library.build("arc", side=SIDE, angle=90.0)
 
     radius = shape.parameters["artery_radius"]
-    assert shape.theory["tortuosity/hart-tau2/artery"] == pytest.approx(np.deg2rad(90.0))
-    # The mean curvature of a circular arc is the curvature, which is one over the radius.
-    assert shape.theory["tortuosity/hart-tau4/artery"] == pytest.approx(1.0 / radius)
+    assert shape.theory["tortuosity/hart-tau2/artery/median"] == pytest.approx(np.deg2rad(90.0))
+    # The mean curvature of a circular arc is the curvature, which is one over the radius. The
+    # radius is a drawing parameter, so it is in pixels; the theory is in microns, as `1/µm` says.
+    assert shape.theory["tortuosity/hart-tau4/artery/median"] == pytest.approx(
+        1.0 / (radius * shape.um_per_px)
+    )
 
 
 def test_a_sinusoids_length_matches_numerical_integration() -> None:
@@ -76,27 +83,27 @@ def test_a_sinusoids_length_matches_numerical_integration() -> None:
     x = np.linspace(0.0, wavelength * cycles, 2_000_001)
     slope = amplitude * (2 * np.pi / wavelength) * np.cos(2 * np.pi * x / wavelength)
     length = float(np.trapezoid(np.sqrt(1.0 + slope**2), x))
-    assert shape.theory["vessel-area-and-length/skeleton-length/artery"] == pytest.approx(
-        length, rel=1e-4
+    assert shape.theory["density/skeleton-length/artery"] == pytest.approx(
+        length * shape.um_per_px, rel=1e-4
     )
 
 
 def test_a_bifurcation_branches_at_the_angle_it_was_asked_for() -> None:
     shape = library.build("bifurcation", side=SIDE, angle=60.0)
 
-    assert shape.theory["bifurcation-angle/between-daughters/artery"] == pytest.approx(60.0)
-    assert shape.theory["junction-counts/junctions/artery"] == 1.0
-    assert shape.theory["junction-counts/junctions/vessels"] == 2.0, "one Y per class"
-    assert shape.theory["junction-counts/endpoints/artery"] == 3.0
-    assert shape.theory["junction-counts/endpoints/vessels"] == 6.0
+    assert shape.theory["topology/branching-angle/artery/median"] == pytest.approx(60.0)
+    assert shape.theory["topology/junctions/artery"] == 1.0
+    assert shape.theory["topology/junctions/vessels"] == 2.0, "one Y per class"
+    assert shape.theory["topology/endpoints/artery"] == 3.0
+    assert shape.theory["topology/endpoints/vessels"] == 6.0
 
 
 def test_disjoint_segments_have_no_junctions_and_count_themselves() -> None:
     shape = library.build("disjoint", side=SIDE, segments=4)
 
-    assert shape.theory["junction-counts/junctions/vessels"] == 0.0
-    assert shape.theory["junction-counts/components/artery"] == 4.0
-    assert shape.theory["junction-counts/components/vessels"] == 8.0, "four lines per class"
+    assert shape.theory["topology/junctions/vessels"] == 0.0
+    assert shape.theory["topology/components/artery"] == 4.0
+    assert shape.theory["topology/components/vessels"] == 8.0, "four lines per class"
 
 
 def test_every_shape_draws_an_artery_and_a_vein() -> None:
@@ -110,7 +117,7 @@ def test_every_shape_draws_an_artery_and_a_vein() -> None:
         assert shape.artery is not None and shape.artery.any(), f"{name} draws no artery"
         assert shape.vein is not None and shape.vein.any(), f"{name} draws no vein"
         assert not (shape.artery & shape.vein).any(), f"{name} has a pixel in both classes"
-        assert shape.theory["avr/ratio-of-calibres/both"] == pytest.approx(
+        assert shape.theory["calibre/AVR-ratio/both"] == pytest.approx(
             library.ARTERY_WIDTH_UM / library.VEIN_WIDTH_UM
         )
 
@@ -133,7 +140,7 @@ def test_the_drawn_density_approaches_the_density_geometry_requires() -> None:
     for side in (1024, 1536, 2048):
         shape = library.build("straight", side=side)
         drawn = float((shape.artery | shape.vein).sum()) / float(shape.fov.sum())
-        theory = shape.theory["vascular-density/over-field-of-view/vessels"]
+        theory = shape.theory["density/over-fov/vessels"]
         width = shape.parameters["artery_width"]
         assert abs(drawn - theory) / theory < 1.2 / width, (
             f"at side {side} the drawn density is further from the geometry than one row of pixels"
@@ -169,9 +176,9 @@ def test_hart_s_compositional_pair_depends_on_the_radius_alone() -> None:
     wide = library.build("arc", side=SIDE, angle=120.0)
 
     assert narrow.parameters["artery_radius"] == wide.parameters["artery_radius"]
-    for key in ("tortuosity/hart-tau4/artery", "tortuosity/hart-tau5/artery"):
+    for key in ("tortuosity/hart-tau4/artery/median", "tortuosity/hart-tau5/artery/median"):
         assert narrow.theory[key] == pytest.approx(wide.theory[key]), f"{key} moved with the angle"
-    for key in ("tortuosity/hart-tau2/artery", "tortuosity/hart-tau3/artery"):
+    for key in ("tortuosity/hart-tau2/artery/median", "tortuosity/hart-tau3/artery/median"):
         assert wide.theory[key] > narrow.theory[key], f"{key} should grow with the angle"
 
 
@@ -205,30 +212,35 @@ def test_the_knudtson_equivalent_of_equal_vessels_is_what_the_recursion_gives() 
     shape = library.build("spokes-macula-centred", side=SIDE)
 
     width = shape.parameters["artery_width"]
-    assert shape.theory["central-retinal-equivalents/knudtson/artery"] == pytest.approx(
-        library.knudtson([width] * 6, "artery")
+    assert shape.theory["calibre/CRE-knudtson/artery/B"] == pytest.approx(
+        library.knudtson([width] * 6, "artery") * shape.um_per_px
     )
     assert library.knudtson([10.0, 10.0], "artery") == pytest.approx(0.88 * np.hypot(10.0, 10.0))
     assert library.knudtson([7.0], "vein") == 7.0, "one vessel combines with nothing"
 
 
-def test_resolution_moves_knudtson_s_pixels_and_leaves_hubbard_s_microns_alone() -> None:
+def test_resolution_leaves_both_equivalents_alone_although_it_moves_their_pixels() -> None:
     """One retina photographed at two resolutions is one retina, and the theory has to say so.
 
-    A vessel's width is stated in microns here, so a finer scale draws the same vessel across more
-    pixels. Knudtson's equivalent is computed on those pixels and moves with the resolution;
-    Hubbard's is computed on microns and must not, because the eye did not change.
+    A vessel's width is stated in microns here, so a finer scale draws the same vessel across
+    twice as many pixels, and Knudtson's equivalent — computed on those pixels — comes out twice
+    as large. That is exactly the number the vocabulary refuses to record: every canonical length
+    is in microns, so the scale is divided back out and the two resolutions agree. Hubbard's was
+    never in pixels, because its additive constants were fitted in microns, and agrees for a
+    different reason.
     """
     coarse = library.build("spokes-macula-centred", side=SIDE, um_per_px=20.0)
     fine = library.build("spokes-macula-centred", side=SIDE, um_per_px=10.0)
 
-    knudtson = "central-retinal-equivalents/knudtson/artery"
-    hubbard = "central-retinal-equivalents/hubbard/artery"
-    assert fine.theory[knudtson] == pytest.approx(2.0 * coarse.theory[knudtson]), (
-        "twice the pixels across the same vessel"
-    )
-    assert fine.theory[hubbard] == pytest.approx(coarse.theory[hubbard]), (
+    knudtson = "calibre/CRE-knudtson/artery/B"
+    hubbard = "calibre/CRE-hubbard/artery/B"
+    assert fine.theory[knudtson] == pytest.approx(coarse.theory[knudtson]), (
         "the artery is 80 µm wide however it was photographed"
+    )
+    assert fine.theory[hubbard] == pytest.approx(coarse.theory[hubbard]), "and likewise Hubbard's"
+    # The pixel widths behind them did move, which is what makes the agreement worth asserting.
+    assert fine.parameters["artery_width"] == pytest.approx(
+        2.0 * coarse.parameters["artery_width"]
     )
 
 
@@ -266,9 +278,9 @@ def test_the_three_arteriovenous_ratios_are_three_different_numbers() -> None:
     """
     shape = library.build("spokes-macula-centred", side=SIDE, um_per_px=10.0)
 
-    plain = shape.theory["avr/ratio-of-calibres/both"]
-    knudtson = shape.theory["avr/knudtson/both"]
-    hubbard = shape.theory["avr/hubbard/both"]
+    plain = shape.theory["calibre/AVR-ratio/both"]
+    knudtson = shape.theory["calibre/AVR-knudtson/both/B"]
+    hubbard = shape.theory["calibre/AVR-hubbard/both/B"]
     assert plain != pytest.approx(knudtson, rel=0.01), "0.88 against 0.95, compounded"
     assert knudtson != pytest.approx(hubbard, rel=0.01)
 
@@ -280,9 +292,9 @@ def test_the_three_arteriovenous_ratios_are_three_different_numbers() -> None:
     wider = library.build(
         "spokes-macula-centred", side=SIDE, um_per_px=10.0, artery_um=160.0, vein_um=240.0
     )
-    assert wider.theory["avr/ratio-of-calibres/both"] == pytest.approx(plain)
-    assert wider.theory["avr/knudtson/both"] == pytest.approx(knudtson)
-    assert wider.theory["avr/hubbard/both"] != pytest.approx(hubbard, rel=0.01)
+    assert wider.theory["calibre/AVR-ratio/both"] == pytest.approx(plain)
+    assert wider.theory["calibre/AVR-knudtson/both/B"] == pytest.approx(knudtson)
+    assert wider.theory["calibre/AVR-hubbard/both/B"] != pytest.approx(hubbard, rel=0.01)
 
 
 def test_a_shape_records_the_scale_it_was_built_with() -> None:
@@ -319,13 +331,17 @@ def test_the_two_framings_photograph_the_same_eye() -> None:
     # is from a vessel, and moving the disc moves the vessels within the frame, so the two framings
     # genuinely differ there. Asserting they agree would be asserting the fixture is wrong.
     anchored = {
-        name: value for name, value in macula.theory.items() if not name.startswith("sparsity/")
+        name: value
+        for name, value in macula.theory.items()
+        if not name.startswith("density/sparsity/")
     }
     assert anchored == {
-        name: value for name, value in disc.theory.items() if not name.startswith("sparsity/")
+        name: value
+        for name, value in disc.theory.items()
+        if not name.startswith("density/sparsity/")
     }, "a disc-anchored measurement cannot depend on where the disc sits in the frame"
-    assert macula.theory["sparsity/max-distance/vessels"] != pytest.approx(
-        disc.theory["sparsity/max-distance/vessels"]
+    assert macula.theory["density/sparsity/vessels/max"] != pytest.approx(
+        disc.theory["density/sparsity/vessels/max"]
     ), "and sparsity is not disc-anchored, so it does"
 
 
@@ -365,7 +381,7 @@ def test_the_koch_curve_has_a_dimension_a_box_count_can_reach() -> None:
     assert library.KOCH_DIMENSION == pytest.approx(1.261859, abs=1e-6)
     for variant in ("box-counting", "multifractal-d0", "multifractal-d1", "multifractal-d2"):
         for structure in ("artery", "vein", "vessels"):
-            assert shape.theory[f"fractal-dimension/{variant}/{structure}"] == pytest.approx(
+            assert shape.theory[f"density/{variant}/{structure}"] == pytest.approx(
                 library.KOCH_DIMENSION
             ), "a monofractal's spectrum is a point, so all three dimensions are the same"
 
@@ -381,10 +397,10 @@ def test_the_deep_tree_counts_its_forks_and_its_spurs() -> None:
 
     # 1 + 2 + 4 forks over three generations, and a free end for the trunk's start, each spur and
     # each final daughter.
-    assert shape.theory["junction-counts/junctions/artery"] == 7.0
-    assert shape.theory["junction-counts/endpoints/artery"] == 1.0 + 7.0 + 8.0
-    assert shape.theory["junction-counts/components/artery"] == 1.0, "one tree, not many"
-    assert shape.theory["tortuosity/hart-tau1/artery"] == pytest.approx(1.0), "every piece straight"
+    assert shape.theory["topology/junctions/artery"] == 7.0
+    assert shape.theory["topology/endpoints/artery"] == 1.0 + 7.0 + 8.0
+    assert shape.theory["topology/components/artery"] == 1.0, "one tree, not many"
+    assert shape.theory["tortuosity/hart-tau1/artery/median"] == pytest.approx(1.0), "every piece straight"
 
 
 def test_every_shape_but_the_disjoint_one_leaves_the_optic_disc() -> None:
@@ -434,7 +450,7 @@ def test_the_drawn_koch_carries_the_arc_length_its_theory_claims() -> None:
     )
 
     drawn = arc / chord
-    theory = shape.theory["tortuosity/hart-tau1/artery"]
+    theory = shape.theory["tortuosity/hart-tau1/artery/median"]
     assert abs(drawn - theory) / theory < 0.10, (
         f"the drawn Koch curve has an arc-to-chord ratio of {drawn:.3f} where its theory says "
         f"{theory:.3f}: the picture does not carry the value derived beside it"
@@ -466,6 +482,47 @@ def test_the_koch_curve_is_drawn_thinner_than_every_other_shape() -> None:
     assert koch.parameters["artery_width"] == pytest.approx(
         straight.parameters["artery_width"] * library.KOCH_WIDTH_FRACTION
     )
-    assert koch.theory["vessel-calibre/mean-width/artery"] == pytest.approx(
-        straight.theory["vessel-calibre/mean-width/artery"] * library.KOCH_WIDTH_FRACTION
+    assert koch.theory["calibre/width/artery/mean"] == pytest.approx(
+        straight.theory["calibre/width/artery/mean"] * library.KOCH_WIDTH_FRACTION
     )
+
+
+def test_one_retina_photographed_at_two_resolutions_gives_one_set_of_numbers() -> None:
+    """The point of stating every canonical biomarker in microns, asserted over all of them.
+
+    `PLAN-BIOMARKER.md` §2.2 is the decision and this is what enforces it. A 1024-pixel frame at
+    10 µm per pixel and a 2048-pixel frame at 5 covers exactly the same retina: same field, same
+    vessels, same widths in microns. So every value the shapes settle must be the same number on
+    both, and any that is not has fallen back into pixels — which is precisely the regression this
+    catches, because it is invisible at any single resolution.
+
+    The tolerance is 2% rather than exact: the disc radius and the vessel widths are rounded to
+    whole pixels when a shape is drawn, so the two grids do not describe *quite* the same picture.
+    A quantity still in pixels would be out by a factor of two or four, not by one per cent.
+    """
+    moved = []
+    for name in library.SHAPES:
+        coarse = library.build(name, side=1024, um_per_px=10.0)
+        fine = library.build(name, side=2048, um_per_px=5.0)
+        assert set(coarse.theory) == set(fine.theory), f"{name} settles different names per grid"
+        for quantity, value in coarse.theory.items():
+            if value != pytest.approx(fine.theory[quantity], rel=2e-2, abs=1e-9):
+                moved.append(f"{name} {quantity}: {value:.6g} vs {fine.theory[quantity]:.6g}")
+    assert not moved, "these are still in pixels:\n  " + "\n  ".join(moved)
+
+
+def test_every_settled_name_is_expressed_in_the_unit_the_vocabulary_declares() -> None:
+    """A width of 80 µm reads 80, whatever grid it was drawn on, and an area reads in µm².
+
+    The test above proves the values do not move; this one proves they landed on the right side.
+    Two quantities of known physical size are enough, because both would be wrong by the same
+    factor if `_physical` converted in the wrong direction.
+    """
+    shape = library.build("straight", side=SIDE, um_per_px=10.0)
+
+    assert canonical.unit("calibre/width/artery/mean") == "µm"
+    assert shape.theory["calibre/width/artery/mean"] == pytest.approx(
+        shape.parameters["artery_width"] * shape.um_per_px
+    )
+    assert canonical.unit("density/area/artery") == "µm²"
+    assert shape.theory["density/area/artery"] > shape.parameters["artery_width"] ** 2

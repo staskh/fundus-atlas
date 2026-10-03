@@ -42,7 +42,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [OCULARNet](models/ocularnet.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-b3 encoder | 1024², **only with `--resize`** | 14 public A/V datasets | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
 | [OCULARNet-nano](models/ocularnet-nano.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-a0 encoder, ensemble of 5 | 1024², **only with `--resize`** | The same 14 datasets, five folds | **Withdrawn** — the URLs answer 401 | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
-| [VascX artery/vein](models/vascx-artery-vein.md) | Artery against vein | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
+| [VascX artery/vein](models/vascx-artery-vein.md) | Artery against vein, **softmax — no crossings** | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
 | [Retina-MVP A/V](models/retina-mvp-av.md) | Background, artery, vein | U-Net with a ResNet-34 encoder | 512² → back to original, nearest neighbour | **Unknown — none named** | Yes | Yes, in the repository | **None stated** | — | 2025-12 | 2026-09-16 |
 | [AutoMorph artery/vein](models/automorph-artery-vein.md) | Background, artery, vein, crossings | GAN-based binary-to-multi fusion, ensemble of 8 | 720² → back to original, nearest neighbour | DRIVE-AV, HRF-AV, LES-AV combined (`ALL-AV`) | Yes | No — the architecture's training code is in Learning-AVSegmentation | Apache-2.0 host, **over GPL-3.0 code** | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-18 |
 | [LUNet](models/lunet.md) | Arterioles and venules | U-Net variant, TensorFlow | 1472² | UZLF (Leuven-Haifa) 1444×1444 | Yes | Yes, in the repository | **CC BY-NC 4.0 — non-commercial** | — | 2024-12 | 2026-09-10 |
@@ -101,7 +101,59 @@ Grouped by purpose. Within each group the most recently committed model comes fi
   that change the masks or the numbers derived from them. `None recorded` there means no finding,
   not a clean bill of health.
 
-## 3. Considered and not included
+## 3. Arteriovenous crossings — which artery/vein models can express one
+
+Where an artery passes over a vein, the projection is **both vessels at once**. Whether a model can
+say so is not a quality difference, it is a difference in what the output can represent — and it
+decides whether a long vessel survives as one vessel or is cut into pieces.
+
+*Established by reading each model's published inference code, 2026-10-02, and by measuring the
+overlap in the masks each produced on five [HRF](datasets/hrf.md) photographs.* HRF's reference
+standard marks crossings as their own colour, and this atlas's store writes a crossing into **both**
+masks, so there is something to miss: 3.39% of the expert's vessel pixels are crossings.
+
+| Model | Output head | Fourth class | What becomes of it | artery ∩ vein measured |
+| --- | --- | --- | --- | --- |
+| [BF-Net](models/bf-net.md) | softmax, 4 exclusive classes | **crossing** | added to artery *and* to vein | 4.04% |
+| [AutoMorph A/V](models/automorph-artery-vein.md) | softmax, 4 exclusive classes | **crossing** | added to both | 2.85% |
+| [LUNet](models/lunet.md) | **independent sigmoids** | none, and none needed | — | 2.39% |
+| [OCULARNet](models/ocularnet.md) | softmax, 4 exclusive classes | **crossing** | added to both | 1.64% |
+| [OCULARNet-nano](models/ocularnet-nano.md) | softmax, 4 exclusive classes | **crossing** | added to both | not benchmarked |
+| [VC-Net](models/vc-net.md) | softmax, 4 classes, plus a vessel head | **crossing** | not benchmarked | not benchmarked |
+| [Big W-Net](models/big-wnet.md) | softmax, 4 classes → **argmax over 3** | *uncertain* | **split half to artery, half to vein, then argmaxed** — so never both | not benchmarked |
+| [Retina-MVP A/V](models/retina-mvp-av.md) | softmax, 3 classes → argmax | none | — | not benchmarked |
+| [VascX A/V](models/vascx-artery-vein.md) | softmax, 4 exclusive classes | *unclassified*, **not a crossing class** | read past | **0.000%** |
+
+**There are only two ways to express a crossing, and a model has to do one of them.**
+
+- **A crossing class that is folded back into both vessels.** Five of the nine carry one. It is worth
+  being clear about why the folding is necessary: inside a softmax a crossing class is a *third
+  label*, not an overlap — the network says "crossing here", not "artery and vein here". The overlap
+  appears only because an adapter puts those pixels back into both masks, which is what an annotator
+  meant by marking them.
+- **Independent per-class outputs.** LUNet alone takes this route: three sigmoid channels rather than
+  one softmax, so the network can assert artery and vein at the same pixel with no crossing class at
+  all. It produces 2.39% overlap having never been told crossings exist.
+
+**Three models cannot express one, by three different routes.** Retina-MVP never had a fourth class.
+Big W-Net has one, calls it *uncertain*, and its published inference redistributes its probability
+evenly into artery and vein before argmaxing over three — a deliberate choice that guarantees
+exclusivity. VascX has a fourth class that is neither crossing nor redistributed: this atlas
+measured it covering about 1.3% to 1.8% of predicted vessel and capturing only 6% to 13% of the
+expert's crossing pixels, so folding it into both would not recover them.
+
+**Why it matters beyond a mask.** A model that cannot mark a crossing cuts the losing vessel there,
+and no tracer in this atlas puts it back: see [vessel tracing](biomarkers/vessel-tracing.md) §3.2.1,
+where a **single pixel** of gap permanently splits a VascX vessel in two. So the column above is not
+cosmetic — it decides whether a per-vessel biomarker is measured on vessels or on fragments.
+
+**What this table does not say.** That a model producing overlap is more accurate. A segmenter that
+marks a crossing has recorded the ambiguity rather than resolved it, and this atlas has no
+measurement of whose crossings are in the right *places*. Note also that BF-Net produces more
+overlap than the expert drew and OCULARNet about half as much, which is a difference nobody should
+read as skill without a measurement aimed at it.
+
+## 4. Considered and not included
 
 **What decides inclusion here:** a public fundus model whose provenance a reader can establish —
 published weights or training code, plus enough documentation to say what the model is: its
@@ -120,7 +172,7 @@ anything about teaches a reader nothing, however genuine it may be.
 
 Everything below was looked at and left out, with the reason, so nobody repeats the search.
 
-### 3.1 Not trained models
+### 4.1 Not trained models
 
 - **Classical, untrained methods** — retipy's OpenCV vessel segmentation and ARIA's wavelet-based
   vessel detection are algorithms, not trained models, so there is nothing to record about training
@@ -132,7 +184,7 @@ Everything below was looked at and left out, with the reason, so nobody repeats 
   [AutoMorph quality grader](models/automorph-quality-grader.md) page, which learns from EyeQ's
   labels rather than from this model.
 
-### 3.2 Kaggle's model hub
+### 4.2 Kaggle's model hub
 
 Searched for fundus, retinal, vessel, optic disc, artery/vein and segmentation terms. It holds two
 retinal vessel U-Nets, neither with a publication or a stated evaluation, so neither is assessable:
@@ -149,7 +201,7 @@ a different task from vascular segmentation and out of this catalogue's scope:
 [a RETFound copy](https://www.kaggle.com/models/tantai31124/retfound-mae-fundus) and
 [Qwen-VL fine-tunes](https://www.kaggle.com/models/durgeshrao9993/qwen-2-5-vl-7b-finetuned).
 
-### 3.3 Hugging Face
+### 4.3 Hugging Face
 
 Searched for fundus, retina, vessel, optic disc, artery/vein, cup and glaucoma segmentation terms.
 One model was catalogued from it: [SegFormer disc/cup](models/segformer-disc-cup.md). The rest
@@ -200,7 +252,7 @@ contains no weights at all, only a licence file, and
 [author's account](https://huggingface.co/ClementP) is worth watching regardless: it also holds
 choroid segmentation and OCT models, several of which would be in scope if this atlas widens.
 
-### 3.4 SegFormer elsewhere
+### 4.4 SegFormer elsewhere
 
 The architecture itself ([Xie et al., 2021](https://arxiv.org/abs/2105.15203)) is general-purpose,
 not a fundus model. Kaggle's SegFormer entries are the
@@ -221,7 +273,7 @@ None of those four is catalogued: no publication was found and none has more tha
 **The eight-dataset evaluation is worth revisiting for the comparison tables** as prior work, if a
 paper appears.
 
-## 4. Adding a model
+## 5. Adding a model
 
 Model pages follow a fixed structure so they can be read against each other. Load the
 `document-model` skill, which defines that structure and this table's columns, before adding or

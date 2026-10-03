@@ -80,11 +80,11 @@ def curve(points: np.ndarray, curvature: np.ndarray) -> dict[str, float]:
         "tortuosity/hart-tau7": total_squared / chord if chord else math.nan,
         # Mean curvature along the curve. A *fitted* spline is an implementation's own choice of
         # smoothing, and on an exact curve the thing it is fitting to is this.
-        "tortuosity/spline-mean-curvature": total_curvature / arc if arc else math.nan,
+        "tortuosity/spline-curvature": total_curvature / arc if arc else math.nan,
         "tortuosity/inflection-count": float(turns),
         "tortuosity/arc-chord-times-inflections": (arc / chord if chord else math.nan) * turns,
         "tortuosity/grisan-density": grisan(points, curvature),
-        "vessel-area-and-length/skeleton-length": arc,
+        "density/skeleton-length": arc,
     }
 
 

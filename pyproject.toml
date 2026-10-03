@@ -25,11 +25,32 @@ benchmarks = [
     "pandas>=2.0",
     "scikit-learn>=1.5",
     "fundus-image-toolbox @ git+https://github.com/berenslab/fundus_image_toolbox@d7757e28fbf639856b53cfe00019f605af8c1f17",
-    # VascX does not declare the package that runs its models; pinned here to the release
-    # contemporary with the commit above.
-    "retinalysis-inference==0.7.1",
-    "retinalysis-fundusprep==1.3.0",
-    "retinalysis-vascx @ git+https://github.com/Eyened/retinalysis-vascx@d0cde1c7f9b54718be9b8d4ec871a5849ca6e857",
+    # VascX and the three Eyened packages it runs on are **cloned**, not installed — see
+    # `src/upstreams/vascx.py` for why — so nothing pins them here. A clone brings the code and
+    # none of the dependency metadata, so what those four declare is pinned directly below, at the
+    # versions their own metadata asked for at the pinned commits. Nothing else here needs them.
+    "albumentations>=1.4,<2",
+    "click==8.*",
+    "GPUtil==1.*",
+    "huggingface-hub",
+    "lightning==2.*",
+    "matplotlib>=3.7,<4",
+    "monai==1.5.1",
+    # Genuinely a run-time requirement of retinalysis-inference, odd as that is for a tool that
+    # strips notebook output. Importing the package without it fails.
+    "nbstripout==0.3.9",
+    "networkx>=3,<4",
+    # VascX and the inference package ask for `opencv-python`; fundusprep asks for the headless
+    # build. Both provide `cv2` and both were already installed side by side when these four were
+    # distributions, so both are pinned rather than one being chosen for them.
+    "opencv-python>=4,<5",
+    "opencv-python-headless>=4,<5",
+    "pydantic>=2.0,<3.0",
+    "pydicom>=2.4,<4",
+    "PyYAML>=5.4",
+    "simplejpeg==1.*",
+    "sortedcontainers==2.4.0",
+    "tqdm>=4,<5",
     # The SegFormer disc-and-cup model is published as weights on the Hugging Face hub with no code
     # of its own: `transformers` is the code, and the revision is pinned in the adapter.
     "transformers>=4.44",
@@ -77,14 +98,20 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-# VascX's inference package pins albumentations 1.3.1, whose package import reaches for imgaug,
+# VascX's inference package asks for albumentations 1.3.1, whose package import reaches for imgaug,
 # which reaches for a NumPy attribute removed in NumPy 2 — and the Fundus Image Toolbox is what
 # puts imgaug in the environment. 1.4 carries the same API the inference package uses and no
 # imgaug import at all, which is what lets both upstreams share one environment.
+#
+# Since the Eyened packages became clones the 1.4 pin is an ordinary dependency above rather than
+# something overridden: nothing declares 1.3.1 any more, because nothing declares anything. The
+# override is kept for the toolbox, which is still installed and still drags imgaug in behind it.
 override-dependencies = ["albumentations>=1.4,<2"]
 
 [tool.hatch.metadata]
-# Two upstreams are pinned to a commit rather than to a release, section 8 of PLAN-BENCHMARK.md.
+# One upstream is installed from a commit rather than from a release — the Fundus Image Toolbox,
+# whose PyPI release trails the commit its pages describe. Section 8 of PLAN-BENCHMARK.md. The
+# others pinned by commit are clones and need nothing from the installer.
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
@@ -115,3 +142,9 @@ line-length = 100
 # from — one unreadable photograph must not lose a group.
 "src/benchmarks/*.py" = ["BLE001"]
 "src/datasets/fetch_um_resolution.py" = ["BLE001"]
+
+[dependency-groups]
+dev = [
+    "nbclient>=0.11.0",
+    "nbformat>=5.11.1",
+]

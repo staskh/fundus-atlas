@@ -19,11 +19,17 @@ CLASSES = {"binary": "vessels", "artery": "artery", "vein": "vein"}
 #: These are the same six quantities AutoMorphalyzer and AutoMorphClass compute, which is what
 #: makes the three comparable: both descend from this code.
 COLUMNS: tuple[tuple[str, str | None], ...] = (
-    ("fractal_dimension", "fractal-dimension/box-counting/{side}"),
+    ("fractal_dimension", "density/box-counting/{side}"),
     # Vessel pixels over every pixel of the frame — `vessel_density` never sees a field of view.
-    ("vessel_density", "vascular-density/over-image/{side}"),
-    ("average_width", "vessel-calibre/mean-width/{side}"),
-    ("distance_tortuosity", "tortuosity/hart-tau1/{side}"),
+    ("vessel_density", "density/over-image/{side}"),
+    # *Our finding, from `tortuosity_measures.py`:* `average_caliber = vessel_total_count /
+    # tcurve` — vessel pixels over total curve length, which is a width weighted by how much
+    # vessel carries it rather than a plain mean over vessels.
+    ("average_width", "calibre/width/{side}/length-weighted"),
+    # *Our finding, from the same file:* `t2` is summed over vessels and divided by
+    # `vessel_count`, so it is a **mean** and not a median. AutoMorphClass, from the same
+    # lineage, weights by length instead — which is why the three disagree.
+    ("distance_tortuosity", "tortuosity/hart-tau1/{side}/mean"),
     # *Our finding, 2026-09-21:* **not** Hart's τ3, despite the name. `squared_curvature_tortuosity`
     # squares nothing: it accumulates discrete curvature at each sample and integrates it over the
     # sample *index* rather than over arc length. It was mapped to τ3 until the shapes disagreed by
@@ -31,7 +37,7 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
     # is 10.3 on the arc and 2.0 on the sinusoid, so no constant relates them. Discrete curvature
     # on a pixel skeleton is its own quantity and the catalogue has no name for it.
     ("squared_curvature_tortuosity", None),
-    ("tortuosity_density", "tortuosity/grisan-density/{side}"),
+    ("tortuosity_density", "tortuosity/grisan-density/{side}/mean"),
 )
 
 #: **AutoMorph's central retinal equivalents are not reachable.** Its zone stage returns per-vessel
@@ -40,7 +46,12 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
 #: here would be measuring this repository's CRAE rather than AutoMorph's, which is the one thing
 #: an adapter must never do — so the family is absent, and that is a finding rather than an
 #: omission.
-ABSENT = ("central-retinal-equivalents", "avr")
+ABSENT = (
+    "calibre/CRE-knudtson",
+    "calibre/CRE-hubbard",
+    "calibre/AVR-knudtson",
+    "calibre/AVR-hubbard",
+)
 
 
 def _answers() -> dict[str, str]:

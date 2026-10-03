@@ -50,7 +50,7 @@ Use `template.md` verbatim and keep its section numbering.
 
    **Repeat the whole table, as 2.1, 2.2, 2.3, once per provenance**, where a dataset's annotations
    were added by different groups over time. Each layer has its own paper, its own download and
-   often its own licence, so one table cannot hold them. [HRF](../../docs/datasets/hrf.md) is the
+   often its own licence, so one table cannot hold them. [HRF](../../../docs/datasets/hrf.md) is the
    worked example: 45 photographs, with the vessel gold standard and disc centres from the original
    authors, an artery/vein standard from a second group, and disc-and-cup contours from a third —
    three tables, and one of the three licences is unknown. Name the layer in each subsection
@@ -195,5 +195,5 @@ set, an artery/vein set, a disc/cup set or a disease-graded set without scanning
 
 When a row's Quality, A/V, Disc, Cup or Disease cell changes, update the matching regroup in the
 same commit. Do not add a dataset to 1.4 because it was collected in a disease clinic if it carries
-no disease label — [RIGA](../../docs/datasets/riga.md) is the worked example. Do not add a dataset
+no disease label — [RIGA](../../../docs/datasets/riga.md) is the worked example. Do not add a dataset
 to 1.3's disc-and-cup table if it marks the disc only.

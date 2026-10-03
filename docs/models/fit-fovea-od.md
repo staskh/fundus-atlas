@@ -122,7 +122,7 @@ head-to-head result, and the authors say so.
   microns — needs a disc/cup segmenter such as [VascX disc](vascx-disc.md) or
   [AutoMorph's](automorph-disc-cup.md); this gives the centre only.
 - The disc-fovea distance it yields is the ruler that
-  [several VascX biomarkers](../biomarkers/disc-fovea-distance.md) are normalised by, which is why
+  [several VascX biomarkers](../biomarkers/landmarks.md) are normalised by, which is why
   a landmark model earns a page of its own rather than a footnote.
 - It is the only model in this catalogue trained to find the fovea and the disc **jointly**;
   [VascX fovea](vascx-fovea.md) finds the fovea alone.

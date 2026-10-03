@@ -41,27 +41,32 @@ def test_every_name_it_answers_under_is_catalogued_or_plainly_its_own() -> None:
 
 
 def test_the_three_tortuosity_aggregations_are_told_apart() -> None:
-    """It returns three, and only the per-vessel median is the one PVBM reports.
+    """It returns three, and the vocabulary can now name two of them apart.
 
     A pooled ratio of sums, a median of ratios and an arc-weighted mean are three aggregations of
-    one idea. Mapping more than one onto the same catalogued name would make them look like
-    agreement; only the median is mapped, because that is the column PVBM exposes and the
-    comparison between the two is what this page is for.
+    one idea. Two of them are statistics the catalogue names — `median` and `length-weighted` —
+    and they map to names that differ in that part, so nothing makes them look like agreement.
+    The third divides one sum by another rather than pooling per-vessel values at all, and no
+    statistic describes it, so it stays under OCULAR's own name.
     """
     adapter = an_adapter()
     behind = adapter.declare()["names"]
 
-    assert behind["median_tortuosity_artery"] == "tortuosity/hart-tau1/artery"
-    for own in ("pooled_tortuosity_artery", "length_weighted_tortuosity_artery"):
-        assert own in adapter.keys(), f"{own} is kept"
-        assert behind[own] is None, f"{own} claims no catalogued biomarker"
+    assert behind["median_tortuosity_artery"] == "tortuosity/hart-tau1/artery/median"
+    assert (
+        behind["length_weighted_tortuosity_artery"]
+        == "tortuosity/hart-tau1/artery/length-weighted"
+    )
+    assert behind["median_tortuosity_artery"] != behind["length_weighted_tortuosity_artery"]
+    assert "pooled_tortuosity_artery" in adapter.keys(), "the ratio of sums is kept"
+    assert behind["pooled_tortuosity_artery"] is None, "and claims no catalogued biomarker"
 
 
 def test_it_reaches_no_central_retinal_equivalents() -> None:
     """Its copy keeps PVBM's graph machinery and returns geometry only — a difference in scope."""
     adapter = an_adapter()
 
-    assert "central-retinal-equivalents" in adapter.declare()["absent"]
+    assert "calibre/CRE-knudtson" in adapter.declare()["absent"]
     assert not [key for key in adapter.keys() if key.startswith("central-retinal")]
 
 

@@ -43,7 +43,7 @@ signal encouraging but not conclusive: ten mixed diseases against ten normals is
 
 - **Kind:** definition
 - It is the first published demonstration that the retinal vascular tree is a geometrical
-  multifractal — the reason this atlas's [fractal dimension](../biomarkers/fractal-dimension.md)
+  multifractal — the reason this atlas's [fractal dimension](../biomarkers/density.md)
   page carries D₀, D₁, D₂ and a singularity spectrum at all, rather than one box-counting number.
 - [Fhima 2022](fhima-2022.md) / [PVBM](../projects/pvbm.md) is the implementation later pipelines
   actually run; that toolbox cites this paper for D₀ > D₁ > D₂, then computes those numbers by a
@@ -65,7 +65,7 @@ conclusive. This atlas's own comparisons are separate. Exact per-image figures s
 
 | Entry | Relationship |
 | --- | --- |
-| [Fractal dimension](../biomarkers/fractal-dimension.md) | Defines the retinal multifractal set (D₀, D₁, D₂, f(α) spectrum) |
+| [Fractal dimension](../biomarkers/density.md) | Defines the retinal multifractal set (D₀, D₁, D₂, f(α) spectrum) |
 | [Fhima 2022](fhima-2022.md) / [PVBM](../projects/pvbm.md) | Implements D₀, D₁, D₂ and singularity length; cites this paper; uses box-counting, not the sandbox |
 | [STARE](../datasets/stare.md) | The twenty vessel photographs and both observers' masks this paper measured |
 

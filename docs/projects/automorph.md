@@ -99,10 +99,10 @@ architectures, as ensembles over several random seeds, so those weights are docu
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
 | [Tortuosity](../biomarkers/tortuosity.md) (three variants: distance measure, squared curvature, tortuosity density) | Prior literature cited in the AutoMorph paper | [retipy](https://github.com/alevalv/retipy) (GPL-3.0) | Reused — the README names retipy as the feature-measurement component |
-| [CRAE, CRVE](../biomarkers/central-retinal-equivalents.md) and their ratio [AVR](../biomarkers/avr.md) — the estimated calibre of the central retinal artery and vein, and the artery-to-vein ratio | Hubbard and Knudtson formulas, cited in the AutoMorph paper | retipy | Reused |
-| [Fractal dimension](../biomarkers/fractal-dimension.md) (Minkowski–Bouligand) | Prior literature cited in the paper | retipy | Reused |
-| [Vessel density](../biomarkers/vascular-density.md), [average vessel width](../biomarkers/vessel-calibre.md) | Prior literature cited in the paper | retipy | Reused |
-| [Optic cup-to-disc ratio](../biomarkers/cup-to-disc-ratio.md) | Standard ophthalmic measure | — | Computed from this pipeline's disc and cup segmentations |
+| [CRAE, CRVE](../biomarkers/calibre.md) and their ratio [AVR](../biomarkers/calibre.md) — the estimated calibre of the central retinal artery and vein, and the artery-to-vein ratio | Hubbard and Knudtson formulas, cited in the AutoMorph paper | retipy | Reused |
+| [Fractal dimension](../biomarkers/density.md) (Minkowski–Bouligand) | Prior literature cited in the paper | retipy | Reused |
+| [Vessel density](../biomarkers/density.md), [average vessel width](../biomarkers/calibre.md) | Prior literature cited in the paper | retipy | Reused |
+| [Optic cup-to-disc ratio](../biomarkers/landmarks.md) | Standard ophthalmic measure | — | Computed from this pipeline's disc and cup segmentations |
 
 Widths and calibre measurements are reported in microns, which requires a per-image pixel
 resolution supplied in `resolution_information.csv`. Without real resolution values those columns

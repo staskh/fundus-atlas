@@ -58,8 +58,8 @@ in a file browser and is a different modality.
   test**, deliberately.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** the only dataset here that can evaluate junction detection directly, which
-  is the input to [bifurcation angles](../biomarkers/bifurcation-angle.md) and
-  [junction counts](../biomarkers/junction-counts.md). Also a modality-shift test.
+  is the input to [bifurcation angles](../biomarkers/topology.md) and
+  [junction counts](../biomarkers/topology.md). Also a modality-shift test.
 
 ## 7. Known defects
 

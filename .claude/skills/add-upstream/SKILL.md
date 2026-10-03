@@ -32,6 +32,30 @@ adapter something it can call.
 - **Everything else is cloned** at a pinned commit into the git-ignored `.atlas_code/<slug>/`, with
   `source.Checkout`. A clone also happens when an upstream must be patched.
 
+### 2.1 Clone a pip-installable upstream when its code has to be read
+
+The default above is about convenience; this is the exception, and both upstreams that have taken
+it took it for the same reason. **An upstream whose own documentation this atlas has had to correct
+is one somebody will read again**, and an install leaves the only copy inside `site-packages`,
+where nothing points at it and no reader finds it.
+
+| Upstream | Why it is cloned |
+| --- | --- |
+| PVBM | OCULARNet's measuring class is a modified copy of PVBM's and imports the unmodified helpers at run time, so the two have to agree about which PVBM that is. With an install the answer depended on the environment and was never recorded |
+| VascX and its three Eyened packages | Every correction on its project page came from reading these files: the quality checkpoint's real grid, that its "Hubbard reduction" is Knudtson's formula, that its sparsity is not a distance |
+
+**What a clone costs, and it is not nothing.** A distribution brings its dependency metadata and a
+clone does not, so every package the upstream declared becomes yours to pin — seventeen of them
+when VascX moved, from `lightning` and `monai` down to `sortedcontainers`. Section 3's rule applies
+to all of them, and so does its warning: a pin nobody can trace back to the upstream's own
+declaration looks arbitrary to the next reader, so say where it came from.
+
+**Clone the whole family or none of it.** These packages import one another, and a tree on
+`sys.path` beside a sibling still installed means the run uses one of each without saying so. The
+upstream module publishes a single `on_path()` that puts every tree on the path together, and
+**everything that imports the upstream calls it** — including `prepare()`, which a benchmark calls
+on the first photograph, long before anything loads a model.
+
 **Pin the commit the model page describes, not the latest release.** These two are often months
 apart: the Fundus Image Toolbox's PyPI release trailed the commit its pages describe by three
 months. Installing from a repository at a commit is still installing, and it is what keeps a result

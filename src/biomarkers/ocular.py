@@ -17,17 +17,18 @@ CLASSES = ("artery", "vein")
 #: change to it upstream would be silent. It is taken from the `return` statement itself rather
 #: than from any documentation.
 COLUMNS: tuple[tuple[str, str | None], ...] = (
-    ("area", "vessel-area-and-length/area/{side}"),
+    ("area", "density/area/{side}"),
     # Total arc over total chord: one ratio for the whole map, rather than a ratio per vessel.
     # `tortuosity/hart-tau1` is the per-vessel ratio, so this is a different aggregation of the
     # same idea and the catalogue has no name separating them.
     ("pooled_tortuosity", None),
     # The median of the per-vessel arc-over-chord ratios — the same quantity PVBM's
     # `median_tortuosity` reports, which is what makes the two comparable.
-    ("median_tortuosity", "tortuosity/hart-tau1/{side}"),
-    # Arc-weighted mean of the same ratios. A third aggregation; see above.
-    ("length_weighted_tortuosity", None),
-    ("length", "vessel-area-and-length/skeleton-length/{side}"),
+    ("median_tortuosity", "tortuosity/hart-tau1/{side}/median"),
+    # Arc-weighted mean of the same ratios — which the vocabulary now names, so this is no
+    # longer an aggregation it cannot express.
+    ("length_weighted_tortuosity", "tortuosity/hart-tau1/{side}/length-weighted"),
+    ("length", "density/skeleton-length/{side}"),
     # *Our finding, carried over from PVBM:* not the angle between a bifurcation's daughters. It is
     # the median of every pairwise angle at every particular point, the trunk included, and OCULAR
     # inherits the function that computes it.
@@ -40,13 +41,18 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
     # where the geometry requires 2, and `endpoints + start_points` is what answers the catalogued
     # question. Kept under OCULAR's own name rather than summed into a number it never returned.
     ("endpoints", None),
-    ("intersections", "junction-counts/junctions/{side}"),
+    ("intersections", "topology/junctions/{side}"),
 )
 
 #: OCULAR computes **no central retinal equivalents**. Its copy of PVBM's `CREVBMs` keeps that
 #: class's graph machinery and replaces the measuring method with one that returns geometry only,
 #: so the whole family is absent rather than wrong.
-ABSENT = ("central-retinal-equivalents", "avr")
+ABSENT = (
+    "calibre/CRE-knudtson",
+    "calibre/CRE-hubbard",
+    "calibre/AVR-knudtson",
+    "calibre/AVR-hubbard",
+)
 
 
 def _answers() -> dict[str, str]:

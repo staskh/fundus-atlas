@@ -23,30 +23,42 @@ COMPARABLE_ZONE = "B"
 #: What it computes over the **whole image**, and the catalogued biomarker each answers to.
 #: `{side}` becomes `artery`, `vein` or `vessels`.
 WHOLE: dict[str, str | None] = {
-    "fractal_dimension": "fractal-dimension/box-counting/{side}",
+    "fractal_dimension": "density/box-counting/{side}",
     # Vessel pixels over *every* pixel of the frame, lit or not — `vessel_metrics` divides by
     # `vessels.shape[0] * vessels.shape[1]` and never sees a field of view.
-    "vessel_density": "vascular-density/over-image/{side}",
-    # Vessel area over skeleton length: a mean width by construction.
-    "average_global_calibre": "vessel-calibre/mean-width/{side}",
-    "tortuosity_distance": "tortuosity/hart-tau1/{side}",
-    "tortuosity_density": "tortuosity/grisan-density/{side}",
-    # The mean of per-vessel widths rather than area over skeleton. A different aggregation of the
-    # same idea, and the catalogue has no name separating the two yet.
+    "vessel_density": "density/over-image/{side}",
+    # Vessel area over skeleton length: a width weighted by how much vessel carries it.
+    "average_global_calibre": "calibre/width/{side}/length-weighted",
+    # Both are summed over vessels and divided by `vessel_count` in `measure.py`, so both are
+    # means rather than medians.
+    "tortuosity_distance": "tortuosity/hart-tau1/{side}/mean",
+    "tortuosity_density": "tortuosity/grisan-density/{side}/mean",
+    # *Our finding, from `measure.py`:* also a length-weighted width — `np.mean` over every
+    # width sample along every vessel — differing from `average_global_calibre` by excluding
+    # branch points rather than by how it weights. The vocabulary separates statistics, not
+    # junction-handling, so the two cannot be told apart by name and this one stays unmapped.
     "average_local_calibre": None,
     "CRAE_Knudtson": None,
     "CRVE_Knudtson": None,
 }
 
 #: What it computes **inside a zone**. Only zone B is catalogued, for the reason above; the same
-#: column measured over zone C keeps its own name and is stored beside it.
+#: column measured over zone C keeps its own name and is stored beside it. `{side}` becomes
+#: `artery`, `vein` or `vessels`, and a template naming one class outright answers for that class
+#: alone — the CRAE column over the vein map is a different number, not a venular equivalent.
 ZONAL: dict[str, str | None] = {
-    "CRAE_Knudtson": "central-retinal-equivalents/knudtson/artery",
-    "CRVE_Knudtson": "central-retinal-equivalents/knudtson/vein",
-    "tortuosity_distance": None,
-    "tortuosity_density": None,
+    "CRAE_Knudtson": "calibre/CRE-knudtson/artery/B",
+    "CRVE_Knudtson": "calibre/CRE-knudtson/vein/B",
+    # Catalogued since the vocabulary carried a region: the same measure as the whole-image
+    # column, over the annulus, pooled the same way.
+    "tortuosity_distance": "tortuosity/hart-tau1/{side}/B/mean",
+    "tortuosity_density": "tortuosity/grisan-density/{side}/B/mean",
     "average_local_calibre": None,
 }
+
+#: Where the structure sits in a catalogued name, so a mapping that names one class outright can
+#: be told from one that answers for whichever class it was computed on.
+_STRUCTURE = 2
 
 #: What it signals when a measurement could not be made. It is a sentinel rather than a value, and
 #: is turned into no answer here rather than averaged into somebody's table as a negative calibre.
@@ -67,17 +79,16 @@ def _answers() -> dict[str, str]:
         for zone in ("B", "C"):
             for column, mapped in ZONAL.items():
                 own = f"{column}@{zone}_{measured}"
-                catalogued = (
-                    mapped
-                    and zone == COMPARABLE_ZONE
-                    and side in (mapped.split("/")[-1], "vessels")
-                )
+                if not mapped or zone != COMPARABLE_ZONE:
+                    pairs[own] = own
+                    continue
                 # An equivalent is named for the class it measures, so the artery column only
                 # answers for arteries; the same column over the vein map is a different number.
-                if catalogued and mapped.split("/")[-1] == side:
-                    pairs[mapped] = own
-                else:
+                wants = mapped.split("/")[_STRUCTURE]
+                if wants != "{side}" and wants != side:
                     pairs[own] = own
+                else:
+                    pairs[mapped.format(side=side)] = own
     return pairs
 
 
