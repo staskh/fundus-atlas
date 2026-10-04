@@ -121,7 +121,13 @@ there is something to miss:
 | [lunet](lunet.md) | 2.39% |
 | [ocularnet](ocularnet.md) | 1.64% |
 | **vascx-artery-vein** | **0.000%** |
-| *expert — HRF-AV* | *3.39%* |
+| *expert — HRF-AV* | *3.39%, and a **floor*** |
+
+*The expert's figure is a floor.* HRF-AV marks about 77% of its crossings green and leaves the rest
+as a gap in one vessel, so the overlap a perfect reader would draw is higher than 3.39% —
+[hrf.md](../datasets/hrf.md) §7. That does not touch the finding here, which is a zero against four
+non-zeros, but it does mean no model's percentage should be read as near-correct because it sits
+near the expert's.
 
 It is the only **benchmarked** artery/vein model whose two masks never overlap. It is not the only
 one in the catalogue that cannot express a crossing: [MODELS.md](../MODELS.md) §3 compares all nine,

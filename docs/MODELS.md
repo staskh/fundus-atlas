@@ -112,6 +112,12 @@ overlap in the masks each produced on five [HRF](datasets/hrf.md) photographs.* 
 standard marks crossings as their own colour, and this atlas's store writes a crossing into **both**
 masks, so there is something to miss: 3.39% of the expert's vessel pixels are crossings.
 
+**Read the expert's 3.39% as a floor, not as the truth.** HRF-AV marks only about 77% of its
+crossings as crossings, and on ten of its forty-five photographs most are left as a gap in one
+vessel instead — [hrf.md](datasets/hrf.md) §7. So the right figure for a model to reproduce is
+higher than 3.39%, by an amount nobody here has established, and the column below is useful for
+telling *capability* apart rather than for ranking the numbers against the reference.
+
 | Model | Output head | Fourth class | What becomes of it | artery ∩ vein measured |
 | --- | --- | --- | --- | --- |
 | [BF-Net](models/bf-net.md) | softmax, 4 exclusive classes | **crossing** | added to artery *and* to vein | 4.04% |
