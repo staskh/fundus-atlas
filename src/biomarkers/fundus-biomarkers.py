@@ -39,7 +39,11 @@ class FundusBiomarkers:
             "needs": list(self.needs),
             "invariant": list(self.invariant),
             "keys": list(names),
-            "names": {answered: own for own, answered in names.items()},
+            # The evidence is keyed by the answered name; each is its own catalogued name, or claims
+            # none when it carries no slash.
+            "names": {
+                answered: answered if "/" in answered else None for answered in names.values()
+            },
             "unnamed": [answered for answered in names.values() if "/" not in answered],
             "units": "pixels to the length power of each name; zone C as its zone-B twin",
             "device": self.device,

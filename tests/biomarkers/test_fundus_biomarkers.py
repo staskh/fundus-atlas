@@ -26,6 +26,9 @@ def test_every_name_it_answers_under_is_catalogued_or_plainly_its_own(adapter) -
         if "/" in key:
             canonical.check(key)
     assert any(".C" in key for key in adapter.keys()), "zone C is kept, under its own name"
+    names = adapter.declare()["names"]
+    assert set(names) == set(adapter.keys())
+    assert all(names[key] is None for key in names if "/" not in key)
 
 
 def test_it_reports_pixels_that_convert_back_to_the_shape_s_microns(adapter, shape) -> None:
