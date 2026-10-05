@@ -45,6 +45,7 @@ name rather than dropped.
 | [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 54 | yes |
 | [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 18 | yes |
 | [vascx](../projects/vascx.md) | `d0cde1c`, `e5823fe`, `ff47bfb`, `ec1ca00` | 20 | yes |
+| [fundus-biomarkers](../projects/fundus-biomarkers.md) | `29dea9c` | 623 | yes |
 <!-- /generated -->
 
 Three of them share a lineage and one does not: AutoMorph, AutoMorphalyzer and AutoMorphClass all

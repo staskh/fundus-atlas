@@ -11,6 +11,7 @@ different questions.
 
 | Project | What it produces | Segmentation models | New models introduced | Weights public | Code license | Last commit | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| [fundus-biomarkers](projects/fundus-biomarkers.md) | The catalogue's calibre, tortuosity (segment and whole-vessel), density and topology biomarkers, per artery and vein, over fov and zones B and C | None — masks in, numbers out | No | Not applicable | Proprietary (Pheno); private repository | 2026-10 | 2026-10-05 |
 | [OCULARNet](projects/ocularnet.md) | Segmentations plus junction, crossing and major-vessel zone masks; biomarkers via PVBM | OCULARNet and OCULARNet-nano, four classes including vessel crossings (introduced here); disc segmenter borrowed | Yes | Yes, on Hugging Face | None stated — no LICENSE file | 2026-08 | 2026-09-10 |
 | [VascX](projects/vascx.md) | Central retinal equivalents, calibers, AVR, density, bifurcation and temporal angles, tortuosity, sparsity, quality metrics | VascX ensembles: vessels, artery/vein, disc, fovea, quality (all introduced here) | Yes | Yes, on Hugging Face | Not stated — no LICENSE file; weights are AGPL-3.0 | 2026-08 | 2026-09-10 |
 | [AutoMorphClass](projects/automorphclass.md) | AutoMorph's vascular features, returned as a PyTorch tensor or named dict | AutoMorph's vessel, artery/vein and disc models (all borrowed) | No | Yes, committed in the repository | Unclear — MIT declared in the README and `pyproject.toml`, but no LICENSE file | 2026-05 | 2026-09-10 |

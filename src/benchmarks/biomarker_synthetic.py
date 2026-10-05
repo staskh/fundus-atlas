@@ -52,7 +52,15 @@ SHAPES = tuple(library.SHAPES)
 #: biomarker. So a difference between neighbours is a change somebody made on purpose, and a
 #: difference across a boundary is two programs that never shared a line — which is only legible if
 #: the columns stand in this order.
-IMPLEMENTATIONS = ("pvbm", "ocular", "automorph", "automorphalyzer", "automorphclass", "vascx")
+IMPLEMENTATIONS = (
+    "pvbm",
+    "ocular",
+    "automorph",
+    "automorphalyzer",
+    "automorphclass",
+    "vascx",
+    "fundus-biomarkers",
+)
 
 #: Why a declared implementation has no adapter, where the reason is worth more than "nobody wrote
 #: one yet".
@@ -382,11 +390,7 @@ def config() -> dict[str, object]:
     # a structure and often a statistic too, and which of those a shape happens to settle is a
     # property of the shape rather than of the vocabulary — so the page groups by the biomarker,
     # and the ground-truth table beside it says how many names each shape settles outright.
-    pinned = {
-        "/".join(name.split("/")[:2])
-        for names in settles.values()
-        for name in names
-    }
+    pinned = {"/".join(name.split("/")[:2]) for names in settles.values() for name in names}
     return {
         "benchmark": NAME,
         "title": TITLE,
@@ -461,9 +465,7 @@ def config() -> dict[str, object]:
         # more useful than leaving it off the page.
         "biomarkers": [
             {
-                "name": (
-                    f"{stem}/<structure>" if canonical.structures(stem) else stem
-                ),
+                "name": (f"{stem}/<structure>" if canonical.structures(stem) else stem),
                 "biomarker": stem.split("/")[0],
                 "variant": stem.split("/")[1],
                 "unit": entry.unit,
