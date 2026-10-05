@@ -46,18 +46,17 @@ no `vessels` structure.
 
 | Biomarker | Defined in | Regions | This project's version |
 | --- | --- | --- | --- |
-| `calibre/width` | [calibre](../biomarkers/calibre.md) | `fov`, `B`, C | Reimplemented, perpendicular width |
-| `calibre/CRE-knudtson`, `calibre/AVR-knudtson` | [Knudtson 2003](../papers/knudtson-2003.md) | `B`, C | Reimplemented, six widest, widest paired with narrowest |
-| `calibre/CRE-hubbard`, `calibre/AVR-hubbard` | [Hubbard 1999](../papers/hubbard-1999.md) | `B`, C | Reimplemented, constants applied to widths in microns |
-| `calibre/AVR-ratio` | [calibre](../biomarkers/calibre.md) | `fov`, `B`, C | Reimplemented |
-| `tortuosity/hart-tau1` … `hart-tau7` and their `vessel-` forms | [Hart 1999](../papers/hart-1999.md) | `fov`, `B`, C | Reimplemented; curvature by angle regression, its scale in microns |
-| `tortuosity/grisan-density`, `inflection-count`, `arc-chord-times-inflections`, `spline-curvature` | [tortuosity](../biomarkers/tortuosity.md) | `fov`, `B`, C | Reimplemented |
-| `density/*` (area, skeleton length, coverage, sparsity, box-counting, multifractal d0–d2) | [density](../biomarkers/density.md) | `fov`, `B`, C | Reimplemented; box sizes in microns |
-| `topology/junctions`, `endpoints`, `components`, `branching-angle` | [topology](../biomarkers/topology.md) | `fov`, `B`, C | Reimplemented; branching angle between the two daughters |
+| `calibre/width` | [calibre](../biomarkers/calibre.md) | `fov`, `B`, `C` | Reimplemented, perpendicular width |
+| `calibre/CRE-knudtson`, `calibre/AVR-knudtson` | [Knudtson 2003](../papers/knudtson-2003.md) | `B`, `C` | Reimplemented, six widest, widest paired with narrowest |
+| `calibre/CRE-hubbard`, `calibre/AVR-hubbard` | [Hubbard 1999](../papers/hubbard-1999.md) | `B`, `C` | Reimplemented, constants applied to widths in microns |
+| `calibre/AVR-ratio` | [calibre](../biomarkers/calibre.md) | `fov`, `B`, `C` | Reimplemented |
+| `tortuosity/hart-tau1` … `hart-tau7` and their `vessel-` forms | [Hart 1999](../papers/hart-1999.md) | `fov`, `B`, `C` | Reimplemented; curvature by angle regression, its scale in microns |
+| `tortuosity/grisan-density`, `inflection-count`, `arc-chord-times-inflections`, `spline-curvature` | [tortuosity](../biomarkers/tortuosity.md) | `fov`, `B`, `C` | Reimplemented |
+| `density/*` (area, skeleton length, coverage, sparsity, box-counting, multifractal d0–d2) | [density](../biomarkers/density.md) | `fov`, `B`, `C` | Reimplemented; box sizes in microns |
+| `topology/junctions`, `endpoints`, `components`, `branching-angle` | [topology](../biomarkers/topology.md) | `fov`, `B`, `C` | Reimplemented; branching angle between the two daughters |
 
-**Zone C** (2–5 disc radii from the disc centre) is reported wherever zone B is. The catalogue
-reserves `C` without defining it (`regions-of-interest.md`), so the adapter stores those columns
-under the library's own spelling and they claim nothing until the region page defines it.
+**Zone C** — Cheung et al. 2010's Extended zone, 2–5 disc radii from the disc centre
+([regions of interest](../biomarkers/regions-of-interest.md) §4) — is reported wherever zone B is.
 
 Not implemented: `topology/temporal-angle` and the `landmarks` family, which need a fovea or an
 optic cup the library is not given.

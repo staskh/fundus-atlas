@@ -9,10 +9,11 @@ STRUCTURES = ("artery", "vein", "vessels", "both")
 
 #: The regions a name may be qualified by, from `docs/biomarkers/regions-of-interest.md`.
 #:
-#: `A` and `C` are **reserved, not defined**: their bounds have to be read out of the ARIC papers
-#: and written on that page before a name may use them, and stating a radius from memory is the
-#: error the page exists to prevent.
-REGIONS = ("fov", "B")
+#: `C` is Cheung et al. 2010's Extended zone, 2–5 disc radii from the disc centre, quoted on that
+#: page. `A` is **reserved, not defined**: its bounds have to be read out of the ARIC papers and
+#: written there before a name may use it, and stating a radius from memory is the error the page
+#: exists to prevent.
+REGIONS = ("fov", "B", "C")
 
 #: How per-segment or per-vessel values were pooled.
 STATISTICS = ("mean", "median", "max", "min", "std", "length-weighted")

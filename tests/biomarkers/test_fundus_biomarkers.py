@@ -1,5 +1,5 @@
-# ABOUTME: Tests for the fundus-biomarkers adapter: catalogued names answered as themselves, zone C
-# ABOUTME: under its own spelling, values converted to pixels, and a missing class left empty.
+# ABOUTME: Tests for the fundus-biomarkers adapter: catalogued names answered as themselves,
+# ABOUTME: values converted to pixels, and a missing class left empty.
 
 import pytest
 
@@ -25,7 +25,7 @@ def test_every_name_it_answers_under_is_catalogued_or_plainly_its_own(adapter) -
     for key in adapter.keys():
         if "/" in key:
             canonical.check(key)
-    assert any(".C" in key for key in adapter.keys()), "zone C is kept, under its own name"
+    assert any(key.endswith("/C") for key in adapter.keys()), "zone C is a catalogued region"
     names = adapter.declare()["names"]
     assert set(names) == set(adapter.keys())
     assert all(names[key] is None for key in names if "/" not in key)

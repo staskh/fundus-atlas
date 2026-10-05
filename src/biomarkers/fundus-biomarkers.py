@@ -16,11 +16,9 @@ class FundusBiomarkers:
     to each name's length power. The library refuses to guess a scale, so with `um_per_px=None`
     every value is `None`.
 
-    **It is written against this catalogue**, so its names *are* catalogued names wherever the
-    vocabulary has them. The exception is zone C (2–5 disc radii), which the library reports
-    wherever it reports zone B and which `canonical.REGIONS` does not define yet: those columns are
-    answered under the library's own spelling, the slashes replaced by dots, so they are stored and
-    measured but claim nothing.
+    **It is written against this catalogue**, so its names *are* catalogued names. Any name the
+    vocabulary does not accept is answered under the library's own spelling, the slashes replaced
+    by dots, so it is stored and measured but claims nothing.
     """
 
     slug = "fundus-biomarkers"
@@ -45,7 +43,7 @@ class FundusBiomarkers:
                 answered: answered if "/" in answered else None for answered in names.values()
             },
             "unnamed": [answered for answered in names.values() if "/" not in answered],
-            "units": "pixels to the length power of each name; zone C as its zone-B twin",
+            "units": "pixels to the length power of each catalogued name",
             "device": self.device,
             "upstream": upstream.provenance(),
         }
@@ -91,7 +89,7 @@ class FundusBiomarkers:
             structure = own.split("/")[2] if own.count("/") >= 2 else ""
             if value is None or structure in missing or (structure == "both" and missing):
                 continue
-            answers[answered] = float(value) / um_per_px ** _length_power(own)
+            answers[answered] = float(value) / um_per_px ** _length_power(answered)
         return answers
 
     def _names(self) -> dict[str, str]:
@@ -120,11 +118,9 @@ def _checks(name: str) -> bool:
     return True
 
 
-def _length_power(own: str) -> int:
-    """The length power of a library name; a zone-C name has its zone-B twin's."""
-    parts = own.split("/")
-    twin = "/".join("B" if part == "C" else part for part in parts)
-    return canonical.length_power(twin)
+def _length_power(answered: str) -> int:
+    """The length power of a catalogued name; a name the catalogue lacks is reported unconverted."""
+    return canonical.length_power(answered) if "/" in answered else 0
 
 
 def implementation(**arguments: object) -> FundusBiomarkers:
