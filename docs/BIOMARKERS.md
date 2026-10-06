@@ -25,7 +25,7 @@ whether the number survives a change of camera.
 | [topology](biomarkers/topology.md) | where the network branches and how it connects | 5 | `artery`, `vein`, `vessels` | 1, degrees |
 | [landmarks](biomarkers/landmarks.md) | the optic nerve head and the fovea | 3 | — | 1, µm |
 
-**551 canonical names** in all, once each biomarker is expanded over the structures it applies to, the regions it admits and the statistics it can be pooled by.
+**828 canonical names** in all, once each biomarker is expanded over the structures it applies to, the regions it admits and the statistics it can be pooled by.
 <!-- /generated -->
 
 Each family page says which competing definitions share its name, what the formula is, what it
