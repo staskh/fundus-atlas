@@ -85,8 +85,8 @@ a redistribution — see section 5.
 - Ultra-wide-field imaging is where retinal photography is heading clinically, and this is the only
   ultra-wide dataset here with vessel-level annotation. It is also the clearest example in the whole
   catalogue of a dataset whose reputation rests on a degraded copy of itself.
-- The graph annotations deserve more use than they get: [bifurcation angles](../biomarkers/bifurcation-angle.md)
-  and [junction counts](../biomarkers/junction-counts.md) are measured against nothing at all in this
+- The graph annotations deserve more use than they get: [bifurcation angles](../biomarkers/topology.md)
+  and [junction counts](../biomarkers/topology.md) are measured against nothing at all in this
   catalogue apart from [IOSTAR](iostar.md)'s junction points, and this release publishes a full tree.
 
 ---

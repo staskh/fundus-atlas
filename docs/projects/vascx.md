@@ -30,8 +30,34 @@ requiring the user to make choices they may not have known existed.
 - **Related packages by the same group**, installed alongside and worth knowing about because
   behaviour depends on them: `retinalysis-inference` (model execution),
   [retinalysis-fundusprep](https://github.com/Eyened/retinalysis-fundusprep) (image bounds,
-  cropping, contrast enhancement) and `rtnls_enface` (the grid definitions used to place regions on
-  the retina).
+  cropping, contrast enhancement) and
+  [retinalysis-enface](https://github.com/Eyened/retinalysis-enface) (the optic disc, the fundus,
+  and the grid definitions used to place regions on the retina).
+- **How this atlas runs it:** as **four pinned clones** rather than four pip installs, from
+  2026-10-01. VascX is the upstream this repository has had to read most often, and every
+  correction below came from reading these files rather than any documentation — that the quality
+  checkpoint resizes to 224 and names EyeQ, that the "Hubbard reduction" is Knudtson's formula,
+  that `mean_sparsity` is normalised by the disc-to-fovea distance and so is not a distance.
+  Cloning is what keeps that code where a reader can find it instead of inside somebody's
+  `site-packages`. The pins:
+
+  | Repository | Pinned at | Carries |
+  | --- | --- | --- |
+  | [retinalysis-vascx](https://github.com/Eyened/retinalysis-vascx) | `d0cde1c` | the measuring code |
+  | [retinalysis-inference](https://github.com/Eyened/retinalysis-inference) | `e5823fe` | model execution, release 0.7.1 |
+  | [retinalysis-fundusprep](https://github.com/Eyened/retinalysis-fundusprep) | `ff47bfb` | preparation, release 1.3.0 |
+  | [retinalysis-enface](https://github.com/Eyened/retinalysis-enface) | `ec1ca00` | the disc and the grids, release 1.2.0 |
+
+  *Our finding, 2026-10-01:* the inference package's release **0.7.1 is not tagged**. Its
+  repository tags 0.7.0 and stops, and PyPI carries a 0.7.1 built one commit later. The pin above
+  names that commit, identified by what it did — it added the `pydantic` requirement, which
+  0.7.1's metadata carries and 0.7.0's does not.
+
+  A clone brings the code and none of the dependency metadata, so the seventeen ordinary packages
+  these four declare — `lightning`, `monai`, `albumentations`, `opencv`, `simplejpeg` and the rest
+  — are now pinned directly in this repository's `pyproject.toml` instead of arriving behind them.
+  That is a cost of the choice and worth knowing: if a later VascX needs a different `lightning`,
+  nothing here will say so.
 
 ## 2. License
 
@@ -105,17 +131,24 @@ substitute their own weights — useful, and a reason to record which weights pr
 Each biomarker is a configurable object rather than a fixed formula. The families below correspond
 to the modules in `vascx/fundus/features/`.
 
+> **Read §8.3 before taking a per-vessel number from this table.** VascX's own artery/vein model
+> cannot mark an arteriovenous crossing, so it cuts the losing vessel at every one, and VascX's
+> tracer never rejoins a cut vessel — a gap of one pixel is permanent. Every row below that is
+> counted or aggregated per vessel or per segment is therefore computed on fragments of vessels
+> rather than on vessels: the tortuosities, the bifurcation counts, the densities' skeleton
+> lengths. Calibre is largely spared, because width is measured locally.
+
 | Biomarker | Defined in | Original implementation | This project's version |
 | --- | --- | --- | --- |
-| [Caliber (vessel width)](../biomarkers/vessel-calibre.md) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
-| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) (CRAE, CRVE) | **Knudtson's** combination, `c·√(d₁²+d₂²)` with c = 0.88 for arteries and 0.95 for veins — in both `cre.py` and `cre_knudtson.py`; see §6.3 | — | Reimplemented twice, differing in protocol rather than formula: `cre.py` applies the combination over configurable concentric circles (number of circles, inner and outer radius in disc-diameter multiples, how many largest vessels per circle, orientation mode), and `cre_knudtson.py` follows Knudtson's own zone-B protocol — the 6 largest zone-B segments in full mode, 4 in temporal or nasal, diameters as segment medians |
+| [Caliber (vessel width)](../biomarkers/calibre.md) | Prior literature | — | Reimplemented; aggregated by median or weighted by vessel length |
+| [Central retinal equivalents](../biomarkers/calibre.md) (CRAE, CRVE) | **Knudtson's** combination, `c·√(d₁²+d₂²)` with c = 0.88 for arteries and 0.95 for veins — in both `cre.py` and `cre_knudtson.py`; see §6.3 | — | Reimplemented twice, differing in protocol rather than formula: `cre.py` applies the combination over configurable concentric circles (number of circles, inner and outer radius in disc-diameter multiples, how many largest vessels per circle, orientation mode), and `cre_knudtson.py` follows Knudtson's own zone-B protocol — the 6 largest zone-B segments in full mode, 4 in temporal or nasal, diameters as segment medians |
 | Artery-vein ratio | Ratio of the two equivalents above | — | Derived from the CRE values |
 | [Tortuosity](../biomarkers/tortuosity.md) | Three published families: distance ratio (arc length over chord length), mean curvature along a spline, and inflection counts | — | Reimplemented; selectable per segment or per whole vessel, spline or skeleton length, with optional caps on segment length and on implausible values |
-| [Vascular density](../biomarkers/vascular-density.md) | Prior literature | — | Reimplemented |
-| [Sparsity](../biomarkers/sparsity.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented, with mode options |
-| [Bifurcation angles](../biomarkers/bifurcation-angle.md) and [counts](../biomarkers/junction-counts.md) | Prior literature | — | Reimplemented |
-| [Temporal angles](../biomarkers/temporal-angle.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented |
-| Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/disc-fovea-distance.md)) | [Vargas 2026](../papers/vargas-2026.md) | — | Implemented here; also the scale reference for other biomarkers |
+| [Vascular density](../biomarkers/density.md) | Prior literature | — | Reimplemented |
+| [Sparsity](../biomarkers/density.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented, with mode options |
+| [Bifurcation angles](../biomarkers/topology.md) and [counts](../biomarkers/topology.md) | Prior literature | — | Reimplemented |
+| [Temporal angles](../biomarkers/topology.md) | [Vargas 2026](../papers/vargas-2026.md) | — | Reimplemented |
+| Disc and fovea geometry (including [disc-to-fovea distance](../biomarkers/landmarks.md)) | [Vargas 2026](../papers/vargas-2026.md) | — | Implemented here; also the scale reference for other biomarkers |
 | Image quality metrics (edge strength, sharpness, variance of Laplacian) | Standard image-quality measures | — | Implemented here, alongside the learned quality model |
 
 ### 6.1 It implements Knudtson's formula, and no Hubbard variant
@@ -197,9 +230,67 @@ disc indexes outside the mask and fails.
   sharp for anyone calling the feature machinery on their own masks at another size.
 - **Working around it:** rebuild the disc at the frame's size —
   `retina.disc = OpticDisc(mask, fundus=retina, size=side)` — which is what this repository's
-  this repository's biomarker adapter (`src/biomarkers/vascx.py`) does.
+  biomarker adapter (`src/biomarkers/vascx.py`) does.
 
 Not reported upstream by this atlas as of 2026-09-22.
+
+### 8.2 Two features are normalised by the disc-fovea distance, and neither name says so
+
+*Our finding, 2026-10-01.* `Sparsity` takes `normalize=True` by default and **divides** by that
+distance; `TortuosityMeasure.Curvature` **multiplies** by it —
+`np.mean(spline.curvatures()) * self._get_curvature_scale(...)`, where the scale is
+`layer.retina.disc_fovea_distance`. Both results are therefore **dimensionless, in disc-to-fovea
+units**, and both were mapped by this atlas onto canonical names that declare a physical unit:
+`mean_sparsity` to a distance in microns, `lw_tort_curv` to a curvature in 1/µm. Both mappings are
+withdrawn ([BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §5); both columns are still measured and
+stored under VascX's own names.
+
+**This is a property of the pipeline rather than a defect in it.** VascX is built around the
+disc-to-fovea axis, and expressing a length in units of it is a reasonable thing for it to do. What
+it means for anyone reading these numbers is that **a VascX feature cannot be compared with another
+project's unless the axis is the same**, and the axis depends on where a fovea model put the fovea.
+
+A real photograph is what exposed it: on HRF the curvature column reads about 1.5, which as 1/µm
+would be a vessel turning through a radius of two thirds of a micron. On this atlas's synthetic
+shapes the same column reads 0.0002 to 0.013 and merely looked noisy.
+
+### 8.3 An arteriovenous crossing cuts a vessel, and nothing rejoins it
+
+*Our finding, 2026-10-01.* Two facts compound, and together they decide several biomarkers.
+
+**The segmentation cannot express a crossing.** VascX's artery/vein model emits a four-way softmax
+whose channels sum to exactly 1.000000, so a pixel is artery *or* vein and the two masks never
+overlap — alone among the artery/vein models in this atlas, against an expert reference where 3.4%
+of vessel pixels are crossings. At the expert's crossing pixels, 31% to 39% reach neither mask.
+[vascx-artery-vein](../models/vascx-artery-vein.md) §10.1 carries the measurements.
+
+**The tracer does not repair it.** A vessel severed in the mask is resolved as **two vessels**, and
+a gap of **one pixel** is enough: measured through VascX's own classes, an unbroken 567-pixel vein
+resolves as one vessel, and the same vein with a single pixel removed resolves as two of about 293
+and 274. No gap width behaves differently. Four stages could have bridged it —
+`fill_small_holes`, the degree-2 collapse, `correct_digraph`, and `_build_vessels`, whose
+`merge_edges` raises `ValueError("The edges are not consecutive!")` — and none does.
+[Vessel tracing](../biomarkers/vessel-tracing.md) §3.2 traces the whole mask-to-vessel path and
+§3.2.1 is the gap experiment.
+
+- **What it affects:** anything counted or measured per vessel or per segment. On real photographs
+  free vessel ends are **4.4× to 16.7× denser within 25 px of an expert crossing** than elsewhere.
+- **It is uneven, and the pattern is the evidence.** Arc-over-chord tortuosity barely moves, because
+  VascX already splits long segments deliberately — `max_segment_len` defaults to 0.2 of the
+  disc-fovea distance and applies *only* to segment-mode distance tortuosity. Curvature and the
+  vessel-level modes get no such splitting. Measured on one HRF photograph against the expert's own
+  map, τ1 moved −1.5% where the curvature column moved −39%.
+- **The orphan is kept, not dropped.** `make_trees` roots one tree per *connected component*, so a
+  severed piece becomes its own vessel rather than disappearing the way [PVBM](pvbm.md)'s
+  disc-rooted walk discards a vessel that never reaches the nerve head. Better behaviour; still two
+  vessels where the retina has one.
+- **Not a reason to prefer another pipeline on its own.** A segmenter that emits overlap has
+  recorded the ambiguity rather than resolved it, and this atlas has no measurement saying whose
+  crossings are right. What it does mean is that a VascX count of vessels, endpoints or components
+  is not comparable with one from a pipeline that bridges gaps, such as
+  [AutoMorphClass](automorphclass.md), which bridges up to 22 pixels before tracing.
+
+Not reported upstream by this atlas as of 2026-10-01.
 
 Nothing else was found: an absence of findings, not a clean bill of health.
 

@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from biomarkers import canonical
+
 from . import geometry
 from . import theory as theory_module
 
@@ -55,7 +57,7 @@ DISC_AT = (0.70, 0.5)
 
 #: The optic disc's **diameter** in microns. About 1800 µm across in an adult eye, so the radius
 #: every zone is counted in is half of it — the factor-of-two trap
-#: `docs/biomarkers/central-retinal-equivalents.md` §5 records, met here in the parameter itself.
+#: `docs/biomarkers/calibre.md` §5 records, met here in the parameter itself.
 DISC_DIAMETER_UM = 1800.0
 
 #: How wide a vessel is, in **microns**, by class. A retina is described in microns and a mask is
@@ -67,7 +69,7 @@ VEIN_WIDTH_UM = 120.0
 #: The annulus the central retinal equivalents are measured in, in **disc radii** from the disc
 #: centre. PVBM builds it as zone C minus zone B — filled circles at 2 and 3 disc radii — and the
 #: classical convention states the same region in disc *diameters*, which is the factor-of-two trap
-#: `docs/biomarkers/central-retinal-equivalents.md` §5 records.
+#: `docs/biomarkers/calibre.md` §5 records.
 ZONE_B_RADII = (2.0, 3.0)
 
 #: What Knudtson's revision multiplies each pair by, and how many vessels it keeps.
@@ -203,9 +205,72 @@ def _outward(
     )
 
 
+def _physical(values: dict[str, float], um_per_px: float) -> dict[str, float]:
+    """Every theoretical value, converted from the pixels it was derived in into microns.
+
+    **A canonical biomarker is never in pixels** — see `docs/BIOMARKER-NAMES.md`. The geometry here
+    is computed on a pixel grid because that is what a shape is drawn on, so the last thing a shape
+    does is leave that grid behind: thirty of the names below give a different answer for the same
+    eye at a different resolution while they are in pixels, and none of them does afterwards.
+
+    :raises LookupError: through `canonical.unit`, if a name is not canonical — so a typo cannot
+        reach the committed ground truth.
+    """
+    converted = {}
+    for name, value in values.items():
+        power = canonical.length_power(name)
+        converted[name] = value * um_per_px**power if power else value
+    return converted
+
+
+def _pooled(stem: str, value: float) -> dict[str, float]:
+    """One value every part of a class agrees on, written under each statistic it settles.
+
+    A statistic aggregates over the parts of a class. Where all of them carry the same value the
+    aggregation is not in question: the mean and the median are that value and the spread is zero.
+    Writing those out, rather than leaving the short form that means *the default statistic*, is
+    what lets the ground truth meet an implementation reporting a median under its own name.
+
+    A biomarker the vocabulary gives no statistics — a total over the class rather than a pooling
+    of its parts — keeps its short form, because there is nothing to aggregate.
+    """
+    statistics = canonical.entry(stem).statistics
+    if not statistics:
+        return {stem: value}
+    return {f"{stem}|{one}": (0.0 if one == "std" else value) for one in statistics}
+
+
+def _expand(values: dict[str, float]) -> dict[str, float]:
+    """Values that already carry their structure, written under each statistic they settle.
+
+    A count a shape draws — one junction, three free ends — is the class's and aggregates over
+    nothing. An angle is different: these shapes fork at one angle throughout, so every statistic
+    over the class is settled and the value is written under each of them.
+
+    A name already spelt out in full — one carrying a region, say — is passed through untouched.
+    """
+    expanded: dict[str, float] = {}
+    for name, value in values.items():
+        stem, _, structure = name.rpartition("/")
+        if canonical.known(stem):
+            expanded.update(_named(_pooled(stem, value), structure))
+        else:
+            expanded[name] = value
+    return expanded
+
+
 def _named(values: dict[str, float], structure: str) -> dict[str, float]:
-    """One curve's values, under the structure they were measured over."""
-    return {f"{name}/{structure}": value for name, value in values.items()}
+    """One curve's values, under the structure they were measured over.
+
+    A key written `family/biomarker|statistic` carries its statistic, and the structure goes
+    *between* the two: the canonical order is `family/biomarker/structure/[roi]/[statistic]`, so
+    building the name by appending would put them the wrong way round.
+    """
+    named = {}
+    for name, value in values.items():
+        stem, _, statistic = name.partition("|")
+        named["/".join([stem, structure] + ([statistic] if statistic else []))] = value
+    return named
 
 
 def _tube(length: float, width: float) -> float:
@@ -332,6 +397,7 @@ def _compose(
     wv: float,
     counts: dict[str, float],
     extra: dict[str, float] | None = None,
+    physical: dict[str, float] | None = None,
     curved: bool = True,
     parameters: dict[str, float] | None = None,
 ) -> Shape:
@@ -365,55 +431,114 @@ def _compose(
         drawn[structure] = mask
 
     theory: dict[str, float] = {}
+    #: Per class, the values every part of it agrees on — collected rather than written, because
+    #: whether the two classes agree with *each other* has to be decided before either is expanded
+    #: into statistics. A spread of zero is equal to a spread of zero however far apart the two
+    #: populations are, so pooling statistic by statistic would pool classes that disagree.
+    agreed: dict[str, dict[str, float]] = {"artery": {}, "vein": {}}
     for structure, parts, width in (("artery", artery, wa), ("vein", vein, wv)):
         values = [theory_module.curve(points, curvature) for points, curvature in parts]
-        length = sum(value["vessel-area-and-length/skeleton-length"] for value in values)
+        length = sum(value["density/skeleton-length"] for value in values)
         area = sum(
-            theory_module.tube(value["vessel-area-and-length/skeleton-length"], width)
+            theory_module.tube(value["density/skeleton-length"], width)
             for value in values
         )
+        # Every vessel of a class shares a width here, so the mean, the median and any other
+        # pooling of it are the same number — which is what makes a drawn shape able to settle a
+        # statistic at all. The two lengths are totals over the class, and have none.
+        theory.update(_named(_pooled("calibre/width", width), structure))
         theory.update(
-            _named(
-                {
-                    "vessel-calibre/mean-width": width,
-                    # Every vessel of a class shares a width, so the median is the mean.
-                    "vessel-calibre/median-width": width,
-                    "vessel-area-and-length/skeleton-length": length,
-                    "vessel-area-and-length/area": area,
-                },
-                structure,
-            )
+            _named({"density/skeleton-length": length, "density/area": area}, structure)
         )
         # A quantity every part agrees on is the shape's; one they disagree about is an aggregation
         # question the shape cannot answer, and is left out rather than guessed at.
-        shared_names = set(values[0]) - {"vessel-area-and-length/skeleton-length"}
+        shared_names = set(values[0]) - {"density/skeleton-length"}
         if not curved:
             shared_names = {n for n in shared_names if n in {"tortuosity/hart-tau1"}}
         for quantity in sorted(shared_names):
             found = {round(value[quantity], 9) for value in values}
             if len(found) == 1 and math.isfinite(next(iter(found))):
-                theory[f"{quantity}/{structure}"] = values[0][quantity]
+                agreed[structure][quantity] = values[0][quantity]
+        # **The whole-vessel forms**, where the shape can prove them. A `vessel-` name is measured
+        # over root-to-tip paths rather than over segments between intersection points, and where a
+        # class is drawn as a *single unbranched curve* the two are the same curve — so the value
+        # carries over exactly. Where the class branches, composing the paths needs the tree this
+        # function is not given, so nothing is claimed: the shape settles what it can prove.
+        if len(parts) == 1:
+            for quantity in sorted(shared_names):
+                family, _, biomarker = quantity.partition("/")
+                if canonical.entry(quantity).whole_vessel and math.isfinite(
+                    values[0][quantity]
+                ):
+                    agreed[structure][f"{family}/vessel-{biomarker}"] = values[0][quantity]
 
-    both_areas = (
-        theory["vessel-area-and-length/area/artery"] + theory["vessel-area-and-length/area/vein"]
-    )
+    both_areas = theory["density/area/artery"] + theory["density/area/vein"]
     theory.update(
         {
-            "vessel-area-and-length/skeleton-length/vessels": (
-                theory["vessel-area-and-length/skeleton-length/artery"]
-                + theory["vessel-area-and-length/skeleton-length/vein"]
+            "density/skeleton-length/vessels": (
+                theory["density/skeleton-length/artery"]
+                + theory["density/skeleton-length/vein"]
             ),
-            "vessel-area-and-length/area/vessels": both_areas,
-            "vascular-density/over-field-of-view/vessels": both_areas / _fov_area(side),
-            # The whole frame, lit or not, which is what an implementation dividing by
-            # `height × width` is measuring.
-            "vascular-density/over-image/vessels": both_areas / float(side * side),
-            "avr/ratio-of-calibres/both": wa / wv,
+            "density/area/vessels": both_areas,
+            "calibre/AVR-ratio/both": wa / wv,
         }
     )
-    theory.update(counts)
+    # The width pooled over **both** classes, which is a different question from either class's
+    # own: the arteries share one width and the veins another, so the pool holds two values and
+    # what comes out depends on how many vessels carry each. Every shape here draws the two
+    # classes as mirror images of one another, so the counts are equal and the pooling is settled
+    # whatever an implementation's segment-splitting does to the member count — the middle pair of
+    # an even, two-valued pool is one of each. A shape that ever drew them unevenly could not say.
+    if len(artery) == len(vein):
+        # Weighting by arc length needs no equal counts — it asks how much vessel carries each
+        # width — but it is written here beside the others because the same two widths settle it.
+        lengths = (
+            theory["density/skeleton-length/artery"],
+            theory["density/skeleton-length/vein"],
+        )
+        theory.update(
+            _named(
+                {
+                    "calibre/width|mean": (wa + wv) / 2.0,
+                    "calibre/width|median": (wa + wv) / 2.0,
+                    "calibre/width|std": abs(wa - wv) / 2.0,
+                    "calibre/width|length-weighted": (wa * lengths[0] + wv * lengths[1])
+                    / sum(lengths),
+                },
+                "vessels",
+            )
+        )
+    # A density per class as well as over both. The denominators are the field and the frame
+    # whichever class is in the numerator, so an implementation reporting an artery density is
+    # comparable with one reporting the pair only if it divided by the same thing.
+    #
+    # `density/area` is in µm² and `_fov_area` in px², so the ratio is taken **before** the
+    # conversion to physical units happens at the end of this function — a fraction must not be
+    # scaled by anything.
+    for structure in ("artery", "vein", "vessels"):
+        area = theory[f"density/area/{structure}"]
+        theory[f"density/over-fov/{structure}"] = area / _fov_area(side)
+        # The whole frame, lit or not, which is what an implementation dividing by
+        # `height × width` is measuring.
+        theory[f"density/over-image/{structure}"] = area / float(side * side)
+    # A tortuosity the two classes agree on is the pair's as well: measuring over both together
+    # pools one population, and where every member of it returns the same number so does the pool.
+    # Where they differ — the arc draws two radii on purpose — the pair is an aggregation question
+    # the shape cannot answer, and is left out.
+    agreed["vessels"] = {
+        stem: value
+        for stem, value in agreed["artery"].items()
+        if stem.startswith("tortuosity/")
+        and stem in agreed["vein"]
+        and round(value, 9) == round(agreed["vein"][stem], 9)
+    }
+    for structure, values in agreed.items():
+        for stem, value in sorted(values.items()):
+            theory.update(_named(_pooled(stem, value), structure))
+
+    theory.update(_expand(counts))
     if extra:
-        theory.update(extra)
+        theory.update(_expand(extra))
 
     # How far the retina is from a vessel, over both classes together and over each alone.
     #
@@ -435,9 +560,16 @@ def _compose(
             [width for _, width in parts],
             side,
         )
-        theory[f"sparsity/mean-distance/{structure}"] = mean
-        theory[f"sparsity/max-distance/{structure}"] = furthest
+        theory[f"density/sparsity/{structure}/mean"] = mean
+        theory[f"density/sparsity/{structure}/max"] = furthest
 
+    theory = _physical(theory, um_per_px)
+    # **After** the conversion, because these were never in pixels. Hubbard's equivalents carry
+    # additive constants fitted in microns, so the formula can only be evaluated on widths already
+    # in microns and its answer arrives in the unit its name declares. Passing it through the
+    # conversion would apply the scale a second time.
+    if physical:
+        theory.update(_expand(physical))
     return Shape(
         name=name,
         side=side,
@@ -482,15 +614,15 @@ def straight(
         wa=wa,
         wv=wv,
         counts={
-            "junction-counts/junctions/artery": 0.0,
-            "junction-counts/junctions/vein": 0.0,
-            "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/endpoints/artery": 2.0,
-            "junction-counts/endpoints/vein": 2.0,
-            "junction-counts/endpoints/vessels": 4.0,
-            "junction-counts/components/artery": 1.0,
-            "junction-counts/components/vein": 1.0,
-            "junction-counts/components/vessels": 2.0,
+            "topology/junctions/artery": 0.0,
+            "topology/junctions/vein": 0.0,
+            "topology/junctions/vessels": 0.0,
+            "topology/endpoints/artery": 2.0,
+            "topology/endpoints/vein": 2.0,
+            "topology/endpoints/vessels": 4.0,
+            "topology/components/artery": 1.0,
+            "topology/components/vein": 1.0,
+            "topology/components/vessels": 2.0,
         },
     )
 
@@ -539,11 +671,11 @@ def arc(
         wv=wv,
         parameters={"artery_radius": ra, "vein_radius": rv, "angle": angle},
         counts={
-            "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/endpoints/artery": 2.0,
-            "junction-counts/endpoints/vein": 2.0,
-            "junction-counts/endpoints/vessels": 4.0,
-            "junction-counts/components/vessels": 2.0,
+            "topology/junctions/vessels": 0.0,
+            "topology/endpoints/artery": 2.0,
+            "topology/endpoints/vein": 2.0,
+            "topology/endpoints/vessels": 4.0,
+            "topology/components/vessels": 2.0,
         },
     )
 
@@ -599,11 +731,11 @@ def sinusoid(
         wv=wv,
         parameters={"amplitude": a, "wavelength": lam, "cycles": cycles, "span": span},
         counts={
-            "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/endpoints/artery": 2.0,
-            "junction-counts/endpoints/vein": 2.0,
-            "junction-counts/endpoints/vessels": 4.0,
-            "junction-counts/components/vessels": 2.0,
+            "topology/junctions/vessels": 0.0,
+            "topology/endpoints/artery": 2.0,
+            "topology/endpoints/vein": 2.0,
+            "topology/endpoints/vessels": 4.0,
+            "topology/components/vessels": 2.0,
         },
     )
 
@@ -661,17 +793,17 @@ def bifurcation(
         curved=False,
         parameters={"angle": float(angle), "arm": reach},
         counts={
-            "bifurcation-angle/between-daughters/artery": float(angle),
-            "bifurcation-angle/between-daughters/vein": float(angle),
-            "junction-counts/junctions/artery": 1.0,
-            "junction-counts/junctions/vein": 1.0,
-            "junction-counts/junctions/vessels": 2.0,
-            "junction-counts/endpoints/artery": 3.0,
-            "junction-counts/endpoints/vein": 3.0,
-            "junction-counts/endpoints/vessels": 6.0,
-            "junction-counts/components/artery": 1.0,
-            "junction-counts/components/vein": 1.0,
-            "junction-counts/components/vessels": 2.0,
+            "topology/branching-angle/artery": float(angle),
+            "topology/branching-angle/vein": float(angle),
+            "topology/junctions/artery": 1.0,
+            "topology/junctions/vein": 1.0,
+            "topology/junctions/vessels": 2.0,
+            "topology/endpoints/artery": 3.0,
+            "topology/endpoints/vein": 3.0,
+            "topology/endpoints/vessels": 6.0,
+            "topology/components/artery": 1.0,
+            "topology/components/vein": 1.0,
+            "topology/components/vessels": 2.0,
         },
     )
 
@@ -742,17 +874,17 @@ def deep_bifurcation(
         wv=wv,
         curved=False,
         counts={
-            "bifurcation-angle/between-daughters/artery": float(angle),
-            "bifurcation-angle/between-daughters/vein": float(angle),
-            "junction-counts/junctions/artery": tally["junctions"],
-            "junction-counts/junctions/vein": tally["junctions"],
-            "junction-counts/junctions/vessels": 2.0 * tally["junctions"],
-            "junction-counts/endpoints/artery": tally["ends"],
-            "junction-counts/endpoints/vein": tally["ends"],
-            "junction-counts/endpoints/vessels": 2.0 * tally["ends"],
-            "junction-counts/components/artery": 1.0,
-            "junction-counts/components/vein": 1.0,
-            "junction-counts/components/vessels": 2.0,
+            "topology/branching-angle/artery": float(angle),
+            "topology/branching-angle/vein": float(angle),
+            "topology/junctions/artery": tally["junctions"],
+            "topology/junctions/vein": tally["junctions"],
+            "topology/junctions/vessels": 2.0 * tally["junctions"],
+            "topology/endpoints/artery": tally["ends"],
+            "topology/endpoints/vein": tally["ends"],
+            "topology/endpoints/vessels": 2.0 * tally["ends"],
+            "topology/components/artery": 1.0,
+            "topology/components/vein": 1.0,
+            "topology/components/vessels": 2.0,
         },
     )
 
@@ -793,15 +925,15 @@ def disjoint(
         wv=wv,
         curved=False,
         counts={
-            "junction-counts/junctions/artery": 0.0,
-            "junction-counts/junctions/vein": 0.0,
-            "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/endpoints/artery": 2.0 * count,
-            "junction-counts/endpoints/vein": 2.0 * count,
-            "junction-counts/endpoints/vessels": 4.0 * count,
-            "junction-counts/components/artery": float(count),
-            "junction-counts/components/vein": float(count),
-            "junction-counts/components/vessels": float(2 * count),
+            "topology/junctions/artery": 0.0,
+            "topology/junctions/vein": 0.0,
+            "topology/junctions/vessels": 0.0,
+            "topology/endpoints/artery": 2.0 * count,
+            "topology/endpoints/vein": 2.0 * count,
+            "topology/endpoints/vessels": 4.0 * count,
+            "topology/components/artery": float(count),
+            "topology/components/vein": float(count),
+            "topology/components/vessels": float(2 * count),
         },
     )
 
@@ -929,7 +1061,7 @@ def koch(
         curve = _koch(_margin(disc, heading), heading, reach * side, generations)
         parts[structure] = [(curve, np.zeros(len(curve)))]
     fractal = {
-        f"fractal-dimension/{variant}/{structure}": KOCH_DIMENSION
+        f"density/{variant}/{structure}": KOCH_DIMENSION
         for variant in ("box-counting", "multifractal-d0", "multifractal-d1", "multifractal-d2")
         for structure in ("artery", "vein", "vessels")
     }
@@ -945,11 +1077,11 @@ def koch(
         wv=wv,
         curved=False,
         counts={
-            "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/endpoints/artery": 2.0,
-            "junction-counts/endpoints/vein": 2.0,
-            "junction-counts/endpoints/vessels": 4.0,
-            "junction-counts/components/vessels": 2.0,
+            "topology/junctions/vessels": 0.0,
+            "topology/endpoints/artery": 2.0,
+            "topology/endpoints/vein": 2.0,
+            "topology/endpoints/vessels": 4.0,
+            "topology/components/vessels": 2.0,
         },
         extra=fractal,
     )
@@ -991,21 +1123,27 @@ def _spokes(
         wv=wv,
         curved=False,
         counts={
-            "junction-counts/junctions/vessels": 0.0,
-            "junction-counts/endpoints/artery": 2.0 * count,
-            "junction-counts/endpoints/vein": 2.0 * count,
-            "junction-counts/endpoints/vessels": 4.0 * count,
-            "junction-counts/components/artery": float(count),
-            "junction-counts/components/vein": float(count),
-            "junction-counts/components/vessels": float(2 * count),
+            "topology/junctions/vessels": 0.0,
+            "topology/endpoints/artery": 2.0 * count,
+            "topology/endpoints/vein": 2.0 * count,
+            "topology/endpoints/vessels": 4.0 * count,
+            "topology/components/artery": float(count),
+            "topology/components/vein": float(count),
+            "topology/components/vessels": float(2 * count),
         },
         extra={
-            "central-retinal-equivalents/knudtson/artery": crae,
-            "central-retinal-equivalents/knudtson/vein": crve,
-            "central-retinal-equivalents/hubbard/artery": crae_um,
-            "central-retinal-equivalents/hubbard/vein": crve_um,
-            "avr/knudtson/both": crae / crve,
-            "avr/hubbard/both": crae_um / crve_um,
+            # Knudtson's revision dropped the additive constants, so it is scale-free: fed widths
+            # in pixels it answers in pixels, and the conversion at the end of `_compose` is what
+            # puts it in microns.
+            "calibre/CRE-knudtson/artery/B": crae,
+            "calibre/CRE-knudtson/vein/B": crve,
+            "calibre/AVR-knudtson/both/B": crae / crve,
+            # A ratio of two equivalents is dimensionless whichever unit they were computed in.
+            "calibre/AVR-hubbard/both/B": crae_um / crve_um,
+        },
+        physical={
+            "calibre/CRE-hubbard/artery/B": crae_um,
+            "calibre/CRE-hubbard/vein/B": crve_um,
         },
     )
 

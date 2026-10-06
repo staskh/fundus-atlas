@@ -32,7 +32,7 @@ number.
 ## 3. Why it is in this atlas
 
 - **Kind:** definition
-- It is the other definition of record for [central retinal equivalents](../biomarkers/central-retinal-equivalents.md).
+- It is the other definition of record for [central retinal equivalents](../biomarkers/calibre.md).
   AutoMorphalyzer dropped Hubbard and kept only this one; VascX's "Hubbard-style" recursion uses
   these constants. A CRAE without the variant named is unusable; this paper is why.
 
@@ -50,8 +50,8 @@ These are the authors' measurements and arguments. This atlas's own comparisons 
 
 | Entry | Relationship |
 | --- | --- |
-| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) | Defines the Knudtson variant (six largest vessels; 0.88 and 0.95 constants) |
-| [AVR](../biomarkers/avr.md) | The ratio of those two equivalents |
+| [Central retinal equivalents](../biomarkers/calibre.md) | Defines the Knudtson variant (six largest vessels; 0.88 and 0.95 constants) |
+| [AVR](../biomarkers/calibre.md) | The ratio of those two equivalents |
 | [Hubbard 1999](hubbard-1999.md) | The formulas this paper revises |
 | [AutoMorphalyzer](../projects/automorphalyzer.md) | Implements Knudtson only — its authors removed Hubbard |
 

@@ -95,7 +95,7 @@ def test_a_family_pinning_nothing_for_a_column_leaves_it_empty(tmp_path) -> None
     with (tmp_path / "av" / "ground_truth.csv").open() as handle:
         rows = {row["key"]: row for row in csv.DictReader(handle)}
 
-    equivalent = "central-retinal-equivalents/hubbard/artery"
+    equivalent = "calibre/CRE-hubbard/artery/B"
     assert rows["straight-1024-000"][equivalent] == "", "a straight vessel reaches no ring"
     assert float(rows["spokes-disc-centred-1024-000"][equivalent]) > 0
 

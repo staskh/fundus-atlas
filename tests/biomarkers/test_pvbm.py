@@ -48,8 +48,8 @@ def test_it_translates_its_own_columns_onto_catalogued_names() -> None:
     """The renaming happens here, so a run's evidence needs no translation step after it."""
     adapter = an_adapter()
 
-    assert adapter.declare()["names"]["area_artery"] == "vessel-area-and-length/area/artery"
-    assert adapter.canonical_for("area_artery") == "vessel-area-and-length/area/artery"
+    assert adapter.declare()["names"]["area_artery"] == "density/area/artery"
+    assert adapter.canonical_for("area_artery") == "density/area/artery"
     # Read out of `compute_angles_dictionary`: it medians every pairwise angle at every junction,
     # the trunk included, so it is not the angle between a bifurcation's daughters.
     assert adapter.canonical_for("median_branching_angle_artery") is None

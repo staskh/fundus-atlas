@@ -32,9 +32,9 @@ from upstreams import pvbm as upstream
 #: exactly like any other, under PVBM's own name: a quantity the catalogue has no name for is a gap
 #: in the catalogue, not a reason to throw a measurement away.
 PER_CLASS: dict[str, str | None] = {
-    "area": "vessel-area-and-length/area/{side}",
-    "length": "vessel-area-and-length/skeleton-length/{side}",
-    "median_tortuosity": "tortuosity/hart-tau1/{side}",
+    "area": "density/area/{side}",
+    "length": "density/skeleton-length/{side}",
+    "median_tortuosity": "tortuosity/hart-tau1/{side}/median",
     # `GeometryAnalysis` returns this beside the median and PVBM's docstring calls it the
     # "tortuosity index". Its definition is not stated and it is not one of Hart's seven, so it
     # waits for a reading of the code rather than being mapped on the strength of its name.
@@ -54,12 +54,12 @@ PER_CLASS: dict[str, str | None] = {
     # would repair the comparison at the cost of reporting a number PVBM never returned, so the
     # mapping is withdrawn rather than patched, and the two columns are kept under its own names.
     "endpoints": None,
-    "intersections": "junction-counts/junctions/{side}",
+    "intersections": "topology/junctions/{side}",
     # PVBM's three dimensions are of the multifractal analysis, not the plain box count, which is
-    # why they map to the multifractal names and not to `fractal-dimension/box-counting`.
-    "capacity_dimension": "fractal-dimension/multifractal-d0/{side}",
-    "entropy_dimension": "fractal-dimension/multifractal-d1/{side}",
-    "correlation_dimension": "fractal-dimension/multifractal-d2/{side}",
+    # why they map to the multifractal names and not to `density/box-counting`.
+    "capacity_dimension": "density/multifractal-d0/{side}",
+    "entropy_dimension": "density/multifractal-d1/{side}",
+    "correlation_dimension": "density/multifractal-d2/{side}",
     "singularity_length": None,
 }
 
@@ -72,12 +72,12 @@ PER_CLASS: dict[str, str | None] = {
 #: implementation rather than of the mapping, and is why the benchmark reports the number rather
 #: than correcting it.
 PER_PAIR: dict[str, str | None] = {
-    "crae_knudtson": "central-retinal-equivalents/knudtson/artery",
-    "crve_knudtson": "central-retinal-equivalents/knudtson/vein",
-    "crae_hubbard": "central-retinal-equivalents/hubbard/artery",
-    "crve_hubbard": "central-retinal-equivalents/hubbard/vein",
-    "avr_knudtson": "avr/knudtson/both",
-    "avr_hubbard": "avr/hubbard/both",
+    "crae_knudtson": "calibre/CRE-knudtson/artery/B",
+    "crve_knudtson": "calibre/CRE-knudtson/vein/B",
+    "crae_hubbard": "calibre/CRE-hubbard/artery/B",
+    "crve_hubbard": "calibre/CRE-hubbard/vein/B",
+    "avr_knudtson": "calibre/AVR-knudtson/both/B",
+    "avr_hubbard": "calibre/AVR-hubbard/both/B",
 }
 
 #: The order a reader meets PVBM's own columns in, per class.
@@ -253,10 +253,10 @@ class Pvbm:
             # comes back and a benchmark fingerprints the numbers a declaration carries.
             "recursion": self.RECURSION_LIMIT,
             "units": {
-                "vessel-area-and-length/area/artery": "px²",
-                "vessel-area-and-length/skeleton-length/artery": "px",
-                "central-retinal-equivalents/knudtson/artery": "px",
-                "central-retinal-equivalents/hubbard/artery": "µm",
+                "density/area/artery": "px²",
+                "density/skeleton-length/artery": "px",
+                "calibre/CRE-knudtson/artery/B": "px",
+                "calibre/CRE-hubbard/artery/B": "µm",
                 "median_branching_angle_artery": "degrees",
             },
             "device": self.device,
@@ -373,7 +373,7 @@ class Pvbm:
             # One call returns both variants, and **neither takes a scale**: PVBM measures widths
             # from the mask in pixels and puts those pixel widths into both formulas. For Knudtson
             # that is fine, the formula being scale-free. For Hubbard it is the dimensional error
-            # `docs/biomarkers/central-retinal-equivalents.md` §3.1 records — its constants were
+            # `docs/biomarkers/calibre.md` §3 records — its constants were
             # fitted in microns and its additive term does not scale — so what comes back is not a
             # Hubbard equivalent in pixels awaiting conversion, it is a different number. It is
             # returned as PVBM computes it, because a benchmark of corrected code measures the

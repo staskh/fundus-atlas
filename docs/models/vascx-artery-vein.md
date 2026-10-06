@@ -36,8 +36,22 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 
 ## 4. What it produces
 
+> **This model does not identify arteriovenous crossings, and the vessels it cuts there cannot be
+> recovered.** Its output is a four-way softmax, so a pixel is artery *or* vein and never both — the
+> only one of the five artery/vein models this atlas has benchmarked whose masks never overlap, the
+> other four producing 1.6% to 4.0% against an expert's 3.4%. Two further models in
+> [MODELS.md](../MODELS.md) §3 cannot express a crossing either, by different routes. At every
+> crossing one vessel wins and the other is interrupted. Nothing downstream repairs it: a gap of a
+> **single pixel** permanently splits a vessel into two in VascX's own tracer, so a long artery or
+> vein crossed three times is measured as four shorter pieces, each separately rooted, splined and
+> counted. Anything measured per vessel or per segment — vessel and endpoint counts, per-vessel
+> tortuosity, segment lengths — is computed on those pieces. §10 has the evidence; the mechanism is
+> in [vessel tracing](../biomarkers/vessel-tracing.md) §3.2.1.
+
 - **Purpose:** `artery/vein`
-- **Output classes:** artery against vein.
+- **Output classes:** four — `background`, `artery`, `vein`, `unclassified` — as a **softmax**, not
+  as independent probabilities. *Our finding, 2026-10-01:* the four channels sum to exactly
+  1.000000 at every pixel. A pixel therefore gets one label, and the consequence is §10.1.
 - **Input grid:** 1024×1024. Preprocessing crops to the detected fundus bounds and resamples so the
   fundus diameter fills a 1024-pixel square, so every VascX model sees the retina at the same scale
   regardless of the camera's native resolution — which is what makes VascX biomarkers comparable
@@ -88,7 +102,78 @@ The VascX Models paper reports stronger correlation with biomarkers computed fro
 
 ## 10. Known defects
 
-None recorded as of 2026-09-10 — an absence of findings, not a clean bill of health.
+### 10.1 Arteriovenous crossings cannot be represented, and are not
+
+*Our finding, 2026-10-01.* The output is a four-way **softmax**: the channels sum to exactly
+1.000000 at every pixel, so `artery ≥ 0.5` and `vein ≥ 0.5` at the same pixel is arithmetically
+impossible. Where an artery crosses a vein, one wins and the other is cut.
+
+This is a property of the model rather than of how this atlas runs it. The adapter thresholds each
+class **independently** at 0.5 and would pass overlap through if the network produced any; measured
+on five [HRF](../datasets/hrf.md) photographs it produced none at all. HRF's reference standard
+marks crossings as their own colour and this atlas's store writes a crossing into *both* masks, so
+there is something to miss:
+
+| Model | artery ∩ vein, 5 HRF photographs |
+| --- | --- |
+| [bf-net](bf-net.md) | 4.04% of predicted vessel |
+| [automorph-artery-vein](automorph-artery-vein.md) | 2.85% |
+| [lunet](lunet.md) | 2.39% |
+| [ocularnet](ocularnet.md) | 1.64% |
+| **vascx-artery-vein** | **0.000%** |
+| *expert — HRF-AV* | *3.39%, and a **floor*** |
+
+*The expert's figure is a floor.* HRF-AV marks about 77% of its crossings green and leaves the rest
+as a gap in one vessel, so the overlap a perfect reader would draw is higher than 3.39% —
+[hrf.md](../datasets/hrf.md) §7. That does not touch the finding here, which is a zero against four
+non-zeros, but it does mean no model's percentage should be read as near-correct because it sits
+near the expert's.
+
+It is the only **benchmarked** artery/vein model whose two masks never overlap. It is not the only
+one in the catalogue that cannot express a crossing: [MODELS.md](../MODELS.md) §3 compares all nine,
+and [Retina-MVP](retina-mvp-av.md) has no fourth class at all while [Big W-Net](big-wnet.md) has one
+it calls *uncertain* and splits evenly into artery and vein before an argmax over three. Three
+routes to the same inability, and this is the one measured here.
+
+**Where the crossing pixels go instead**, by argmax at the expert's crossing pixels:
+
+| Photograph | artery | vein | background | unclassified |
+| --- | --- | --- | --- | --- |
+| 01_h | 41.8% | 22.3% | 28.0% | 7.9% |
+| 01_dr | 25.4% | 38.2% | 23.7% | 12.7% |
+| 01_g | 27.5% | 43.0% | 23.1% | 6.4% |
+
+So one vessel always survives and the other is interrupted — and **31% to 39% of crossing pixels
+reach neither mask**, falling into background or into the fourth channel. Crossing recall is 44% to
+69% against 69% to 81% for plain vessel.
+
+**Two things that look like remedies and are not.** The `unclassified` channel is an *uncertainty*
+class, not a crossing class: it is enriched 4.3× to 11.6× at expert crossings but captures only 6%
+to 13% of them. And no threshold recovers them — sweeping 0.50 down to 0.20 on one photograph
+yields 4.9% of the expert's crossing pixels, with only 10.5% of the overlap produced sitting at a
+crossing and both masks inflating by about a third.
+
+### 10.2 What the cut costs downstream
+
+VascX's tracer does not repair it: a vessel severed in the mask is resolved as **two vessels**, and
+a single pixel of gap is enough — see
+[vessel tracing](../biomarkers/vessel-tracing.md) §3.2.1 for the stage-by-stage reason and the
+measurement. On real photographs, free vessel ends in this model's output are **4.4× to 16.7×
+denser within 25 px of an expert crossing** than elsewhere.
+
+The effect is uneven across biomarkers, and the pattern is itself evidence. Arc-over-chord
+tortuosity is barely moved, because VascX already splits long segments on purpose — `max_segment_len`
+defaults to 0.2 of the disc-fovea distance and is applied *only* to segment-mode distance
+tortuosity, so one more accidental split changes little. Curvature and the vessel-level modes get
+no such splitting and are measured on two straighter pieces instead of one curved vessel. Measured
+on one HRF photograph against the expert's own map, τ1 moved −1.5% where the curvature column moved
+−39%.
+
+Nothing here is a reason to prefer another model on its own: a segmenter that emits overlap has
+only recorded the ambiguity, not resolved it, and this atlas has no measurement saying whose
+crossings are *right*. What it does mean is that **a VascX count of vessels, endpoints or
+components is not comparable with one from a pipeline that bridges gaps**, such as
+[AutoMorphClass](../projects/automorphclass.md).
 
 ## 11. Notes
 

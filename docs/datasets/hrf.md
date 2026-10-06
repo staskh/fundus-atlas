@@ -122,7 +122,7 @@ of this dataset should come from.
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
 | Vessels | One gold standard | Native | From the original release |
-| Artery/vein | One | Native | HRF-AV, section 2.2 |
+| Artery/vein | One | Native | HRF-AV, section 2.2. Three classes — artery, vein, **crossing** — but the crossing class is applied inconsistently; see section 7 |
 | Optic disc centre | **Two independent experts**, kept separate | Native | Centre and diameter, not a contour |
 | Optic disc and cup contours | One | Native | HRF-Seg+, 40 of 45 images |
 | Disease | One label per eye | — | Healthy / glaucoma / diabetic retinopathy, 15 each |
@@ -167,6 +167,42 @@ figure to read automated disc results against, rather than assuming one.
   derivations, the 300 µm-per-degree constant is an approximation, and a camera's quoted angle need
   not be the angle subtended at the retina. It is the widest disagreement between the two methods in
   this catalogue, against 5.8% on [PAPILA](papila.md).
+- **About a quarter of the arteriovenous crossings are not marked as crossings, and each unmarked
+  one is a gap in whichever vessel the annotator did not paint through.** *Our finding, 2026-10-04.*
+  HRF-AV uses three colours and nothing else — red artery, blue vein, and **green for a crossing**,
+  the last being 2.4% of the drawn pixels on `01_h`. Where green is used, the crossing is recorded
+  properly and this store writes it into both masks. Where it is not, the annotator has carried one
+  vessel straight through and **stopped the other at the edge of it**, so that vessel arrives with a
+  hole in the middle and two free ends facing each other across the vessel that crossed it.
+
+  Counting a gap as two skeleton endpoints within 30 px facing one another with the *other* class
+  filling the space between — a shape nothing but a crossing produces — across all 45 photographs:
+
+  | | Marked green | Left as a gap | Share marked |
+  | --- | --- | --- | --- |
+  | All 45 | 2,513 | 763 | **77%** |
+  | Diabetic retinopathy, 15 | 1,033 | 118 | 90% |
+  | Healthy, 15 | 697 | 242 | 74% |
+  | Glaucoma, 15 | 783 | 403 | 66% |
+
+  **The inconsistency between photographs is the worse half of this.** The median photograph has
+  93% of its crossings marked, but the range runs from **8% to 100%**, and on **10 of the 45 most
+  crossings are unmarked**. `01_h` is one of those: 13 crossings marked against 43 left as gaps.
+  Six of its gaps were inspected against the photograph and every one is a plain crossing with no
+  green on it.
+
+  Two consequences, and the second is the one that bites. **A model is penalised for being right**:
+  one that carries a vessel through a crossing has painted pixels the reference calls the other
+  class, scoring false positives on exactly the pixels a careful reader would also have painted.
+  And **anything built on vessel continuity is measured on fragments** — a long artery crossed
+  three times is three or four pieces in this reference, so per-vessel lengths, endpoint counts and
+  per-vessel tortuosity computed from HRF-AV are not measuring whole vessels. See
+  [vessel tracing](../biomarkers/vessel-tracing.md) §3.2.1 for what no tracer does about a gap.
+
+  The counts above are approximate in one direction: the detector finds a gap only where both free
+  ends survive skeletonisation and sit within 30 px, so a wide vessel crossed by a wide one may be
+  missed. Read 763 as a floor.
+
 - **Three of the 45 artery/vein maps were saved with anti-aliased strokes** — `11_h`, `12_h` and
   `13_h` — carrying 3,133 stray pixels between them, 0.013% of that layer, in blends and greys. The
   fetcher reads each as the ramp it lies nearest, so a blend goes to its own colour and a grey to

@@ -72,11 +72,13 @@ def test_the_fovea_follows_the_framing() -> None:
     assert centred[1] == pytest.approx(SIDE / 2)
 
 
-def test_it_converts_its_millimetres_back_to_the_pixels_the_theory_is_in(shape) -> None:
+def test_it_converts_its_millimetres_back_to_the_pixels_every_adapter_reports(shape) -> None:
     """The only conversion it makes, and it is exact: the scale is the shape's own.
 
     VascX is the one implementation here that works in physical units, because it is the one that
-    takes a scale. Its calibre comes back in millimetres; the shapes state theirs in pixels.
+    takes a scale. Its calibre comes back in millimetres and it reports pixels, like every other
+    adapter — and `canonical.from_pixels` is the single place those pixels become the microns the
+    catalogued name is in, which is what this test walks end to end.
     """
     adapter = an_adapter()
 
@@ -84,17 +86,20 @@ def test_it_converts_its_millimetres_back_to_the_pixels_the_theory_is_in(shape) 
 
     # Under VascX's own names, which is what a run records; the ground truth is the shape's.
     names = adapter.declare()["names"]
-    calibre = next(own for own, name in names.items() if name == "vessel-calibre/mean-width/artery")
+    calibre = next(
+        own for own, name in names.items() if name == "calibre/width/artery/length-weighted"
+    )
     equivalent = next(
-        own for own, name in names.items() if name == "central-retinal-equivalents/knudtson/artery"
+        own for own, name in names.items() if name == "calibre/CRE-knudtson/artery/B"
     )
 
-    assert measured[calibre] == pytest.approx(
-        shape.theory["vessel-calibre/mean-width/artery"], rel=0.05
-    ), "an 80 µm artery at 10 µm per pixel is 8 px across"
-    assert measured[equivalent] == pytest.approx(
-        shape.theory["central-retinal-equivalents/knudtson/artery"], rel=0.05
-    )
+    for own, catalogued in (
+        (calibre, "calibre/width/artery/length-weighted"),
+        (equivalent, "calibre/CRE-knudtson/artery/B"),
+    ):
+        assert canonical.from_pixels(
+            catalogued, measured[own], shape.um_per_px
+        ) == pytest.approx(shape.theory[catalogued], rel=0.05), catalogued
 
 
 def test_it_declines_when_handed_one_class(shape) -> None:
@@ -116,3 +121,73 @@ def test_a_crash_is_recorded_rather_than_raised() -> None:
     )
 
     assert set(measured) <= set(adapter.keys())
+
+
+#: A frame big enough to hold a disc and a vessel running well past it, and small enough that
+#: building VascX's graph over it takes a moment rather than a minute.
+GAP_SIDE = 900
+
+#: How wide the test vessel is drawn, in pixels.
+GAP_WIDTH = 9
+
+
+def _one_vein_with_a_gap(gap: int):
+    """One straight vein past the disc, with `gap` pixels cut out of its middle, as VascX sees it.
+
+    Built through VascX's own classes rather than through the adapter, because what is under test
+    is the tracer rather than any biomarker.
+    """
+    from upstreams import vascx
+
+    vascx.on_path()
+    from rtnls_enface.disc import OpticDisc
+
+    Retina, VesselTreeLayer, FundusVesselsLayer, _ = an_adapter()._loaded()
+    vein = np.zeros((GAP_SIDE, GAP_SIDE), bool)
+    vein[150:750, GAP_SIDE // 2 - GAP_WIDTH // 2 : GAP_SIDE // 2 + GAP_WIDTH // 2] = True
+    if gap:
+        vein[450 - gap // 2 : 450 + gap // 2 + gap % 2, :] = False
+    artery = np.zeros((GAP_SIDE, GAP_SIDE), bool)
+    artery[150:750, 200 : 200 + GAP_WIDTH] = True
+    disc = np.zeros((GAP_SIDE, GAP_SIDE), np.uint8)
+    rows, columns = np.mgrid[:GAP_SIDE, :GAP_SIDE]
+    disc[(columns - GAP_SIDE // 2) ** 2 + (rows - 120) ** 2 <= 60**2] = 1
+    retina = Retina(
+        disc_path_or_mask=disc,
+        layers={
+            "arteries": VesselTreeLayer("arteries", artery, color=(1, 0, 0)),
+            "veins": VesselTreeLayer("veins", vein, color=(0, 0, 1)),
+            "vessels": FundusVesselsLayer(name="vessels", mask=artery | vein),
+        },
+        resolution=(GAP_SIDE, GAP_SIDE),
+        mm_per_pixel=0.005,
+        fovea_location=(GAP_SIDE * 0.8, GAP_SIDE * 0.5),
+        roi_mask=np.ones((GAP_SIDE, GAP_SIDE), np.uint8),
+    )
+    # The 1024-pixel disc defect of `docs/projects/vascx.md` §8.1, worked around as the adapter does.
+    retina.disc = OpticDisc(disc, fundus=retina, size=GAP_SIDE)
+    return retina.layers["veins"]
+
+
+@pytest.mark.parametrize("gap", [1, 9, 40])
+def test_vascx_never_rejoins_a_vessel_across_a_gap(gap: int) -> None:
+    """*Our finding, 2026-10-01.* One pixel of gap is one vessel more, at every width.
+
+    `docs/projects/vascx.md` §8.3 and `docs/biomarkers/vessel-tracing.md` §3.2.1 are where this is
+    written up, and this is what holds those pages to the code. It matters because VascX's own
+    artery/vein model is a four-way softmax that cannot represent a crossing, so the losing vessel
+    is cut at every one — and nothing downstream puts it back together.
+
+    Four stages could bridge and none does; the last of them, `merge_edges` inside
+    `_build_vessels`, refuses outright with `ValueError("The edges are not consecutive!")`.
+    """
+    whole = _one_vein_with_a_gap(0)
+    broken = _one_vein_with_a_gap(gap)
+
+    assert len(whole.resolved_segments) == 1, "an unbroken vein is one resolved vessel"
+    assert len(broken.resolved_segments) == 2, f"a {gap}px gap must leave two, not one rejoined"
+    assert len(broken.trees) == 2, "one tree per connected component, so the orphan is kept"
+    longest = max(len(segment.skeleton) for segment in broken.resolved_segments)
+    assert longest < 0.6 * max(len(s.skeleton) for s in whole.resolved_segments), (
+        "the longest surviving vessel is a fraction of the whole one, not nearly all of it"
+    )

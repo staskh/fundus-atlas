@@ -30,7 +30,7 @@ and they released the MATLAB program as ARIA.
 ## 3. Why it is in this atlas
 
 - **Kind:** definition
-- It is the definition of record for [vessel calibre](../biomarkers/vessel-calibre.md): everything
+- It is the definition of record for [vessel calibre](../biomarkers/calibre.md): everything
   contentious about calibre lives in "locate the two edges", and this paper locates them in the
   image. The software is catalogued separately as [ARIA](../projects/aria.md); this page is the
   argument, not the code.
@@ -50,7 +50,7 @@ separate.
 
 | Entry | Relationship |
 | --- | --- |
-| [Vessel calibre](../biomarkers/vessel-calibre.md) | Defines the edge-from-image variant |
+| [Vessel calibre](../biomarkers/calibre.md) | Defines the edge-from-image variant |
 | [ARIA](../projects/aria.md) | The software this paper introduced |
 | [DRIVE](../datasets/drive.md) | Detection test set |
 | [VascX](../projects/vascx.md), [AutoMorph](../projects/automorph.md) | Measure width on a binary mask, which is a different operation |

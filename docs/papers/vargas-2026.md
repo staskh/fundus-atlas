@@ -39,9 +39,9 @@ whole.
 ## 3. Why it is in this atlas
 
 - **Kind:** definition
-- It is the definition of record for [sparsity](../biomarkers/sparsity.md),
-  [temporal angle](../biomarkers/temporal-angle.md) and
-  [disc–fovea distance](../biomarkers/disc-fovea-distance.md). Those measurements exist in this
+- It is the definition of record for [sparsity](../biomarkers/density.md),
+  [temporal angle](../biomarkers/topology.md) and
+  [disc–fovea distance](../biomarkers/landmarks.md). Those measurements exist in this
   catalogue only because this toolbox published them. The software is catalogued as
   [VascX](../projects/vascx.md); this page is the argument, not the code.
 - The test-retest claim is why later biomarker pages can say "most VascX numbers agree with
@@ -63,11 +63,11 @@ page if that page restates them; this page does not unpack the tables.
 
 | Entry | Relationship |
 | --- | --- |
-| [Sparsity](../biomarkers/sparsity.md) | Defines mean and maximum distance-to-nearest-vessel |
-| [Temporal angle](../biomarkers/temporal-angle.md) | Defines the arcade-angle measure |
-| [Disc–fovea distance](../biomarkers/disc-fovea-distance.md) | Defines the landmark distance used as a ruler |
+| [Sparsity](../biomarkers/density.md) | Defines mean and maximum distance-to-nearest-vessel |
+| [Temporal angle](../biomarkers/topology.md) | Defines the arcade-angle measure |
+| [Disc–fovea distance](../biomarkers/landmarks.md) | Defines the landmark distance used as a ruler |
 | [VascX](../projects/vascx.md) | The software this paper describes |
-| [Central retinal equivalents](../biomarkers/central-retinal-equivalents.md) | Implements Knudtson and related calibre summaries; does not replace [Knudtson 2003](knudtson-2003.md) |
+| [Central retinal equivalents](../biomarkers/calibre.md) | Implements Knudtson and related calibre summaries; does not replace [Knudtson 2003](knudtson-2003.md) |
 | [Tortuosity](../biomarkers/tortuosity.md) | Implements published formulas; does not replace [Hart 1999](hart-1999.md) |
 
 ## 6. Notes

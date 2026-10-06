@@ -168,7 +168,8 @@ so instead of averaging them.
 
 **Decided.**
 
-1. **Quality. Built** — [docs/benchmarks/quality.md](docs/benchmarks/quality.md). Five models on
+1. **Quality. Built** — [what came out](docs/benchmarks/quality-results.md), and
+   [how it is configured](docs/benchmarks/quality-docs.md). Five models on
    [FIVES](docs/datasets/fives.md), [FQS](docs/datasets/fqs.md), [MSHF](docs/datasets/mshf.md) and
    [PAPILA](docs/datasets/papila.md): four datasets, 4,087 photographs each.
    [DeepDRiD](docs/datasets/deepdrid.md) is held back because the toolbox ensemble trained on it;
@@ -332,7 +333,14 @@ for `imgaug`, which reaches for a NumPy attribute removed in NumPy 2 — and the
 is what puts `imgaug` in the environment at all. Albumentations 1.4 carries the same API the
 inference package uses and no `imgaug` import. Two further pins were needed because VascX does not
 declare the packages that run its models. Both are recorded in `pyproject.toml` with the reason,
-which is the point of patching in the open. One thing could not be satisfied: QuickQual's
+which is the point of patching in the open.
+
+*Updated 2026-10-01.* VascX and the three Eyened packages it runs on are now **clones** rather
+than installs, for the reason `add-upstream` §2.1 records: this is the upstream whose
+documentation this atlas has corrected most, and an install leaves the only readable copy inside
+`site-packages`. The cost is paid in this same section — a clone brings no dependency metadata, so
+the seventeen packages those four declared are pinned directly now. The albumentations override
+survives for the toolbox alone; nothing declares 1.3.1 any more. One thing could not be satisfied: QuickQual's
 classifier was pickled by a scikit-learn that no longer installs on this Python, so it is unpickled
 by a later one that warns the result may be invalid — recorded on its model page as a defect rather
 than worked around.
