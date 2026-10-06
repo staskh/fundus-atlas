@@ -225,3 +225,6 @@ __marimo__/
 
 # Benchmark runs: predicted masks and the run records beside them.
 /.atlas_runs/
+# macOS Finder metadata. Unanchored, so it matches at every depth: the earlier `*/.DS_Store`
+# matched one directory down and not the repository root, which is how one came to be committed.
+.DS_Store
