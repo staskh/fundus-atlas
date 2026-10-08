@@ -186,20 +186,27 @@ def _diameter(store: Path, row: dict[str, str], adapter: object) -> float | None
         return None
     with Image.open(path) as image:
         pixels = np.asarray(image.convert("RGB"))
-    side = int(row["crop_side"])
-    prepared = adapter.prepare(pixels)[None]
+    found = outlined(adapter, adapter.prepare(pixels)[None], int(row["crop_side"]), row["key"])
+    if found is None or found.outcome != "graded" or "disc" not in found.masks:
+        return None
+    area = float(found.masks["disc"].sum())
+    return 2 * math.sqrt(area / math.pi) if area else None
+
+
+def outlined(adapter: object, prepared: object, side: int, key: str) -> object | None:
+    """One photograph's outlines in the native crop, or `None` where the model crashed on it.
+
+    The key is passed to an adapter that accepts one, and left off for one that does not. A crash
+    is one photograph, not the run.
+    """
     try:
-        drawn = adapter.outline(prepared, [side], keys=[row["key"]])
+        drawn = adapter.outline(prepared, [side], keys=[key])
     except TypeError:
         drawn = adapter.outline(prepared, [side])
-    except Exception as failure:  # a crash is one photograph, not the group
-        print(f"  {row['key']}: {failure!r}", file=sys.stderr)
+    except Exception as failure:
+        print(f"  {key}: {failure!r}", file=sys.stderr)
         return None
-    outlined = drawn[0]
-    if outlined is None or outlined.outcome != "graded" or "disc" not in outlined.masks:
-        return None
-    area = float(outlined.masks["disc"].sum())
-    return 2 * math.sqrt(area / math.pi) if area else None
+    return drawn[0]
 
 
 def _fingerprint(adapter: object, built: dict[str, object], sample: int, seed: int) -> str:
