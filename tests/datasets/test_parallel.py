@@ -40,7 +40,7 @@ def build_with(tmp_path, name, jobs):
     root = tmp_path / name
     args = cli.parse(
         "synthetic",
-        ["--data-root", str(root), "--sizes", "64", "--raw", str(raw), "--jobs", str(jobs)],
+        ["--data-root", str(root), "--raw", str(raw), "--jobs", str(jobs)],
     )
     build.run(
         slug="synthetic",
@@ -71,8 +71,8 @@ def test_the_rows_keep_the_order_the_fetcher_discovered_them_in(tmp_path):
 def test_the_files_are_all_there(tmp_path):
     store = build_with(tmp_path, "many", jobs=4)
     for n in range(6):
-        assert (store / "native" / "images" / f"k{n}.png").exists()
-        assert (store / "64" / "contours" / f"k{n}.csv").exists()
+        assert (store / "crop" / "images" / f"k{n}.png").exists()
+        assert (store / "crop" / "contours" / f"k{n}.csv").exists()
 
 
 def test_readings_survive_the_crossing_between_processes(tmp_path):
@@ -86,7 +86,7 @@ def test_a_broken_file_is_still_reported_when_workers_are_used(tmp_path):
     root = tmp_path / "store"
     args = cli.parse(
         "synthetic",
-        ["--data-root", str(root), "--sizes", "64", "--raw", str(raw), "--jobs", "4"],
+        ["--data-root", str(root), "--raw", str(raw), "--jobs", "4"],
     )
     build.run(
         slug="synthetic",

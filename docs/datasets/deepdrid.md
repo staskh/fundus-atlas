@@ -31,14 +31,13 @@ its sub-challenges.
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.deepdrid                          # clones and builds 512 and 1024
-uv run python -m datasets.deepdrid --sizes 512,720,1024     # any sizes a model needs
+uv run python -m datasets.deepdrid                          # clones and builds the crop
 ```
 
 - **Downloads:** a subtree checkout of the repository at commit `56d8af71`, taking only
   `regular_fundus_images` — about 2 GB. No account, no form; the commit is what pins the bytes,
   since a repository has no archive to checksum.
-- **Builds:** the photograph and its field-of-view mask, at `native/` plus each requested size.
+- **Builds:** the photograph and its field-of-view mask, in `crop/`.
   There are no vessel, artery/vein or disc annotations in this dataset to build.
 - **Not built:** the ultra-widefield sub-challenge (sub-challenge 3), 256 images left in the
   repository. It is a different instrument, and pooling a 200° frame with these would make every

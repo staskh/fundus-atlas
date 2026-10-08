@@ -10,8 +10,8 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.grading import BAD, FAILED, GOOD, USABLE, Grade
 
-#: The store grid this reads. VascX preprocesses every photograph so that the fundus diameter
-#: fills a 1024-pixel square, which is what the store's ``1024/`` already is.
+#: The grid the store is read at. VascX preprocesses every photograph so that the fundus diameter
+#: fills a 1024-pixel square, which is what the crop read at 1024 already is.
 GRID = 1024
 
 #: What the network itself sees. The checkpoint's own configuration resizes the 1024-pixel square

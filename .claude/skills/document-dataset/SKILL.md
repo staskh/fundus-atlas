@@ -106,7 +106,7 @@ Use `template.md` verbatim and keep its section numbering.
    worth of evidence, and scoring both looks like independent confirmation when it is not.
 6. **Use as a benchmark** — which catalogued models trained on these images, linking to their pages,
    so a reader can tell at a glance whether a score on this dataset is in-sample. Note also where a
-   dataset's own native resolution is **below the grid** a model measures on, since a score there is
+   dataset's own full resolution is **below the grid** a model measures on, since a score there is
    not comparable with a score on a larger dataset.
 7. **Known defects** — errors and traps in the distribution itself: mislabelled files, archives whose
    contents do not match their documentation, counts that differ from the paper, annotations that

@@ -1,6 +1,6 @@
 ---
 name: fetch-disc-estimation
-description: Estimate where each photograph's optic disc and cup sit, and how large they are, with the catalogued SegFormer disc-and-cup model — one committed CSV per dataset indexed by image key, in the native crop frame, with a sidecar JSON naming what measured it. Use when adding or changing the fetch_disc_estimation command or files under results/disc_estimation/.
+description: Estimate where each photograph's optic disc and cup sit, and how large they are, with the catalogued SegFormer disc-and-cup model — one committed CSV per dataset indexed by image key, in the crop frame, with a sidecar JSON naming what measured it. Use when adding or changing the fetch_disc_estimation command or files under results/disc_estimation/.
 ---
 
 # Estimating the optic disc and cup per photograph
@@ -41,8 +41,8 @@ Without `--force`, a dataset whose sidecar fingerprint matches is left alone.
 | Default | Value | Why |
 | --- | --- | --- |
 | Model | [segformer-disc-cup](../../../docs/models/segformer-disc-cup.md) | one network for disc and cup; its disc is disc ∪ cup, the region an expert outlines |
-| Input | `native/images/<key>.png`, resized to the model's grid by `datasets.utils.resample.photograph` | the store's own resize rule, so this input is bit-identical to the store's 512 grid |
-| Back to native | the adapter's probabilities upsampled to `crop_side`, thresholded there | `Outlines.from_probabilities` |
+| Input | `crop/images/<key>.png`, resized to the model's grid by `datasets.utils.resample.read_photograph` | the store's one resize rule, so the model sees what every benchmark hands it |
+| Back to the crop | the adapter's probabilities upsampled to `crop_side`, thresholded there | `Outlines.from_probabilities` |
 | Which patch | the **largest connected patch** of each mask | a stray speck must not pull the centre off the disc |
 | Centre | centroid of that patch | |
 | Radius | **equivalent radius** — of a circle of the same area | the disc is a vertical oval; one axis alone is the wrong ruler |
@@ -54,9 +54,9 @@ Every photograph in the manifest is measured; there is no sample.
 `key,outcome,disc_cx,disc_cy,disc_r,cup_cx,cup_cy,cup_r,note`, in manifest order, floats to two
 decimals.
 
-- **Frame: the native crop** — the store's `native/` square, `crop_side` pixels across, the same
-  frame as `native/contours/`. To reach the source photograph add `crop_x0`, `crop_y0` from the
-  manifest; to reach a built size multiply by `size / crop_side`.
+- **Frame: the crop** — the store's `crop/` square, `crop_side` pixels across, the same
+  frame as `crop/contours/`. To reach the source photograph add `crop_x0`, `crop_y0` from the
+  manifest; to reach a model's size multiply by `size / crop_side`.
 - `outcome` is `graded`, or why there is no number: `no-disc` (the model drew nothing),
   `no-image`, `failed` (the model crashed), or the adapter's own `declined`. A photograph without
   a disc **keeps its row** with empty measurements; omitting it would look untried.

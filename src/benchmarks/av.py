@@ -96,7 +96,7 @@ WORTH_FETCHING = (
 )
 
 #: How many photographs go to the model at once. One: these models work at 1024 and 1472, and their
-#: output is resampled to native, which is where the memory goes.
+#: output is resampled to the crop, which is where the memory goes.
 BATCH = 1
 
 #: What a model declares that could change its numbers.
@@ -347,7 +347,7 @@ def _segment(
     for sample in DataLoader(loader, batch_size=batch, collate_fn=collate, shuffle=False):
         started = time.perf_counter()
         try:
-            answers = adapter.outline(sample["image"], sample["native_side"])
+            answers = adapter.outline(sample["image"], sample["crop_side"])
         except Exception as failure:  # a crash is the model's answer to nothing
             answers = [None] * len(sample["key"])
             note = repr(failure)
@@ -385,7 +385,7 @@ def _remeasure(
             "key": [key],
             "subset": [row["subset"]],
             "split": [row["split"]],
-            "native_side": [side],
+            "crop_side": [side],
             "reader": [loader.readers_of(key)[0]],
             "masks": [loader.masks_of(key)],
         }
@@ -443,7 +443,7 @@ def _masks_for(directory: Path, identity: str, keep: bool) -> Path:
 
 
 def _keep(directory: Path, key: str, answer) -> None:
-    """One photograph's masks, in the native frame: the two classes and the vessels they make.
+    """One photograph's masks, in the crop frame: the two classes and the vessels they make.
 
     The union is written as well as derived, because it is what a vessel-width or a fractal
     measurement reads, and recomputing it in every consumer is how two of them come to disagree.
@@ -457,14 +457,14 @@ def _keep(directory: Path, key: str, answer) -> None:
 
 def _row(key, sample, index, answer, note) -> dict[str, object]:
     """One row: this photograph, scored against the annotation drawn on it."""
-    side = sample["native_side"][index]
+    side = sample["crop_side"][index]
     truth = sample["masks"][index]
     common = {
         "key": key,
         "subset": sample["subset"][index],
         "split": sample["split"][index],
         "reader": sample["reader"][index],
-        "native_side": side,
+        "crop_side": side,
     }
     if answer is None or answer.outcome != "graded":
         return {**common, "outcome": "failed", "resampling": "", "note": note}
@@ -632,7 +632,7 @@ def docs_sections(
     )
     yield ""
     yield (
-        "**Everything is measured in the native frame** — the full-resolution square the store "
+        "**Everything is measured in the crop frame** — the full-resolution square the store "
         "built, where the annotator drew. A model working at 1024 or 1472 has its probabilities "
         "carried back there and thresholded **after** arrival, because thresholding first and "
         "resampling a binary mask throws away the boundary the score turns on."
@@ -682,11 +682,11 @@ def docs_sections(
     )
     yield ""
     yield (
-        "**Two grids, because a store holds one and a network wants another.** The photographs are "
-        "read at the size the store built nearest what the model was trained on, and where the "
-        "network's own grid is not one of those — BF-Net and AutoMorph's artery/vein model both run "
-        "at 720 — the adapter resizes down to it rather than up, so nothing is invented. The "
-        "probabilities come back to the native frame either way."
+        "**Two grids, because an adapter reads one and a network wants another.** The photographs "
+        "are read from the crop at the grid the adapter declares, and where the network's own grid "
+        "is smaller — BF-Net and AutoMorph's artery/vein model both run at 720 and read at 1024 — "
+        "the adapter resizes down to it rather than up, so nothing is invented. The probabilities "
+        "come back to the crop frame either way."
     )
     yield ""
     yield (
@@ -796,9 +796,9 @@ COLUMNS = {
     "subset": "the dataset's own subcollection — for REYIA, the collection the photograph came from",
     "split": "the split the dataset published, or `unspecified`",
     "reader": "which annotator the row is scored against, where a dataset keeps them apart",
-    "native_side": "the side of the native square, in pixels — every score below is measured in it",
+    "crop_side": "the side of the crop square, in pixels — every score below is measured in it",
     "outcome": "`graded`, or `failed` with the reason in `note`",
-    "resampling": "how the model's output reached the native frame",
+    "resampling": "how the model's output reached the crop frame",
     "artery_dice": "overlap with the reader's arteries, 0 to 1 — **empty** where the model or the "
     "dataset says nothing about the classes, which is not the same as a zero",
     "vein_dice": "overlap with the reader's veins, on the same terms",

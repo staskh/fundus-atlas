@@ -16,7 +16,7 @@ from models.utils.outlines import Outlines
 
 
 class Disc:
-    """A stand-in disc model that draws a circle of the size it was told, in the native frame."""
+    """A stand-in disc model that draws a circle of the size it was told, in the crop frame."""
 
     slug = "a-disc-model"
     grid = 512
@@ -51,15 +51,16 @@ class Disc:
 
 def a_store(tmp_path: Path, rows: list[dict[str, str]], slug: str = "chaksu") -> Path:
     store = tmp_path / slug
-    (store / "512" / "images").mkdir(parents=True, exist_ok=True)
+    (store / "crop" / "images").mkdir(parents=True, exist_ok=True)
     with open(store / manifest.MANIFEST, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(manifest.CORE_COLUMNS), restval="")
         writer.writeheader()
         writer.writerows(rows)
     (store / "build.json").write_text(json.dumps({"builder_version": 6}))
     for row in rows:
-        pixels = np.zeros((512, 512, 3), dtype=np.uint8)
-        Image.fromarray(pixels).save(store / "512" / "images" / f"{row['key']}.png")
+        side = int(row["crop_side"])
+        pixels = np.zeros((side, side, 3), dtype=np.uint8)
+        Image.fromarray(pixels).save(store / "crop" / "images" / f"{row['key']}.png")
     return store
 
 
@@ -68,8 +69,8 @@ def a_row(key: str, **overrides: str) -> dict[str, str]:
         "key": key,
         "subset": "bosch",
         "split": "train",
-        "native_width": "1920",
-        "native_height": "1440",
+        "raw_width": "1920",
+        "raw_height": "1440",
         "crop_side": "1400",
         "um_per_px": "",
         "resolution_source": "unknown",
@@ -80,7 +81,7 @@ def a_row(key: str, **overrides: str) -> dict[str, str]:
 
 
 def test_photographs_of_one_camera_at_one_size_are_one_group() -> None:
-    rows = [a_row("a"), a_row("b", native_width="1900", native_height="1450")]
+    rows = [a_row("a"), a_row("b", raw_width="1900", raw_height="1450")]
 
     found = inference.groups(rows)
 
@@ -89,7 +90,7 @@ def test_photographs_of_one_camera_at_one_size_are_one_group() -> None:
 
 
 def test_a_size_more_than_a_tenth_away_is_another_camera() -> None:
-    rows = [a_row("a"), a_row("b", native_width="2400")]
+    rows = [a_row("a"), a_row("b", raw_width="2400")]
 
     found = inference.groups(rows)
 

@@ -11,9 +11,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 
-from .utils import manifest, paths, resolution
+from .utils import manifest, paths, resample, resolution
 
 #: How many photographs a group is measured from. Enough for a median to settle, small enough to
 #: re-run; a group with fewer uses all of them and says so.
@@ -41,7 +40,7 @@ NO_DISCS = "model-failed: the model found no disc on any photograph drawn"
 
 @dataclass
 class Group:
-    """One camera: photographs of one subset at one native size, within a tolerance."""
+    """One camera: photographs of one subset at one raw size, within a tolerance."""
 
     subset: str
     width: int
@@ -51,16 +50,16 @@ class Group:
     def holds(self, row: dict[str, str]) -> bool:
         """Whether this photograph is of the same camera as the ones already here."""
         return row["subset"] == self.subset and resolution.same_camera(
-            int(row["native_width"]), int(row["native_height"]), self.as_group()
+            int(row["raw_width"]), int(row["raw_height"]), self.as_group()
         )
 
     def as_group(self) -> dict[str, object]:
         """This camera as the committed file names it, which is how a stamp matches a row to it."""
-        return {"subset": self.subset, "native_width": self.width, "native_height": self.height}
+        return {"subset": self.subset, "raw_width": self.width, "raw_height": self.height}
 
 
 def groups(rows: list[dict[str, str]]) -> list[Group]:
-    """The cameras a dataset holds: its own subsets, each at its own native size.
+    """The cameras a dataset holds: its own subsets, each at its own raw size.
 
     One scale per group, never one per dataset and never one per photograph: a dataset's own
     subcollections are different devices, and a 30° subset and a 50° one are different
@@ -73,9 +72,7 @@ def groups(rows: list[dict[str, str]]) -> list[Group]:
                 group.rows.append(row)
                 break
         else:
-            found.append(
-                Group(row["subset"], int(row["native_width"]), int(row["native_height"]), [row])
-            )
+            found.append(Group(row["subset"], int(row["raw_width"]), int(row["raw_height"]), [row]))
     return found
 
 
@@ -135,8 +132,8 @@ def _measured(
 
     record: dict[str, object] = {
         "subset": group.subset,
-        "native_width": group.width,
-        "native_height": group.height,
+        "raw_width": group.width,
+        "raw_height": group.height,
         "n_drawn": attempted,
         "n_measured": len(diameters),
         "n_replaced": attempted - len(diameters),
@@ -175,17 +172,14 @@ def _drawn(rows: list[dict[str, str]], sample: int, seed: int) -> list[dict[str,
 
 
 def _diameter(store: Path, row: dict[str, str], adapter: object) -> float | None:
-    """One photograph's disc, as the diameter of a circle of the same area, in native pixels.
+    """One photograph's disc, as the diameter of a circle of the same area, in crop pixels.
 
     The disc is a vertical oval, so its horizontal width is the wrong ruler; an equivalent diameter
     uses the whole outline. `None` where the model found nothing.
     """
-    grid = getattr(adapter, "grid", 512)
-    path = store / str(grid) / "images" / f"{row['key']}.png"
-    if not path.exists():
+    if not (paths.layer(store, "images") / f"{row['key']}.png").exists():
         return None
-    with Image.open(path) as image:
-        pixels = np.asarray(image.convert("RGB"))
+    pixels = resample.read_photograph(store, row["key"], getattr(adapter, "grid", 512))
     found = outlined(adapter, adapter.prepare(pixels)[None], int(row["crop_side"]), row["key"])
     if found is None or found.outcome != "graded" or "disc" not in found.masks:
         return None
@@ -194,7 +188,7 @@ def _diameter(store: Path, row: dict[str, str], adapter: object) -> float | None
 
 
 def outlined(adapter: object, prepared: object, side: int, key: str) -> object | None:
-    """One photograph's outlines in the native crop, or `None` where the model crashed on it.
+    """One photograph's outlines in the crop, or `None` where the model crashed on it.
 
     The key is passed to an adapter that accepts one, and left off for one that does not. A crash
     is one photograph, not the run.

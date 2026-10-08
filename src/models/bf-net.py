@@ -11,8 +11,8 @@ from .utils import fusion
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The store grid this reads. The networks see 720, which no store holds — the photograph at 1024
-#: is resized down to it, as the upstream resizes its own input, and nothing is upsampled.
+#: The grid the store is read at. The networks see 720 — the photograph read at 1024 is resized
+#: down to it, as the upstream resizes its own input, and nothing is upsampled.
 GRID = 1024
 
 #: Which of the three published archives is run, and why: the only one trained on none of the

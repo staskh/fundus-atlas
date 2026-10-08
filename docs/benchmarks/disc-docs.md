@@ -6,7 +6,7 @@ This page says how the benchmark is configured: what it asks, which models and d
 
 How close a model's optic disc and optic cup are to **the outline an ophthalmologist drew on that photograph**, and how far the difference travels into the numbers a clinic would read off it. Overlap is measured as the Dice score — twice the area the two outlines share, divided by the sum of their areas, so 1 is perfect agreement and 0 no overlap at all. Beside it are the measurements a report actually quotes: where the centre of the disc sits, how wide and how tall each structure is, the radius of a circle of the same area, and the **cup-to-disc ratio**, which is the number a glaucoma referral rests on. Comparing the models with each other is a second, weaker question, and it is there to raise suspicions about the outlines rather than to rank the software.
 
-**Every measurement is made in the native frame** — the full-resolution square the store built, which is where the expert drew. A model working at 512 pixels has its answer carried back there first, and how it was carried is recorded per photograph: a probability map is resampled and thresholded **after** it arrives, because thresholding first and resampling the mask throws away the boundary detail the model produced, and the boundary is what every one of these numbers turns on.
+**Every measurement is made in the crop frame** — the full-resolution square the store built, which is where the expert drew. A model working at 512 pixels has its answer carried back there first, and how it was carried is recorded per photograph: a probability map is resampled and thresholded **after** it arrives, because thresholding first and resampling the mask throws away the boundary detail the model produced, and the boundary is what every one of these numbers turns on.
 
 **Signed errors are kept signed.** A model whose discs are three pixels too wide and one whose discs are three pixels too narrow do not average to agreement, and a cup-to-disc ratio that reads high sends the wrong patients to a clinic.
 
@@ -16,10 +16,10 @@ How close a model's optic disc and optic cup are to **the outline an ophthalmolo
 
 | Model | Pinned at | Grid it reads | Grid the network sees | Finds | Emits |
 | --- | --- | --- | --- | --- | --- |
-| [automorph-disc-cup](../models/automorph-disc-cup.md) | `9a953e5e` | 512² | 512² | disc, cup | probabilities, thresholded in the native frame |
-| [lunetv2-odc](../models/lunetv2-odc.md) | `f72f6c9e` | 512² | 512² | disc, cup | probabilities, thresholded in the native frame |
-| [segformer-disc-cup](../models/segformer-disc-cup.md) | `a0463fb6` | 512² | 512² | disc, cup | probabilities, thresholded in the native frame |
-| [vascx-disc](../models/vascx-disc.md) | `d0cde1c7` | 1024² | 512² | disc | probabilities, thresholded in the native frame |
+| [automorph-disc-cup](../models/automorph-disc-cup.md) | `9a953e5e` | 512² | 512² | disc, cup | probabilities, thresholded in the crop frame |
+| [lunetv2-odc](../models/lunetv2-odc.md) | `f72f6c9e` | 512² | 512² | disc, cup | probabilities, thresholded in the crop frame |
+| [segformer-disc-cup](../models/segformer-disc-cup.md) | `a0463fb6` | 512² | 512² | disc, cup | probabilities, thresholded in the crop frame |
+| [vascx-disc](../models/vascx-disc.md) | `d0cde1c7` | 1024² | 512² | disc | probabilities, thresholded in the crop frame |
 | [beal](../models/beal.md) | **not measured** — no adapter yet: its weights are an unversioned Google Drive folder, so nothing can be pinned, and its inference expects the authors' own preprocessed directory layout | — | — | — | — |
 | [isfa](../models/isfa.md) | **not measured** — its repository publishes an ImageNet backbone under `pretrained_model/`, not trained weights — checked against the repository, and its own weights link now 404s | — | — | — | — |
 
@@ -84,22 +84,22 @@ python -m benchmarks --benchmark disc --max-samples 20
 | `subset` | the dataset's own subcollection: a camera, a site, a challenge release |
 | `split` | the split the dataset published, or `unspecified` |
 | `reader` | **which expert drew the outline this row is scored against**; a photograph with five readers makes five rows |
-| `native_side` | the side of the native square, in pixels — every measurement below is in it |
+| `crop_side` | the side of the crop square, in pixels — every measurement below is in it |
 | `outcome` | `graded`, or `failed` with the reason in `note` |
-| `resampling` | how the model's output reached the native frame: probabilities interpolated and then thresholded, a binary mask resampled nearest, or — where a later run measured new things about outlines an earlier one drew — the note that these came from the kept masks |
+| `resampling` | how the model's output reached the crop frame: probabilities interpolated and then thresholded, a binary mask resampled nearest, or — where a later run measured new things about outlines an earlier one drew — the note that these came from the kept masks |
 | `disc_dice` | overlap with this reader's disc, 0 to 1 |
 | `cup_dice` | overlap with this reader's cup; absent for a model that finds no cup |
-| `said_disc_width` | **how wide the model's disc is**, in native pixels — a measurement in its own right rather than a distance from somebody else's |
+| `said_disc_width` | **how wide the model's disc is**, in crop pixels — a measurement in its own right rather than a distance from somebody else's |
 | `said_disc_height` | how tall the model's disc is |
 | `said_disc_radius` | the radius of a circle of the same area as the model's disc |
-| `said_disc_center_x` | where the model puts the disc's centre, in native pixels from the left |
+| `said_disc_center_x` | where the model puts the disc's centre, in crop pixels from the left |
 | `said_disc_center_y` | and from the top |
 | `said_cup_width` | how wide the model's cup is |
 | `said_cup_height` | how tall |
 | `said_cup_radius` | the radius of a circle of the same area as the model's cup |
 | `said_cup_center_x` | where the model puts the cup's centre |
 | `said_cup_center_y` | and from the top |
-| `disc_center_offset` | distance between the two disc centres, in native pixels |
+| `disc_center_offset` | distance between the two disc centres, in crop pixels |
 | `cup_center_offset` | as above, for the cup |
 | `disc_center_offset_diameters` | the same distance **in the expert's own disc diameters**, which is the only camera-independent form: ten pixels means one thing on a 2,576-pixel photograph and another on a 1,444-pixel one |
 | `cup_center_offset_diameters` | the cup's offset, measured in that same disc diameter rather than in the cup's own — the disc is the ruler |
@@ -109,7 +109,7 @@ python -m benchmarks --benchmark disc --max-samples 20
 | `cup_height_error` | signed, for the cup |
 | `disc_radius_error` | signed: the radius of a circle of the same area, less the reader's |
 | `cup_radius_error` | as above, for the cup |
-| `truth_disc_width` | how wide **this reader** drew the disc, in native pixels — the size every error above is an error of |
+| `truth_disc_width` | how wide **this reader** drew the disc, in crop pixels — the size every error above is an error of |
 | `truth_disc_height` | how tall, likewise |
 | `truth_disc_radius` | the radius of a circle of the same area as the reader's disc |
 | `truth_disc_center_x` | where the reader put the disc's centre |

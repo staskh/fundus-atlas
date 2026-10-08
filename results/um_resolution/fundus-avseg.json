@@ -45,8 +45,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1280,
-      "native_width": 1280,
+      "raw_height": 1280,
+      "raw_width": 1280,
       "subset": "square",
       "um_per_px": 10.0122
     },
@@ -81,8 +81,8 @@
       "n_drawn": 21,
       "n_measured": 21,
       "n_replaced": 0,
-      "native_height": 1992,
-      "native_width": 2656,
+      "raw_height": 1992,
+      "raw_width": 2656,
       "subset": "large",
       "um_per_px": 6.1054
     }

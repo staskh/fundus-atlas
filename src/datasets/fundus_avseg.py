@@ -6,7 +6,7 @@
 One zip from figshare: `images/` and `annotation/` sharing a filename, a metadata spreadsheet, and
 the authors' `training.txt` and `testing.txt`. The artery/vein map is an RGB image — red artery,
 blue vein, green where the two cross, white where the annotator could not tell — and is stored as
-the binary masks of `utils.av`: `artery`, `vein` and their union `vessels`, at native resolution
+the binary masks of `utils.av`: `artery`, `vein` and their union `vessels`, at full resolution
 only, with a crossing belonging to both vessels.
 
 **The `vessels` mask here is derived**, being the union of the classes above rather than an

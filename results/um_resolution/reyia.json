@@ -45,8 +45,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 2196,
-      "native_width": 2196,
+      "raw_height": 2196,
+      "raw_width": 2196,
       "subset": "enrich",
       "um_per_px": 6.0992
     },
@@ -92,8 +92,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1444,
-      "native_width": 1444,
+      "raw_height": 1444,
+      "raw_width": 1444,
       "subset": "fives",
       "um_per_px": 8.658
     },
@@ -139,8 +139,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1444,
-      "native_width": 1444,
+      "raw_height": 1444,
+      "raw_width": 1444,
       "subset": "grape",
       "um_per_px": 8.8396
     },
@@ -186,8 +186,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1444,
-      "native_width": 1444,
+      "raw_height": 1444,
+      "raw_width": 1444,
       "note": "spread: the discs disagree by 15% of the median, more than 10%",
       "subset": "magreb"
     },
@@ -231,8 +231,8 @@
       "n_drawn": 30,
       "n_measured": 30,
       "n_replaced": 0,
-      "native_height": 1444,
-      "native_width": 1444,
+      "raw_height": 1444,
+      "raw_width": 1444,
       "subset": "mbrset",
       "um_per_px": 8.3172
     },
@@ -278,8 +278,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1444,
-      "native_width": 1444,
+      "raw_height": 1444,
+      "raw_width": 1444,
       "subset": "messidor",
       "um_per_px": 8.8063
     },
@@ -325,8 +325,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1444,
-      "native_width": 1444,
+      "raw_height": 1444,
+      "raw_width": 1444,
       "subset": "papila",
       "um_per_px": 6.6835
     },
@@ -372,8 +372,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 2560,
-      "native_width": 2560,
+      "raw_height": 2560,
+      "raw_width": 2560,
       "subset": "trend",
       "um_per_px": 6.8663
     }

@@ -1,4 +1,4 @@
-# ABOUTME: Optic disc and cup as polygons: traced once into the native frame, scaled to each size.
+# ABOUTME: Optic disc and cup as polygons, traced once into the crop frame.
 # ABOUTME: Polygons rather than rasters, so five experts per image cost rows and not files.
 
 import csv
@@ -15,8 +15,8 @@ from skimage.feature import match_template
 #: transformed through the crop and nothing is traced.
 COORDINATES = "coordinates"
 
-#: What a fetcher declares when the dataset publishes masks. They are traced once, in the native
-#: frame, and every size is scaled from that trace.
+#: What a fetcher declares when the dataset publishes masks. They are traced once, in the crop
+#: frame.
 RASTER = "raster"
 
 #: Douglas-Peucker tolerance, as a fraction of the outline's own perimeter. About 45 nodes for an
@@ -116,13 +116,11 @@ def fidelity(mask: np.ndarray, polygon: np.ndarray) -> float:
     return float((filled & original).sum() / union) if union else 0.0
 
 
-def write(path: Path, drawn: dict[tuple[str, str], np.ndarray], scale: float = 1.0) -> None:
+def write(path: Path, drawn: dict[tuple[str, str], np.ndarray]) -> None:
     """Write one image's contours.
 
-    :param drawn: (structure, reader) to nodes in the native frame.
-    :param scale: ``size / crop_side``. At 1.0 the native floats are written as they are, because
-        native is the annotation of record and rounding it would round every size with it; at any
-        other scale the nodes are rounded to the integer pixels of that grid.
+    :param drawn: (structure, reader) to nodes in the crop frame, written as the floats they are:
+        the crop is the annotation of record, and rounding it would round everything read from it.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="") as f:
@@ -130,10 +128,7 @@ def write(path: Path, drawn: dict[tuple[str, str], np.ndarray], scale: float = 1
         writer.writerow(COLUMNS)
         for (structure, reader), nodes in sorted(drawn.items()):
             for index, (x, y) in enumerate(nodes):
-                if scale == 1.0:
-                    writer.writerow([structure, reader, index, x, y])
-                else:
-                    writer.writerow([structure, reader, index, round(x * scale), round(y * scale)])
+                writer.writerow([structure, reader, index, x, y])
 
 
 def read(path: Path) -> dict[tuple[str, str], np.ndarray]:

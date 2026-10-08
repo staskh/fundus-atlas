@@ -45,8 +45,8 @@
       "n_drawn": 33,
       "n_measured": 32,
       "n_replaced": 1,
-      "native_height": 1824,
-      "native_width": 1736,
+      "raw_height": 1824,
+      "raw_width": 1736,
       "subset": "main",
       "um_per_px": 8.0189
     },
@@ -92,8 +92,8 @@
       "n_drawn": 33,
       "n_measured": 32,
       "n_replaced": 1,
-      "native_height": 1984,
-      "native_width": 1976,
+      "raw_height": 1984,
+      "raw_width": 1976,
       "subset": "main",
       "um_per_px": 7.0732
     },
@@ -127,8 +127,8 @@
       "n_drawn": 20,
       "n_measured": 20,
       "n_replaced": 0,
-      "native_height": 1725,
-      "native_width": 2230,
+      "raw_height": 1725,
+      "raw_width": 2230,
       "subset": "main",
       "um_per_px": 6.3394
     }

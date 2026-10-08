@@ -11,7 +11,7 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.grading import BAD, FAILED, GOOD, USABLE, Grade
 
-#: The store grid this reads. QuickQual resizes the shorter side to 512 and leaves the other
+#: The grid the store is read at. QuickQual resizes the shorter side to 512 and leaves the other
 #: proportional; every photograph in a store is square, so the two amount to the same thing here.
 GRID = 512
 

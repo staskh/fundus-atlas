@@ -1,5 +1,5 @@
 # ABOUTME: The photographs of an artery/vein benchmark, with every annotator's arteries and veins in
-# ABOUTME: the native frame they were drawn in.
+# ABOUTME: the crop frame they were drawn in.
 
 import numpy as np
 from PIL import Image
@@ -23,7 +23,7 @@ STRUCTURES = ("artery", "vein", "vessels")
 class ArteryVeinLoader(Photographs):
     """One dataset's photographs and the vessels drawn on them.
 
-    The masks stay in **native** coordinates whatever grid the model asked for: that is where the
+    The masks stay in **crop** coordinates whatever grid the model asked for: that is where the
     annotator drew and where every score is computed. A photograph nobody annotated is excluded with
     its own reason — there is nothing to score against, which is not a failure of the model.
 
@@ -64,7 +64,7 @@ class ArteryVeinLoader(Photographs):
         for structure in STRUCTURES:
             if structure in condemned:
                 continue
-            path = paths.layer(self.store, paths.NATIVE, structure) / f"{key}.png"
+            path = paths.layer(self.store, structure) / f"{key}.png"
             if path.exists():
                 with Image.open(path) as drawn:
                     found[structure] = np.asarray(drawn) > 0
@@ -88,5 +88,5 @@ class ArteryVeinLoader(Photographs):
         sample = super().__getitem__(index)
         sample["masks"] = self.masks_of(row["key"])
         sample["reader"] = self.readers_of(row["key"])[0]
-        sample["native_side"] = int(row["crop_side"])
+        sample["crop_side"] = int(row["crop_side"])
         return sample

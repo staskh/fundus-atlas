@@ -45,8 +45,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 2048,
-      "native_width": 2048,
+      "raw_height": 2048,
+      "raw_width": 2048,
       "subset": "main",
       "um_per_px": 6.2696
     }

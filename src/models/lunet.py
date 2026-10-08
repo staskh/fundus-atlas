@@ -10,7 +10,7 @@ from upstreams.utils import weights
 from .utils.device import forget
 from .utils.outlines import Outlines
 
-#: The store grid this reads, and the grid the network was built at: `final_shape = 1472` in its own
+#: The grid the store is read at, and the grid the network was built at: `final_shape = 1472` in its own
 #: `main.py`, commented as the shape the images will be resized to. It is the point of the model —
 #: arterioles a coarser grid cannot resolve — and it is why the artery/vein stores build 1472.
 GRID = lunet.GRID

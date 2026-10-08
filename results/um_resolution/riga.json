@@ -45,8 +45,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 800,
-      "native_width": 800,
+      "raw_height": 800,
+      "raw_width": 800,
       "subset": "binrushed",
       "um_per_px": 8.7655
     },
@@ -92,8 +92,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 800,
-      "native_width": 800,
+      "raw_height": 800,
+      "raw_width": 800,
       "subset": "messidor",
       "um_per_px": 8.4654
     },
@@ -139,8 +139,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 800,
-      "native_width": 800,
+      "raw_height": 800,
+      "raw_width": 800,
       "subset": "magrabia",
       "um_per_px": 9.1449
     }

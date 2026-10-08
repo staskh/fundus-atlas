@@ -30,7 +30,7 @@ reyia: the Kaggle archive, by hand. Required.
 import re
 from pathlib import Path
 
-from datasets.utils import archives, av, build, cli, fov, manifest, resolution
+from datasets.utils import archives, av, build, cli, fov, manifest, paths, resolution
 
 #: Slug, matching docs/datasets/reyia.md and this module's filename.
 SLUG = "reyia"
@@ -80,7 +80,7 @@ RESOLUTION = resolution.Declared(
     source="unknown",
     note=(
         "A compilation of nine collections, each with its own camera and none of them stating a "
-        "scale in this archive. Run fetch_um_resolution, which groups by subset and native size."
+        "scale in this archive. Run fetch_um_resolution, which groups by subset and raw size."
     ),
 )
 
@@ -166,7 +166,7 @@ def verify(store: Path, layers: dict[str, Path], rows: list[dict[str, str]]) -> 
         stem = row["source_image"].rsplit("/", 1)[-1].rsplit(".", 1)[0]
         for folder, layer in (("artery", "artery"), ("veins", "vein")):
             member = published.get((subset, folder, stem))
-            built = store / "native" / layer / f"{row['key']}.png"
+            built = paths.layer(store, layer) / f"{row['key']}.png"
             if member is None or not built.exists():
                 continue
             with member.open() as f, Image.open(f) as theirs:

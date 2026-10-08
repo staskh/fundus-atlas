@@ -13,7 +13,7 @@ from PIL import Image
 from benchmarks import av, runs
 from models.utils.outlines import Outlines
 
-#: The native frame every mask in these tests is drawn in.
+#: The crop frame every mask in these tests is drawn in.
 SIDE = 1024
 
 
@@ -91,7 +91,7 @@ class Bands:
 
 
 def a_store(tmp_path: Path, keys: str = "ab") -> Path:
-    """A store of photographs with arteries and veins annotated in the native frame."""
+    """A store of photographs with arteries and veins annotated in the crop frame."""
     root = tmp_path / "data"
     store = write_store(
         root,

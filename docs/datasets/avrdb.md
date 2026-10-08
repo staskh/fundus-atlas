@@ -33,7 +33,7 @@ Papilledema* — and its description names the AFIO source, the four ophthalmolo
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.avrdb                      # downloads and builds 512 and 1024
+uv run python -m datasets.avrdb                      # downloads and builds the crop
 uv run python -m datasets.fetch_um_resolution --dataset avrdb
 ```
 

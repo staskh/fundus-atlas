@@ -1,8 +1,9 @@
-# ABOUTME: Tests for resizing a native frame to a built size, and for the resolution that follows.
+# ABOUTME: Tests for resizing the crop to a model's size, and for the resolution that follows.
 # ABOUTME: Photographs are interpolated; masks and labels never are.
 
 import numpy as np
 import pytest
+from PIL import Image
 
 from datasets.utils import resample, resolution
 
@@ -59,3 +60,15 @@ def test_from_a_field_angle_a_degree_is_three_hundred_microns():
 
 def test_from_an_anchored_disc_the_disc_is_eighteen_hundred_microns():
     assert resolution.from_disc(disc_diameter_px=180) == pytest.approx(10.0)
+
+
+def test_a_photograph_is_read_from_the_crop_at_the_size_asked_for(tmp_path):
+    """The size a model needs is made when the photograph is read, by the one resize rule."""
+    crop = np.random.default_rng(0).integers(0, 255, (300, 300, 3), dtype=np.uint8)
+    (tmp_path / "crop" / "images").mkdir(parents=True)
+    Image.fromarray(crop).save(tmp_path / "crop" / "images" / "a.png")
+
+    read = resample.read_photograph(tmp_path, "a", 64)
+
+    assert read.shape == (64, 64, 3)
+    assert (read == resample.photograph(crop, 64)).all()

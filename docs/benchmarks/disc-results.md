@@ -71,7 +71,7 @@ All four place the disc within two hundredths of a diameter — about 7 pixels o
 2,200-pixel photograph. **Nothing here is lost by mislocating the disc.** Whatever separates these
 models is size and boundary, not position.
 
-**Is it the right size?** Signed mean errors, in native pixels; negative means the model drew the
+**Is it the right size?** Signed mean errors, in crop pixels; negative means the model drew the
 structure *smaller* than the ophthalmologist did:
 
 | Model | Disc width | Disc height | Disc radius | Cup width | Cup height | Cup radius |
@@ -226,7 +226,7 @@ this section has another.
 
 A model cannot be shown to be wrong by less than the ophthalmologists are wrong about each other.
 Chákṣu's five readers and PAPILA's two were scored against each other exactly as the models were —
-every reader against every other, on 60 photographs each, in the native frame:
+every reader against every other, on 60 photographs each, in the crop frame:
 
 | Dataset | Readers | Disc Dice | Cup Dice | Mean \|ratio difference\| |
 | --- | --- | --- | --- | --- |

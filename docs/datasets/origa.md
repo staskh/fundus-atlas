@@ -34,8 +34,7 @@ uv run python -m datasets.origa --archive ~/glaucoma-datasets.zip
 an account, so the archive must be obtained by hand and handed over with `--archive`. Run without
 it, the fetcher says so and stops rather than looking for a way round the login.
 
-- **Builds:** the photograph, its field-of-view mask, and the disc and cup contours, at `native/`
-  plus each requested size. Both structures come out of the one published mask — the cup is the
+- **Builds:** the photograph, its field-of-view mask, and the disc and cup contours, in `crop/`. Both structures come out of the one published mask — the cup is the
   inner value and the disc is the cup plus the ring around it.
 - **Not built:** everything in the bundle that is not ORIGA. It also carries
   [G1020](g1020.md) and [REFUGE](refuge.md), each of which has its own page.

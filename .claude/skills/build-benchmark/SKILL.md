@@ -101,8 +101,8 @@ Three rules follow:
 - **A loader is given a dataset, not a split.** It reads the whole store and hands `subset` and
   `split` along with each photograph.
 - **Batch at the model's grid, score at the annotation's own frame.** The loader yields photographs
-  at the size the model asked for — which is what the store's `512/` and `1024/` directories are
-  for — and ground truth that needs native resolution is read by the scorer, not stacked into the
+  at the size the model asked for, resized from the crop as they are read by
+  `resample.read_photograph` — and ground truth that needs full resolution is read by the scorer, not stacked into the
   batch.
 - **Ground truth that does not stack travels as a list.** `loaders.base.collate` stacks the images
   and leaves everything else alone: five readers' contours are not a tensor.
@@ -195,7 +195,7 @@ implementation detail.
   `artery`, `vein` and `vessels` for the artery/vein one. The union is **written as well as
   derived**, because a vessel width or a fractal dimension reads it, and recomputing it in every
   consumer is how two of them come to disagree about what a vessel is.
-- **Every mask is a 1-bit PNG in the native frame** — `crop_side × crop_side`, the square the store
+- **Every mask is a 1-bit PNG in the crop frame** — `crop_side × crop_side`, the square the store
   built, which is where the annotator drew. Not the model's grid: a consumer measuring a calibre in
   pixels needs the frame the resolution in `manifest.csv` belongs to. A mask whose side is not
   `crop_side` means the store has been rebuilt since it was drawn, and is an error rather than

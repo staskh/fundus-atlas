@@ -58,7 +58,7 @@ not say who drew the contours.
 ### 2.4 How to fetch
 
 ```bash
-uv run python -m datasets.hrf                      # downloads and builds 512 and 1024
+uv run python -m datasets.hrf                      # downloads and builds the crop
 uv run python -m datasets.fetch_um_resolution --dataset hrf
 ```
 

@@ -1,5 +1,5 @@
-# ABOUTME: Where each photograph's optic disc and cup sit, and how large they are, in the native
-# ABOUTME: crop — one CSV row per image key, committed with a sidecar naming what measured it.
+# ABOUTME: Where each photograph's optic disc and cup sit, and how large they are, in the crop —
+# ABOUTME: one CSV row per image key, committed with a sidecar naming what measured it.
 
 import argparse
 import csv
@@ -10,7 +10,6 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 from scipy import ndimage
 
 from .fetch_um_resolution import outlined
@@ -22,8 +21,8 @@ ESTIMATED = Path(__file__).resolve().parents[2] / "results" / "disc_estimation"
 #: The disc-and-cup segmenter this uses, by the slug of its catalogue page.
 MODEL = "segformer-disc-cup"
 
-#: The frame every coordinate is in: the store's `native/` square, `crop_side` pixels across.
-FRAME = "native crop"
+#: The frame every coordinate is in: the store's `crop/` square, `crop_side` pixels across.
+FRAME = "crop"
 
 #: What the CSV holds, in order.
 COLUMNS = ("key", "outcome", "disc_cx", "disc_cy", "disc_r", "cup_cx", "cup_cy", "cup_r", "note")
@@ -39,15 +38,12 @@ def estimate(store: Path, adapter: object) -> list[dict[str, str]]:
 
 
 def _estimated(store: Path, row: dict[str, str], adapter: object) -> dict[str, str]:
-    """One photograph's disc and cup, read from its native image resized to the model's grid."""
+    """One photograph's disc and cup, read from its crop resized to the model's grid."""
     key = row["key"]
     record = dict.fromkeys(COLUMNS, "") | {"key": key}
-    path = store / "native" / "images" / f"{key}.png"
-    if not path.exists():
+    if not (paths.layer(store, "images") / f"{key}.png").exists():
         return record | {"outcome": NO_IMAGE}
-    with Image.open(path) as image:
-        pixels = np.asarray(image.convert("RGB"))
-    prepared = adapter.prepare(resample.photograph(pixels, adapter.grid))[None]
+    prepared = adapter.prepare(resample.read_photograph(store, key, adapter.grid))[None]
     found = outlined(adapter, prepared, int(row["crop_side"]), key)
     if found is None:
         return record | {"outcome": "failed"}
@@ -157,7 +153,7 @@ def _catalogued() -> object:
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Estimate each photograph's optic disc and cup in the native crop."
+        description="Estimate each photograph's optic disc and cup in the crop."
     )
     parser.add_argument("--dataset", help="one dataset, or omit for every built store")
     parser.add_argument("--data-root", help="override the store root")

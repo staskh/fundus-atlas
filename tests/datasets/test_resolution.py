@@ -1,4 +1,4 @@
-# ABOUTME: Tests for the native resolution a manifest records: a published value, one derived from a
+# ABOUTME: Tests for the full resolution a manifest records: a published value, one derived from a
 # ABOUTME: stated field angle per image, the honest absence of one, and an inferred camera scale.
 
 import csv
@@ -51,8 +51,8 @@ def a_row(key, **overrides):
     record = {
         "key": key,
         "subset": "bosch",
-        "native_width": "1920",
-        "native_height": "1440",
+        "raw_width": "1920",
+        "raw_height": "1440",
         "crop_side": "1400",
         "um_per_px": "",
         "resolution_source": "unknown",
@@ -73,8 +73,8 @@ def an_inference(tmp_path, groups, builder_version=6):
 def a_group(**overrides):
     group = {
         "subset": "bosch",
-        "native_width": 1920,
-        "native_height": 1440,
+        "raw_width": 1920,
+        "raw_height": 1440,
         "accepted": True,
         "um_per_px": 8.61,
         "note": "",
@@ -160,7 +160,7 @@ def test_a_published_scale_is_never_overwritten_by_an_inferred_one(tmp_path) -> 
 
 
 def test_a_photograph_of_another_camera_is_left_alone(tmp_path) -> None:
-    store = a_store(tmp_path, [a_row("a"), a_row("b", subset="forus", native_width="2048")])
+    store = a_store(tmp_path, [a_row("a"), a_row("b", subset="forus", raw_width="2048")])
 
     resolution.stamp(store, "chaksu", an_inference(tmp_path, [a_group()]))
 
@@ -203,12 +203,12 @@ def test_a_dataset_with_no_inference_is_left_as_it_is(tmp_path) -> None:
 
 
 def test_a_photograph_a_few_pixels_off_its_camera_is_still_that_camera(tmp_path) -> None:
-    """Field-of-view detection moves the native size by a few pixels on one device.
+    """Field-of-view detection moves the raw size by a few pixels on one device.
 
     The group that was measured tolerates 10%; the stamp has to tolerate the same, or the rows
     that made the measurement possible are the ones left without it.
     """
-    rows = [a_row("a"), a_row("b", native_width="1907", native_height="1433")]
+    rows = [a_row("a"), a_row("b", raw_width="1907", raw_height="1433")]
     store = a_store(tmp_path, rows)
 
     stamped = resolution.stamp(store, "chaksu", an_inference(tmp_path, [a_group()]))
@@ -218,8 +218,8 @@ def test_a_photograph_a_few_pixels_off_its_camera_is_still_that_camera(tmp_path)
 
 
 def test_a_photograph_between_two_cameras_takes_the_nearer_one(tmp_path) -> None:
-    store = a_store(tmp_path, [a_row("a", native_width="2100", native_height="1500")])
-    two = [a_group(), a_group(native_width=2200, native_height=1560, um_per_px=7.5)]
+    store = a_store(tmp_path, [a_row("a", raw_width="2100", raw_height="1500")])
+    two = [a_group(), a_group(raw_width=2200, raw_height=1560, um_per_px=7.5)]
 
     resolution.stamp(store, "chaksu", an_inference(tmp_path, two))
 

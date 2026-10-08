@@ -30,14 +30,13 @@ Reference code: [HudenJear/BasiQA](https://github.com/HudenJear/BasiQA).
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.fqs                          # downloads and builds 512 and 1024
-uv run python -m datasets.fqs --sizes 512,720,1024     # any sizes a model needs
+uv run python -m datasets.fqs                          # downloads and builds the crop
 ```
 
 - **Downloads:** `FIQSDataset.zip`, 9.7 GB, from figshare. No account, no form. It is read where it
   lies rather than unpacked, since more than a fifth of it is the copy we do not build.
-- **Builds:** the photograph and its field-of-view mask, from `full_size_images/`, at `native/`
-  plus each requested size. This dataset has no vessel, artery/vein or disc annotations.
+- **Builds:** the photograph and its field-of-view mask, from `full_size_images/`, in `crop/`.
+  This dataset has no vessel, artery/vein or disc annotations.
 - **Not built:** `images/` — the same 2,246 photographs resized to 1024, which the store builds for
   itself from the originals. One original is unreadable (section 7), so the store holds 2,245
   photographs and `build.json` names the missing one.

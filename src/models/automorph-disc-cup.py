@@ -10,7 +10,7 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The store grid this reads, and the grid the networks see. AutoMorph reaches it by resizing its
+#: The grid the store is read at, and the grid the networks see. AutoMorph reaches it by resizing its
 #: own 912-diameter preprocessed image; the store's photographs are already cropped to the field of
 #: view and square, which is the same thing arrived at by a different route.
 GRID = 512

@@ -18,7 +18,7 @@ This command estimates the camera, not the person:
 um_per_px = 1800 / median(disc_diameter_px)
 ```
 
-taken over photographs that share a subset and a native size (section 4), measured by one catalogued
+taken over photographs that share a subset and a raw size (section 4), measured by one catalogued
 disc model, and kept only when those discs agree closely enough to be one camera.
 
 The `fetch-dataset` skill, section 8, is what decides *whether* to run this. This skill is the
@@ -83,17 +83,17 @@ fingerprint still matches is left alone; a partial or stale JSON is finished, no
 
 **One scale per group**, never one scale per dataset and never one scale per photograph.
 
-A group is defined by **subset name and native width/height, with a 10% tolerance.** Photographs
+A group is defined by **subset name and raw width/height, with a 10% tolerance.** Photographs
 belong together when they share:
 
 - the dataset slug,
 - the store's `subset` (a camera, a site, a challenge release; `main` when there is only one),
-- and a native size whose `native_width` **and** `native_height` each lie within **10%** of that
+- and a raw size whose `raw_width` **and** `raw_height` each lie within **10%** of that
   group's representative size — the median width and median height of the photographs already in
   it. A photograph that misses the 10% band on either side starts a new group.
 
 Exact equality is not required: field-of-view detection and slight crop differences move the
-native dimensions by a few pixels on the same camera. More than 10% on either side is a
+raw dimensions by a few pixels on the same camera. More than 10% on either side is a
 different resolution, and mixing those is how a "camera scale" becomes an average of two
 magnifications.
 
@@ -101,7 +101,7 @@ Chákṣu's three cameras are three groups because they are three subsets. A 30�
 subset and a 50° macula-centred subset are not one group even at the same pixel size: they are
 different subsets, and centering changes how large the disc is in pixels.
 
-Record the representative `native_width` × `native_height` on the JSON row. A group with fewer
+Record the representative `raw_width` × `raw_height` on the JSON row. A group with fewer
 photographs than the sample size uses all of them and records that `n`.
 
 ## 5. How a group is measured
@@ -112,7 +112,7 @@ Defaults of record. Changing one is a change to this skill, and it invalidates e
 | --- | --- | --- |
 | Sample size | **32** photographs, drawn with a recorded seed | enough for a median to settle; small enough to re-run |
 | Disc model | [lunetv2-odc](../../../docs/models/lunetv2-odc.md) | the disc segmenter the biomarker pipelines already use for zones |
-| Disc diameter | equivalent diameter from area (twice the radius of a circle of the same area), measured in the **native** frame | the disc is a vertical oval; horizontal width alone is the wrong ruler |
+| Disc diameter | equivalent diameter from area (twice the radius of a circle of the same area), measured in the **crop** frame | the disc is a vertical oval; horizontal width alone is the wrong ruler |
 | Typical disc | **1,800 µm** | a round population width (~1.7–1.8 mm horizontal, 1.8–1.9 mm vertical) |
 | Spread gate | median absolute deviation **≤ 10% of the median** | on one camera, disc diameter already varies about 10%; more than that is mixed devices, mixed aiming, or a model that did not find the disc |
 
@@ -125,7 +125,7 @@ Procedure, in order:
    portable camera was once refused on a draw where the model measured 21 of 32 discs and their
    spread read 11.4%, while the same discs pooled sat at 5.5%. A short sample makes the gate judge
    the draw rather than the camera.
-3. Measure each accepted disc's equivalent diameter in native pixels.
+3. Measure each accepted disc's equivalent diameter in crop pixels.
 4. Compute the median and the median absolute deviation.
 5. If MAD / median ≤ 0.10 **and** at least 16 discs were measured, accept
    `um_per_px = 1800 / median`. Write it.
@@ -153,8 +153,8 @@ failed the gate into a dataset-level number.
   "groups": [
     {
       "subset": "bosch",
-      "native_width": 1920,
-      "native_height": 1440,
+      "raw_width": 1920,
+      "raw_height": 1440,
       "n_drawn": 32,
       "n_measured": 32,
       "keys": ["…"],

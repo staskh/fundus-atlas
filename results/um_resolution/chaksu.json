@@ -45,8 +45,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1440,
-      "native_width": 1920,
+      "raw_height": 1440,
+      "raw_width": 1920,
       "subset": "bosch",
       "um_per_px": 8.4507
     },
@@ -92,8 +92,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1536,
-      "native_width": 2048,
+      "raw_height": 1536,
+      "raw_width": 2048,
       "subset": "forus",
       "um_per_px": 6.0016
     },
@@ -139,8 +139,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 3264,
-      "native_width": 2448,
+      "raw_height": 3264,
+      "raw_width": 2448,
       "subset": "remidio",
       "um_per_px": 4.5984
     },
@@ -155,8 +155,8 @@
       "n_drawn": 1,
       "n_measured": 1,
       "n_replaced": 0,
-      "native_height": 2166,
-      "native_width": 1969,
+      "raw_height": 2166,
+      "raw_width": 1969,
       "note": "too-few: fewer than 16 discs were measured, which is too few for a median",
       "subset": "remidio"
     }

@@ -73,7 +73,7 @@ clDice is `benchmarks/metrics/av.py`, after Shit et al., CVPR 2021.
 
 The same two rules as the disc benchmark, for the same reasons:
 
-- **Everything is measured at native resolution**, in the store's `native/` frame. A model working
+- **Everything is measured at full resolution**, in the store's `crop/` frame. A model working
   at 512 or 1024 has its output carried back there first — probabilities resampled and thresholded
   **after** arrival, never a binary mask resampled — and the path taken is recorded per photograph.
 - **The predicted masks are kept** under `.atlas_runs/av/<model>/<dataset>/`, as three files per
@@ -83,7 +83,7 @@ The same two rules as the disc benchmark, for the same reasons:
 
 ## 4. What the ground truth is, and what it is not
 
-The store holds `artery`, `vein` and `vessels` at native resolution, per the `fetch-dataset` skill's
+The store holds `artery`, `vein` and `vessels` at full resolution, per the `fetch-dataset` skill's
 section 12. Three things follow that this benchmark must not get wrong:
 
 - **A crossing is in both masks.** Where an artery passes over a vein, the pixel is annotated as
@@ -128,5 +128,5 @@ these kept masks as its input.
   masks: no model, no store, no file. That is what lets the same functions be tested against shapes
   whose answer is arithmetic.
 - `src/benchmarks/loaders/av.py` — `ArteryVeinLoader`, yielding the photograph and the three masks
-  in the native frame.
+  in the crop frame.
 - `src/models/<slug>.py` — one adapter per catalogued model, as always.

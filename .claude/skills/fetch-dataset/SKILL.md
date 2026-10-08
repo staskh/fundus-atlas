@@ -1,13 +1,13 @@
 ---
 name: fetch-dataset
-description: Build a fetcher that downloads a catalogued fundus dataset, normalises it into the standard store at several rescalings, writes the manifest, and records how to fetch it in the dataset's own page. A dataset with no published microns-per-pixel scale is unfinished until `fetch_um_resolution` has been run. Use when adding or changing anything under src/datasets/.
+description: Build a fetcher that downloads a catalogued fundus dataset, normalises it into the standard store — one full-resolution field-of-view crop — writes the manifest, and records how to fetch it in the dataset's own page. A dataset with no published microns-per-pixel scale is unfinished until `fetch_um_resolution` has been run. Use when adding or changing anything under src/datasets/.
 ---
 
 # Fetching a dataset
 
 A **fetcher** turns one published dataset into one directory that every other tool in this
 repository can read without knowing which dataset it came from. It downloads, verifies, crops to the
-field of view, resamples to each requested size, writes a manifest, and records the provenance of
+field of view, writes a manifest, and records the provenance of
 what it built.
 
 The catalogue in `docs/datasets/` says what a dataset *is*. A fetcher makes it *usable*, and the two
@@ -17,7 +17,7 @@ must agree: every fetcher is accompanied by an update to its dataset page (secti
 layouts — RAR archives, per-split folders, spreadsheets of labels, masks in three palettes, images
 from 565 to 4288 pixels across. Any comparison that reads them directly re-implements those
 forty-three layouts in every consumer. One store means a consumer reads `manifest.csv`, asks for a
-size, and gets pixels.
+photograph at a size, and gets pixels resized from the crop as they are read.
 
 ## 1. What you produce
 
@@ -47,22 +47,17 @@ is a cache, rebuildable from the sources named in `build.json`.
 
 ```
 <root>/<slug>/
-  build.json            what this build is: sources, sizes, completeness — section 4
+  build.json            what this build is: sources, completeness — section 4
   manifest.csv          one row per image — section 5
   labels.csv            per-reader grades, only where a dataset publishes more than one — section 5.1
   raw/                  the untouched download — deleted after the build unless --keep-raw
-  native/               field-of-view crop at full resolution — and the only place annotations live
+  crop/                 field-of-view crop at full resolution — the only frame the store keeps
     images/<key>.png
     artery/<key>.png    only the maps this dataset actually publishes — section 12
     vein/<key>.png
     vessels/<key>.png
     fov/<key>.png       the transported field-of-view mask — section 9
     contours/<key>.csv  optic disc and cup as polygons, not rasters — section 10
-  512/                  the photograph and its field, recomputed — one directory per size
-    images/<key>.png
-    fov/<key>.png
-  1024/
-    ...
 ```
 
 Rules that make the store uniform:
@@ -71,23 +66,18 @@ Rules that make the store uniform:
   an enumeration index — a key must survive a partial rebuild and mean the same thing next year.
   Lowercase, `[a-z0-9_]`, with the published split in it where the dataset has one:
   `training_21`, `test_04`, `image13`.
-- **The photograph and its field of view are built at every requested size; an annotation is built
-  at native and nowhere else.** The grid belongs to the *model* being evaluated — the atlas runs
-  models with grids from 256 to 1472 — so the photograph is resized because that is what a model is
-  handed. The annotation is not, because **every benchmark scores in the frame the annotator drew
-  in**: the disc benchmark carries a model's output back to native before measuring anything, and
-  the artery/vein one does the same. A resized ground truth is then a file nothing reads and a
-  second copy that can fall out of step with the first. Contours are the exception that proves it —
-  they are cheap, exact under scaling, and useful for drawing a figure at a model's own grid, so
-  they are still written per size (section 10).
-- **`native/` is the derivation reference, and must be sufficient to build any future size on its
-  own** — no network, no archive. Everything else in the store is a function of it.
-- **`native/` is always built, and is not optional.** It is the reference every resampled size is
-  derived from, and the only copy whose pixel count matches what the authors published. There is no
-  flag to skip it: a store without it cannot answer what a measurement would have been at full
-  resolution, and rebuilding it means downloading the dataset again. It costs disk — IDRiD's 516
-  images at 4288×2848 are the worst case here — and that is the right trade against a download that
-  may need a form, an account or a signed agreement.
+- **The store keeps one frame, `crop/`, and no resized copy of anything.** The grid belongs to the
+  *model* being evaluated — the atlas runs models with grids from 256 to 1472 — so a photograph is
+  resized to it **when it is read**, by `resample.read_photograph`, which is the one resize rule
+  (section 12). An annotation is never resized, because **every benchmark scores in the frame the
+  annotator drew in**: the disc benchmark carries a model's output back to the crop before measuring
+  anything, and the artery/vein one does the same.
+- **`crop/` is sufficient for any size, on its own** — no network, no archive. A grid nothing has
+  used before needs no rebuild (section 11).
+- **`crop/` is the only copy whose pixel count matches what the authors published**, and rebuilding
+  it means downloading the dataset again. It costs disk — IDRiD's 516 images at 4288×2848 are the
+  worst case here — and that is the right trade against a download that may need a form, an account
+  or a signed agreement.
 
 - **`raw/` is deleted after a successful build**, unless `--keep-raw` is passed. It is the archive as
   downloaded, reconstructible from the URL and checksum in `build.json`, and it is the largest thing
@@ -103,11 +93,10 @@ options, with these meanings, so that a person who has used one fetcher has used
 
 | Option | Meaning |
 | --- | --- |
-| `--sizes 512,1024` | The sizes that should **exist** besides `native/`, not the sizes to rebuild. Default `512,1024`. Any positive integers; the atlas's models span 256 to 1472, so intermediate sizes are ordinary. On an existing store this adds the missing ones from `native/` without downloading anything — section 11 |
 | `--archive PATH` | Use an archive already on disk instead of downloading. **Required for every dataset whose Down column is not ✅** |
 | `--raw PATH` | Use an already-extracted tree, skipping download and extraction |
 | `--data-root PATH` | Override the store root. The default is `.atlas_data/` in the repository, git-ignored; `FUNDUS_ATLAS_DATA` moves every store at once |
-| `--keep-raw` | Keep the downloaded archive in `raw/` after building. **Default is to delete it** — it is reconstructible from `build.json`, and it is the bulk of the store. `native/` is never affected by this flag and is always kept |
+| `--keep-raw` | Keep the downloaded archive in `raw/` after building. **Default is to delete it** — it is reconstructible from `build.json`, and it is the bulk of the store. `crop/` is never affected by this flag and is always kept |
 | `--force` | Rebuild even if the store looks complete |
 | `--limit N` | Build only the first N images — for development, and it must mark the build as partial in `build.json` |
 | `--jobs N` | How many images to build at once. Default is one per core; `1` builds in this process, which is what to use when a traceback matters more than the wall clock. Building an image is independent of every other image, so the store is identical either way — verified by building the same forty photographs on one core and on eight and comparing every byte |
@@ -120,9 +109,7 @@ And these behaviours:
   so the rows keep the order the fetcher discovered them in and the store does not depend on how
   many cores built it.
 - **Idempotent.** Running twice does nothing the second time. An existing archive is not
-  re-downloaded, an existing store is not rebuilt without `--force`, and a size that already exists
-  is not recomputed. Asking for a size that does not exist yet builds only that size, from
-  `native/` — section 11.
+  re-downloaded, and an existing store is not rebuilt without `--force`.
 - **Resumable.** A build interrupted halfway continues rather than restarting: an image whose
   outputs all exist and whose manifest row is present is skipped.
 - **Verifying.** A download is checked against a recorded sha256 before extraction. A mismatch is an
@@ -154,7 +141,6 @@ description:
 {
   "built_at": "2026-09-11T14:03:22Z",
   "builder_version": 1,
-  "sizes": [512, 1024],
   "images": 45,
   "partial": false,
   "sources": [
@@ -162,7 +148,7 @@ description:
     {"layer": "hrf-av", "url": "https://github.com/rubenhx/av-segmentation", "sha256": "…"}
   ],
   "missing_layers": [],
-  "warnings": ["512 exceeds the crop for 3 images; those rows are upsampled"]
+  "warnings": ["not built: an ultra-wide-field split"]
 }
 ```
 
@@ -197,13 +183,13 @@ consumer can then read any store without special-casing. Missing values are empt
 | `key` | str | Stable unique id, as in section 2 |
 | `subset` | str | The dataset's own well-defined subcollection: a camera, a site, a challenge release. `main` where a dataset has only one |
 | `split` | str | `train`, `val`, `test`, or `unspecified` — **only as the authors published it**, never invented |
-| `native_width` | int | Source image width in pixels |
-| `native_height` | int | Source image height |
-| `fov_cx`, `fov_cy`, `fov_r` | float | Field-of-view circle in native pixels: centre and radius |
+| `raw_width` | int | Width of the photograph as published, in pixels |
+| `raw_height` | int | Height of the photograph as published |
+| `fov_cx`, `fov_cy`, `fov_r` | float | Field-of-view circle in the published photograph's pixels: centre and radius |
 | `fov_source` | str | `mask` (the dataset ships one), `detected`, or `assumed_full_frame` |
-| `crop_x0`, `crop_y0`, `crop_side` | int | The square crop, in native pixels. `crop_x0`/`crop_y0` may be **negative** and the square may extend past the image: the source is pasted into a square canvas rather than sliced from it — section 9 |
+| `crop_x0`, `crop_y0`, `crop_side` | int | The square crop, in the published photograph's pixels. `crop_x0`/`crop_y0` may be **negative** and the square may extend past the image: the source is pasted into a square canvas rather than sliced from it — section 9 |
 | `pad_fraction` | float | Fraction of the square canvas with no source behind it. `0.0` when the crop fitted inside the image; a large value means much of the frame is invented |
-| `um_per_px` | float | Native resolution in **microns per pixel**, empty when unknown — section 8 |
+| `um_per_px` | float | Full resolution in **microns per pixel**, empty when unknown — section 8 |
 | `resolution_source` | str | `published`, `field_angle`, `disc_anchored`, `inherited`, or `unknown`, in that order of preference — section 8. A `disc_anchored` value is **stamped** from `results/um_resolution/`, never computed during a build |
 | `maps` | str | Semicolon-separated list of what this row has: `vessels`, `av`, `fov`, `disc`, `cup` — the last two meaning contours in `contours/<key>.csv`, not a raster. Example: `vessels;fov;disc;cup` |
 | `readers` | str | Semicolon-separated ids of every annotator who contributed anything to this image — a contour, a grade, or both: `expert1;expert2`. Empty where the dataset publishes one opinion and does not name who held it |
@@ -493,8 +479,7 @@ the provenance tables (`### 2.3 How to fetch` where the page has 2.1 and 2.2). I
 - **The command**, including the human step where there is one:
 
   ```bash
-  uv run python -m datasets.hrf                      # downloads and builds 512 and 1024
-  uv run python -m datasets.hrf --sizes 512,720,1024
+  uv run python -m datasets.hrf                      # downloads and builds the crop
   uv run python -m datasets.hrf --archive ~/all.zip  # an archive fetched by hand
   ```
 
@@ -550,7 +535,7 @@ every row, so a consumer never has to look it up and can always see where it cam
 **When there is no published scale, the fetcher is not finished until `fetch_um_resolution` has
 run.** That is a separate command, not a step inside `python -m datasets.<slug>`: the store build
 must not load a disc model, and the inferred figure must not be silently written into
-`manifest.csv`. The command samples photographs that share a subset and a native size — 10%
+`manifest.csv`. The command samples photographs that share a subset and a raw size — 10%
 tolerance on width and height, per the `fetch-um-resolution` skill, section 4 — measures the
 disc with [lunetv2-odc](../../../docs/models/lunetv2-odc.md), and writes one camera-level
 `um_per_px` to `results/um_resolution/` when the discs agree closely enough. Re-run it whenever
@@ -561,7 +546,7 @@ The contract — sample size, the 1.8 mm typical disc, the spread gate, the JSON
 biomarker may do with the number — is the `fetch-um-resolution` skill. Load that skill before
 adding or changing the command, its results, or a consumer of them.
 
-**From native to any size.** One pixel at a built size spans `crop_side / size` native pixels, so:
+**From the crop to any size.** One pixel at a model's size spans `crop_side / size` crop pixels, so:
 
 ```
 um_per_px_at(size) = um_per_px * crop_side / size
@@ -569,8 +554,8 @@ um_per_px_at(size) = um_per_px * crop_side / size
 
 `crop_side` varies per image, so this is per row, not per dataset — which is why the manifest
 records the crop. `utils/resolution.py` exposes exactly this as a function; no consumer recomputes
-it. An inferred camera scale from `results/um_resolution/` is a native `um_per_px` and scales the
-same way.
+it. An inferred camera scale from `results/um_resolution/` is a full-resolution `um_per_px` and scales
+the same way.
 
 ## 9. Field of view: a true crop and paste, not a redrawn circle
 
@@ -617,13 +602,13 @@ circle from the stored centre and radius.
 ## 10. Optic disc and cup: contours, not rasters
 
 Disc and cup are stored as **polygon nodes in a CSV per image**, one file holding every structure and
-every reader, present at every size alongside the other maps.
+every reader, in the crop alongside the other maps.
 
 ```
-<size>/contours/<key>.csv:   structure,reader,node,x,y
-                             disc,expert1,0,412,388
-                             disc,expert1,1,418,376
-                             cup,expert2,0,455,402
+crop/contours/<key>.csv:     structure,reader,node,x,y
+                             disc,expert1,0,412.5,388.25
+                             disc,expert1,1,418.0,376.75
+                             cup,expert2,0,455.0,402.5
 ```
 
 | Column | Meaning |
@@ -631,13 +616,13 @@ every reader, present at every size alongside the other maps.
 | `structure` | `disc` or `cup` |
 | `reader` | The annotator's id where a dataset keeps them separate — `expert1`, `expert2` — or `consensus` |
 | `node` | Node index within that structure and reader, in traced order |
-| `x`, `y` | Integer pixel coordinates **in this directory's frame** |
+| `x`, `y` | Float pixel coordinates **in the crop frame** |
 
 Three reasons this beats a raster:
 
 - **Multi-reader annotation is the normal case here, not the exception.** RIGA publishes six
-  ophthalmologists per image and Chákṣu five; as rasters that is six PNGs per structure per image per
-  size, and as polygons it is a few dozen rows. The catalogue's most valuable disc/cup property —
+  ophthalmologists per image and Chákṣu five; as rasters that is six PNGs per structure per image, and
+  as polygons it is a few dozen rows. The catalogue's most valuable disc/cup property —
   that human disagreement can be measured — stops being expensive to store.
 - **A polygon is what the expert actually drew.** Most of these datasets publish coordinates, and
   rasterising them to store them, then re-tracing them to use them, loses precision in both
@@ -646,91 +631,64 @@ Three reasons this beats a raster:
   predicts on, an evaluation is arithmetic rather than a coordinate transform, which is what keeps
   scoring hundreds of images cheap.
 
-**A contour is traced or transformed exactly once, into the native frame. Every size is then scaled
-from that.**
+**A contour is traced or transformed exactly once, into the crop frame.**
 
-- **Native carries float coordinates.** `native/contours/<key>.csv` is the annotation of record and
-  stores `x` and `y` as floats, because it is the thing every other size is computed from and
-  rounding it would round every size with it.
-- **Getting into the native frame** depends on what the dataset published:
+- **The crop carries float coordinates.** `crop/contours/<key>.csv` is the annotation of record and
+  stores `x` and `y` as floats; rounding it would round everything read from it.
+- **Getting into the crop frame** depends on what the dataset published:
   - **Coordinates** (PAPILA, GRAPE, RIGA): put them through the same crop and paste as the
-    photograph — which for a coordinate is a **translation and nothing else**, because the native
+    photograph — which for a coordinate is a **translation and nothing else**, because the crop
     frame *is* the crop square at full resolution:
 
     ```
-    x_native = x_raw - crop_x0
-    y_native = y_raw - crop_y0
+    x_crop = x_raw - crop_x0
+    y_crop = y_raw - crop_y0
     ```
 
     Exact, and reversible. Nodes may come out negative or beyond `crop_side`; see the last rule in
     this section.
-  - **Rasters** (REFUGE, G1020, HRF-Seg+): trace the native-resolution mask once — largest external
+  - **Rasters** (REFUGE, G1020, HRF-Seg+): trace the full-resolution mask once — largest external
     component, Douglas-Peucker at **0.001 of the contour's own perimeter**, which gives about 45
     nodes for an optic disc, the range a hand-drawn outline occupies. Record the tracing's fidelity
     (an IoU against the mask it came from) in the row's `notes` rather than assuming it was faithful.
-- **Getting from native to a size is a scale, and only a scale.** The native canvas is `crop_side`
-  pixels across and the sized one is `size`, so every node is `native × size / crop_side`, rounded to
-  integers. The crop is already in the native coordinates and is not applied again; `native_width`
-  and `native_height` play no part. One multiplication, no re-tracing, no second code path. On a
-  2576-pixel photograph the rounding costs at most half a pixel and far less once resampled — orders
-  of magnitude below the distance between two experts on the same structure.
-
-Scaling rather than re-tracing at each size is deliberate, and it is what makes section 11 possible:
-a size added a year later, from `native/` alone, is **bit-identical** to the same size built on the
-first run. Re-tracing would need the original raster — which is in `raw/`, which is deleted by
-default — so the two routes would silently produce different polygons.
+- **A consumer wanting a contour at a model's size scales it**, and only scales it: every node is
+  `x_crop × size / crop_side`. The crop is already applied and is not applied again; `raw_width` and
+  `raw_height` play no part. Nothing is re-traced, so nothing depends on `raw/`, which is deleted by
+  default.
 
 **Coordinates that fall outside the frame are kept, not clipped.** A disc near the edge can have nodes
 in the padding; clipping them silently changes the shape. A consumer that needs a clipped polygon can
 clip it.
 
-## 11. Adding a size to an existing store
+## 11. Sizes are made when a photograph is read
 
-Sizes are not decided once. A new model enters the catalogue with a grid nothing was built at, a
+Sizes are not decided once. A new model enters the catalogue with a grid nothing has used, a
 comparison needs an intermediate size to separate resampling effects from model effects, or a run at
 2048 is wanted to check what the downsizing cost. **None of that may require the download again** —
 several of these datasets are behind a form, an account or a signed agreement, and some of those
-routes will not exist in five years.
+routes will not exist in five years — **and none of it requires touching the store.**
 
-```bash
-uv run python -m datasets.hrf --sizes 512,1024        # first build
-uv run python -m datasets.hrf --sizes 512,1024,2048   # later: builds 2048 only, from native/
-```
-
-The rule that makes this work:
-
-- **`native/` must be sufficient to build any future size**, on its own, with no network and no
-  archive. That is the reason it is never optional (section 2) and the reason a contour is traced
-  once into the native frame and scaled thereafter (section 10). A fetcher that needs `raw/` to add a
-  size has a bug.
-- **Missing sizes are built; existing sizes are left alone.** `--sizes` names the sizes that should
-  exist, not the sizes to rebuild. A size already present and complete is skipped, so the command is
-  safe to repeat and cheap to extend.
-- **No download, no archive, no checksum check** on this path — there is nothing to verify, and a
-  fetcher must not reach for the network when `native/` can answer.
-- **`build.json` is updated, not replaced:** `sizes` gains the new entry, `built_at` is refreshed,
-  and `sources` and `partial` keep their existing values, because nothing about where the data came
-  from has changed.
-- **A `builder_version` mismatch blocks it.** When the crop, paste or resample rules have changed
-  since `native/` was built, deriving a new size from it would mix two conventions in one store.
-  Refuse, and say that a `--force` rebuild from the archive is needed.
-- **`--force` is the other path entirely**: it re-downloads and rebuilds everything, including
-  `native/`. Use it when the rules changed or the store is suspect — not to add a size.
-
-Removing a size is a directory deletion plus an edit to `build.json`; no fetcher option does it,
-because nothing is at risk of being got wrong.
+- **The store holds no size.** A reader asks `resample.read_photograph(store, key, size)` for the
+  photograph at the grid it needs, and the crop is resized there and then. There is no `--sizes`
+  option and no sized directory to keep in step with the crop.
+- **One resize rule, so a size is the same whoever asks.** Every reader goes through
+  `utils/resample.py`; a reader that opens `crop/images/` and resizes it its own way is a second
+  rule, and two rules are how two benchmarks come to disagree about what 512 means.
+- **`--force` re-downloads and rebuilds the crop.** Use it when the crop, paste or field rules
+  changed, or the store is suspect.
 
 ## 12. Resampling
 
 Resampling is shared by every fetcher and therefore lives in `utils`, not in fetchers. Square frames
-throughout, because every model in `docs/MODELS.md` resamples to a square grid, and doing it once
-here means a consumer never resamples twice.
+throughout, because every model in `docs/MODELS.md` resamples to a square grid. Nothing is resampled
+during a build: the crop is written at full resolution, and a reader resizes it when it reads it
+(section 11).
 
-- **Images** with area-averaging when downsizing and Lanczos when upsizing; **masks** with
+- **Images** with Lanczos, up or down; **masks** with
   **nearest-neighbour only** — a mask interpolated with anything else invents classes that were never
   annotated.
 - **An artery/vein map is stored as separate binary masks, never as the colours it arrived in.**
-  Three files at native: `artery`, `vein`, and `vessels` for their union. Every dataset's own palette
+  Three files in the crop: `artery`, `vein`, and `vessels` for their union. Every dataset's own palette
   is **declared** by its fetcher and translated once, before the crop:
   `palettes={"av": av.Palette({(255, 0, 0): "artery", ...})}` on `build.run`. The reasons: a coloured
   map read as a greyscale mask becomes grey levels no consumer can tell from a faint vessel; no two
@@ -749,9 +707,10 @@ here means a consumer never resamples twice.
   is all there is, the page says so: a model scored against both the artery/vein maps and a vessel
   mask derived from them has been scored twice against one annotation, and the second score is not
   corroboration.
-- **Never upsample silently.** When a requested size exceeds the crop, build it, but record a
-  `notes` entry on the row and a warning in `build.json`: a Dice measured on an upsampled image is
-  not comparable with one measured on a downsampled image, as `docs/datasets/drive.md` explains.
+- **Never upsample silently.** A model whose grid exceeds a photograph's crop is handed an upsampled
+  photograph; a benchmark's size floor (`build-benchmark`) is what keeps that out of a score, because
+  a Dice measured on an upsampled image is not comparable with one measured on a downsampled image,
+  as `docs/datasets/drive.md` explains.
 
 ## 13. Rules that apply to every fetcher
 

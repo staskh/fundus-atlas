@@ -45,8 +45,8 @@
       "n_drawn": 45,
       "n_measured": 32,
       "n_replaced": 13,
-      "native_height": 1920,
-      "native_width": 2560,
+      "raw_height": 1920,
+      "raw_width": 2560,
       "note": "spread: the discs disagree by 11% of the median, more than 10%",
       "subset": "local2"
     },
@@ -92,8 +92,8 @@
       "n_drawn": 42,
       "n_measured": 32,
       "n_replaced": 10,
-      "native_height": 1920,
-      "native_width": 2560,
+      "raw_height": 1920,
+      "raw_width": 2560,
       "subset": "local1",
       "um_per_px": 7.2473
     },
@@ -103,8 +103,8 @@
       "n_drawn": 1,
       "n_measured": 0,
       "n_replaced": 1,
-      "native_height": 1705,
-      "native_width": 1705,
+      "raw_height": 1705,
+      "raw_width": 1705,
       "note": "model-failed: the model found no disc on any photograph drawn",
       "subset": "local1"
     },
@@ -150,8 +150,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1534,
-      "native_width": 1534,
+      "raw_height": 1534,
+      "raw_width": 1534,
       "subset": "cfp",
       "um_per_px": 7.8909
     },
@@ -197,8 +197,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 1556,
-      "native_width": 1924,
+      "raw_height": 1556,
+      "raw_width": 1924,
       "subset": "cfp",
       "um_per_px": 8.269
     },
@@ -244,8 +244,8 @@
       "n_drawn": 32,
       "n_measured": 32,
       "n_replaced": 0,
-      "native_height": 2136,
-      "native_width": 3216,
+      "raw_height": 2136,
+      "raw_width": 3216,
       "subset": "cfp",
       "um_per_px": 5.8078
     },
@@ -291,8 +291,8 @@
       "n_drawn": 33,
       "n_measured": 32,
       "n_replaced": 1,
-      "native_height": 310,
-      "native_width": 412,
+      "raw_height": 310,
+      "raw_width": 412,
       "subset": "cfp",
       "um_per_px": 41.2277
     },
@@ -324,8 +324,8 @@
       "n_drawn": 18,
       "n_measured": 18,
       "n_replaced": 0,
-      "native_height": 418,
-      "native_width": 555,
+      "raw_height": 418,
+      "raw_width": 555,
       "subset": "cfp",
       "um_per_px": 31.1042
     },
@@ -341,8 +341,8 @@
       "n_drawn": 2,
       "n_measured": 2,
       "n_replaced": 0,
-      "native_height": 470,
-      "native_width": 496,
+      "raw_height": 470,
+      "raw_width": 496,
       "note": "too-few: fewer than 16 discs were measured, which is too few for a median",
       "subset": "cfp"
     }

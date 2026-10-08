@@ -10,7 +10,7 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The store grid this reads, and the grid the network sees: its own processor resizes to this.
+#: The grid the store is read at, and the grid the network sees: its own processor resizes to this.
 GRID = 512
 
 #: What the decode head answers on — a quarter of the input on each side. Every boundary this model

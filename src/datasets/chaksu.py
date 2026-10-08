@@ -29,7 +29,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from datasets.utils import archives, build, cli, contours, fov, manifest, resolution
+from datasets.utils import archives, build, cli, contours, fov, manifest, paths, resolution
 
 #: Slug, matching docs/datasets/chaksu.md and this module's filename.
 SLUG = "chaksu"
@@ -213,7 +213,7 @@ def _csv(archive: Path, name: str) -> list[dict[str, str]]:
 def check(store: Path, layers: dict[str, Path], rows: list[dict[str, str]]) -> dict:
     """Redraw stored contours in the dataset's own coordinates and compare with its own masks.
 
-    A round trip: the contour in `native/` is moved back by the crop it was made with, filled in at
+    A round trip: the contour in `crop/` is moved back by the crop it was made with, filled in at
     the photograph's original size, and set against the binary mask the archive publishes for that
     expert and that structure. It measures the crop and the placement rather than the tracing,
     which is where a silent error would sit — a contour can be a perfect outline of the wrong part
@@ -232,7 +232,7 @@ def check(store: Path, layers: dict[str, Path], rows: list[dict[str, str]]) -> d
         for row in [r for r in chosen if r["split"] == split]:
             stem = row["key"].split("_", 2)[2]
             published = masks.get((row["subset"], stem), {})
-            stored = contours.read(store / "native" / "contours" / f"{row['key']}.csv")
+            stored = contours.read(paths.layer(store, "contours") / f"{row['key']}.csv")
             back = np.array([int(row["crop_x0"]), int(row["crop_y0"])])
             for (structure, expert), member in sorted(published.items()):
                 reader = _reader(expert)
