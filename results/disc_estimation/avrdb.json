@@ -1,0 +1,11 @@
+{
+  "builder_version": 6,
+  "dataset": "avrdb",
+  "fingerprint": "1d3b90ff7aa7fbdcc2e051b1de3587cab88f66ca713cb81cebd1e970808ee7d3",
+  "frame": "native crop",
+  "grid": 512,
+  "model": "segformer-disc-cup",
+  "n_cup": 96,
+  "n_disc": 99,
+  "n_images": 100
+}

@@ -113,6 +113,9 @@ Skills that exist today:
   to prefer.
 - **5.16** `report-benchmark` — what came out of a run, written from the notebook, and the index
   above every benchmark.
+- **5.17** `fetch-disc-estimation` — each photograph's optic disc and cup, centre and equivalent
+  radius in the native crop, estimated by the SegFormer disc-and-cup model: the command, the CSV
+  indexed by image key and its sidecar JSON, committed under `results/disc_estimation/`.
 
 The three benchmark skills each hold the rules common to every benchmark, and **a file per
 benchmark beside them** — `build-benchmark/quality.md` and its siblings — holding what is true of
@@ -157,8 +160,9 @@ the authority on it:
   matching `docs/projects/<slug>.md`, beside `naming.py`, which is the only place a project's own
   column name is translated into a catalogued biomarker and variant.
 - `src/benchmarks/` — one module per benchmark, its loaders, its scorer and its report writer.
-- `results/` — committed evidence: per-image benchmark scores, and inferred camera scales under
-  `results/um_resolution/` for datasets that published no microns-per-pixel figure.
+- `results/` — committed evidence: per-image benchmark scores, inferred camera scales under
+  `results/um_resolution/` for datasets that published no microns-per-pixel figure, and
+  per-photograph disc and cup estimates under `results/disc_estimation/`.
 - `data/synthetic/av/` — the synthetic artery/vein store, drawn by `python -m benchmarks.shapes`:
   a binary mask per class, a field of view, a `manifest.csv` saying how each rendering was framed,
   and a `ground_truth.csv` of the values its geometry requires. Unlike a dataset store it is

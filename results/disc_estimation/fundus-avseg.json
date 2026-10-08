@@ -1,0 +1,11 @@
+{
+  "builder_version": 6,
+  "dataset": "fundus-avseg",
+  "fingerprint": "69122f9b66ce9d5c6c8ecc9e8e93bb48f5d434827fc863295feb49a71d68fde9",
+  "frame": "native crop",
+  "grid": 512,
+  "model": "segformer-disc-cup",
+  "n_cup": 100,
+  "n_disc": 100,
+  "n_images": 100
+}

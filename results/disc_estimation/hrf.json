@@ -1,0 +1,11 @@
+{
+  "builder_version": 6,
+  "dataset": "hrf",
+  "fingerprint": "87c2dd510d3d1f2a4f0decb7ed1c6186a1f2dec1a94cf734a47566551f677cd5",
+  "frame": "native crop",
+  "grid": 512,
+  "model": "segformer-disc-cup",
+  "n_cup": 45,
+  "n_disc": 45,
+  "n_images": 45
+}
