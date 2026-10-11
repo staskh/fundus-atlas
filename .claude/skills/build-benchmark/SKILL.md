@@ -19,7 +19,7 @@ is right and the expert's grade says otherwise, that is a finding to chase, not 
 quietly.
 
 A benchmark is one module, `src/benchmarks/<name>.py`, with a loader under
-`src/benchmarks/loaders/`, and it produces committed per-image scores, a run record, two generated
+`src/benchmarks/loaders/`, and it produces committed per-image scores, a run record, a configuration page, a results page
 documents and a notebook.
 
 `PLAN-BENCHMARK.md` is the standing decision about what is benchmarked and in what order. This file
@@ -41,8 +41,9 @@ building or changing that benchmark.
 3. **Tests**, `tests/benchmarks/`, written first, against a small store written to `tmp_path` by
    the helpers in `tests/benchmarks/conftest.py` — never against a real store and never against a
    real model.
-4. **Two generated documents**, per `report-benchmark`, and **an analysis notebook**, per
-   `analyse-benchmark`.
+4. **A `config()`** returning what the benchmark is, as data, and the **configuration page** it
+   fills — `document-benchmark`. Then a **results page** and an **analysis notebook**, per
+   `report-benchmark` and `analyse-benchmark`.
 
 ## 2. A run scores a whole dataset
 
@@ -77,7 +78,7 @@ reminding everyone the work is outstanding.
 
 Three rules keep that from producing a table that quietly means less than it looks like:
 
-- **The gap is published, not just logged.** The generated `-docs.md` names every declared dataset
+- **The gap is published, not just logged.** The `-docs.md` page, from `config()`, names every declared dataset
   and model and says which ran, which could not, and why: **no store built**, **no adapter
   written**, or **excluded whole** by the crop rule. Those are three different statements and are
   never merged.
@@ -164,8 +165,8 @@ scored, so it is *not* part of the fingerprint. It is recorded separately, and i
 | `results/<benchmark>/<model>/<dataset>.json` | the fingerprint, the summary, and how much of the dataset is done | **yes** |
 | `.atlas_runs/<benchmark>/<stamp>/run.json` | what ran, against what, with which pins and versions | no |
 | `.atlas_runs/<benchmark>/<model>/<dataset>/` | predicted masks, where the benchmark makes them — section 6.1 | no — but **kept**, because the biomarker benchmark reads them |
-| `docs/benchmarks/<benchmark>-docs.md` | how the benchmark is configured and run | **yes**, generated |
-| `docs/benchmarks/<benchmark>-results.md` | what came out | **yes**, generated |
+| `docs/benchmarks/<benchmark>-docs.md` | how the benchmark is configured and run | **yes**, written prose with blocks refreshed by `--docs` |
+| `docs/benchmarks/<benchmark>-results.md` | what came out | **yes**, written from the notebook |
 
 The benchmark's name leads the path so that two benchmarks scoring the same model on the same
 photographs stay apart — the artery/vein segmentation benchmark and the biomarker one will do
@@ -295,21 +296,19 @@ in every table that quotes it**, so that a sample can never be read as a measure
 
 ## 8. The order a run does things in
 
-1. **Work out the configuration**: which declared models have adapters, which declared datasets
-   have stores, and for each of those how many photographs it holds and what the exclusions took
-   out. All of that is known without scoring anything — a loader reads a manifest, not an image.
-2. **Write `<slug>-docs.md`**, before any measuring. A run that dies halfway then still leaves an
-   accurate account of what it was going to do, and anybody can read what is about to happen before
-   committing hours of it.
-3. **Measure**, model by model, dataset by dataset.
-4. **Write `<slug>-results.md`** and the index, from what is now in `results/`.
+1. **Work out what to measure**: which requested models have adapters and which requested datasets
+   have stores, warning about the rest.
+2. **Measure**, model by model, dataset by dataset.
+3. **Refresh the index**, `docs/BENCHMARKS.md`, from what is now in `results/`. `--no-report` skips
+   it.
 
-`--no-report` skips steps 2 and 4. Nothing else about a run depends on the order, but this order is
-what makes the configuration page trustworthy: it describes the run that is happening rather than
-the run that happened to finish.
+**A run never writes `<slug>-docs.md`.** The page describes the benchmark rather than any run, and
+`python -m benchmarks --benchmark <slug> --docs` refreshes it from `config()` without measuring
+anything (`document-benchmark`). Photograph benchmarks build `config()` from the shared pieces in
+`benchmarks/photographs.py`, so the flags, counts and exclusion rules they share are said once.
 
-**A change to the benchmark's code means regenerating the configuration page in the same commit**,
-whether or not anything is measured. It costs nothing: it measures nothing.
+**A change to the benchmark's code means refreshing the configuration page in the same commit.** It
+costs nothing, and a test fails if a generated block has gone stale.
 
 ## 9. Testing a benchmark without a model
 

@@ -233,22 +233,16 @@ def test_the_configuration_is_known_before_anything_is_measured(tmp_path: Path) 
     ]
 
 
-def test_the_page_saying_how_it_is_run_describes_what_is_measured(tmp_path: Path) -> None:
-    written = report.write_docs(
-        disc.NAME,
-        disc.configuration([Circles()], ["papila"], root=a_store(tmp_path)),
-        {"isfa": "no adapter written"},
-        {"refuge": "no store built"},
-        disc.COLUMNS,
-        into=tmp_path / "docs",
-    ).read_text()
+def test_the_configuration_describes_the_stores_it_can_measure(tmp_path: Path) -> None:
+    configured = disc.config(root=a_store(tmp_path))
 
-    assert "Dice" in written
-    assert "cup-to-disc ratio" in written
-    assert "`disc_dice`" in written
-    assert "circles" in written
-    assert "isfa" in written and "no adapter written" in written
-    assert "refuge" in written and "no store built" in written
+    datasets = {entry["slug"]: entry for entry in configured["material"]["declared"]}
+    assert datasets["papila"]["available"]
+    assert datasets["papila"]["facts"]["Photographs"] == 2
+    assert datasets["papila"]["facts"]["Readers"] == "2: expert1, expert2"
+    assert datasets["refuge"]["why_not"] == "no store built"
+    models = {entry["slug"]: entry for entry in configured["subjects"]["declared"]}
+    assert not models["isfa"]["ran"] and "weights" in models["isfa"]["why_not"]
 
 
 def test_the_index_reports_what_a_disc_run_measured(tmp_path: Path) -> None:
