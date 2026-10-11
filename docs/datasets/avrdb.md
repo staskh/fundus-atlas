@@ -34,6 +34,7 @@ Papilledema* — and its description names the AFIO source, the four ophthalmolo
 
 ```bash
 uv run python -m datasets.avrdb                      # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset avrdb
 uv run python -m datasets.fetch_um_resolution --dataset avrdb
 ```
 
@@ -64,7 +65,7 @@ Three things about the archive a person running this will meet, all handled by t
 | | |
 | --- | --- |
 | Resolution (pixels) | 1504×1000 |
-| Microns per pixel | Not published. **Inferred: 13.320 µm/px** — from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/avrdb.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 12.680 µm/px** — the median of 99 optic discs estimated one per photograph, [evidence](../../results/um_resolution/avrdb.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Topcon TRC-NW8 |
 | Field of view | Not stated by the authors |
 | Centring | Mixed |

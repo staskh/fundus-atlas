@@ -19,7 +19,9 @@ um_per_px = 1800 / median(disc_diameter_px)
 ```
 
 taken over photographs that share a subset and a raw size (section 4), measured by one catalogued
-disc model, and kept only when those discs agree closely enough to be one camera.
+disc model, and kept only when those discs agree closely enough to be one camera. Where every
+photograph's disc has already been estimated by `fetch_disc_estimation`, those discs are read rather
+than segmented again (section 5).
 
 The `fetch-dataset` skill, section 8, is what decides *whether* to run this. This skill is the
 contract for the run itself, the JSON it commits, and what a biomarker may do with the number.
@@ -47,16 +49,16 @@ disagree.
 
 **Measuring and writing down are different questions.** A store whose scale this repository derived
 from a stated field angle is still measured — two independent derivations disagreeing is worth
-knowing, and section 10 is what that check found — but the figure is not written into its manifest,
-because `field_angle` outranks `disc_anchored`. Measure anything that is not `published`; stamp only
-rows whose source is empty or `unknown`.
+knowing, and section 9 is what that check found. What is written into the manifest is decided by
+section 7: a disc-anchored figure replaces a field-angle one, and never a published one.
 
 A fetcher that built a store with no published scale is **unfinished** until this command has
 produced a current JSON for that slug, or has recorded, in the same JSON, that a group could not
 be given a scale and why.
 
 Re-run when any of these change: the store's builder version or crop, the disc model's identity,
-the sample count, the seed, the 1,800 µm typical disc, or the spread gate. A fingerprint in the
+the disc estimates it read, the sample count, the seed, the 1,800 µm typical disc, or the spread
+gate. A fingerprint in the
 JSON names those facts; a mismatch means the stored microns-per-pixel figure describes a camera
 that no longer exists.
 
@@ -110,13 +112,20 @@ Defaults of record. Changing one is a change to this skill, and it invalidates e
 
 | Default | Value | Why |
 | --- | --- | --- |
-| Sample size | **32** photographs, drawn with a recorded seed | enough for a median to settle; small enough to re-run |
-| Disc model | [lunetv2-odc](../../../docs/models/lunetv2-odc.md) | the disc segmenter the biomarker pipelines already use for zones |
-| Disc diameter | equivalent diameter from area (twice the radius of a circle of the same area), measured in the **crop** frame | the disc is a vertical oval; horizontal width alone is the wrong ruler |
+| Discs counted | **every photograph of the group with an estimated disc**, where the store's disc estimates are current; otherwise **32** photographs drawn with a recorded seed | the estimates already cost a pass over every photograph, so reading all of them is free and steadies the median; a sample is enough for a median to settle when nothing has been estimated |
+| Disc model | [segformer-disc-cup](../../../docs/models/segformer-disc-cup.md) — the model `fetch-disc-estimation` uses | one model for both, so a disc read from the estimates and one segmented here are the same measurement |
+| Disc diameter | twice the equivalent radius of the **largest connected patch** the model calls disc — the radius of a circle of the same area — measured in the **crop** frame, exactly as `fetch_disc_estimation` records `disc_r` | the disc is a vertical oval, so horizontal width alone is the wrong ruler; a stray speck elsewhere must not count |
 | Typical disc | **1,800 µm** | a round population width (~1.7–1.8 mm horizontal, 1.8–1.9 mm vertical) |
 | Spread gate | median absolute deviation **≤ 10% of the median** | on one camera, disc diameter already varies about 10%; more than that is mixed devices, mixed aiming, or a model that did not find the disc |
 
-Procedure, in order:
+**Which discs are counted.** `results/disc_estimation/<slug>.csv` is read when its sidecar says it
+was made by the same model, in the crop, on a store of the same builder version, and its keys are
+exactly the manifest's. Then every photograph with a disc counts, nothing is segmented, and no model
+is loaded. An estimate that fails any of those checks describes a different store and is not
+trusted: the group is measured from a sample, as below, and the JSON says which happened. Run
+`fetch-disc-estimation` first, so the sample is the exception.
+
+Procedure, for a sample, in order:
 
 1. List the group's keys from the store manifest.
 2. Draw 32 (or all, if fewer) with the recorded seed. **A photograph the model declines or fails is
@@ -144,8 +153,9 @@ failed the gate into a dataset-level number.
 {
   "dataset": "chaksu",
   "typical_disc_um": 1800,
-  "model": "lunetv2-odc",
+  "model": "segformer-disc-cup",
   "builder_version": 6,
+  "discs": "sample",
   "n_requested": 32,
   "seed": 0,
   "spread_gate": 0.10,
@@ -168,6 +178,12 @@ failed the gate into a dataset-level number.
   ]
 }
 ```
+
+`discs` says where the discs came from: `disc_estimation` when they were read from the store's
+estimates, `sample` when they were segmented here. A file read from estimates carries no
+`n_requested` or `seed`, since nothing was drawn, and each group records `n_estimated` — the
+photographs in the group — in place of `n_drawn` and `n_replaced`. Its fingerprint covers the
+estimates' own fingerprint, which stands for the model and its weights.
 
 `keys` are the photographs actually measured, so a number in a paper can be traced to the
 outlines. `builder_version` is the store those discs were measured on, and a stamp into a store
@@ -239,21 +255,22 @@ they are the only places this method can be checked at all:
 
 | Dataset | From its stated field angle | From the median optic disc | They differ by |
 | --- | --- | --- | --- |
-| [PAPILA](../../../docs/datasets/papila.md), 30° | 3.777 | 3.994 | **5.8%** |
-| [HRF](../../../docs/datasets/hrf.md), 45° | 4.130 | 4.980 | **21%** |
+| [PAPILA](../../../docs/datasets/papila.md), 30° | 3.777 | 3.799 | **0.6%** |
+| [HRF](../../../docs/datasets/hrf.md), 45° | 4.130 | 4.740 | **15%** |
 
-Read the second row the other way: under HRF's stated field its median disc is **1,490 µm**, not the
-1,800 µm this method assumes; under the disc figure its field spans **54°**, not the stated 45°.
+Read the second row the other way: under HRF's stated field its median disc is **1,568 µm**, not the
+1,800 µm this method assumes; under the disc figure its field spans **52°**, not the stated 45°.
 Nothing here can say which of the two is wrong, and both derivations are this repository's rather
 than an author's — the 300 µm per degree constant is a posterior-pole approximation, and a camera's
 quoted angle is not always the angle subtended at the retina.
 
-**So a `disc_anchored` figure is good to somewhere between a twentieth and a fifth**, on the two
+**So a `disc_anchored` figure is good to somewhere between a hundredth and a seventh**, on the two
 datasets where it could be checked at all. Quote it as an order of magnitude for a camera, never as
 a calibration, and never report a disc size in millimetres from it — that number was assumed.
 
 Re-run this comparison whenever the typical disc, the disc model or the gate changes, and record
-what it becomes.
+what it becomes. Measured with LUNet v2's disc segmenter on a sample of 32, the two rows read 5.8%
+and 21%; the SegFormer model on every estimated disc closed both.
 
 ## 10. Where this is documented for a reader
 

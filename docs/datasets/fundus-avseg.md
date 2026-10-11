@@ -35,6 +35,7 @@ image's filename stem.
 
 ```bash
 uv run python -m datasets.fundus_avseg                      # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset fundus-avseg
 uv run python -m datasets.fetch_um_resolution --dataset fundus-avseg
 ```
 
@@ -80,7 +81,7 @@ states **no field angle for either**, so the sensor size is the only separator a
 | | |
 | --- | --- |
 | Resolution (pixels) | 2656×1992 |
-| Microns per pixel | Not published. **Inferred: 6.105 µm/px** — from the median optic disc of 21 photographs, [evidence](../../results/um_resolution/fundus-avseg.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 5.725 µm/px** — the median of 21 optic discs estimated one per photograph, [evidence](../../results/um_resolution/fundus-avseg.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Zeiss VISUCAM 200 or Canon (the archive names both, without attributing images) |
 | Field of view | **Not stated** |
 | Centring | Mixed |
@@ -91,7 +92,7 @@ states **no field angle for either**, so the sensor size is the only separator a
 | | |
 | --- | --- |
 | Resolution (pixels) | 1280×1280 |
-| Microns per pixel | Not published. **Inferred: 10.012 µm/px** — from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/fundus-avseg.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 9.344 µm/px** — the median of 79 optic discs estimated one per photograph, [evidence](../../results/um_resolution/fundus-avseg.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | As above |
 | Field of view | **Not stated** |
 | Centring | Mixed |

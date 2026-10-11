@@ -84,6 +84,28 @@ def test_the_crop_is_square_at_full_resolution(tmp_path):
     assert Image.open(store / "crop" / "images" / "a.png").size[0] == pytest.approx(200, abs=1)
 
 
+def a_dataset_cropped_by_its_authors(tmp_path):
+    """Two square photographs whose field already reaches within a few pixels of every edge."""
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    yy, xx = np.mgrid[0:300, 0:300]
+    for key in ("a", "b"):
+        image = np.zeros((300, 300, 3), dtype=np.uint8)
+        image[(xx - 150) ** 2 + (yy - 150) ** 2 <= 147**2] = 180
+        Image.fromarray(image).save(raw / f"{key}.png")
+        Image.fromarray(np.zeros((300, 300), dtype=np.uint8)).save(raw / f"{key}_vessels.png")
+    return raw
+
+
+def test_a_photograph_already_cropped_square_keeps_its_frame(tmp_path):
+    store = build_it(tmp_path, "--raw", str(a_dataset_cropped_by_its_authors(tmp_path)))
+
+    row = next(iter(manifest.read(store)))
+    assert (row["crop_x0"], row["crop_y0"], row["crop_side"]) == ("0", "0", "300")
+    assert float(row["fov_r"]) == pytest.approx(147, abs=2), "the field is still found"
+    assert Image.open(store / "crop" / "images" / "a.png").size == (300, 300)
+
+
 def test_the_manifest_describes_the_crop_it_made(tmp_path):
     store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
     row = next(iter(manifest.read(store)))
@@ -610,3 +632,48 @@ def _asked(**overrides):
             *[part for k, v in overrides.items() for part in (f"--{k.replace('_', '-')}", v)],
         ],
     )
+
+
+def test_a_scale_measured_on_the_store_before_a_rebuild_is_not_copied_into_it(
+    tmp_path, monkeypatch
+) -> None:
+    """A rebuild under new rules changes the crops, and so the discs the scale was measured from."""
+    older = build.BUILDER_VERSION - 1
+    store = tmp_path / "store" / "synthetic"
+    store.mkdir(parents=True)
+    (store / "build.json").write_text(json.dumps({"builder_version": older, "partial": False}))
+    directory = tmp_path / "um_resolution"
+    directory.mkdir()
+    (directory / "synthetic.json").write_text(
+        json.dumps(
+            {
+                "dataset": "synthetic",
+                "builder_version": older,
+                "groups": [
+                    {
+                        "subset": "main",
+                        "raw_width": 300,
+                        "raw_height": 300,
+                        "accepted": True,
+                        "um_per_px": 8.61,
+                    }
+                ],
+            }
+        )
+    )
+    monkeypatch.setattr(resolution, "INFERRED", directory)
+    args = cli.parse(
+        "synthetic",
+        ["--data-root", str(tmp_path / "store"), "--raw", str(a_dataset(tmp_path)), "--force"],
+    )
+
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover,
+        resolution_of=resolution.Declared(None, "unknown", "not published"),
+        args=args,
+        extra_columns=[manifest.Column("artifact", "0 is best")],
+    )
+
+    assert all(row["um_per_px"] == "" for row in manifest.read(store))

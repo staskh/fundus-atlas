@@ -72,6 +72,10 @@ model, that no longer exist; re-run.
 ## 6. What a reader may do with it
 
 - Use it to place the disc and the zones around it, or as a disc-centred crop.
+- `fetch_um_resolution` reads it: where a store's estimates are current — same model, same frame,
+  same builder version, same keys — a camera's scale is the median over every estimated disc
+  rather than over a sample segmented again (`fetch-um-resolution`, section 5). So run this first,
+  after any rebuild of the store, and the scale after it.
 - **Do not** report disc size in millimetres from `disc_r` and a `disc_anchored` `um_per_px`: that
   scale assumed the disc's size (`fetch-um-resolution`, section 8).
 - `cup_r / disc_r` is a ratio of equivalent radii of a model's outline, not the vertical

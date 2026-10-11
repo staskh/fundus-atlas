@@ -12,7 +12,8 @@ from pathlib import Path
 
 import numpy as np
 
-from .utils import manifest, paths, resample, resolution
+from . import fetch_disc_estimation as estimation
+from .utils import manifest, paths, resolution
 
 #: How many photographs a group is measured from. Enough for a median to settle, small enough to
 #: re-run; a group with fewer uses all of them and says so.
@@ -21,8 +22,9 @@ SAMPLE = 32
 #: The seed the draw is recorded with, so two runs measure the same photographs.
 SEED = 0
 
-#: The disc segmenter this uses, by the slug of its catalogue page.
-MODEL = "lunetv2-odc"
+#: The disc segmenter this uses, by the slug of its catalogue page: the one that estimates every
+#: photograph's disc, so a disc read from those estimates and one measured here are the same thing.
+MODEL = estimation.MODEL
 
 #: How far the discs of one group may scatter and still be one camera: the median absolute
 #: deviation, as a share of the median. Disc diameter already varies about a tenth between people
@@ -79,16 +81,25 @@ def groups(rows: list[dict[str, str]]) -> list[Group]:
 def measure(
     store: Path,
     slug: str,
-    adapter: object,
+    adapter: object | None,
     sample: int = SAMPLE,
     seed: int = SEED,
     subset: str = "",
+    estimates: Path | None = None,
 ) -> dict[str, object]:
-    """Measure every group of one store, and return what should be committed about it."""
+    """Measure every group of one store, and return what should be committed about it.
+
+    Where every photograph's disc has already been estimated for this store, as it is built now,
+    those discs are read — all of them — and nothing is segmented again. Otherwise a sample of each
+    group is segmented here, by the same model.
+    """
     rows = [row for row in manifest.read(store) if not subset or row["subset"] == subset]
     built = (
         json.loads((store / "build.json").read_text()) if (store / "build.json").exists() else {}
     )
+    found = estimation.current(store, slug, estimates)
+    if found is None and adapter is None:
+        adapter = _catalogued()
     measured = []
     for group in groups(rows):
         print(
@@ -96,24 +107,51 @@ def measure(
             f"{len(group.rows)} photographs",
             file=sys.stderr,
         )
-        measured.append(_measured(store, group, adapter, sample, seed))
-    return {
+        if found is None:
+            measured.append(_measured(store, group, adapter, sample, seed))
+        else:
+            measured.append(_read(group, found[1]))
+    record = {
         "dataset": slug,
         "typical_disc_um": resolution.DISC_MICRONS,
-        "model": getattr(adapter, "slug", "unknown"),
         "builder_version": built.get("builder_version"),
-        "n_requested": sample,
-        "seed": seed,
         "spread_gate": SPREAD_GATE,
-        "fingerprint": _fingerprint(adapter, built, sample, seed),
         "groups": measured,
     }
+    if found is None:
+        return record | {
+            "discs": "sample",
+            "model": getattr(adapter, "slug", "unknown"),
+            "n_requested": sample,
+            "seed": seed,
+            "fingerprint": _fingerprint(adapter, built, sample, seed),
+        }
+    sidecar = found[0]
+    return record | {
+        "discs": "disc_estimation",
+        "model": sidecar["model"],
+        "fingerprint": _fingerprint_of_estimates(sidecar, built),
+    }
+
+
+def _read(group: Group, estimated: dict[str, dict[str, str]]) -> dict[str, object]:
+    """One camera's scale from every disc already estimated in it."""
+    measured = [row["key"] for row in group.rows if estimated[row["key"]]["disc_r"]]
+    record: dict[str, object] = {
+        "subset": group.subset,
+        "raw_width": group.width,
+        "raw_height": group.height,
+        "n_estimated": len(group.rows),
+        "n_measured": len(measured),
+        "keys": measured,
+    }
+    return _judged(record, [2 * float(estimated[key]["disc_r"]) for key in measured])
 
 
 def _measured(
     store: Path, group: Group, adapter: object, sample: int, seed: int
 ) -> dict[str, object]:
-    """One camera's scale, or the record of why it could not be given one.
+    """One camera's scale from a sample segmented here.
 
     A photograph the model finds no disc on is **replaced** from the rest of the group rather than
     simply lost: a sample that set out to measure 32 discs and measured 21 gives a median that
@@ -139,6 +177,11 @@ def _measured(
         "n_replaced": attempted - len(diameters),
         "keys": keys,
     }
+    return _judged(record, diameters)
+
+
+def _judged(record: dict[str, object], diameters: list[float]) -> dict[str, object]:
+    """The scale these discs give, or the record of why they give none."""
     if not diameters:
         return {**record, "accepted": False, "note": NO_DISCS}
 
@@ -174,33 +217,11 @@ def _drawn(rows: list[dict[str, str]], sample: int, seed: int) -> list[dict[str,
 def _diameter(store: Path, row: dict[str, str], adapter: object) -> float | None:
     """One photograph's disc, as the diameter of a circle of the same area, in crop pixels.
 
-    The disc is a vertical oval, so its horizontal width is the wrong ruler; an equivalent diameter
-    uses the whole outline. `None` where the model found nothing.
+    Measured exactly as `fetch_disc_estimation` measures it, so a disc segmented here and one read
+    from those estimates are the same quantity. `None` where the model found nothing.
     """
-    if not (paths.layer(store, "images") / f"{row['key']}.png").exists():
-        return None
-    pixels = resample.read_photograph(store, row["key"], getattr(adapter, "grid", 512))
-    found = outlined(adapter, adapter.prepare(pixels)[None], int(row["crop_side"]), row["key"])
-    if found is None or found.outcome != "graded" or "disc" not in found.masks:
-        return None
-    area = float(found.masks["disc"].sum())
-    return 2 * math.sqrt(area / math.pi) if area else None
-
-
-def outlined(adapter: object, prepared: object, side: int, key: str) -> object | None:
-    """One photograph's outlines in the crop, or `None` where the model crashed on it.
-
-    The key is passed to an adapter that accepts one, and left off for one that does not. A crash
-    is one photograph, not the run.
-    """
-    try:
-        drawn = adapter.outline(prepared, [side], keys=[key])
-    except TypeError:
-        drawn = adapter.outline(prepared, [side])
-    except Exception as failure:
-        print(f"  {key}: {failure!r}", file=sys.stderr)
-        return None
-    return drawn[0]
+    radius = estimation.estimated(store, row, adapter)["disc_r"]
+    return 2 * float(radius) if radius else None
 
 
 def _fingerprint(adapter: object, built: dict[str, object], sample: int, seed: int) -> str:
@@ -219,6 +240,20 @@ def _fingerprint(adapter: object, built: dict[str, object], sample: int, seed: i
     return hashlib.sha256(json.dumps(facts, sort_keys=True, default=str).encode()).hexdigest()
 
 
+def _fingerprint_of_estimates(sidecar: dict[str, object], built: dict[str, object]) -> str:
+    """The same, for a scale read from estimates: theirs stands for the model and its weights."""
+    facts = {
+        "estimates": sidecar.get("fingerprint"),
+        "model": sidecar.get("model"),
+        "builder_version": built.get("builder_version"),
+        "typical_disc_um": resolution.DISC_MICRONS,
+        "spread_gate": SPREAD_GATE,
+        "size_tolerance": resolution.SIZE_TOLERANCE,
+        "floor": FLOOR,
+    }
+    return hashlib.sha256(json.dumps(facts, sort_keys=True, default=str).encode()).hexdigest()
+
+
 def needs_inferring(store: Path) -> bool:
     """Whether this store is worth measuring at all.
 
@@ -227,7 +262,7 @@ def needs_inferring(store: Path) -> bool:
     else is measured — including a store whose scale this repository derived from a stated field
     angle, because two independent derivations disagreeing is worth knowing. What may then be
     **written into** the manifest is a narrower question, and :data:`resolution.REPLACEABLE`
-    answers it: a field-angle figure is preferred to a disc-anchored one and stands.
+    answers it: a disc-anchored figure replaces a field-angle one.
     """
     sources = {row.get("resolution_source", "") for row in manifest.read(store)}
     return sources != {"published"}
@@ -242,6 +277,7 @@ def run(
     seed: int = SEED,
     subset: str = "",
     force: bool = False,
+    estimates: Path | None = None,
 ) -> list[dict[str, object]]:
     """Measure what has no published scale, commit it, and stamp it into the manifest."""
     where = directory or resolution.INFERRED
@@ -254,8 +290,7 @@ def run(
         if not needs_inferring(store):
             print(f"{slug}: every photograph has a published scale — left alone", file=sys.stderr)
             continue
-        model = adapter if adapter is not None else _catalogued()
-        record = measure(store, slug, model, sample, seed, subset)
+        record = measure(store, slug, adapter, sample, seed, subset, estimates)
         if force or not _unchanged(slug, where, record):
             where.mkdir(parents=True, exist_ok=True)
             (where / f"{slug}.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")

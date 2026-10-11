@@ -70,7 +70,7 @@ bounding square takes another 0.9% off the sides of what did survive.
 | | |
 | --- | --- |
 | Resolution (pixels) | DR-XJU 412×310 to 555×419; DR-ZJU 1924×1556 and 3216×2136; Glaucoma and Healthy 1534×1534 |
-| Microns per pixel | Not published. **Inferred, per size**: 1534² → **7.891 µm/px**; 1924×1556 → **8.269**; 3216×2136 → **5.808**; 555×418 → **31.104**; 412×310 → **41.228**, each from the median optic disc of a sample, [evidence](../../results/um_resolution/mshf.json). The two 496×470 photographs are too few to measure and carry no scale. Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred, per size**: 1534² → **7.783 µm/px**; 1924×1556 → **7.709**; 3216×2136 → **5.523**; 555×418 → **29.436**, each the median of every optic disc estimated at that size, [evidence](../../results/um_resolution/mshf.json). The 215 at 412×310 carry **no scale**: their 181 estimated discs disagree by 10.5% of their median, just past the tenth this atlas accepts as one camera. The two 496×470 photographs are too few to measure and carry none either. Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Kowa at 45° and Topcon TRC-NW8 at 50°, per the authors' device list |
 | Field of view | 45° and 50° |
 | Centring | Mixed |
@@ -81,7 +81,7 @@ bounding square takes another 0.9% off the sides of what did survive.
 | | |
 | --- | --- |
 | Resolution (pixels) | 2560×1920, but for one photograph at 1705×1705 |
-| Microns per pixel | Not published. **local1: 7.247 µm/px** from the median optic disc of 32 photographs. **local2: none** — its discs disagree by 10.7% of their median, wider than the tenth this atlas accepts as one camera, so those 103 photographs carry no scale at all ([evidence](../../results/um_resolution/mshf.json)). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **local1: 6.657 µm/px**, the median of 134 optic discs estimated on its 198 photographs at 2560×1920. **local2: none** — its 60 estimated discs disagree by 11.1% of their median, wider than the tenth this atlas accepts as one camera, so those 103 photographs carry no scale at all ([evidence](../../results/um_resolution/mshf.json)). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | A handheld device (DEC200 class) at 60° |
 | Field of view | 60° |
 | Centring | Mixed |

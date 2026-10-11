@@ -1,0 +1,11 @@
+{
+  "builder_version": 4,
+  "dataset": "deepdrid",
+  "fingerprint": "79988f567ee820fb764daf85b0a292310a25b394c61b7ff19910a0a71b4f7349",
+  "frame": "crop",
+  "grid": 512,
+  "model": "segformer-disc-cup",
+  "n_cup": 1892,
+  "n_disc": 1902,
+  "n_images": 2000
+}

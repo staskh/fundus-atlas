@@ -1,0 +1,11 @@
+{
+  "builder_version": 7,
+  "dataset": "grape",
+  "fingerprint": "38892a1bc4852b1185c89d3ecbdf04cbabef814be73765f236edd0b357eb22c1",
+  "frame": "crop",
+  "grid": 512,
+  "model": "segformer-disc-cup",
+  "n_cup": 629,
+  "n_disc": 629,
+  "n_images": 631
+}

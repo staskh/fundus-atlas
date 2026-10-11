@@ -10,6 +10,7 @@ import pytest
 import torch
 from PIL import Image
 
+from datasets import fetch_disc_estimation as estimation
 from datasets import fetch_um_resolution as inference
 from datasets.utils import manifest, resolution
 from models.utils.outlines import Outlines
@@ -158,6 +159,7 @@ def test_the_run_commits_the_scale_and_stamps_the_manifest(tmp_path: Path) -> No
         ["chaksu"],
         root=tmp_path,
         directory=tmp_path / "um_resolution",
+        estimates=tmp_path / "disc_estimation",
         adapter=Disc(),
         sample=16,
     )
@@ -176,7 +178,12 @@ def test_a_dataset_that_published_a_scale_is_left_alone(tmp_path: Path) -> None:
     adapter = Disc()
 
     inference.run(
-        ["chaksu"], root=tmp_path, directory=tmp_path / "um_resolution", adapter=adapter, sample=8
+        ["chaksu"],
+        root=tmp_path,
+        directory=tmp_path / "um_resolution",
+        estimates=tmp_path / "disc_estimation",
+        adapter=adapter,
+        sample=8,
     )
 
     assert adapter.asked == [], "a published scale is not re-measured"
@@ -226,3 +233,116 @@ def test_a_group_too_small_to_fill_the_sample_uses_what_it_has(tmp_path: Path) -
     group = written["groups"][0]
     assert group["n_measured"] == 18
     assert group["n_drawn"] == 20, "every photograph in the group was tried"
+
+
+def estimated(
+    tmp_path: Path,
+    store: Path,
+    diameters: dict[str, float | None],
+    model: str = estimation.MODEL,
+    builder_version: int = 6,
+) -> Path:
+    """Disc estimates for every photograph of a store, as `fetch_disc_estimation` commits them."""
+    where = tmp_path / "disc_estimation"
+    where.mkdir(exist_ok=True)
+    slug = store.name
+    with open(where / f"{slug}.csv", "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(estimation.COLUMNS), restval="")
+        writer.writeheader()
+        for key, diameter in diameters.items():
+            if diameter is None:
+                writer.writerow({"key": key, "outcome": estimation.NO_DISC})
+            else:
+                writer.writerow(
+                    {
+                        "key": key,
+                        "outcome": "graded",
+                        "disc_cx": "700",
+                        "disc_cy": "700",
+                        "disc_r": f"{diameter / 2:.2f}",
+                    }
+                )
+    sidecar = {
+        "dataset": slug,
+        "model": model,
+        "builder_version": builder_version,
+        "frame": estimation.FRAME,
+        "fingerprint": "estimated-for-a-test",
+    }
+    (where / f"{slug}.json").write_text(json.dumps(sidecar))
+    return where
+
+
+def test_the_scale_is_inferred_with_the_model_that_estimates_each_disc() -> None:
+    """One disc model for both, so a reused estimate and a fresh one are the same measurement."""
+    assert inference.MODEL == estimation.MODEL == "segformer-disc-cup"
+
+
+def test_estimated_discs_are_read_rather_than_measured_again(tmp_path: Path) -> None:
+    keys = [f"k{index:02d}" for index in range(40)]
+    store = a_store(tmp_path, [a_row(key) for key in keys])
+    where = estimated(tmp_path, store, {key: 180.0 for key in keys})
+    adapter = Disc(diameters=400.0)
+
+    written = inference.measure(store, "chaksu", adapter, estimates=where)
+
+    group = written["groups"][0]
+    assert adapter.asked == [], "no photograph was segmented again"
+    assert group["median_disc_px"] == pytest.approx(180)
+    assert written["discs"] == "disc_estimation"
+
+
+def test_every_estimated_disc_counts_not_a_sample(tmp_path: Path) -> None:
+    keys = [f"k{index:02d}" for index in range(40)]
+    store = a_store(tmp_path, [a_row(key) for key in keys])
+    where = estimated(tmp_path, store, {key: (None if key < "k05" else 180.0) for key in keys})
+
+    written = inference.measure(store, "chaksu", None, estimates=where)
+
+    group = written["groups"][0]
+    assert group["n_measured"] == 35, "every photograph with a disc, not the first 32"
+    assert group["n_estimated"] == 40
+    assert len(group["keys"]) == 35
+
+
+def test_the_run_needs_no_model_where_every_disc_is_estimated(tmp_path: Path) -> None:
+    keys = [f"k{index:02d}" for index in range(20)]
+    store = a_store(tmp_path, [a_row(key) for key in keys])
+    where = estimated(tmp_path, store, {key: 180.0 for key in keys})
+
+    inference.run(["chaksu"], root=tmp_path, directory=tmp_path / "um_resolution", estimates=where)
+
+    committed = json.loads((tmp_path / "um_resolution" / "chaksu.json").read_text())
+    assert committed["groups"][0]["um_per_px"] == pytest.approx(10.0)
+    assert committed["model"] == estimation.MODEL
+
+
+@pytest.mark.parametrize(
+    "stale",
+    [{"builder_version": 5}, {"model": "another-disc-model"}],
+    ids=["another-build", "another-model"],
+)
+def test_an_estimate_that_is_not_of_this_store_is_measured_again(
+    tmp_path: Path, stale: dict[str, object]
+) -> None:
+    keys = [f"k{index:02d}" for index in range(20)]
+    store = a_store(tmp_path, [a_row(key) for key in keys])
+    where = estimated(tmp_path, store, {key: 180.0 for key in keys}, **stale)
+    adapter = Disc(diameters=200.0)
+
+    written = inference.measure(store, "chaksu", adapter, sample=16, estimates=where)
+
+    assert adapter.asked, "the stale estimate was not trusted"
+    assert written["discs"] == "sample"
+    assert written["groups"][0]["median_disc_px"] == pytest.approx(200, abs=2)
+
+
+def test_an_estimate_missing_a_photograph_of_the_store_is_measured_again(tmp_path: Path) -> None:
+    keys = [f"k{index:02d}" for index in range(20)]
+    store = a_store(tmp_path, [a_row(key) for key in keys])
+    where = estimated(tmp_path, store, {key: 180.0 for key in keys[:-1]})
+    adapter = Disc(diameters=200.0)
+
+    written = inference.measure(store, "chaksu", adapter, sample=16, estimates=where)
+
+    assert written["discs"] == "sample"

@@ -246,3 +246,22 @@ def test_the_tolerance_is_learned_from_the_surround_rather_than_from_the_retina(
     bright = speckled(400, 500, cx=250, cy=200, r=150, value=240, noise=20)
 
     assert fov.tolerance(dark) == pytest.approx(fov.tolerance(bright), abs=2)
+
+
+def test_a_square_frame_its_crop_would_barely_move_is_kept():
+    """Photographs the authors already cropped square are not cropped a second time."""
+    square = crop.square_around(fov.Circle(cx=150, cy=150, r=147, source="detected"))
+
+    assert crop.keeps_frame(square, height=300, width=300)
+
+
+def test_a_square_frame_with_its_field_well_inside_is_cropped():
+    square = crop.square_around(fov.Circle(cx=150, cy=150, r=100, source="detected"))
+
+    assert not crop.keeps_frame(square, height=300, width=300)
+
+
+def test_a_frame_that_is_not_square_is_cropped_however_little_the_crop_moves():
+    square = crop.square_around(fov.Circle(cx=151, cy=150, r=149, source="detected"))
+
+    assert not crop.keeps_frame(square, height=300, width=302)

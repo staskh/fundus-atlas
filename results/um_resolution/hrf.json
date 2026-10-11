@@ -1,7 +1,8 @@
 {
   "builder_version": 6,
   "dataset": "hrf",
-  "fingerprint": "f0e66ba24358ec75e6903ae9aac2941c5f4542465e01b764e0468fea97b37cae",
+  "discs": "disc_estimation",
+  "fingerprint": "f9ce305b4bd2d0ce08105b8024c51884ca7d91f9f8d43fceaac369624c5960dc",
   "groups": [
     {
       "accepted": true,
@@ -37,23 +38,33 @@
         "10_g",
         "10_h",
         "11_dr",
-        "11_g"
+        "11_g",
+        "11_h",
+        "12_dr",
+        "12_g",
+        "12_h",
+        "13_dr",
+        "13_g",
+        "13_h",
+        "14_dr",
+        "14_g",
+        "14_h",
+        "15_dr",
+        "15_g",
+        "15_h"
       ],
-      "mad_disc_px": 13.5,
-      "mad_over_median": 0.0374,
-      "median_disc_px": 361.43,
-      "n_drawn": 32,
-      "n_measured": 32,
-      "n_replaced": 0,
+      "mad_disc_px": 15.22,
+      "mad_over_median": 0.0401,
+      "median_disc_px": 379.76,
+      "n_estimated": 45,
+      "n_measured": 45,
       "raw_height": 2336,
       "raw_width": 3504,
       "subset": "main",
-      "um_per_px": 4.9802
+      "um_per_px": 4.7398
     }
   ],
-  "model": "lunetv2-odc",
-  "n_requested": 32,
-  "seed": 0,
+  "model": "segformer-disc-cup",
   "spread_gate": 0.1,
   "typical_disc_um": 1800.0
 }
