@@ -18,7 +18,7 @@ from models.utils import catalogue
 from models.utils.outlines import Outlines
 from torch.utils.data import DataLoader
 
-from . import report, runs
+from . import photographs, report, runs
 from .loaders.av import ArteryVeinLoader
 from .loaders.base import CROPS, FLOOR, available, collate
 from .metrics import av as metrics
@@ -175,6 +175,81 @@ DERIVED = {
 OVERLAPS = {
     "fives": ("reyia", 75),
 }
+
+
+def config(root: Path | None = None) -> dict[str, object]:
+    """What this benchmark reports about itself, as data rather than prose.
+
+    Known from the declarations and the stores' manifests: no result is read and nothing is
+    measured. The `document-benchmark` skill is the authority on the shape.
+    """
+    found, missing = adapters(list(MODELS))
+    stores = missing_datasets(list(DATASETS), root)
+    return photographs.describe(
+        sys.modules[__name__],
+        subjects=photographs.subjects(
+            list(MODELS),
+            found,
+            missing,
+            [
+                "Pinned at",
+                "Grid it reads",
+                "Grid it runs at",
+                "Channels it emits",
+                "Read as",
+                "Ensemble",
+            ],
+            lambda declared: {
+                "Pinned at": report.pin(declared.get("upstream", {})),
+                "Grid it reads": f"{declared['grid']}²",
+                "Grid it runs at": f"{declared['network_grid']}²",
+                "Channels it emits": ", ".join(declared.get("channels", [])) or "—",
+                "Read as": ", ".join(declared.get("structures", [])),
+                "Ensemble": declared.get("ensemble", "—"),
+            },
+            _reference,
+        ),
+        material=photographs.material(
+            list(DATASETS),
+            configuration(found, list(DATASETS), root)["datasets"],
+            stores,
+            ["Photographs", "Readers", "Vessel annotation", "Excluded, and why"],
+            lambda entry: {
+                "Photographs": entry["total"],
+                "Readers": len(entry["readers"]) or 1,
+                "Vessel annotation": entry["vessels"],
+                "Excluded, and why": report.excluded(entry["excluded"]),
+            },
+            WORTH_FETCHING,
+        ),
+        exclusions={
+            "below the size floor": photographs.FLOOR_RULE,
+            "no artery/vein annotation": "a photograph the dataset published without one. Not a "
+            "failure of the model, and never counted as one",
+            "an annotation a finding condemns": photographs.FINDING_RULE
+            + ". The map is excluded and the photograph stays",
+            "excluded whole": photographs.CROP_RULE,
+        },
+        fingerprint=photographs.fingerprint(sys.modules[__name__], FINGERPRINTED, True),
+        running=photographs.running(sys.modules[__name__], rescores=True),
+    )
+
+
+def _reference(declared: dict[str, object]) -> str:
+    """What a vessels-only model is here for, and the threshold it is run at — or nothing."""
+    if list(declared.get("structures", [])) != ["vessels"]:
+        return ""
+    said = (
+        "does not separate arteries from veins, so its own vessel map is its answer and its "
+        "artery and vein cells are left empty; a reference for the vessel column, not a "
+        "competitor in it"
+    )
+    if "upstream_threshold" in declared:
+        said += (
+            f". Run at a threshold of **{declared['threshold']}**, where its own pipeline uses "
+            f"{declared['upstream_threshold']}, to keep the thin vessels the higher one drops"
+        )
+    return said
 
 
 def run(
@@ -565,19 +640,6 @@ def main(asked) -> None:
     for slug, why in no_adapter.items():
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
 
-    declared, missing_adapters = adapters(list(MODELS), asked.device)
-    missing_adapters = {slug: WHY_NOT.get(slug, why) for slug, why in missing_adapters.items()}
-    missing_stores = missing_datasets(list(DATASETS), root)
-
-    if asked.report:
-        report.write_docs(
-            NAME,
-            configuration(declared, list(DATASETS), root),
-            missing_adapters,
-            missing_stores,
-            COLUMNS,
-        )
-
     run(
         models,
         wanted_datasets,
@@ -592,202 +654,6 @@ def main(asked) -> None:
 
     if asked.report:
         report.write_index()
-
-
-def docs_sections(
-    configured: dict[str, object],
-    missing_models: dict[str, str],
-    missing_datasets_of: dict[str, str],
-) -> Iterable[str]:
-    """Sections 1 to 4 of the page saying how this benchmark is run."""
-    models = sorted(configured["models"], key=lambda entry: entry["slug"])
-    datasets = sorted(configured["datasets"], key=lambda entry: entry["slug"])
-    yield "## 1. What this benchmark asks"
-    yield ""
-    yield (
-        "Whether a model's **arteries and veins** are where an ophthalmologist drew them. Retinal "
-        "arteries and veins look alike to an untrained eye and are told apart by calibre, colour "
-        "and how they cross one another; a vessel map that cannot separate them supports none of "
-        "the measurements a clinic takes from the vasculature. Three maps are scored: the arteries, "
-        "the veins, and the vessels the two make together."
-    )
-    yield ""
-    yield (
-        "**Segmentation only.** A vessel width, a central retinal artery equivalent, an "
-        "arteriovenous ratio, a tortuosity — every number computed *from* one of these maps by a "
-        "further method — belongs to the biomarker benchmark, which takes the masks this one keeps "
-        "as its input. Measuring both here would make a model's segmentation and a pipeline's "
-        "arithmetic indistinguishable in one figure."
-    )
-    yield ""
-    yield (
-        "**Two scores, because neither is enough.** **Dice** is overlap with the expert's mask, 0 "
-        "to 1. **clDice** asks instead how much of each network's *centreline* falls inside the "
-        "other, which is a question about connectedness rather than area. The pair separates two "
-        "failures that overlap alone confuses: a vessel drawn three times too wide around the same "
-        "centre scores 0.50 Dice and 0.97 clDice — wrong about width, right about the network — "
-        "while the same vessel thickened to one side scores the same 0.50 Dice and 0.03 clDice, its "
-        "centreline no longer inside the expert's vessel at all. A break in a vessel costs both "
-        "alike."
-    )
-    yield ""
-    yield (
-        "**Everything is measured in the crop frame** — the full-resolution square the store "
-        "built, where the annotator drew. A model working at 1024 or 1472 has its probabilities "
-        "carried back there and thresholded **after** arrival, because thresholding first and "
-        "resampling a binary mask throws away the boundary the score turns on."
-    )
-    yield ""
-    yield (
-        "**The outlines themselves are kept**, three images per photograph, under "
-        "`.atlas_runs/av/<model>/<dataset>/`. The biomarker benchmark measures from them, and a "
-        "mask whose fingerprint no longer matches its model is drawn again rather than read."
-    )
-    yield ""
-    yield "## 2. The models"
-    yield ""
-    yield (
-        "| Model | Pinned at | Grid it reads | Grid it runs at | Channels it emits | Read as | "
-        "Ensemble |"
-    )
-    yield "| --- | --- | --- | --- | --- | --- | --- |"
-    for entry in models:
-        slug, declared = entry["slug"], entry["declared"]
-        yield (
-            f"| [{slug}](../models/{slug}.md) | {report.pin(declared.get('upstream', {}))} | "
-            f"{declared['grid']}² | {declared['network_grid']}² | "
-            f"{', '.join(declared.get('channels', [])) or '—'} | "
-            f"{', '.join(declared.get('structures', []))} | {declared.get('ensemble', '—')} |"
-        )
-    for model, why in sorted(missing_models.items()):
-        yield f"| [{model}](../models/{model}.md) | **not measured** — {why} | — | — | — | — | — |"
-    yield ""
-    yield (
-        "**Two of these models do not document their channel order**, and both would have been "
-        "read wrongly from a reasonable guess: LUNet puts the veins first and emits logits rather "
-        "than probabilities, and VascX's fourth channel matches neither vessel. Every order here "
-        "was settled the same way — by scoring each output channel against "
-        "[HRF](../datasets/hrf.md)'s artery and vein annotation — including the ones the authors do "
-        "name, because a documented order is still worth a measurement."
-    )
-    yield ""
-    yield (
-        "**A crossing belongs to both vessels.** Where a model emits crossings as their own class — "
-        "OCULARNet, BF-Net and AutoMorph's artery/vein model all do — the adapter answers with "
-        "artery *plus* crossing and vein *plus* crossing, because that is the region an annotator "
-        "marked as both and a model cannot be asked to reproduce an ambiguity of projection. The "
-        "two fusion models call that class *uncertainty* in their own evaluation code; scored "
-        "against [HRF](../datasets/hrf.md) it is the crossings exactly, matching this "
-        "repository's own crossing layer pixel for pixel."
-    )
-    yield ""
-    yield (
-        "**Two grids, because an adapter reads one and a network wants another.** The photographs "
-        "are read from the crop at the grid the adapter declares, and where the network's own grid "
-        "is smaller — BF-Net and AutoMorph's artery/vein model both run at 720 and read at 1024 — "
-        "the adapter resizes down to it rather than up, so nothing is invented. The probabilities "
-        "come back to the crop frame either way."
-    )
-    yield ""
-    yield (
-        "**The vessel map is derived, identically for every artery/vein model**, as the union of "
-        "its own artery and vein masks — not whatever vessel channel a model may also publish. "
-        "LUNet publishes one; it is declared above and not used, so that every artery/vein model's "
-        "vessel score means the same thing."
-    )
-    for entry in models:
-        declared = entry["declared"]
-        if list(declared.get("structures", [])) != ["vessels"]:
-            continue
-        yield ""
-        yield (
-            f"**One model here is the exception, and is carried as a reference rather than as a "
-            f"competitor.** [{entry['slug']}](../models/{entry['slug']}.md) does not separate "
-            f"arteries from veins, so it has no union to take and **its own vessel map is its "
-            f"answer**. Its artery and vein cells are left empty rather than scored as nothing — "
-            f"empty says it was not asked, where a zero would say it answered and was wrong — and "
-            f"a reader comparing its vessel score with another model's is comparing a prediction "
-            f"with a union."
-        )
-        if "upstream_threshold" in declared:
-            yield ""
-            yield (
-                f"**It is also run at a threshold this repository chose rather than inherited.** A "
-                f"pixel becomes vessel at **{declared['threshold']}** here, where its own pipeline "
-                f"writes its binary mask at {declared['upstream_threshold']}. The lower figure "
-                f"keeps the thin vessels the higher one drops, which is what a reference for this "
-                f"column is wanted for; the cost is that every score recorded for it is a score of "
-                f"the model at {declared['threshold']} rather than of the model as its authors run "
-                f"it."
-            )
-    yield ""
-    yield "## 3. The datasets"
-    yield ""
-    yield "| Dataset | Photographs | Readers | Vessel annotation | Excluded, and why |"
-    yield "| --- | --- | --- | --- | --- |"
-    for entry in datasets:
-        slug = entry["slug"]
-        yield (
-            f"| [{slug}](../datasets/{slug}.md) | {entry['total']} | "
-            f"{len(entry.get('readers') or []) or 1} | {entry.get('vessels', 'unknown')} | "
-            f"{report.excluded(entry['excluded'])} |"
-        )
-    for dataset, why in sorted(missing_datasets_of.items()):
-        yield f"| [{dataset}](../datasets/{dataset}.md) | **not measured** — {why} | — | — | — |"
-    yield ""
-    yield (
-        "**The vessel annotation column is the one to read before comparing scores.** In three of "
-        "these datasets the vessel map *is* the artery/vein map: Fundus-AVSeg and AVRDB derive "
-        "theirs, and HRF's hand-drawn gold standard differs from the union of its artery/vein maps "
-        "by 0.004% of pixels across all 45 photographs. A model's vessel score and its class scores "
-        "there are **one measurement seen twice**, and their agreement is not corroboration."
-    )
-    yield ""
-    if any(entry["slug"] == "fives" for entry in datasets):
-        yield (
-            "**[FIVES](../datasets/fives.md) annotates vessels and neither class**, so every model "
-            "is scored there on the vessel column alone and its artery and vein cells are empty "
-            "for all of them. It earns its place because it is the one dataset here that the "
-            "vessel reference did not train on."
-        )
-        yield ""
-    measured = {entry["slug"] for entry in datasets}
-    shared = [
-        f"**{slug}** and **{other}** share {count} photographs"
-        for slug, (other, count) in sorted(OVERLAPS.items())
-        if {slug, other} <= measured
-    ]
-    yield (
-        "[REYIA](../datasets/reyia.md) is a compilation, and its subsets are named for the "
-        "collections its photographs came from — three of which this repository builds separately. "
-        "Pooling a figure over REYIA and those datasets counts the same eyes twice"
-        + (f": {', '.join(shared)}." if shared else ".")
-    )
-    yield ""
-    yield "### 3.1 What is worth fetching next, and what each would settle"
-    yield ""
-    yield "| Dataset | What it would settle | Cost |"
-    yield "| --- | --- | --- |"
-    for slug, why, cost in WORTH_FETCHING:
-        yield f"| [{slug}](../datasets/{slug}.md) | {why} | {cost} |"
-    yield ""
-    yield "## 4. What is excluded, and by which rule"
-    yield ""
-    yield (
-        "- **Below the size floor** — a photograph whose field of view is under 512 pixels.\n"
-        "- **No artery/vein annotation** — a photograph the dataset published without one. Not a "
-        "failure of the model, and never counted as one.\n"
-        "- **An annotation a finding condemns** — anything in `src/datasets/exclusions/`. REYIA has "
-        "four photographs whose two published encodings of the same annotation contradict each "
-        "other by more pixels than the vessel network contains; their maps are excluded and the "
-        "photographs stay.\n"
-        "- **Excluded whole** — a dataset whose images are crops rather than photographs."
-    )
-    yield ""
-    yield (
-        "These are **ours**: the benchmark would not ask. A model's own refusal to answer is "
-        "`declined`, which is a different statement, and the two are never added together."
-    )
 
 
 #: Every column of this benchmark's evidence, and what it means.
@@ -819,19 +685,6 @@ COLUMNS = {
     "truth_vein_px": "how many as vein",
     "note": "what the model failed with",
 }
-
-
-#: What no other benchmark's columns need said, and this one's do. A count that grows with the
-#: length of the vessel network cannot be carried from one dataset to another.
-COLUMNS_CAVEAT = (
-    "***The Betti matching error is not normalised, and is not suitable for comparison between "
-    "datasets — only between models on the same dataset.*** It counts features rather than scoring "
-    "a fraction, and the count rises with the length of the vessel network, which is a property of "
-    "the frame and of the annotation rather than of the model. Measured on the readers' own "
-    "tracings, the count runs at about 0.39 of the centreline length in pixels in every dataset "
-    "here, so HRF's 3,269-pixel frames carry six times AVRDB's figure before any model is asked "
-    "anything."
-)
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:

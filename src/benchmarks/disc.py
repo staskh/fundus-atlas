@@ -18,7 +18,7 @@ from datasets.utils import paths
 from models.utils import catalogue
 from models.utils.outlines import Outlines
 
-from . import report, runs
+from . import photographs, report, runs
 from .loaders.base import CROPS, FLOOR, available, collate
 from .loaders.disc import DiscCupLoader
 from .metrics import disc as metrics
@@ -163,6 +163,59 @@ def configuration(models: list, datasets: list[str], root: Path | None = None) -
         "models": [{"slug": model.slug, "declared": model.declare()} for model in models],
         "datasets": described,
     }
+
+
+def config(root: Path | None = None) -> dict[str, object]:
+    """What this benchmark reports about itself, as data rather than prose.
+
+    Known from the declarations and the stores' manifests: no result is read and nothing is
+    measured. The `document-benchmark` skill is the authority on the shape.
+    """
+    found, missing = adapters(list(MODELS))
+    missing = {slug: WHY_NOT.get(slug, why) for slug, why in missing.items()}
+    stores = missing_datasets(list(DATASETS), root)
+    return photographs.describe(
+        sys.modules[__name__],
+        subjects=photographs.subjects(
+            list(MODELS),
+            found,
+            missing,
+            ["Pinned at", "Grid it reads", "Grid the network sees", "Finds", "Emits"],
+            lambda declared: {
+                "Pinned at": report.pin(declared.get("upstream", {})),
+                "Grid it reads": f"{declared['grid']}²",
+                "Grid the network sees": f"{declared['network_grid']}²",
+                "Finds": ", ".join(declared.get("structures", [])),
+                "Emits": "probabilities, thresholded in the crop frame"
+                if declared.get("emits_probabilities")
+                else "a binary mask",
+            },
+        ),
+        material=photographs.material(
+            list(DATASETS),
+            configuration(found, list(DATASETS), root)["datasets"],
+            stores,
+            ["Photographs", "Readers", "Black canvas", "Excluded, and why"],
+            lambda entry: {
+                "Photographs": entry["total"],
+                "Readers": f"{len(entry['readers'])}: {', '.join(entry['readers']) or '—'}",
+                "Black canvas": report.number(entry.get("padding")),
+                "Excluded, and why": report.excluded(entry["excluded"]),
+            },
+            WORTH_FETCHING,
+        ),
+        exclusions={
+            "below the size floor": photographs.FLOOR_RULE,
+            "a finding recorded against the image": photographs.FINDING_RULE
+            + ". An outline a finding condemns is dropped on its own, leaving the other readers' "
+            "outlines of that photograph in place",
+            "no outline to score against": "a photograph the dataset published but nobody "
+            "outlined. It is not a failure of the model and is never counted as one",
+            "excluded whole": photographs.CROP_RULE,
+        },
+        fingerprint=photographs.fingerprint(sys.modules[__name__], FINGERPRINTED, True),
+        running=photographs.running(sys.modules[__name__], rescores=True),
+    )
 
 
 def run(
@@ -552,19 +605,6 @@ def main(asked) -> None:
     for slug, why in no_adapter.items():
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
 
-    declared, missing_adapters = adapters(list(MODELS), asked.device)
-    missing_adapters = {slug: WHY_NOT.get(slug, why) for slug, why in missing_adapters.items()}
-    missing_stores = missing_datasets(list(DATASETS), root)
-
-    if asked.report:
-        report.write_docs(
-            NAME,
-            configuration(declared, list(DATASETS), root),
-            missing_adapters,
-            missing_stores,
-            COLUMNS,
-        )
-
     run(
         models,
         wanted_datasets,
@@ -641,151 +681,6 @@ COLUMNS = {
     "measured rather than repaired",
     "note": "what the model failed with",
 }
-
-
-def docs_sections(
-    configured: dict[str, object],
-    missing_models: dict[str, str],
-    missing_datasets: dict[str, str],
-) -> Iterable[str]:
-    """Sections 1 to 4 of the page saying how this benchmark is run."""
-    models = sorted(configured["models"], key=lambda entry: entry["slug"])
-    datasets = sorted(configured["datasets"], key=lambda entry: entry["slug"])
-    yield "## 1. What this benchmark asks"
-    yield ""
-    yield (
-        "How close a model's optic disc and optic cup are to **the outline an ophthalmologist "
-        "drew on that photograph**, and how far the difference travels into the numbers a clinic "
-        "would read off it. Overlap is measured as the Dice score — twice the area the two "
-        "outlines share, divided by the sum of their areas, so 1 is perfect agreement and 0 no "
-        "overlap at all. Beside it are the measurements a report actually quotes: where the centre "
-        "of the disc sits, how wide and how tall each structure is, the radius of a circle of the "
-        "same area, and the **cup-to-disc ratio**, which is the number a glaucoma referral rests "
-        "on. Comparing the models with each other is a second, weaker question, and it is there to "
-        "raise suspicions about the outlines rather than to rank the software."
-    )
-    yield ""
-    yield (
-        "**Every measurement is made in the crop frame** — the full-resolution square the store "
-        "built, which is where the expert drew. A model working at 512 pixels has its answer "
-        "carried back there first, and how it was carried is recorded per photograph: a "
-        "probability map is resampled and thresholded **after** it arrives, because thresholding "
-        "first and resampling the mask throws away the boundary detail the model produced, and the "
-        "boundary is what every one of these numbers turns on."
-    )
-    yield ""
-    yield (
-        "**Signed errors are kept signed.** A model whose discs are three pixels too wide and one "
-        "whose discs are three pixels too narrow do not average to agreement, and a cup-to-disc "
-        "ratio that reads high sends the wrong patients to a clinic."
-    )
-    yield ""
-    yield (
-        "**The outlines themselves are kept**, one image per structure per photograph, under "
-        "`.atlas_runs/disc/<model>/<dataset>/` beside the fingerprint of the model that drew them. "
-        "A score is a summary of a shape, and the shape is what the next benchmark measures "
-        "biomarkers from; a mask whose fingerprint no longer matches its model is drawn again "
-        "rather than read."
-    )
-    yield ""
-    yield "## 2. The models"
-    yield ""
-    yield "| Model | Pinned at | Grid it reads | Grid the network sees | Finds | Emits |"
-    yield "| --- | --- | --- | --- | --- | --- |"
-    for entry in models:
-        slug, declared = entry["slug"], entry["declared"]
-        emits = (
-            "probabilities, thresholded in the crop frame"
-            if declared.get("emits_probabilities")
-            else "a binary mask"
-        )
-        yield (
-            f"| [{slug}](../models/{slug}.md) | {report.pin(declared.get('upstream', {}))} | "
-            f"{declared['grid']}² | {declared['network_grid']}² | "
-            f"{', '.join(declared.get('structures', []))} | {emits} |"
-        )
-    for model, why in sorted(missing_models.items()):
-        yield f"| [{model}](../models/{model}.md) | **not measured** — {why} | — | — | — | — |"
-    yield ""
-    yield (
-        "A model named here that has no adapter is **declared, not forgotten**: the benchmark asks "
-        "for it, and the run says so every time until somebody writes it."
-    )
-    yield ""
-    yield (
-        "A model that finds only the disc is scored on the disc alone. Its rows carry no cup "
-        "columns rather than empty ones, and it is never counted as having got the cup wrong."
-    )
-    yield ""
-    yield "## 3. The datasets"
-    yield ""
-    yield "| Dataset | Photographs | Readers | Black canvas | Excluded, and why |"
-    yield "| --- | --- | --- | --- | --- |"
-    for entry in datasets:
-        slug = entry["slug"]
-        readers = entry.get("readers") or []
-        yield (
-            f"| [{slug}](../datasets/{slug}.md) | {entry['total']} | "
-            f"{len(readers)}: {', '.join(readers) if readers else '—'} | "
-            f"{report.number(entry.get('padding'))} | {report.excluded(entry['excluded'])} |"
-        )
-    for dataset, why in sorted(missing_datasets.items()):
-        yield f"| [{dataset}](../datasets/{dataset}.md) | **not measured** — {why} | — | — | — |"
-    yield ""
-    yield (
-        "**Readers are never merged.** A photograph five ophthalmologists outlined makes five rows "
-        "of evidence, one per reader, and a model is scored against each of them separately. "
-        "Averaging the outlines first would invent a consensus nobody drew and would hide the "
-        "range the readers themselves disagree over — which, on these structures, is often wider "
-        "than the gap between two models."
-    )
-    yield ""
-    yield (
-        "**Black canvas** is the share of the square the store built that is not photograph. A "
-        "fundus cut off at top and bottom leaves bands there, and a model sees the square it is "
-        "handed."
-    )
-    yield ""
-    yield (
-        "**Every reference here is a contour somebody drew**, and the ratios are computed from it. "
-        "[Chákṣu](../datasets/chaksu.md) also publishes each expert's own cup-to-disc ratio **as a "
-        "number**, which would be the strongest available check that a ratio derived from a "
-        "contour means what this benchmark thinks it means — but its store does not carry those "
-        "numbers yet, so nothing here is scored against them. That is a gap in the fetcher rather "
-        "than in the dataset."
-    )
-    yield ""
-    yield "### 3.1 What is worth fetching next, and what each would settle"
-    yield ""
-    yield "| Dataset | What it would settle | Cost |"
-    yield "| --- | --- | --- |"
-    for slug, why, cost in WORTH_FETCHING:
-        yield f"| [{slug}](../datasets/{slug}.md) | {why} | {cost} |"
-    yield ""
-    yield (
-        "[RIGA](../datasets/riga.md) is the painful exclusion: 750 photographs each outlined by "
-        "**six** ophthalmologists, and every one of its images is a crop rather than a photograph, "
-        "so the crop rule of section 4 excludes it whole."
-    )
-    yield ""
-    yield "## 4. What is excluded, and by which rule"
-    yield ""
-    yield (
-        "- **Below the size floor** — a photograph whose field of view is under 512 pixels, "
-        "measured on the field's own size rather than the frame's.\n"
-        "- **A finding recorded against the image** — anything in `src/datasets/exclusions/`, so "
-        "that a finding survives deleting and rebuilding a store. An outline a finding condemns is "
-        "dropped on its own, leaving the other readers' outlines of that photograph in place.\n"
-        "- **No outline to score against** — a photograph the dataset published but nobody "
-        "outlined. It is not a failure of the model and is never counted as one.\n"
-        "- **Excluded whole** — a dataset whose images are crops rather than photographs. No size "
-        "floor catches that, because a crop can be large."
-    )
-    yield ""
-    yield (
-        "These are **ours**: the benchmark would not ask. A model's own refusal to answer is "
-        "`declined`, which is a different statement, and the two are never added together."
-    )
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:

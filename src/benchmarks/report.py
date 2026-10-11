@@ -1,5 +1,5 @@
-# ABOUTME: The two documents a benchmark run generates — how it is configured, and what came out.
-# ABOUTME: Written by the run rather than by hand, so they cannot drift from the numbers.
+# ABOUTME: The index a benchmark run generates over every benchmark's results, and the small
+# ABOUTME: formatting helpers the generated tables share.
 
 import importlib
 import json
@@ -9,144 +9,13 @@ from pathlib import Path
 
 from . import contamination, runs
 
-#: Where the generated documents live, beside the catalogues they refer to.
+#: Where the benchmark pages live, beside the catalogues they refer to.
 #:
-#: Only the configuration page and the index are generated. `<slug>-results.md` is **written**,
-#: from the notebook's analysis, because a conclusion is a judgement — see the `report-benchmark`
-#: skill. Nothing here writes it, so that a run cannot destroy what somebody concluded.
+#: A run generates only the index. `<slug>-docs.md` is refreshed by `--docs` from what the
+#: benchmark reports about itself (the `document-benchmark` skill), and `<slug>-results.md` is
+#: **written**, from the notebook's analysis, because a conclusion is a judgement (the
+#: `report-benchmark` skill). Nothing here writes either, so a run cannot destroy them.
 DIRECTORY = Path(__file__).resolve().parents[2] / "docs" / "benchmarks"
-
-
-def write_docs(
-    benchmark: str,
-    configured: dict[str, object],
-    missing_models: dict[str, str],
-    missing_datasets: dict[str, str],
-    columns: dict[str, str],
-    into: Path = DIRECTORY,
-) -> Path:
-    """Write the page saying how this benchmark is configured and run.
-
-    It is written **before** anything is measured — everything on it is known from the manifests —
-    so that a run which dies halfway still leaves an accurate account of what it was going to do,
-    and so that anybody can read what is about to happen before committing hours of it.
-    """
-    into.mkdir(parents=True, exist_ok=True)
-    path = into / f"{benchmark}-docs.md"
-    path.write_text(
-        "\n".join(_docs(benchmark, configured, missing_models, missing_datasets, columns)) + "\n"
-    )
-    return path
-
-
-def _docs(
-    benchmark: str,
-    configured: dict[str, object],
-    missing_models: dict[str, str],
-    missing_datasets: dict[str, str],
-    columns: dict[str, str],
-) -> Iterable[str]:
-    models = sorted(configured["models"], key=lambda entry: entry["slug"])
-    datasets = sorted(configured["datasets"], key=lambda entry: entry["slug"])
-    yield f"# {_module(benchmark).TITLE} benchmark — how it is run"
-    yield ""
-    yield (
-        "This page says how the benchmark is configured: what it asks, which models and datasets "
-        "take part, what it excludes, how to run it, and what every column of its evidence means. "
-        "It is generated **before** a run measures anything, and again whenever the benchmark's "
-        "code changes, so it describes the run that is happening rather than the one that happened "
-        "to finish. A column added to the evidence and not explained here is a bug rather than an "
-        "omission. What came out is written up separately: "
-        f"to finish. What came out is written up separately, in "
-        f"[{benchmark}-results.md]({benchmark}-results.md)."
-    )
-    yield ""
-    yield from _module(benchmark).docs_sections(configured, missing_models, missing_datasets)
-    yield "## 5. How to run it"
-    yield ""
-    yield "```bash"
-    yield f"python -m benchmarks --benchmark {benchmark}"
-    yield (
-        f"python -m benchmarks --benchmark {benchmark} "
-        f"--model {models[0]['slug']} --dataset {datasets[0]['slug']}"
-    )
-    yield f"python -m benchmarks --benchmark {benchmark} --max-samples 20"
-    yield "```"
-    yield ""
-    yield (
-        "`--model` and `--dataset` each take one name or a comma-separated list, and naming one of "
-        "each re-measures a single pair. `--max-samples N` scores the first N photographs of each "
-        "dataset — `--random-samples` chooses them at random from a recorded seed — which is for "
-        "development: a sampled result says it is not complete, and a later run finishes it rather "
-        "than starting again. `--force` discards what is stored and measures everything afresh."
-    )
-    yield ""
-    yield "## 6. What each column of the evidence means"
-    yield ""
-    yield f"`results/{benchmark}/<model>/<dataset>.csv` holds one row per photograph:"
-    yield ""
-    yield "| Column | Meaning |"
-    yield "| --- | --- |"
-    for column, meaning in columns.items():
-        yield f"| `{column}` | {meaning} |"
-    yield ""
-    yield (
-        "A model that has no opinion to record leaves a column **absent** rather than blank: a "
-        "binary grader emits no class probabilities, and none are invented for it."
-    )
-    caveat = getattr(_module(benchmark), "COLUMNS_CAVEAT", "")
-    if caveat:
-        yield ""
-        yield caveat
-    yield ""
-    yield "## 7. What a re-run repeats, and what it does not"
-    yield ""
-    yield (
-        "Each `(model, dataset)` result is stored beside a **fingerprint** of everything that "
-        "could change it: the facts the model declares — its grids, its ensemble, the thresholds "
-        "it acts on — the sha256 of the weights actually loaded, the patches applied by content, "
-        "the store's builder version, and this benchmark's own version. A fingerprint that differs "
-        "means the stored scores describe something that no longer exists, and the pair is "
-        "measured again from nothing."
-    )
-    yield ""
-    yield (
-        "**How much was done is not part of that**, because it does not change what any photograph "
-        "scored. A complete result is never re-run; a partial one is finished by measuring only "
-        "the photographs it is missing; and nothing is ever truncated — asking for twenty against "
-        "a file that holds four hundred leaves all four hundred alone."
-    )
-    yield ""
-    yield "## 8. The counts every result carries"
-    yield ""
-    yield "| Recorded | Means |"
-    yield "| --- | --- |"
-    yield "| `processed` | how many photographs this model has actually scored |"
-    yield "| `total` | how many the benchmark would ask about, after the exclusions of section 4 |"
-    yield "| `excluded` | how many those exclusions removed, by reason |"
-    yield (
-        "| `seconds_per_photograph` | how long the model itself took per photograph, on the "
-        "device the result names |"
-    )
-    yield "| `timed_photographs` | how many photographs that timing covers |"
-    yield ""
-    yield (
-        "`processed ≤ total`, and `total + excluded` is what the store holds: a photograph is "
-        "either one the benchmark asks about or one it excluded, never both and never neither."
-    )
-    yield ""
-    yield (
-        "The timing covers the model's own call and nothing around it — not reading the "
-        "photograph, not scoring the answer. The batch that loads the weights is left out of it "
-        "whenever there is another batch to average over, and a run that measured nothing keeps "
-        "the timing it already had rather than reporting none. It is **not** part of the "
-        "fingerprint: how fast a model answered does not change what it said, and the same "
-        "weights on another machine would give another number."
-    )
-    yield ""
-    yield "---"
-    yield ""
-    yield f"**Generated by `python -m benchmarks --benchmark {benchmark}` on:** {today()}"
 
 
 def excluded(counted: dict[str, int]) -> str:

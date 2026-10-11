@@ -65,8 +65,8 @@ been measured, nothing read from `results/`. Three consequences, and each is the
 | `benchmark`, `title`, `version` | the slug, the heading, and the benchmark's own version |
 | `asks` | the question it exists to answer, in a sentence or two |
 | `unit_of_work` | what one row of evidence is — a *photograph* for some, a *rendering* for others. Every generated sentence uses this word, so no page calls a drawing a photograph |
-| `subjects` | what is measured: the label to call them, and one entry per declared subject with its page, its pin, and whether it took part — **including those that did not**, with the reason |
-| `material` | what they are measured on, in the same shape |
+| `subjects` | what is measured: the label to call them, the `fields` its table shows, and one entry per declared subject with its page, its `facts` under those fields, an optional one-sentence `note`, and whether it took part — **including those that did not**, with the reason |
+| `material` | what they are measured on, in the same shape, with `wanted` — what is worth adding next and what it would settle — where the benchmark has one. A photograph benchmark reads these facts from the stores on the machine that refreshes the page |
 | `fingerprint` | what a stored result is invalidated by, as a list. The generated paragraph is built from this, so it cannot claim a benchmark hashes weights it has none of |
 | `flags` | **only the flags this benchmark honours**, each with what it does. A flag it accepts and ignores does not appear |
 | `columns` | every column of the evidence, and what each means |

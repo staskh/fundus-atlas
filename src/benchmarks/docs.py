@@ -82,23 +82,49 @@ def _asks(config) -> Iterable[str]:
 def _subjects(config) -> Iterable[str]:
     """Every declared subject, **including those that did not take part**, with the reason."""
     subjects = config["subjects"]
-    yield f"| {subjects['label'].title()} | Pinned at | Columns it returns | Took part |"
-    yield "| --- | --- | --- | --- |"
-    for entry in subjects["declared"]:
-        name = f"[{entry['slug']}]({entry['page']})" if entry.get("page") else f"`{entry['slug']}`"
-        took = "yes" if entry.get("ran", True) else f"**no** — {entry.get('why_not', 'unknown')}"
-        yield f"| {name} | {entry.get('pinned', '—')} | {entry.get('columns', '—')} | {took} |"
+    yield from _table(subjects, "Took part", "ran")
 
 
 def _material(config) -> Iterable[str]:
-    material = config["material"]
-    yield f"| {material['label'].title()} | {material['describes']} | Available |"
+    """Everything declared to be measured on, **including what is not available**, with why."""
+    yield from _table(config["material"], "Available", "available")
+
+
+def _table(declared: dict[str, object], last: str, flag: str) -> Iterable[str]:
+    """One row per declared entry, under the headings the config names and no others.
+
+    An entry that did not take part shows a dash under every heading rather than a fact nobody
+    reported, and says why in the last column.
+    """
+    fields = declared["fields"]
+    yield f"| {declared['label'].title()} | {' | '.join(fields)} | {last} |"
+    yield "| --- | " + "--- | " * len(fields) + "--- |"
+    for entry in declared["declared"]:
+        name = f"[{entry['slug']}]({entry['page']})" if entry.get("page") else f"`{entry['slug']}`"
+        facts = entry.get("facts", {})
+        cells = [str(facts.get(field, "—")) for field in fields]
+        took = "yes" if entry.get(flag, True) else f"**no** — {entry.get('why_not') or 'unknown'}"
+        yield f"| {name} | {' | '.join(cells)} | {took} |"
+
+
+def _subject_notes(config) -> Iterable[str]:
+    """What each subject said about itself in a sentence, where it said anything."""
+    for entry in config["subjects"]["declared"]:
+        if entry.get("note"):
+            yield f"- **{entry['slug']}** — {entry['note']}"
+
+
+def _worth_fetching(config) -> Iterable[str]:
+    yield "| Dataset | What it would settle | Cost |"
     yield "| --- | --- | --- |"
-    for entry in material["declared"]:
-        available = (
-            "yes" if entry.get("available", True) else f"**no** — {entry.get('why_not', '')}"
-        )
-        yield f"| `{entry['slug']}` | {entry.get('detail', '—')} | {available} |"
+    for entry in config["material"]["wanted"]:
+        slug = entry["slug"]
+        yield f"| [{slug}](../datasets/{slug}.md) | {entry['settles']} | {entry['cost']} |"
+
+
+def _exclusions(config) -> Iterable[str]:
+    for rule, meaning in config["exclusions"].items():
+        yield f"- **{rule[0].upper()}{rule[1:]}** — {meaning}"
 
 
 def _running(config) -> Iterable[str]:
@@ -190,6 +216,9 @@ BLOCKS = {
     "asks": _asks,
     "subjects": _subjects,
     "material": _material,
+    "subject_notes": _subject_notes,
+    "worth_fetching": _worth_fetching,
+    "exclusions": _exclusions,
     "running": _running,
     "columns": _columns,
     "fingerprint": _fingerprint,

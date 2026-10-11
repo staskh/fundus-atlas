@@ -400,14 +400,19 @@ def config() -> dict[str, object]:
         "unit_of_work": {"singular": "rendering", "plural": "renderings"},
         "subjects": {
             "label": "implementation",
+            "fields": ["Pinned at", "Columns it returns"],
             "declared": [
                 {
                     "slug": slug,
                     # An implementation's slug need not name its catalogue page — OCULAR's page
                     # is `ocularnet.md` — so the adapter says, and the slug is only the fallback.
                     "page": f"../projects/{declared.get(slug, {}).get('page', slug)}.md",
-                    "pinned": _pinned(declared[slug]["upstream"]) if slug in declared else "—",
-                    "columns": len(declared[slug]["keys"]) if slug in declared else "—",
+                    "facts": {
+                        "Pinned at": _pinned(declared[slug]["upstream"]),
+                        "Columns it returns": len(declared[slug]["keys"]),
+                    }
+                    if slug in declared
+                    else {},
                     "ran": slug in declared,
                     "why_not": missing.get(slug),
                 }
@@ -416,11 +421,15 @@ def config() -> dict[str, object]:
         },
         "material": {
             "label": "shape",
-            "describes": "What its geometry settles",
+            "fields": ["What its geometry settles"],
             "declared": [
                 {
                     "slug": name,
-                    "detail": f"{len(settles.get(name, ()))} quantities with a known value",
+                    "facts": {
+                        "What its geometry settles": (
+                            f"{len(settles.get(name, ()))} quantities with a known value"
+                        )
+                    },
                     "available": True,
                 }
                 for name in SHAPES
@@ -476,62 +485,6 @@ def config() -> dict[str, object]:
         ],
         "structures": list(canonical.STRUCTURES),
     }
-
-
-def docs_sections(
-    configured: dict[str, object],
-    missing_models: dict[str, str] | None = None,
-    missing_datasets: dict[str, str] | None = None,
-) -> Iterable[str]:
-    """What only this benchmark's configuration page says."""
-    yield "## 1. What this benchmark asks"
-    yield ""
-    yield GOAL
-    yield ""
-    yield (
-        f"Every shape is drawn on a **{configured['side']}²** grid at "
-        f"**{configured['um_per_px']} µm per pixel**, at "
-        f"{', '.join(f'{angle:.0f}°' for angle in configured['rotations'])}. Each angle is a fresh "
-        f"rendering from continuous coordinates, never a turned picture: resampling a structure a "
-        f"few pixels wide destroys it, and a rotated bitmap would measure the resampler."
-    )
-    yield ""
-    yield "## 2. The implementations"
-    yield ""
-    yield "| Implementation | Pinned at | Needs | Claims invariance under | Columns |"
-    yield "| --- | --- | --- | --- | --- |"
-    for entry in configured["models"]:
-        declared = entry["declared"]
-        upstream = declared.get("upstream", {})
-        pin = str(upstream.get("commit") or upstream.get("version") or "—")[:12]
-        yield (
-            f"| [{entry['slug']}](../projects/{entry['slug']}.md) | `{pin}` | "
-            f"{', '.join(declared.get('needs', []))} | "
-            f"{', '.join(declared.get('invariant', [])) or '—'} | "
-            f"{len(declared.get('keys', []))} |"
-        )
-    for slug, why in sorted((missing_models or {}).items()):
-        yield f"| [{slug}](../projects/{slug}.md) | **not measured** — {why} | — | — | — |"
-    yield ""
-    yield "## 3. The shapes, and what each one settles"
-    yield ""
-    yield "| Shape | Classes drawn | Quantities it defines |"
-    yield "| --- | --- | --- |"
-    for entry in configured["datasets"]:
-        yield (f"| `{entry['slug']}` | {', '.join(entry['classes'])} | {len(entry['settles'])} |")
-    yield ""
-    yield (
-        "Every value a shape defines follows from its geometry and is written out in "
-        "[the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb), so a reader can "
-        "disagree with the arithmetic rather than with the code."
-    )
-    yield ""
-    yield (
-        "The shapes are **drawn before any of this runs**, by `python -m benchmarks.shapes`, into "
-        "the committed store at `data/synthetic/av/`. How that works — the command, the two tables "
-        "it writes, and what each family settles — is "
-        "[biomarker-synthetic-shapes.md](biomarker-synthetic-shapes.md)."
-    )
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:

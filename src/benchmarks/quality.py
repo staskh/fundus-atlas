@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from datasets.utils import paths
 from models.utils import catalogue
 
-from . import report, runs, scoring
+from . import photographs, report, runs, scoring
 from .loaders.base import CROPS, FLOOR, available, collate
 from .loaders.quality import QualityLoader
 
@@ -130,6 +130,54 @@ def configuration(
         "models": [{"slug": model.slug, "declared": model.declare()} for model in models],
         "datasets": described,
     }
+
+
+def config(root: Path | None = None) -> dict[str, object]:
+    """What this benchmark reports about itself, as data rather than prose.
+
+    Known from the declarations and the stores' manifests: no result is read and nothing is
+    measured. The `document-benchmark` skill is the authority on the shape.
+    """
+    found, missing = adapters(list(MODELS))
+    stores = missing_datasets(list(DATASETS), root)
+    return photographs.describe(
+        sys.modules[__name__],
+        subjects=photographs.subjects(
+            list(MODELS),
+            found,
+            missing,
+            ["Pinned at", "Grid it reads", "Grid the network sees", "Ensemble", "Emits"],
+            lambda declared: {
+                "Pinned at": report.pin(declared.get("upstream", {})),
+                "Grid it reads": f"{declared['grid']}²",
+                "Grid the network sees": f"{declared['network_grid']}²",
+                "Ensemble": declared.get("ensemble", "—"),
+                "Emits": declared.get("grades", "—"),
+            },
+            lambda declared: declared.get("gate", "not declared"),
+        ),
+        material=photographs.material(
+            list(DATASETS),
+            configuration(found, list(DATASETS), root)["datasets"],
+            stores,
+            ["Photographs", "Reference", "Black canvas", "Excluded, and why"],
+            lambda entry: {
+                "Photographs": entry["total"],
+                "Reference": ", ".join(entry.get("grade_source") or ["—"]),
+                "Black canvas": report.number(entry.get("padding")),
+                "Excluded, and why": report.excluded(entry["excluded"]),
+            },
+        ),
+        exclusions={
+            "below the size floor": photographs.FLOOR_RULE,
+            "a finding recorded against the image": photographs.FINDING_RULE,
+            "no reference to score against": "a photograph the dataset published but never "
+            "graded. It is not a failure of the model and is never counted as one",
+            "excluded whole": photographs.CROP_RULE,
+        },
+        fingerprint=photographs.fingerprint(sys.modules[__name__], FINGERPRINTED, False),
+        running=photographs.running(sys.modules[__name__], rescores=False),
+    )
 
 
 def run(
@@ -389,22 +437,6 @@ def main(asked) -> None:
     for slug, why in no_adapter.items():
         print(f"warning: {slug} is not measured — {why}", file=sys.stderr)
 
-    # The documents describe the benchmark, not the command line: a run narrowed to one model or
-    # one dataset must not rewrite them as though the rest had never been measured.
-    declared, missing_adapters = adapters(list(MODELS), asked.device)
-    missing_stores = missing_datasets(list(DATASETS), root)
-
-    # The configuration page is written first: it describes the run that is about to happen, so a
-    # run that dies halfway still leaves an accurate account of itself.
-    if asked.report:
-        report.write_docs(
-            NAME,
-            configuration(declared, list(DATASETS), root),
-            missing_adapters,
-            missing_stores,
-            COLUMNS,
-        )
-
     run(
         models,
         wanted_datasets,
@@ -421,109 +453,6 @@ def main(asked) -> None:
     # The results page is not written here: it states conclusions drawn from the notebook, and a
     # run must not be able to destroy them. See the `report-benchmark` skill.
     report.write_index()
-
-
-def docs_sections(
-    configured: dict[str, object],
-    missing_models: dict[str, str],
-    missing_datasets: dict[str, str],
-) -> Iterable[str]:
-    """Sections 1 to 4 of the page saying how this benchmark is run.
-
-    They live here rather than in the report writer because what they describe — a grade, where it
-    came from, and what each project's own pipeline does with it — is what this benchmark measures
-    and what no other one does.
-    """
-    models = sorted(configured["models"], key=lambda entry: entry["slug"])
-    datasets = sorted(configured["datasets"], key=lambda entry: entry["slug"])
-    yield "## 1. What this benchmark asks"
-    yield ""
-    yield (
-        "Whether a model's judgement of a photograph matches **what an expert recorded about that "
-        "photograph**. The reference is a human grade published with the dataset; the score says "
-        "how far the software is from it. Comparing the models with each other is a second, "
-        "weaker question, and it is there to raise suspicions about the reference rather than to "
-        "rank the software."
-    )
-    yield ""
-    yield "## 2. The models"
-    yield ""
-    yield "| Model | Pinned at | Grid it reads | Grid the network sees | Ensemble | Emits |"
-    yield "| --- | --- | --- | --- | --- | --- |"
-    for entry in models:
-        slug, declared = entry["slug"], entry["declared"]
-        yield (
-            f"| [{slug}](../models/{slug}.md) | {report.pin(declared.get('upstream', {}))} | "
-            f"{declared['grid']}² | {declared['network_grid']}² | "
-            f"{declared.get('ensemble', '—')} | {declared.get('grades', '—')} |"
-        )
-    for model, why in sorted(missing_models.items()):
-        yield f"| [{model}](../models/{model}.md) | **not measured** — {why} | — | — | — | — |"
-    yield ""
-    yield (
-        "A model named here that has no adapter is **declared, not forgotten**: the benchmark asks "
-        "for it, and the run says so every time until somebody writes it."
-    )
-    yield ""
-    yield "### 2.1 What each model's own project does with its answer"
-    yield ""
-    yield (
-        "A grade is not a decision. Which photographs reach a segmentation model is decided by a "
-        "rule belonging to the **pipeline** rather than to the model, and sometimes by a rule that "
-        "overrides the model's own verdict. Each adapter declares the rule its project applies, "
-        "and the `carried_by_its_pipeline` column of the evidence records what that rule did to "
-        "each photograph."
-    )
-    yield ""
-    for entry in models:
-        yield f"- **{entry['slug']}** — {entry['declared'].get('gate', 'not declared')}"
-    yield ""
-    yield "## 3. The datasets"
-    yield ""
-    yield "| Dataset | Photographs | Reference | Black canvas | Excluded, and why |"
-    yield "| --- | --- | --- | --- | --- |"
-    for entry in datasets:
-        slug = entry["slug"]
-        yield (
-            f"| [{slug}](../datasets/{slug}.md) | {entry['total']} | "
-            f"{', '.join(entry.get('grade_source') or ['—'])} | "
-            f"{report.number(entry.get('padding'))} | {report.excluded(entry['excluded'])} |"
-        )
-    for dataset, why in sorted(missing_datasets.items()):
-        yield f"| [{dataset}](../datasets/{dataset}.md) | **not measured** — {why} | — | — | — |"
-    yield ""
-    yield (
-        "**Reference** says where the grade came from. `published` is the dataset's own verdict; "
-        "`derived` is this repository's, computed from components the dataset did publish; "
-        "`assumed` is this repository's supposition that a curated dataset is all sound, which "
-        "means that dataset contains no bad photographs by construction and no ranking metric is "
-        "defined on it."
-    )
-    yield ""
-    yield (
-        "**Black canvas** is the share of the square the store built that is not photograph. A "
-        "fundus cut off at top and bottom leaves bands there, and a model judges the square it is "
-        "handed."
-    )
-    yield ""
-    yield "## 4. What is excluded, and by which rule"
-    yield ""
-    yield (
-        "- **Below the size floor** — a photograph whose field of view is under 512 pixels, "
-        "measured on the field's own size rather than the frame's.\n"
-        "- **A finding recorded against the image** — anything in `src/datasets/exclusions/`, so "
-        "that a finding survives deleting and rebuilding a store.\n"
-        "- **No reference to score against** — a photograph the dataset published but never "
-        "graded. It is not a failure of the model and is never counted as one.\n"
-        "- **Excluded whole** — a dataset whose images are crops rather than photographs. No size "
-        "floor catches that, because a crop can be large."
-    )
-    yield ""
-    yield (
-        "These are **ours**: the benchmark would not ask. A model's own refusal to answer is "
-        "`declined`, which is a different statement, and the two are never added together."
-    )
-    yield ""
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
