@@ -12,7 +12,6 @@ from pathlib import Path
 import numpy as np
 from scipy import ndimage
 
-from .fetch_um_resolution import outlined
 from .utils import manifest, paths, resample
 
 #: Where the estimates are committed, one CSV and one JSON per dataset.
@@ -34,10 +33,10 @@ NO_IMAGE = "no-image"
 
 def estimate(store: Path, adapter: object) -> list[dict[str, str]]:
     """One row per photograph in the manifest, in manifest order, whether or not a disc was found."""
-    return [_estimated(store, row, adapter) for row in manifest.read(store)]
+    return [estimated(store, row, adapter) for row in manifest.read(store)]
 
 
-def _estimated(store: Path, row: dict[str, str], adapter: object) -> dict[str, str]:
+def estimated(store: Path, row: dict[str, str], adapter: object) -> dict[str, str]:
     """One photograph's disc and cup, read from its crop resized to the model's grid."""
     key = row["key"]
     record = dict.fromkeys(COLUMNS, "") | {"key": key}
@@ -57,6 +56,52 @@ def _estimated(store: Path, row: dict[str, str], adapter: object) -> dict[str, s
     if cup is not None:
         record |= dict(zip(("cup_cx", "cup_cy", "cup_r"), cup))
     return record
+
+
+def outlined(adapter: object, prepared: object, side: int, key: str) -> object | None:
+    """One photograph's outlines in the crop, or `None` where the model crashed on it.
+
+    The key is passed to an adapter that accepts one, and left off for one that does not. A crash
+    is one photograph, not the run.
+    """
+    try:
+        drawn = adapter.outline(prepared, [side], keys=[key])
+    except TypeError:
+        drawn = adapter.outline(prepared, [side])
+    except Exception as failure:
+        print(f"  {key}: {failure!r}", file=sys.stderr)
+        return None
+    return drawn[0]
+
+
+def current(
+    store: Path, slug: str, where: Path | None = None
+) -> tuple[dict[str, object], dict[str, dict[str, str]]] | None:
+    """The committed estimates of this store as it is built now, or `None` where there are none.
+
+    They count only if they were made by this module's model, in the crop, on a store built to the
+    same rules and holding the same photographs: a crop that changed moves every disc in it.
+    :return: the sidecar, and the rows by key.
+    """
+    where = where or ESTIMATED
+    sidecar_path, rows_path = where / f"{slug}.json", where / f"{slug}.csv"
+    if not sidecar_path.exists() or not rows_path.exists():
+        return None
+    sidecar = json.loads(sidecar_path.read_text())
+    built = (
+        json.loads((store / "build.json").read_text()) if (store / "build.json").exists() else {}
+    )
+    if (
+        sidecar.get("model") != MODEL
+        or sidecar.get("frame") != FRAME
+        or sidecar.get("builder_version") != built.get("builder_version")
+    ):
+        return None
+    with open(rows_path, newline="") as f:
+        rows = {row["key"]: row for row in csv.DictReader(f)}
+    if set(rows) != {row["key"] for row in manifest.read(store)}:
+        return None
+    return sidecar, rows
 
 
 def _circle(mask: np.ndarray | None) -> tuple[str, str, str] | None:
