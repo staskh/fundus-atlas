@@ -602,6 +602,50 @@ circle from the stored centre and radius.
 - `fov_cx`, `fov_cy` and `fov_r` stay in the manifest as the **geometry that produced the crop**.
   They describe the circle that was fitted; they are not a substitute for the mask.
 
+### 9.1 A photograph its authors already cropped is not cropped again
+
+Some datasets distribute photographs **already cropped to the field of view on a square frame**.
+Running the crop over them again changes almost nothing, and what it does change has a cost:
+each edge moves by a few dozen pixels, so a strip of real retina is shaved off one side and an
+equal strip of invented padding is pasted onto the other, and every coordinate the dataset
+published has to be translated by an offset that exists only because of us.
+
+**So where the frame is square and the crop would move every edge by less than 3% of the side, the
+frame is the crop**: `crop_x0 = crop_y0 = 0` and `crop_side` is the frame's own side. Everything
+else in this section still happens. The field of view is still detected (or read from the
+dataset's mask), the mask is still written, and `fov_cx`, `fov_cy` and `fov_r` still record the
+fitted circle, because a field-angle scale and every area measurement need it. Only the square
+stops following the circle.
+
+- **Declare it per dataset, or per subcollection, never per image** — the same way the crop rule of
+  `build-benchmark` is declared. A dataset distributed pre-cropped is pre-cropped as a whole; one
+  photograph whose detection went wrong must not be the one that gets re-cropped, and one
+  photograph that happens to sit near its frame in a dataset that is not pre-cropped must not be
+  the one that is spared.
+- **Measure before declaring.** Build the store once with the ordinary crop and read, per subset
+  and per frame size, how far the square's edges are from the frame's
+  (`max(|x0|, |y0|, |x0 + side − width|, |y0 + side − height|) / side`). A subcollection whose
+  median and nearly all of its rows sit under 3% qualifies; record the figure in the fetcher beside
+  the declaration and on the dataset page.
+- **Square means square.** A frame a few pixels off square, such as FQS's 1944×1942, is not
+  covered: keeping it would make the stored image not square, and every consumer assumes it is.
+
+Measured against the stores built so far, the subcollections that qualify:
+
+| Dataset | Subcollection | Frame | Edge moved, median (max) |
+| --- | --- | --- | --- |
+| [FIVES](../../../docs/datasets/fives.md) | all 800 | 2048² | 1.2% (1.6%) |
+| [FQS](../../../docs/datasets/fqs.md) | the 134 at 1942² only | 1942² | 0.3% (4.0%) |
+| [Fundus-AVSeg](../../../docs/datasets/fundus-avseg.md) | `square`, 79 | 1280² | 0.2% (1.6%) |
+| [GRAPE](../../../docs/datasets/grape.md) | all 631 | 1556², 1611², 2136² | 1.3–1.4% (12.7%, one photograph) |
+| [MSHF](../../../docs/datasets/mshf.md) | `cfp` at 1534², 78 | 1534² | 0.8% (73.7%, one photograph) |
+| [REYIA](../../../docs/datasets/reyia.md) | `enrich`, `fives`, `grape`, `magreb`, `mbrset`, `messidor`, `papila` | 1444², and 2196² for ENRICH | 0.1–2.6% (6.9%) |
+
+REYIA's `trend` is square at 2560² and does **not** qualify: its edges move by 9.6%, because the
+field sits inside the frame with a wide surround. [RIGA](../../../docs/datasets/riga.md) keeps its
+frame for a different reason — its images are crops with no field boundary at all, recorded as
+`assumed_full_frame` — and is not an instance of this rule.
+
 ## 10. Optic disc and cup: contours, not rasters
 
 Disc and cup are stored as **polygon nodes in a CSV per image**, one file holding every structure and

@@ -26,7 +26,10 @@ guarantee usable biomarkers.
 
 - **Code:** **None stated.** No LICENSE file, so no permission to reuse or redistribute has been
   granted regardless of intent. Ask the authors.
-- **Model weights:** No license stated on either Hugging Face repository.
+- **Model weights:** **MIT**, declared in the model card's metadata (`license: mit`) on
+  [Anon-User-Retina/OCULARNet](https://huggingface.co/Anon-User-Retina/OCULARNet), commit
+  `63cc6b80` (2026-06-09). The repository holds no LICENSE file of its own; the card's tag is the
+  whole of the grant, and it covers the weights, not the code above.
 
 ## 3. Major publications by the authors
 
@@ -120,8 +123,9 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 - **Crossings change what downstream code sees.** A four-class output is not a drop-in replacement
   for a three-class artery/vein mask; code expecting the latter needs to decide what to do with the
   crossings class rather than ignore it silently.
-- With no license (section 2) this is currently readable but not reusable.
+- The weights are MIT and the code carries no licence (section 2): the checkpoint may be reused,
+  the inference and training code may be read but not reused.
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-10-11
