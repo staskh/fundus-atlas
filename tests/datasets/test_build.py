@@ -632,3 +632,48 @@ def _asked(**overrides):
             *[part for k, v in overrides.items() for part in (f"--{k.replace('_', '-')}", v)],
         ],
     )
+
+
+def test_a_scale_measured_on_the_store_before_a_rebuild_is_not_copied_into_it(
+    tmp_path, monkeypatch
+) -> None:
+    """A rebuild under new rules changes the crops, and so the discs the scale was measured from."""
+    older = build.BUILDER_VERSION - 1
+    store = tmp_path / "store" / "synthetic"
+    store.mkdir(parents=True)
+    (store / "build.json").write_text(json.dumps({"builder_version": older, "partial": False}))
+    directory = tmp_path / "um_resolution"
+    directory.mkdir()
+    (directory / "synthetic.json").write_text(
+        json.dumps(
+            {
+                "dataset": "synthetic",
+                "builder_version": older,
+                "groups": [
+                    {
+                        "subset": "main",
+                        "raw_width": 300,
+                        "raw_height": 300,
+                        "accepted": True,
+                        "um_per_px": 8.61,
+                    }
+                ],
+            }
+        )
+    )
+    monkeypatch.setattr(resolution, "INFERRED", directory)
+    args = cli.parse(
+        "synthetic",
+        ["--data-root", str(tmp_path / "store"), "--raw", str(a_dataset(tmp_path)), "--force"],
+    )
+
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover,
+        resolution_of=resolution.Declared(None, "unknown", "not published"),
+        args=args,
+        extra_columns=[manifest.Column("artifact", "0 is best")],
+    )
+
+    assert all(row["um_per_px"] == "" for row in manifest.read(store))

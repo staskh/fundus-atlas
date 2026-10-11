@@ -192,15 +192,17 @@ def run(
         readings.extend(record.readings)
 
     manifest.write(store, rows, extra_columns, readings)
-    # A camera scale inferred from the typical disc is committed in the repository rather than in
-    # this cache, so a rebuilt store recovers it by copying rather than by running a model. Nothing
-    # here measures anything: `fetch_um_resolution` does that, once, and this reads what it wrote.
-    _stamp_inferred(store, slug)
     checked = None
     if verify is not None:
         print(f"{slug}: checking the store against what the dataset published", file=sys.stderr)
         checked = verify(store, layers, rows)
     _write_build_json(store, args, provenance, len(rows), warnings, checked)
+    # A camera scale inferred from the typical disc is committed in the repository rather than in
+    # this cache, so a rebuilt store recovers it by copying rather than by running a model. Nothing
+    # here measures anything: `fetch_um_resolution` does that, once, and this reads what it wrote.
+    # After `build.json`, so the stamp compares the scale with the rules this store was just built
+    # to rather than with the ones it replaced.
+    _stamp_inferred(store, slug)
 
     # Only what this build downloaded is ever deleted. A tree passed with --raw belongs to the
     # person who passed it, and may well be somewhere else entirely.
