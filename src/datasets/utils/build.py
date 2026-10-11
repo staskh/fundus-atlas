@@ -31,7 +31,8 @@ from datasets.utils import (
 #:
 #: 6 — the surround tolerance is learned from the border ring's own scatter as well as from the
 #: photograph's exposure, so a dark compressed thumbnail no longer counts its own noise as field.
-BUILDER_VERSION = 6
+#: 7 — a square photograph whose crop would move every edge by under 3% of its side keeps its frame.
+BUILDER_VERSION = 7
 
 #: The maps a store can hold, in the order they appear in the `maps` column. `disc` and `cup` mean
 #: polygons in `contours/<key>.csv`, never a raster.
@@ -362,6 +363,8 @@ def _build_one(
         footprint = fov.mask_of(image)
 
     square = crop.square_around(circle, footprint > 0)
+    if circle.source != "assumed_full_frame" and crop.keeps_frame(square, height, width):
+        square = crop.Square(0, 0, width)
     frames = {"images": crop.apply(image, square), "fov": crop.apply(footprint, square)}
     for name, source in record.maps.items():
         if name == "fov":

@@ -84,6 +84,28 @@ def test_the_crop_is_square_at_full_resolution(tmp_path):
     assert Image.open(store / "crop" / "images" / "a.png").size[0] == pytest.approx(200, abs=1)
 
 
+def a_dataset_cropped_by_its_authors(tmp_path):
+    """Two square photographs whose field already reaches within a few pixels of every edge."""
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    yy, xx = np.mgrid[0:300, 0:300]
+    for key in ("a", "b"):
+        image = np.zeros((300, 300, 3), dtype=np.uint8)
+        image[(xx - 150) ** 2 + (yy - 150) ** 2 <= 147**2] = 180
+        Image.fromarray(image).save(raw / f"{key}.png")
+        Image.fromarray(np.zeros((300, 300), dtype=np.uint8)).save(raw / f"{key}_vessels.png")
+    return raw
+
+
+def test_a_photograph_already_cropped_square_keeps_its_frame(tmp_path):
+    store = build_it(tmp_path, "--raw", str(a_dataset_cropped_by_its_authors(tmp_path)))
+
+    row = next(iter(manifest.read(store)))
+    assert (row["crop_x0"], row["crop_y0"], row["crop_side"]) == ("0", "0", "300")
+    assert float(row["fov_r"]) == pytest.approx(147, abs=2), "the field is still found"
+    assert Image.open(store / "crop" / "images" / "a.png").size == (300, 300)
+
+
 def test_the_manifest_describes_the_crop_it_made(tmp_path):
     store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
     row = next(iter(manifest.read(store)))

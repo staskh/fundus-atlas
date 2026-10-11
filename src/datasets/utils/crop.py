@@ -16,6 +16,11 @@ ROUNDING = 0.005
 #: A floor for that, so a small photograph is not held to a sub-pixel standard.
 LEAST_ROUNDING = 2.0
 
+#: How far the square may move an edge of a square frame, as a fraction of its side, before the
+#: frame stops counting as already cropped. Photographs their authors cropped square move by up to
+#: about 3%; the first that were not cropped move by 4.5% and more.
+KEPT_FRAME = 0.03
+
 
 @dataclass(frozen=True)
 class Square:
@@ -64,6 +69,24 @@ def square_around(circle: Circle, field: np.ndarray | None = None) -> Square:
     side = round(max(right - left, bottom - top))
     middle_x, middle_y = (left + right) / 2, (top + bottom) / 2
     return Square(round(middle_x - side / 2), round(middle_y - side / 2), side)
+
+
+def keeps_frame(square: Square, height: int, width: int) -> bool:
+    """Whether a square frame is already its own crop, so that cropping it again is not worth it.
+
+    Decided per photograph. Re-cropping a photograph its authors cropped square shaves a strip of
+    real retina off one side and pastes padding onto the other, and moves every coordinate the
+    dataset published, for a square a few pixels from the one it already is.
+    """
+    if height != width:
+        return False
+    moved = max(
+        abs(square.x0),
+        abs(square.y0),
+        abs(square.x0 + square.side - width),
+        abs(square.y0 + square.side - height),
+    )
+    return moved < KEPT_FRAME * square.side
 
 
 def apply(image: np.ndarray, square: Square, fill: int = 0) -> np.ndarray:
