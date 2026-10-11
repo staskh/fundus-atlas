@@ -1,8 +1,8 @@
 {
   "builder_version": 6,
   "dataset": "reyia",
-  "fingerprint": "044479a66e0080b27989430f53386d62dcbbbe2fba36ef2f7e607c14fc8023c0",
-  "frame": "native crop",
+  "fingerprint": "3640833a649dfb35f09b515de025d3c5df4ce3260b2097120a0089dd1cf24aa7",
+  "frame": "crop",
   "grid": 512,
   "model": "segformer-disc-cup",
   "n_cup": 558,

@@ -4,13 +4,12 @@
 ### 2.N How to fetch
 
 ```bash
-uv run python -m datasets.<slug>                          # downloads and builds 512 and 1024
-uv run python -m datasets.<slug> --sizes 512,720,1024     # any sizes a model needs
+uv run python -m datasets.<slug>                          # downloads and builds the crop
 uv run python -m datasets.<slug> --archive ~/<file>.zip   # an archive obtained by hand
 ```
 
 - **Downloads:** <which layers, how large, which are optional and what is lost by skipping them>.
-- **Builds:** <the maps, at `native/` plus each requested size>.
+- **Builds:** <the maps, in `crop/`>.
 - **Needs a human:** <the account, form or agreement, and what to pass to `--archive`. Omit this
   bullet only for a dataset whose Down column is ✅>.
 - **Extra columns:** <each dataset-specific manifest column and what it holds, one line each —

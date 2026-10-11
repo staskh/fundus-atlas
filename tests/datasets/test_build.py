@@ -3,7 +3,6 @@
 
 import csv
 import json
-import shutil
 import zipfile
 
 import numpy as np
@@ -50,7 +49,7 @@ def discover(layers):
 
 
 def build_it(tmp_path, *argv, fov_from_mask=False):
-    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", *argv])
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), *argv])
     build.run(
         slug="synthetic",
         sources=[],
@@ -65,26 +64,24 @@ def build_it(tmp_path, *argv, fov_from_mask=False):
     return tmp_path / "store" / "synthetic"
 
 
-def test_the_photograph_and_its_field_are_written_at_every_size(tmp_path):
+def test_the_photograph_its_field_and_its_annotation_are_written_in_the_crop(tmp_path):
     store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
-    for size in ("native", "64"):
-        for layer in ("images", "fov"):
-            assert (store / size / layer / "a.png").exists()
+    for layer in ("images", "fov", "vessels"):
+        assert (store / "crop" / layer / "a.png").exists()
 
 
-def test_an_annotation_is_written_at_native_and_nowhere_else(tmp_path):
-    """A benchmark measures in the frame the annotator drew in, so a resized copy reads to nobody."""
+def test_the_crop_is_the_only_frame_the_store_keeps(tmp_path):
+    """A model's size is made from the crop when it is read, so no resized copy is written."""
     store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
 
-    assert (store / "native" / "vessels" / "a.png").exists()
-    assert not (store / "64" / "vessels").exists()
+    kept = {path.name for path in store.iterdir() if path.is_dir()}
+    assert kept == {"crop"}
 
 
-def test_a_size_is_square_and_native_is_the_crop(tmp_path):
+def test_the_crop_is_square_at_full_resolution(tmp_path):
     store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
-    assert Image.open(store / "64" / "images" / "a.png").size == (64, 64)
-    # Native is the field's bounding box, to within the pixel the circle fit can resolve.
-    assert Image.open(store / "native" / "images" / "a.png").size[0] == pytest.approx(200, abs=1)
+    # The crop is the field's bounding box, to within the pixel the circle fit can resolve.
+    assert Image.open(store / "crop" / "images" / "a.png").size[0] == pytest.approx(200, abs=1)
 
 
 def test_the_manifest_describes_the_crop_it_made(tmp_path):
@@ -128,48 +125,30 @@ def test_a_raw_tree_the_caller_supplied_is_never_deleted(tmp_path):
 def test_a_second_run_rebuilds_nothing(tmp_path):
     raw = a_dataset(tmp_path)
     store = build_it(tmp_path, "--raw", str(raw))
-    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    before = (store / "crop" / "images" / "a.png").stat().st_mtime_ns
     build_it(tmp_path, "--raw", str(raw))
-    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+    assert (store / "crop" / "images" / "a.png").stat().st_mtime_ns == before
 
 
 def test_force_rebuilds_anyway(tmp_path):
     raw = a_dataset(tmp_path)
     store = build_it(tmp_path, "--raw", str(raw))
-    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    before = (store / "crop" / "images" / "a.png").stat().st_mtime_ns
     build_it(tmp_path, "--raw", str(raw), "--force")
-    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns != before
-
-
-def test_a_new_size_is_built_from_native_with_no_archive_in_reach(tmp_path):
-    raw = a_dataset(tmp_path)
-    store = build_it(tmp_path, "--raw", str(raw))
-    shutil.rmtree(raw)  # the archive is gone; native must be enough
-    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "32,64"])
-    build.run(
-        slug="synthetic",
-        sources=[],
-        discover=discover,
-        resolution_of=resolution.Declared(5.0, "published", "stated in the paper"),
-        args=args,
-    )
-    assert Image.open(store / "32" / "images" / "a.png").size == (32, 32)
-    assert Image.open(store / "32" / "fov" / "a.png").size == (32, 32)
-    assert not (store / "32" / "vessels").exists(), "the annotation stays where it was drawn"
-    assert json.loads((store / "build.json").read_text())["sizes"] == [32, 64]
+    assert (store / "crop" / "images" / "a.png").stat().st_mtime_ns != before
 
 
 def test_an_interrupted_build_continues_rather_than_starting_over(tmp_path):
     raw = a_dataset(tmp_path)
     store = build_it(tmp_path, "--raw", str(raw), "--limit", "1")
     assert json.loads((store / "build.json").read_text())["partial"] is True
-    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    before = (store / "crop" / "images" / "a.png").stat().st_mtime_ns
 
     build_it(tmp_path, "--raw", str(raw))
     record = json.loads((store / "build.json").read_text())
     assert record["images"] == 2
     assert record["partial"] is False
-    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+    assert (store / "crop" / "images" / "a.png").stat().st_mtime_ns == before
 
 
 def test_the_source_path_is_recorded_inside_the_archive_not_on_this_machine(tmp_path):
@@ -181,11 +160,11 @@ def test_the_source_path_is_recorded_inside_the_archive_not_on_this_machine(tmp_
 def test_a_rerun_after_the_manifest_is_lost_does_not_rewrite_the_images(tmp_path):
     raw = a_dataset(tmp_path)
     store = build_it(tmp_path, "--raw", str(raw))
-    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    before = (store / "crop" / "images" / "a.png").stat().st_mtime_ns
     (store / "manifest.csv").unlink()
     (store / "build.json").unlink()
     build_it(tmp_path, "--raw", str(raw))
-    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+    assert (store / "crop" / "images" / "a.png").stat().st_mtime_ns == before
     assert len(list(manifest.read(store))) == 2
 
 
@@ -212,9 +191,7 @@ def outlined(layers):
 
 def build_outlined(tmp_path):
     raw = a_dataset(tmp_path)
-    args = cli.parse(
-        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
-    )
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--raw", str(raw)])
     build.run(
         slug="synthetic",
         sources=[],
@@ -227,8 +204,8 @@ def build_outlined(tmp_path):
 
 def test_disc_and_cup_are_contours_rather_than_rasters(tmp_path):
     store, _ = build_outlined(tmp_path)
-    assert (store / "native" / "contours" / "a.csv").exists()
-    assert not (store / "native" / "disc").exists()
+    assert (store / "crop" / "contours" / "a.csv").exists()
+    assert not (store / "crop" / "disc").exists()
     row = next(iter(manifest.read(store)))
     assert row["maps"] == "fov;disc;cup"
     assert row["readers"] == "expert1;expert2"
@@ -236,7 +213,7 @@ def test_disc_and_cup_are_contours_rather_than_rasters(tmp_path):
 
 def test_every_reader_of_every_structure_is_in_one_file(tmp_path):
     store, _ = build_outlined(tmp_path)
-    drawn = contours.read(store / "native" / "contours" / "a.csv")
+    drawn = contours.read(store / "crop" / "contours" / "a.csv")
     assert set(drawn) == {
         ("disc", "expert1"),
         ("disc", "expert2"),
@@ -245,21 +222,11 @@ def test_every_reader_of_every_structure_is_in_one_file(tmp_path):
     }
 
 
-def test_a_sized_contour_is_the_native_one_scaled(tmp_path):
-    store, _ = build_outlined(tmp_path)
-    native = contours.read(store / "native" / "contours" / "a.csv")[("disc", "expert1")]
-    sized = contours.read(store / "64" / "contours" / "a.csv")[("disc", "expert1")]
-    row = next(iter(manifest.read(store)))
-    scale = 64 / int(row["crop_side"])
-    assert len(sized) == len(native)
-    assert sized[0][0] == pytest.approx(native[0][0] * scale, abs=1)
-
-
 def test_an_outline_is_placed_by_the_crop_and_not_by_the_frame(tmp_path):
     store, _ = build_outlined(tmp_path)
     row = next(iter(manifest.read(store)))
-    drawn = contours.read(store / "native" / "contours" / "a.csv")[("disc", "expert1")]
-    # The disc sits at (150, 150) in the source; in the native frame it is that, less the crop.
+    drawn = contours.read(store / "crop" / "contours" / "a.csv")[("disc", "expert1")]
+    # The disc sits at (150, 150) in the source; in the crop frame it is that, less the crop.
     assert drawn[:, 0].mean() == pytest.approx(150 - int(row["crop_x0"]), abs=3)
 
 
@@ -276,9 +243,7 @@ def test_published_coordinates_are_translated_not_traced(tmp_path):
             )
         ]
 
-    args = cli.parse(
-        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
-    )
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--raw", str(raw)])
     build.run(
         slug="synthetic",
         sources=[],
@@ -288,7 +253,7 @@ def test_published_coordinates_are_translated_not_traced(tmp_path):
     )
     store = tmp_path / "store" / "synthetic"
     row = next(iter(manifest.read(store)))
-    drawn = contours.read(store / "native" / "contours" / "a.csv")[("disc", "consensus")]
+    drawn = contours.read(store / "crop" / "contours" / "a.csv")[("disc", "consensus")]
     assert drawn[0][0] == pytest.approx(150 - int(row["crop_x0"]))
     assert len(drawn) == 2
 
@@ -323,9 +288,7 @@ def test_an_unreadable_outline_leaves_the_photograph_built(tmp_path):
         records[0].outlines[("disc", "expert2")] = broken
         return records
 
-    args = cli.parse(
-        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
-    )
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--raw", str(raw)])
     build.run(
         slug="synthetic",
         sources=[],
@@ -335,7 +298,7 @@ def test_an_unreadable_outline_leaves_the_photograph_built(tmp_path):
     )
     store = tmp_path / "store" / "synthetic"
     row = next(iter(manifest.read(store)))
-    drawn = contours.read(store / "native" / "contours" / "a.csv")
+    drawn = contours.read(store / "crop" / "contours" / "a.csv")
     assert ("disc", "expert1") in drawn
     assert ("disc", "expert2") not in drawn
     assert "could not be read" in row["notes"]
@@ -347,14 +310,14 @@ def test_an_image_whose_outlines_are_built_counts_as_built(tmp_path):
     store, _ = build_outlined(tmp_path)
     row = next(iter(manifest.read(store)))
     assert row["maps"] == "fov;disc;cup"
-    assert build._is_built("a", store, [64], {"a": row})
+    assert build._is_built("a", store, {"a": row})
 
 
 def test_an_image_whose_contours_are_missing_does_not_count_as_built(tmp_path):
     store, _ = build_outlined(tmp_path)
     row = next(iter(manifest.read(store)))
-    (store / "64" / "contours" / "a.csv").unlink()
-    assert not build._is_built("a", store, [64], {"a": row})
+    (store / "crop" / "contours" / "a.csv").unlink()
+    assert not build._is_built("a", store, {"a": row})
 
 
 def test_a_reused_row_takes_this_run_s_readings(tmp_path):
@@ -374,7 +337,7 @@ def test_a_reused_row_takes_this_run_s_readings(tmp_path):
     def run(verdict):
         args = cli.parse(
             "synthetic",
-            ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)],
+            ["--data-root", str(tmp_path / "store"), "--raw", str(raw)],
         )
         build.run(
             slug="synthetic",
@@ -388,11 +351,11 @@ def test_a_reused_row_takes_this_run_s_readings(tmp_path):
 
     store = run("normal")
     assert next(iter(manifest.read(store)))["disease"] == "normal"
-    before = (store / "native" / "images" / "a.png").stat().st_mtime_ns
+    before = (store / "crop" / "images" / "a.png").stat().st_mtime_ns
     (store / "build.json").unlink()
     store = run("glaucoma suspect")
     assert next(iter(manifest.read(store)))["disease"] == "glaucoma suspect"
-    assert (store / "native" / "images" / "a.png").stat().st_mtime_ns == before
+    assert (store / "crop" / "images" / "a.png").stat().st_mtime_ns == before
 
 
 def test_two_structures_can_come_out_of_one_mask_file(tmp_path):
@@ -416,9 +379,7 @@ def test_two_structures_can_come_out_of_one_mask_file(tmp_path):
             )
         ]
 
-    args = cli.parse(
-        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
-    )
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--raw", str(raw)])
     build.run(
         slug="synthetic",
         sources=[],
@@ -427,7 +388,7 @@ def test_two_structures_can_come_out_of_one_mask_file(tmp_path):
         args=args,
     )
     store = tmp_path / "store" / "synthetic"
-    drawn = contours.read(store / "native" / "contours" / "a.csv")
+    drawn = contours.read(store / "crop" / "contours" / "a.csv")
     disc = drawn[("disc", "expert1")]
     cup = drawn[("cup", "expert1")]
     assert (disc[:, 1].max() - disc[:, 1].min()) == pytest.approx(120, abs=4)
@@ -455,9 +416,7 @@ def test_outlines_drawn_on_a_crop_are_placed_back_on_the_photograph(tmp_path):
             )
         ]
 
-    args = cli.parse(
-        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
-    )
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--raw", str(raw)])
     build.run(
         slug="synthetic",
         sources=[],
@@ -474,7 +433,7 @@ def test_outlines_drawn_on_a_crop_are_placed_back_on_the_photograph(tmp_path):
     row = next(iter(manifest.read(store)))
     assert (int(row["roi_x0"]), int(row["roi_y0"])) == (90, 60)
     assert float(row["roi_match"]) > 0.99
-    drawn = contours.read(store / "native" / "contours" / "a.csv")[("disc", "expert1")]
+    drawn = contours.read(store / "crop" / "contours" / "a.csv")[("disc", "expert1")]
     # The node is 10, 20 in the crop, so 100, 80 in the photograph, less the crop this build made.
     assert drawn[0][0] == pytest.approx(100 - int(row["crop_x0"]))
     assert drawn[0][1] == pytest.approx(80 - int(row["crop_y0"]))
@@ -489,9 +448,7 @@ def test_a_check_on_the_finished_store_is_recorded_in_the_build(tmp_path):
         return {"checked": len(rows), "worst": 0.97}
 
     raw = a_dataset(tmp_path)
-    args = cli.parse(
-        "synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64", "--raw", str(raw)]
-    )
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--raw", str(raw)])
     build.run(
         slug="synthetic",
         sources=[],
@@ -536,8 +493,8 @@ def test_a_rebuilt_store_recovers_an_inferred_scale_without_measuring_it_again(t
             {
                 "key": "a",
                 "subset": "main",
-                "native_width": "1920",
-                "native_height": "1440",
+                "raw_width": "1920",
+                "raw_height": "1440",
                 "crop_side": "1400",
                 "um_per_px": "",
                 "resolution_source": "unknown",
@@ -554,8 +511,8 @@ def test_a_rebuilt_store_recovers_an_inferred_scale_without_measuring_it_again(t
                 "groups": [
                     {
                         "subset": "main",
-                        "native_width": 1920,
-                        "native_height": 1440,
+                        "raw_width": 1920,
+                        "raw_height": 1440,
                         "accepted": True,
                         "um_per_px": 8.61,
                     }
@@ -583,13 +540,6 @@ def test_a_coloured_artery_vein_map_is_stored_as_binary_masks(tmp_path) -> None:
 
     assert frames["artery"][2].all() and not frames["artery"][5].any()
     assert frames["vein"][5].all() and not frames["vein"][2].any()
-
-
-def test_ground_truth_is_written_at_native_and_nowhere_else(tmp_path) -> None:
-    """Every score is measured in the frame the annotator drew in, so a resized copy of an
-    annotation is a file nothing reads and a second thing to keep consistent."""
-    assert build.EVERY_SIZE == ("images", "fov")
-    assert "artery" not in build.EVERY_SIZE and "vessels" not in build.EVERY_SIZE
 
 
 def test_an_artery_vein_map_becomes_three_masks(tmp_path) -> None:
@@ -660,34 +610,3 @@ def _asked(**overrides):
             *[part for k, v in overrides.items() for part in (f"--{k.replace('_', '-')}", v)],
         ],
     )
-
-
-def test_adding_a_size_rebuilds_the_photograph_and_leaves_the_annotation_alone(tmp_path) -> None:
-    """The size-adding path follows the same rule as a first build, or the store disagrees with
-    itself: 512 would hold annotations that native was the only place for."""
-    store = build_it(tmp_path, "--raw", str(a_dataset(tmp_path)))
-    (store / "native" / ".DS_Store").write_bytes(b"what a Mac leaves behind")
-
-    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64,96"])
-    build._add_sizes("synthetic", store, args, json.loads((store / "build.json").read_text()))
-
-    assert (store / "96" / "images" / "a.png").exists()
-    assert (store / "96" / "fov" / "a.png").exists()
-    assert not (store / "96" / "vessels").exists(), "an annotation lives at native and nowhere else"
-    assert not (store / "96" / ".DS_Store").exists(), "and a stray file is not a layer"
-
-
-def test_adding_a_size_scales_the_contours_into_it(tmp_path) -> None:
-    """A contour is scaled from native, never re-traced, so an added size gets one too."""
-    raw = a_dataset(tmp_path)
-    store = build_it(tmp_path, "--raw", str(raw))
-    drawn = store / "native" / "contours"
-    drawn.mkdir(parents=True, exist_ok=True)
-    (drawn / "a.csv").write_text("structure,reader,node,x,y\ndisc,expert1,0,100.0,120.0\n")
-
-    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--sizes", "64,96"])
-    build._add_sizes("synthetic", store, args, json.loads((store / "build.json").read_text()))
-
-    written = (store / "96" / "contours" / "a.csv")
-    assert written.exists(), "the outline belongs at every size, scaled"
-    assert "disc" in written.read_text()

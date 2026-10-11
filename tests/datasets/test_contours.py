@@ -44,7 +44,7 @@ def test_a_mask_nobody_drew_on_traces_to_nothing():
     assert len(contours.trace(np.zeros((100, 100), dtype=np.uint8))) == 0
 
 
-def test_native_keeps_floats_so_every_size_comes_from_one_trace(tmp_path):
+def test_the_trace_is_written_with_its_floats(tmp_path):
     drawn = {("disc", "expert1"): np.array([[10.5, 20.25], [30.5, 40.75]])}
     contours.write(tmp_path / "k.csv", drawn)
     rows = (tmp_path / "k.csv").read_text().splitlines()
@@ -52,19 +52,10 @@ def test_native_keeps_floats_so_every_size_comes_from_one_trace(tmp_path):
     assert rows[1] == "disc,expert1,0,10.5,20.25"
 
 
-def test_a_size_is_the_native_trace_scaled_and_rounded(tmp_path):
-    drawn = {("disc", "expert1"): np.array([[100.0, 200.0], [300.0, 400.0]])}
-    contours.write(tmp_path / "k.csv", drawn, scale=0.5)
-    assert (tmp_path / "k.csv").read_text().splitlines()[1:] == [
-        "disc,expert1,0,50,100",
-        "disc,expert1,1,150,200",
-    ]
-
-
 def test_a_node_outside_the_frame_is_kept_rather_than_clipped(tmp_path):
     drawn = {("cup", "consensus"): np.array([[-12.0, 5.0]])}
-    contours.write(tmp_path / "k.csv", drawn, scale=0.5)
-    assert (tmp_path / "k.csv").read_text().splitlines()[1] == "cup,consensus,0,-6,2"
+    contours.write(tmp_path / "k.csv", drawn)
+    assert (tmp_path / "k.csv").read_text().splitlines()[1] == "cup,consensus,0,-12.0,5.0"
 
 
 def test_every_structure_and_reader_shares_one_file_per_image(tmp_path):

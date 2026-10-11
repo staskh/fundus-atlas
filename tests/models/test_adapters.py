@@ -147,7 +147,7 @@ def test_every_segmenter_says_which_structures_it_finds(slug: str) -> None:
 
     assert set(declared["structures"]) <= {"disc", "cup"}
     assert declared["structures"], "a segmenter that finds neither structure is not one"
-    assert "resampling" in declared, "how a mask reached the native frame moves every metric"
+    assert "resampling" in declared, "how a mask reached the crop frame moves every metric"
 
 
 def test_automorph_counts_the_cup_as_part_of_the_disc() -> None:
@@ -178,7 +178,7 @@ def test_every_artery_vein_model_finds_both_kinds_of_vessel(slug: str) -> None:
     assert set(declared["structures"]) == {"artery", "vein"}, (
         "the benchmark derives the vessel map from these two, identically for every model"
     )
-    assert "resampling" in declared, "how a mask reached the native frame moves every score"
+    assert "resampling" in declared, "how a mask reached the crop frame moves every score"
 
 
 @pytest.mark.parametrize("slug", VESSELS)

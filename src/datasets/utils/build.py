@@ -1,5 +1,5 @@
-# ABOUTME: Turns a fetcher's list of source images into the standard store: native, each size,
-# ABOUTME: the manifest, and build.json recording what this build actually is.
+# ABOUTME: Turns a fetcher's list of source images into the standard store: the crop, the manifest,
+# ABOUTME: and build.json recording what this build actually is.
 
 import io
 import json
@@ -23,7 +23,6 @@ from datasets.utils import (
     manifest,
     paths,
     quality,
-    resample,
     resolution,
 )
 
@@ -37,13 +36,6 @@ BUILDER_VERSION = 6
 #: The maps a store can hold, in the order they appear in the `maps` column. `disc` and `cup` mean
 #: polygons in `contours/<key>.csv`, never a raster.
 LAYERS = ("artery", "vein", "vessels", "fov", "disc", "cup")
-
-#: The layers that exist at every built size. Everything else an annotator drew is written at
-#: **native and nowhere else**: a benchmark measures in the frame the annotation was made in — the
-#: disc benchmark already does — so a resized copy of a ground truth is a file nothing reads and a
-#: second thing that can fall out of step with the first. The photograph is resized because that is
-#: what a model is given; the answer is compared where it was drawn.
-EVERY_SIZE = ("images", "fov")
 
 #: The layers that live in `contours/<key>.csv` as polygons rather than in a directory of rasters.
 OUTLINED = ("disc", "cup")
@@ -158,7 +150,8 @@ def run(
 
     done = _previous_build(store)
     if done and not args.force and not done["partial"]:
-        return _add_sizes(slug, store, args, done)
+        print(f"{slug}: up to date", file=sys.stderr)
+        return 0
 
     layers, provenance = obtain(store, sources, args)
     raw = next(iter(layers.values()))
@@ -169,7 +162,7 @@ def run(
     built = {} if args.force else {row["key"]: row for row in _previous_rows(store)}
     done, waiting = [], []
     for record in records:
-        if _is_built(record.key, store, args.sizes, built):
+        if _is_built(record.key, store, built):
             done.append((record, _reusable(built[record.key], record), None))
         else:
             waiting.append(record)
@@ -178,7 +171,6 @@ def run(
         _one,
         store=store,
         raw=raw,
-        sizes=args.sizes,
         resolution_of=resolution_of,
         fov_strategy=fov_strategy,
         quality_rule=quality_rule,
@@ -281,8 +273,8 @@ def _previous_rows(store: Path) -> list[dict[str, str]]:
     return list(manifest.read(store)) if (store / manifest.MANIFEST).exists() else []
 
 
-def _is_built(key: str, store: Path, sizes: list[int], built: dict[str, dict[str, str]]) -> bool:
-    """Whether this image is finished: described in the manifest and present at every size.
+def _is_built(key: str, store: Path, built: dict[str, dict[str, str]]) -> bool:
+    """Whether this image is finished: described in the manifest and present in the crop.
 
     Disc and cup are one contour file rather than two rasters, so looking for `disc/<key>.png`
     would call every outlined image unbuilt and trace all ten of its masks again on every run.
@@ -295,52 +287,7 @@ def _is_built(key: str, store: Path, sizes: list[int], built: dict[str, dict[str
     wanted = [(layer, f"{key}.png") for layer in rasters]
     if any(name in OUTLINED for name in named):
         wanted.append(("contours", f"{key}.csv"))
-    return all(
-        paths.layer(store, size, layer).joinpath(file).exists()
-        for size in [paths.NATIVE, *sizes]
-        for layer, file in wanted
-    )
-
-
-def _add_sizes(slug: str, store: Path, args, done: dict) -> int:
-    """Build the sizes that do not exist yet, from `native/` alone.
-
-    No download, no archive, no re-tracing: a size added a year after the first build is identical
-    to the same size built on day one, which is the whole reason `native/` is never optional.
-    """
-    missing = [size for size in args.sizes if not paths.frame(store, size).exists()]
-    if not missing:
-        print(f"{slug}: up to date at {done['sizes']}", file=sys.stderr)
-        return 0
-
-    rows = list(manifest.read(store))
-    print(f"{slug}: adding {missing} from native/", file=sys.stderr)
-    native = paths.frame(store, paths.NATIVE)
-    # The same rule as a first build: the photograph and its field at every size, the annotation at
-    # native only. Anything that is not one of those directories — a contour folder, or the
-    # `.DS_Store` a Mac leaves in a store somebody opened in the Finder — is not a layer to resize.
-    layers = [native / name for name in EVERY_SIZE if (native / name).is_dir()]
-    for n, row in enumerate(rows, 1):
-        key = row["key"]
-        for layer in layers:
-            frame = np.asarray(Image.open(layer / f"{key}.png"))
-            for size in missing:
-                out = paths.layer(store, size, layer.name)
-                out.mkdir(parents=True, exist_ok=True)
-                Image.fromarray(_resize(layer.name, frame, size)).save(out / f"{key}.png")
-        drawn = native / "contours" / f"{key}.csv"
-        if drawn.exists():
-            traced = contours.read(drawn)
-            for size in missing:
-                where = paths.layer(store, size, "contours") / f"{key}.csv"
-                contours.write(where, traced, size / int(row["crop_side"]))
-        if n % 50 == 0 or n == len(rows):
-            print(f"\r{slug}: {n}/{len(rows)} images", end="", file=sys.stderr, flush=True)
-    print(file=sys.stderr)
-
-    done["sizes"] = sorted(set(done["sizes"]) | set(missing))
-    (store / "build.json").write_text(json.dumps(done, indent=2) + "\n")
-    return 0
+    return all(paths.layer(store, layer).joinpath(file).exists() for layer, file in wanted)
 
 
 def obtain(store: Path, sources: list, args) -> tuple[dict[str, Path], list[dict[str, str]]]:
@@ -389,14 +336,13 @@ def _build_one(
     record: SourceRecord,
     store: Path,
     raw: Path,
-    sizes: list[int],
     resolution_of: resolution.Declared,
     fov_strategy: str,
     quality_rule: quality.Rule | None,
     readers: dict[str, object] | None = None,
     force: bool = False,
 ) -> dict[str, str]:
-    """Crop one image to its field of view, write every size of it, and describe it."""
+    """Crop one image to its field of view, write the crop, and describe it."""
     readers = readers or {}
     photograph = _handle(record.image, raw)
     image = _read(photograph, "RGB")
@@ -428,23 +374,17 @@ def _build_one(
         for kind, found in drawn_as.items():
             frames[kind] = crop.apply(found, square)
 
-    for size in [paths.NATIVE, *sizes]:
-        for name, frame in frames.items():
-            if size != paths.NATIVE and name not in EVERY_SIZE:
-                continue
-            out = paths.layer(store, size, name)
-            out.mkdir(parents=True, exist_ok=True)
-            written = out / f"{record.key}.png"
-            if written.exists() and not force:
-                continue
-            frame_at = frame if size == paths.NATIVE else _resize(name, frame, size)
-            Image.fromarray(frame_at).save(written)
+    for name, frame in frames.items():
+        out = paths.layer(store, name)
+        out.mkdir(parents=True, exist_ok=True)
+        written = out / f"{record.key}.png"
+        if written.exists() and not force:
+            continue
+        Image.fromarray(frame).save(written)
 
     drawn, notes, placed = _outlines(record, raw, square, image)
-    for size in [paths.NATIVE, *sizes]:
-        if drawn:
-            scale = 1.0 if size == paths.NATIVE else size / square.side
-            contours.write(paths.layer(store, size, "contours") / f"{record.key}.csv", drawn, scale)
+    if drawn:
+        contours.write(paths.layer(store, "contours") / f"{record.key}.csv", drawn)
 
     structures = {structure for structure, _ in drawn}
     readers = sorted({reader for _, reader in drawn} | set(record.readers))
@@ -452,8 +392,8 @@ def _build_one(
         "key": record.key,
         "subset": record.subset,
         "split": record.split,
-        "native_width": str(width),
-        "native_height": str(height),
+        "raw_width": str(width),
+        "raw_height": str(height),
         "fov_cx": f"{circle.cx:.1f}",
         "fov_cy": f"{circle.cy:.1f}",
         "fov_r": f"{circle.r:.1f}",
@@ -510,10 +450,7 @@ def _read(handle: archives.Handle, mode: str) -> np.ndarray:
 def _outlines(
     record: SourceRecord, raw: Path, square: crop.Square, image: np.ndarray
 ) -> tuple[dict[tuple[str, str], np.ndarray], list[str], dict[str, str]]:
-    """Every disc and cup outline this image has, in the native frame.
-
-    Traced or transformed exactly once, here: each size is scaled from these nodes, so a size
-    added years later is identical to the same size built today.
+    """Every disc and cup outline this image has, in the crop frame, traced or transformed once.
 
     :return: the outlines, any notes about them, and where a region of interest was found when the
         coordinates were published in one.
@@ -567,11 +504,6 @@ def _scale(um_per_px: float | None) -> str:
     return "" if um_per_px is None else f"{um_per_px:g}"
 
 
-def _resize(layer: str, frame: np.ndarray, size: int) -> np.ndarray:
-    """Photographs are interpolated; every other layer is a set of labels and is not."""
-    return resample.photograph(frame, size) if layer == "images" else resample.mask(frame, size)
-
-
 def _stamp_inferred(store: Path, slug: str) -> None:
     """Copy this dataset's committed camera scale into the rows it was measured from, if any."""
     try:
@@ -587,7 +519,6 @@ def _write_build_json(store, args, provenance, images, warnings, checked=None) -
     record = {
         "built_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "builder_version": BUILDER_VERSION,
-        "sizes": args.sizes,
         "images": images,
         "partial": bool(args.limit),
         "sources": provenance,

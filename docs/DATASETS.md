@@ -318,7 +318,85 @@ These look like fundus datasets in a file browser and cannot be pooled with them
   column here — licences and download routes change more often than the data, and the date belongs
   next to the facts it dates.
 
-## 5. Adding a dataset
+## 5. How the atlas prepares a photograph
+
+Every dataset arrives in its own shape: different sizes, different borders, some photographs cut off
+at top and bottom. Before any model sees a photograph, the atlas turns each one into the same kind
+of picture — a **square around the round field of view, at the photograph's full resolution**. This
+section says how, because what a model is shown, and what every measurement is made on, is that
+square rather than the file the authors published.
+
+### 5.1 Finding the field of view
+
+A fundus camera photographs a round patch of retina — the **field of view** — and leaves everything
+outside it a flat colour, usually black, sometimes white or grey. The atlas finds that round patch
+in one of three ways, and records which in the manifest's `fov_source` column:
+
+- **`mask`** — the dataset ships its own field-of-view outline, and the atlas uses it.
+- **`detected`** — the atlas finds it: it learns the surround's colour from the picture's outer
+  edge, takes everything of that colour that touches the edge as surround, and fits a circle to the
+  boundary of what remains. Where the circle runs off the top or bottom of the picture, the straight
+  cut edge is ignored, so the circle keeps its true size rather than shrinking to the cut.
+- **`assumed_full_frame`** — the retina fills the picture to its edges all the way round, so there
+  is no circle to find; the circle is taken as the one centred on the picture whose diameter is its
+  longer side.
+
+The circle's centre and radius are kept in the manifest (`fov_cx`, `fov_cy`, `fov_r`), in the
+pixels of the published photograph.
+
+### 5.2 Making the square
+
+The square is centred on that circle, as wide as its diameter. Where a camera's field is not round
+— [Chákṣu](datasets/chaksu.md)'s Bosch handheld camera draws an ellipse — the square grows to hold
+the whole visible field, so no retina is shaved off its sides.
+
+The square often **reaches past the edge of the photograph**, because many fundus photographs are
+circles cut flat at top and bottom. The atlas does not shrink the square to fit: it pastes
+the photograph into a square canvas and fills the part with nothing behind it with black. Shrinking
+would move the centre of the field, and every coordinate in the atlas is measured from it.
+
+The manifest records where the square sits in the published photograph (`crop_x0`, `crop_y0`, its
+top-left corner, which may be negative) and how wide it is (`crop_side`). It also records
+`pad_fraction`, the share of the square that is fill rather than photograph — what the benchmark
+pages call **black canvas**. A model is shown that fill too, which is why the benchmark pages report
+it per dataset.
+
+### 5.3 What goes into the square
+
+Everything belonging to a photograph goes through the **same square**, so the layers stay in
+register pixel for pixel:
+
+- the photograph itself;
+- its field-of-view mask, where fill is marked as outside the field, so a reader can always tell
+  invented pixels from photographed ones;
+- every annotation the dataset publishes — vessels, arteries and veins — as masks;
+- optic disc and cup outlines, as lists of points moved by the same square: a point at `x` in the
+  published photograph sits at `x − crop_x0` in the square.
+
+The square is stored **once, at full resolution**, in the dataset's `crop/` folder. Nothing is
+stored at a smaller size.
+
+### 5.4 From the square to a model
+
+Each model works on a grid of its own, from 256 to 1472 pixels. The square is resized to that grid
+**at the moment the model reads it**, by one shared rule, so every model and every benchmark resizes
+the same way. A model's answer is then carried back to the full-resolution square and scored there,
+where the expert drew. Annotations are never resized.
+
+A square smaller than 512 pixels across is left out of the benchmarks: below that, a model's grid
+would be finer than the photograph's own detail.
+
+### 5.5 A worked example
+
+[HRF](datasets/hrf.md) photograph `01_dr` is 3504 × 2336 pixels. Its field of view, from the mask
+HRF ships, is a circle of radius 1635.5 pixels centred at (1761.0, 1151.1). The square is therefore
+3271 pixels wide, with its top-left corner at (125, −484): it starts 484 pixels **above** the top of
+the photograph and ends 451 pixels below the bottom, and trims 125 and 108 pixels of surround from
+the left and right. About **29 %** of the square (`pad_fraction` 0.2858) is black fill where the
+camera's circle ran off the sensor. A model working at 1024 pixels sees that square shrunk to
+1024 × 1024; its answer is scored back in the 3271-pixel square.
+
+## 6. Adding a dataset
 
 Dataset pages follow a fixed structure so they can be read against each other. Load the
 `document-dataset` skill, which defines that structure and this table's columns, before adding or

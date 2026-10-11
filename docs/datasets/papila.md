@@ -27,16 +27,15 @@ read against.
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.papila                      # downloads and builds 512 and 1024
-uv run python -m datasets.papila --sizes 512,1024,2048
+uv run python -m datasets.papila                      # downloads and builds the crop
 uv run python -m datasets.papila --archive ~/PAPILA.zip
 ```
 
 **What it downloads:** one 591 MB zip from figshare, checked against its sha256. Nothing here needs
 a human.
 
-**What it builds:** 488 photographs at native, 512 and 1024, with the field of view detected from
-each frame, and **both experts' disc and cup contours** at every size. The clinical record travels
+**What it builds:** 488 photographs in the crop, with the field of view detected from each frame,
+and **both experts' disc and cup contours**. The clinical record travels
 as this dataset's own manifest columns: `age`, `gender`, `dioptre_1`, `dioptre_2`, `astigmatism`,
 `phakic`, `pneumatic`, `perkins`, `pachymetry`, `axial_length`, `vf_md`. Codes stay as the authors
 wrote them, except the diagnosis, which is stored as `healthy`, `glaucoma suspect` or `glaucoma`.

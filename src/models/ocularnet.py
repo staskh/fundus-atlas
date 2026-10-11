@@ -10,9 +10,9 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The store grid this reads, and the grid the network sees. Its own script resizes to this only
+#: The grid the store is read at, and the grid the network sees. Its own script resizes to this only
 #: when `--resize` is passed — off by default, which its page records as a trap — and 1024 is the
-#: grid it was trained on, so the store's `1024/` is handed over as it is.
+#: grid it was trained on, so the crop read at 1024 is handed over as it is.
 GRID = 1024
 
 #: ImageNet's statistics, from `norm_fn` in its `inference.py`.

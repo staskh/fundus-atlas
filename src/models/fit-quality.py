@@ -10,7 +10,7 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.grading import FAILED, Grade
 
-#: The store grid this reads, and the grid the networks see. The toolbox's default is 512 and it
+#: The grid the store is read at, and the grid the networks see. The toolbox's default is 512 and it
 #: keeps that default for compatibility with its own earlier release rather than because it suits
 #: every image, so it is recorded rather than chosen here.
 GRID = 512

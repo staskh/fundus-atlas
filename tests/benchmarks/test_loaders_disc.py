@@ -41,7 +41,7 @@ def test_the_outlines_are_in_the_frame_the_expert_drew_in(tmp_path: Path) -> Non
 
     nodes = loader[0]["outlines"][("disc", "expert1")]
 
-    assert nodes.max() == 90.0, "native coordinates, not the model's grid"
+    assert nodes.max() == 90.0, "crop coordinates, not the model's grid"
 
 
 def test_a_photograph_nobody_outlined_is_excluded_with_its_own_reason(tmp_path: Path) -> None:

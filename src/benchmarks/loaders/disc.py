@@ -1,5 +1,5 @@
 # ABOUTME: The photographs of a disc-and-cup benchmark, with every reader's outline of every
-# ABOUTME: structure, in the native frame the expert drew in.
+# ABOUTME: structure, in the crop frame the expert drew in.
 
 
 import numpy as np
@@ -15,7 +15,7 @@ NOTHING_OUTLINED = "no outline to score against"
 class DiscCupLoader(Photographs):
     """One dataset's photographs and the outlines drawn on them.
 
-    The outlines stay in **native** coordinates whatever grid the model asked for: that is where
+    The outlines stay in **crop** coordinates whatever grid the model asked for: that is where
     the expert drew, and it is where every measurement is made. A photograph nobody outlined is
     excluded with its own reason — there is nothing to score against, which is not a failure of the
     model.
@@ -36,7 +36,7 @@ class DiscCupLoader(Photographs):
 
     def outlines_of(self, key: str) -> dict[tuple[str, str], np.ndarray]:
         """Every outline drawn on one photograph, less any a finding condemns."""
-        path = paths.layer(self.store, paths.NATIVE, "contours") / f"{key}.csv"
+        path = paths.layer(self.store, "contours") / f"{key}.csv"
         if not path.exists():
             return {}
         return exclusions.trusted_outlines(key, contours.read(path), findings=self.findings)
@@ -48,5 +48,5 @@ class DiscCupLoader(Photographs):
         row = self.rows[index]
         sample = super().__getitem__(index)
         sample["outlines"] = self.outlines_of(row["key"])
-        sample["native_side"] = int(row["crop_side"])
+        sample["crop_side"] = int(row["crop_side"])
         return sample

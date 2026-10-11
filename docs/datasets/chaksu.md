@@ -29,16 +29,14 @@ nothing else here does.
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.chaksu                          # downloads and builds 512 and 1024
-uv run python -m datasets.chaksu --sizes 512,720,1024     # any sizes a model needs
+uv run python -m datasets.chaksu                          # downloads and builds the crop
 ```
 
 - **Downloads:** `Train.zip` (8.6 GB) and `Test.zip` (2.7 GB) from figshare. No account, no form.
   Both are read where they lie: the per-expert masks are uncompressed TIFFs that come to about
   70 GB unpacked, and each is read once and turned into a polygon.
 - **Builds:** the photograph, its field-of-view mask, and **ten contours per image** — disc and cup
-  from each of the five experts — in one `contours/<key>.csv` per photograph, at `native/` plus
-  each requested size.
+  from each of the five experts — in one `contours/<key>.csv` per photograph, in `crop/`.
 - **Not built:** the four fused masks (mean, median, majority, STAPLE), because each is a function
   of the five outlines the store keeps; the per-expert cup-to-disc measurements, for the same
   reason; and the annotation overlays, which are the photographs with a boundary drawn on them.

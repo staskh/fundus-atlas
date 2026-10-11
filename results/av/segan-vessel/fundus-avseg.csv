@@ -1,4 +1,4 @@
-key,subset,split,reader,native_side,outcome,resampling,artery_dice,vein_dice,vessels_dice,artery_cldice,vein_cldice,vessels_cldice,artery_betti,vein_betti,vessels_betti,said_artery_px,said_vein_px,truth_artery_px,truth_vein_px,note
+key,subset,split,reader,crop_side,outcome,resampling,artery_dice,vein_dice,vessels_dice,artery_cldice,vein_cldice,vessels_cldice,artery_betti,vein_betti,vessels_betti,said_artery_px,said_vein_px,truth_artery_px,truth_vein_px,note
 test_007_n,square,test,expert,1280,graded,"probabilities to native, bilinear, thresholded there, and these numbers were measured from the masks that run kept",,,0.873124,,,0.904314,,,318.000000,0,0,82798,66367,
 test_016_n,square,test,expert,1274,graded,"probabilities to native, bilinear, thresholded there, and these numbers were measured from the masks that run kept",,,0.834515,,,0.844525,,,379.000000,0,0,82867,90177,
 test_018_n,large,test,expert,2093,graded,"probabilities to native, bilinear, thresholded there, and these numbers were measured from the masks that run kept",,,0.841594,,,0.899155,,,224.000000,0,0,181901,223723,

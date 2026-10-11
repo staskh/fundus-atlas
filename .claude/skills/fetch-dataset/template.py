@@ -42,7 +42,7 @@ EXTRA_COLUMNS = [
 #: value that counts as full marks; `None` where the dataset grades nothing. See the skill, 5.4.
 QUALITY = None
 
-#: Native resolution. Declared here, derivation in the comment, source one of the five in the skill.
+#: Microns per pixel at full resolution. Declared here, derivation in the comment, source one of the five in the skill.
 RESOLUTION = resolution.Declared(
     um_per_px=None,          # microns per pixel; None -> `unknown`, and consumers report pixels
     source="unknown",
@@ -70,9 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         discover=discover,
         resolution=RESOLUTION,
         fov_strategy=fov.FROM_MASK,   # or fov.DETECT, or fov.FULL_FRAME
-        # How disc/cup reach the native frame: COORDINATES translates what the authors published,
-        # RASTER traces the native mask once. Every size is scaled from native either way; see the
-        # skill, section 10.
+        # How disc/cup reach the crop frame: COORDINATES translates what the authors published,
+        # RASTER traces the full-resolution mask once; see the skill, section 10.
         contour_source=contours.COORDINATES,
         extra_columns=EXTRA_COLUMNS,
         quality=QUALITY,

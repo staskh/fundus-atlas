@@ -11,8 +11,8 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The store grid this reads. The network sees 912, which no store holds — the photograph at 1024
-#: is resized down to it, as the upstream resizes its own input, and nothing is upsampled.
+#: The grid the store is read at. The network sees 912 — the photograph read at 1024 is resized
+#: down to it, as the upstream resizes its own input, and nothing is upsampled.
 GRID = 1024
 
 #: The grid the network was trained at: `Define_image_size` in `M2_Vessel_seg/utils.py` returns

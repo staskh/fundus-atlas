@@ -15,12 +15,6 @@ def parse(slug: str, argv: list[str] | None = None) -> Namespace:
         prog=f"python -m datasets.{slug}",
         description=f"Fetch {slug} and build the standard store. See docs/datasets/{slug}.md.",
     )
-    parser.add_argument(
-        "--sizes",
-        type=_sizes,
-        default=[512, 1024],
-        help="sizes that should exist besides native/, comma separated (default: 512,1024)",
-    )
     parser.add_argument("--archive", help="an archive already on disk, instead of downloading")
     parser.add_argument("--raw", help="an already-extracted tree, skipping download and extraction")
     parser.add_argument("--data-root", help="override the store root")
@@ -46,13 +40,3 @@ def parse(slug: str, argv: list[str] | None = None) -> Namespace:
     args = parser.parse_args(argv)
     args.slug = slug
     return args
-
-
-def _sizes(value: str) -> list[int]:
-    try:
-        sizes = sorted({int(part) for part in value.split(",")})
-    except ValueError:
-        raise argparse.ArgumentTypeError(f"{value!r} is not a comma-separated list of sizes")
-    if not sizes or sizes[0] < 1:
-        raise argparse.ArgumentTypeError("sizes must be positive")
-    return sizes

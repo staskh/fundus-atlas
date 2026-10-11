@@ -1,8 +1,12 @@
-# ABOUTME: Resizes a native frame to a built size: photographs interpolated, masks never.
-# ABOUTME: One place, so two datasets cannot disagree about what 512 means.
+# ABOUTME: Resizes the crop to the size a model asks for, when it is read: photographs interpolated,
+# ABOUTME: masks never. One place, so two readers cannot disagree about what 512 means.
+
+from pathlib import Path
 
 import numpy as np
 from PIL import Image
+
+from . import paths
 
 
 def photograph(image: np.ndarray, size: int) -> np.ndarray:
@@ -12,6 +16,12 @@ def photograph(image: np.ndarray, size: int) -> np.ndarray:
     on ordinarily resampled images.
     """
     return np.asarray(Image.fromarray(image).resize((size, size), Image.LANCZOS))
+
+
+def read_photograph(store: Path, key: str, size: int) -> np.ndarray:
+    """One photograph of a store, read from its crop and resized to ``size`` square, as RGB."""
+    with Image.open(paths.layer(store, "images") / f"{key}.png") as image:
+        return photograph(np.asarray(image.convert("RGB")), size)
 
 
 def mask(labels: np.ndarray, size: int) -> np.ndarray:

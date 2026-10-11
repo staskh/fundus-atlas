@@ -23,19 +23,19 @@ quotient of two boundaries and the errors need not cancel.
 
 ## 2. Score in the annotation's own frame
 
-**Everything is measured at native resolution**, in the store's `native/` frame, because that is
+**Everything is measured at full resolution**, in the store's `crop/` frame, because that is
 where the expert drew. The store's contours are already there, as floating-point polygons.
 
 The path from a model's output to that frame is the part to get right:
 
-- **Where the model emits probabilities, resample the probability map to native — bilinear — and
-  threshold at native.** Not the other way round. Thresholding first and resampling a binary mask
+- **Where the model emits probabilities, resample the probability map to the crop — bilinear — and
+  threshold in the crop.** Not the other way round. Thresholding first and resampling a binary mask
   throws away the boundary detail the model actually produced, and it is the boundary that every
   metric here turns on. Bilinear rather than bicubic, because bicubic overshoots past 0 and 1 and
   the overshoot lands exactly where the threshold sits.
 - **Where only a binary or label mask is available, nearest neighbour**, and say so in the run.
 - **Never interpolate label indices.** Disc and cup arrive as a three-level map in some models;
-  resample per class and take the argmax at native.
+  resample per class and take the argmax in the crop.
 - **The disc and the cup are separate structures**, not two levels of one. Some models emit a cup
   that is not inside its own disc; do not quietly repair it — measure it and report it, because a
   cup outside its disc is a fact about the model.
@@ -49,7 +49,7 @@ Per photograph, per structure, per reader:
 | Metric | What it says |
 | --- | --- |
 | **Dice** | overlap with the expert's outline; the usual number, and the least informative here |
-| **Centre offset** | distance between the two centroids, in native pixels **and in disc diameters** — the second is the only camera-independent form |
+| **Centre offset** | distance between the two centroids, in crop pixels **and in disc diameters** — the second is the only camera-independent form |
 | **Width, height** | the bounding extent of each structure, and the model's error in each |
 | **Equivalent radius** | the radius of a circle of the same area, which is what most clinical software reports |
 | **Vertical cup-to-disc ratio** | cup height over disc height, the number a referral is made on |

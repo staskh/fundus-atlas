@@ -34,8 +34,7 @@ image's filename stem.
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.fundus_avseg                      # downloads and builds 512 and 1024
-uv run python -m datasets.fundus_avseg --sizes 512,768,1024
+uv run python -m datasets.fundus_avseg                      # downloads and builds the crop
 uv run python -m datasets.fetch_um_resolution --dataset fundus-avseg
 ```
 
@@ -46,9 +45,9 @@ vein mask**, being one vessel over another rather than a third kind; the
 white pixels, where the annotator marked a vessel without saying which kind, are in `vessels` and in
 neither of the others.
 
-The annotations are written at **native only**. The photograph and its field-of-view mask are
-resized to 512 and 1024 because that is what a model is handed; the answer is scored in the frame
-the annotator drew in. The authors' `training.txt` and `testing.txt` become the
+Everything is written in the crop, at full resolution. The photograph is resized to a model's grid
+only when it is read, because that is what a model is handed; the answer is scored in the frame the
+annotator drew in. The authors' `training.txt` and `testing.txt` become the
 `split` column (80 train, 20 test), and `metadata.xlsx` supplies the eye side, the disease and the
 quality grade.
 

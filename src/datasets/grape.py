@@ -73,7 +73,7 @@ STRUCTURES = {"OD": "disc", "OC": "cup"}
 READER = "expert1"
 
 EXTRA_COLUMNS = [
-    manifest.Column("roi_x0", "Where the annotated crop sits in the photograph, in native pixels"),
+    manifest.Column("roi_x0", "Where the annotated crop sits in the photograph, in raw pixels"),
     manifest.Column("roi_y0", "As above, vertically"),
     manifest.Column("roi_match", "How well the crop was found: 1.0 is exact, below 0.9 is refused"),
     manifest.Column("visit_interval_years", "Years since this eye's baseline visit"),

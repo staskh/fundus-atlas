@@ -10,7 +10,7 @@ from upstreams.utils import weights
 from .utils.device import forget
 from .utils.outlines import Outlines
 
-#: The store grid this reads, and the grid the network sees. PVBM resizes any photograph to this
+#: The grid the store is read at, and the grid the network sees. PVBM resizes any photograph to this
 #: square with the aspect ratio ignored; the store's photographs are already square.
 GRID = 512
 

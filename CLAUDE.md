@@ -114,7 +114,7 @@ Skills that exist today:
 - **5.16** `report-benchmark` — what came out of a run, written from the notebook, and the index
   above every benchmark.
 - **5.17** `fetch-disc-estimation` — each photograph's optic disc and cup, centre and equivalent
-  radius in the native crop, estimated by the SegFormer disc-and-cup model: the command, the CSV
+  radius in the crop, estimated by the SegFormer disc-and-cup model: the command, the CSV
   indexed by image key and its sidecar JSON, committed under `results/disc_estimation/`.
 
 The three benchmark skills each hold the rules common to every benchmark, and **a file per

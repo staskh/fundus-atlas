@@ -1,4 +1,4 @@
-# ABOUTME: Native resolution in microns per pixel, its provenance, and the value at any built size.
+# ABOUTME: Microns per pixel at full resolution, its provenance, and the value at any resized grid.
 # ABOUTME: Never guessed: a dataset that publishes none keeps none, and consumers report pixels.
 
 import csv
@@ -12,8 +12,8 @@ from pathlib import Path
 #: for — which model, which photographs, which gate.
 INFERRED = Path(__file__).resolve().parents[3] / "results" / "um_resolution"
 
-#: How far two photographs' native sizes may differ and still be the same camera. Field-of-view
-#: detection moves the native dimensions by a few pixels on one device; more than this is another
+#: How far two photographs' raw sizes may differ and still be the same camera. Field-of-view
+#: detection moves the raw dimensions by a few pixels on one device; more than this is another
 #: magnification. The grouping that measures a scale and the stamp that writes it down must use one
 #: tolerance, or the photographs a measurement was made from are the ones left without it.
 SIZE_TOLERANCE = 0.10
@@ -44,7 +44,7 @@ DISC_MICRONS = 1800.0
 
 @dataclass(frozen=True)
 class Declared:
-    """A dataset's native resolution, as established by the person writing its fetcher.
+    """A dataset's microns per pixel at full resolution, as established by its fetcher's author.
 
     :param um_per_px: microns per pixel, or `None` where it is per image or could not be
         established at all.
@@ -79,9 +79,9 @@ class Declared:
 
 
 def um_per_px_at(um_per_px: float | None, crop_side: int, size: int) -> float | None:
-    """The resolution of a built size, from the native one.
+    """The resolution of a resized grid, from the crop's.
 
-    One pixel at ``size`` spans ``crop_side / size`` native pixels. ``crop_side`` varies per image,
+    One pixel at ``size`` spans ``crop_side / size`` crop pixels. ``crop_side`` varies per image,
     so this is per row rather than per dataset — which is why the manifest records the crop.
     """
     if um_per_px is None:
@@ -103,7 +103,7 @@ def stamp(store: Path, slug: str, directory: Path | None = None) -> int:
     """Copy a dataset's inferred camera scale into the manifest rows it was measured from.
 
     The number is **not computed here**: it is read from the committed
-    ``results/um_resolution/<slug>.json`` and copied into the rows whose subset and native size the
+    ``results/um_resolution/<slug>.json`` and copied into the rows whose subset and raw size the
     group describes. That keeps a store build free of any disc model, lets a rebuilt store recover
     the figure without measuring anything again, and leaves one place — the JSON — where the
     derivation can be argued with.
@@ -176,7 +176,7 @@ def _accepted(slug: str, directory: Path | None) -> list[dict[str, object]]:
 
 def same_camera(width: int, height: int, group: dict[str, object]) -> bool:
     """Whether a photograph of this size belongs to a group measured at that one."""
-    return _near(width, int(group["native_width"])) and _near(height, int(group["native_height"]))
+    return _near(width, int(group["raw_width"])) and _near(height, int(group["raw_height"]))
 
 
 def _near(value: int, of: int) -> bool:
@@ -184,12 +184,12 @@ def _near(value: int, of: int) -> bool:
 
 
 def _group_of(row: dict[str, str], groups: list[dict[str, object]]) -> dict[str, object] | None:
-    """The camera this photograph belongs to: its own subcollection, at its own native size.
+    """The camera this photograph belongs to: its own subcollection, at its own raw size.
 
     Where two groups both fit — a device measured at two close sizes — the nearer one takes it, so
     that the answer does not depend on the order the groups happen to be written in.
     """
-    width, height = int(row["native_width"]), int(row["native_height"])
+    width, height = int(row["raw_width"]), int(row["raw_height"])
     fitting = [
         group
         for group in groups
@@ -203,6 +203,6 @@ def _group_of(row: dict[str, str], groups: list[dict[str, object]]) -> dict[str,
 
 def _distance(width: int, height: int, group: dict[str, object]) -> float:
     """How far a photograph is from a group's own size, relative to it."""
-    return abs(width - int(group["native_width"])) / int(group["native_width"]) + abs(
-        height - int(group["native_height"])
-    ) / int(group["native_height"])
+    return abs(width - int(group["raw_width"])) / int(group["raw_width"]) + abs(
+        height - int(group["raw_height"])
+    ) / int(group["raw_height"])

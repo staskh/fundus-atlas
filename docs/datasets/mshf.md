@@ -27,13 +27,12 @@ quality score is available from three separate people.
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.mshf                          # downloads and builds 512 and 1024
-uv run python -m datasets.mshf --sizes 512,720,1024     # any sizes a model needs
+uv run python -m datasets.mshf                          # downloads and builds the crop
 ```
 
 - **Downloads:** `MSHF dataset 2.0.zip`, 1.1 GB, from figshare. No account, no form. It is read
   where it lies rather than unpacked.
-- **Builds:** the photograph and its field-of-view mask, at `native/` plus each requested size. The
+- **Builds:** the photograph and its field-of-view mask, in `crop/`. The
   store holds **802** images: the 500 colour-fundus and 302 portable-camera photographs. The
   DR-XJU group's field is wider than tall (section 3.1), so its square crop is padded above and
   below — a median of 5% of the canvas and up to 26% — rather than shaved at the sides.

@@ -6,21 +6,10 @@ import pytest
 from datasets.utils import cli, paths
 
 
-def test_the_default_sizes_are_the_two_most_models_use():
-    assert cli.parse("hrf", []).sizes == [512, 1024]
-
-
-def test_sizes_are_a_comma_separated_list():
-    assert cli.parse("hrf", ["--sizes", "256,512,1472"]).sizes == [256, 512, 1472]
-
-
-def test_sizes_are_sorted_and_deduplicated():
-    assert cli.parse("hrf", ["--sizes", "1024,512,1024"]).sizes == [512, 1024]
-
-
-def test_a_size_that_is_not_a_positive_number_is_refused():
+def test_there_is_no_size_to_ask_for():
+    """Every size a model needs is made from the crop when it is read, never stored."""
     with pytest.raises(SystemExit):
-        cli.parse("hrf", ["--sizes", "0"])
+        cli.parse("hrf", ["--sizes", "512"])
 
 
 def test_raw_is_deleted_unless_asked_for():
@@ -49,8 +38,6 @@ def test_an_environment_variable_moves_every_store(tmp_path, monkeypatch):
     assert paths.store(cli.parse("hrf", [])) == tmp_path / "hrf"
 
 
-def test_each_size_is_its_own_directory_beside_native(tmp_path):
+def test_every_layer_lives_in_the_crop(tmp_path):
     store = tmp_path / "hrf"
-    assert paths.frame(store, "native") == store / "native"
-    assert paths.frame(store, 512) == store / "512"
-    assert paths.layer(store, 512, "vessels") == store / "512" / "vessels"
+    assert paths.layer(store, "vessels") == store / "crop" / "vessels"

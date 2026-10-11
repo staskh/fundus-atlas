@@ -26,8 +26,7 @@ than differing between people.
 ### 2.1 How to fetch
 
 ```bash
-uv run python -m datasets.grape                          # downloads and builds 512 and 1024
-uv run python -m datasets.grape --sizes 512,720,1024     # any sizes a model needs
+uv run python -m datasets.grape                          # downloads and builds the crop
 ```
 
 - **Downloads:** four files from the figshare collection — the photographs (116 MB), the crops
@@ -35,7 +34,7 @@ uv run python -m datasets.grape --sizes 512,720,1024     # any sizes a model nee
   account, no form. The three archives are RAR, which needs `bsdtar`; the Python standard library
   cannot read them.
 - **Builds:** the photograph, its field-of-view mask, and the disc and cup contours for all 631
-  visits, at `native/` plus each requested size.
+  visits, in `crop/`.
 - **The contours are placed, not assumed.** They are published in the crop's coordinate system and
   the archive never says where the crop came from, so each crop is located in its own photograph by
   correlation. The offset and the correlation go in every row as `roi_x0`, `roi_y0` and

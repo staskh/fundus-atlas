@@ -12,8 +12,9 @@ ENV_VAR = "FUNDUS_ATLAS_DATA"
 #: sources, and the dot keeps them out of the way of anything the repository itself publishes.
 DEFAULT_ROOT = Path(__file__).resolve().parents[3] / ".atlas_data"
 
-#: The frame every size is built from, and the one that must never be deleted.
-NATIVE = "native"
+#: The one frame a store keeps: the field-of-view crop at full resolution. Any size a model needs
+#: is made from it when it is read.
+CROP = "crop"
 
 
 def root(args: Namespace | None = None) -> Path:
@@ -28,11 +29,6 @@ def store(args: Namespace) -> Path:
     return root(args) / args.slug
 
 
-def frame(store: Path, size: int | str) -> Path:
-    """The directory holding one grid: ``native`` or a pixel size."""
-    return store / str(size)
-
-
-def layer(store: Path, size: int | str, name: str) -> Path:
-    """The directory holding one kind of map at one grid: ``images``, ``vessels``, ``fov``."""
-    return frame(store, size) / name
+def layer(store: Path, name: str) -> Path:
+    """The directory holding one kind of map in the crop: ``images``, ``vessels``, ``fov``."""
+    return store / CROP / name

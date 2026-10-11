@@ -11,7 +11,7 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.grading import FAILED, Grade
 
-#: The store grid this reads. The published example resizes the shorter side to 512, which for a
+#: The grid the store is read at. The published example resizes the shorter side to 512, which for a
 #: square photograph is the whole of it.
 GRID = 512
 

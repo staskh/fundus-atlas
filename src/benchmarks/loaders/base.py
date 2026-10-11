@@ -7,10 +7,9 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from PIL import Image
 from torch.utils.data import Dataset
 
-from datasets.utils import exclusions, manifest, paths
+from datasets.utils import exclusions, manifest, paths, resample
 
 #: Photographs whose field of view is smaller than this are excluded, measured on the field's own
 #: size rather than the frame's: below it, a model's grid is finer than the evidence.
@@ -47,11 +46,11 @@ class Photographs(Dataset):
     it came from, so that grouping stays a question for the analysis rather than one the run has to
     be told in advance.
 
-    Batching is only possible once photographs are on a common grid, which is what the store's
-    ``512/`` and ``1024/`` directories are for. Ground truth that needs full resolution is read at
-    native by the scorer, not stacked into the batch.
+    Batching is only possible once photographs are on a common grid, which is why each crop is
+    resized to ``size`` as it is read. Ground truth that needs full resolution is read in the crop
+    by the scorer, not stacked into the batch.
 
-    :param size: the store grid to read, which is the grid the model asked for.
+    :param size: the grid to resize each crop to, which is the grid the model asked for.
     :param prepare: the model adapter's own preparation, applied per photograph so that a batch
         arrives at the model in the form its upstream expects.
     :param max_samples: score at most this many photographs, for a development run.
@@ -143,8 +142,7 @@ class Photographs(Dataset):
         }
 
     def _image(self, key: str) -> torch.Tensor:
-        with Image.open(self.store / str(self.size) / "images" / f"{key}.png") as image:
-            pixels = np.asarray(image.convert("RGB"))
+        pixels = resample.read_photograph(self.store, key, self.size)
         if self.prepare is not None:
             return self.prepare(pixels)
         return torch.from_numpy(pixels.transpose(2, 0, 1).copy())

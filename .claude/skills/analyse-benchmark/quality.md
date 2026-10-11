@@ -122,8 +122,8 @@ most, which is not the question.
 The benchmark measures models against references. Anything that asks *why* a number came out as it
 did is a diagnostic, runs in the notebook, and is never written into `results/`:
 
-- **Does the store's square crop explain a rejection rate?** Trim the black bands off the native
-  image, hand the model the photograph's own rectangle instead, and compare. Do this before
+- **Does the store's square crop explain a rejection rate?** Trim the black bands off the crop,
+  hand the model the photograph's own rectangle instead, and compare. Do this before
   concluding anything from a dataset whose canvas share is large: the answer has come out the
   opposite way round from the obvious guess, with the square helping rather than hurting.
 - **Is a class order assumption right?** VascX emits three unnamed logits. A reversed order would

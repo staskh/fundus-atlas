@@ -360,7 +360,7 @@ mask in the set below 0.73%. Both photographs are real fundus images — dark, a
 FIVES' own quality sheet — so it is the annotation that was never drawn rather than a photograph
 with no vessels in it. Every model scored 0.000 on both, which measured the empty reference rather
 than the model. They are now recorded in `src/datasets/exclusions/fives.json` and excluded from
-every figure on this page. A sweep of all 1,608 native masks in the five built stores found no
+every figure on this page. A sweep of all 1,608 crop masks in the five built stores found no
 others.
 
 **Four more FIVES annotations fall under 1% of the frame**, and thirty under 3%. Those are sparse
@@ -460,7 +460,7 @@ maps under 0.5, it is not cheap so much as wrong quickly.
 - **Nothing here is about calibre, arteriovenous ratio or tortuosity.** Those are the biomarker
   benchmark's, computed from the masks this one kept.
 - **Resampling is not separated out.** Every model works at a grid other than the annotator's;
-  native frames here run from 1,056 to 3,271 pixels, and how far a model's grid sits from the
+  crop frames here run from 1,056 to 3,271 pixels, and how far a model's grid sits from the
   photograph's own resolution varies by dataset and is not controlled for.
 - **Five datasets are not a survey**, and the three declared and unfetched are the ones that would
   change the picture: RITE carries the 40 DRIVE photographs the literature reports, and RAV is 206

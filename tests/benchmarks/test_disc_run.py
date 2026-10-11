@@ -146,7 +146,7 @@ def test_the_measurements_are_made_in_the_frame_the_expert_drew_in(tmp_path: Pat
 
     evidence = runs.rows(tmp_path / "results", disc.NAME, "circles", "papila")
 
-    assert evidence[0]["native_side"] == "1024", "not the 512 grid the model read"
+    assert evidence[0]["crop_side"] == "1024", "not the 512 grid the model read"
     assert abs(float(evidence[0]["cup_vertical_ratio_error"])) < 0.05
     assert float(evidence[0]["cup_outside_its_disc"]) == 0.0
 
@@ -343,7 +343,7 @@ def test_a_kept_mask_is_in_the_frame_the_expert_drew_in(tmp_path: Path) -> None:
     )
 
     with Image.open(tmp_path / "runs" / "disc" / "circles" / "papila" / "a-disc.png") as mask:
-        assert mask.size == (1024, 1024), "native, not the 512 grid the model read"
+        assert mask.size == (1024, 1024), "the crop, not the 512 grid the model read"
 
 
 class Interrupted(Circles):

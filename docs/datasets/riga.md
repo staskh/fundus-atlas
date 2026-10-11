@@ -41,7 +41,6 @@ under a research-use agreement.
 
 ```bash
 uv run python -m datasets.riga                          # builds RIGA+ — read the caveat first
-uv run python -m datasets.riga --sizes 512,720,1024     # any sizes a model needs
 ```
 
 **Read this before using the store.** The original deposit at Deep Blue answers an automated

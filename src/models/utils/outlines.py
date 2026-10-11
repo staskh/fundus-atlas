@@ -21,7 +21,7 @@ THRESHOLD = 0.5
 class Outlines:
     """One model's answer about one photograph.
 
-    The masks are in **native** coordinates, because that is where the expert drew and where every
+    The masks are in **crop** coordinates, because that is where the expert drew and where every
     measurement is made. How they got there is recorded rather than assumed: a probability map
     resampled and then thresholded is not the same answer as a binary mask resampled, and the
     difference lands exactly on the boundary every metric turns on.
@@ -42,7 +42,7 @@ class Outlines:
     def from_probabilities(
         cls, probabilities: dict[str, np.ndarray], side: int, threshold: float = THRESHOLD
     ) -> "Outlines":
-        """Resample each probability map to the native square, then threshold **there**.
+        """Resample each probability map to the crop square, then threshold **there**.
 
         Thresholding first and resampling the mask throws away the boundary detail the model
         actually produced. Bilinear rather than bicubic: bicubic overshoots past 0 and 1, and the
@@ -61,7 +61,7 @@ class Outlines:
 
     @classmethod
     def from_masks(cls, masks: dict[str, np.ndarray], side: int) -> "Outlines":
-        """Resample binary masks to the native square, nearest neighbour, for want of anything better."""
+        """Resample binary masks to the crop square, nearest neighbour, for want of anything better."""
         grown = {}
         for structure, mask in masks.items():
             grown[structure] = (

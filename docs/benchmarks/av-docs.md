@@ -10,7 +10,7 @@ Whether a model's **arteries and veins** are where an ophthalmologist drew them.
 
 **Two scores, because neither is enough.** **Dice** is overlap with the expert's mask, 0 to 1. **clDice** asks instead how much of each network's *centreline* falls inside the other, which is a question about connectedness rather than area. The pair separates two failures that overlap alone confuses: a vessel drawn three times too wide around the same centre scores 0.50 Dice and 0.97 clDice — wrong about width, right about the network — while the same vessel thickened to one side scores the same 0.50 Dice and 0.03 clDice, its centreline no longer inside the expert's vessel at all. A break in a vessel costs both alike.
 
-**Everything is measured in the native frame** — the full-resolution square the store built, where the annotator drew. A model working at 1024 or 1472 has its probabilities carried back there and thresholded **after** arrival, because thresholding first and resampling a binary mask throws away the boundary the score turns on.
+**Everything is measured in the crop frame** — the full-resolution square the store built, where the annotator drew. A model working at 1024 or 1472 has its probabilities carried back there and thresholded **after** arrival, because thresholding first and resampling a binary mask throws away the boundary the score turns on.
 
 **The outlines themselves are kept**, three images per photograph, under `.atlas_runs/av/<model>/<dataset>/`. The biomarker benchmark measures from them, and a mask whose fingerprint no longer matches its model is drawn again rather than read.
 
@@ -30,7 +30,7 @@ Whether a model's **arteries and veins** are where an ophthalmologist drew them.
 
 **A crossing belongs to both vessels.** Where a model emits crossings as their own class — OCULARNet, BF-Net and AutoMorph's artery/vein model all do — the adapter answers with artery *plus* crossing and vein *plus* crossing, because that is the region an annotator marked as both and a model cannot be asked to reproduce an ambiguity of projection. The two fusion models call that class *uncertainty* in their own evaluation code; scored against [HRF](../datasets/hrf.md) it is the crossings exactly, matching this repository's own crossing layer pixel for pixel.
 
-**Two grids, because a store holds one and a network wants another.** The photographs are read at the size the store built nearest what the model was trained on, and where the network's own grid is not one of those — BF-Net and AutoMorph's artery/vein model both run at 720 — the adapter resizes down to it rather than up, so nothing is invented. The probabilities come back to the native frame either way.
+**Two grids, because an adapter reads one and a network wants another.** The photographs are read from the crop at the grid the adapter declares, and where the network's own grid is smaller — BF-Net and AutoMorph's artery/vein model both run at 720 and read at 1024 — the adapter resizes down to it rather than up, so nothing is invented. The probabilities come back to the crop frame either way.
 
 **The vessel map is derived, identically for every artery/vein model**, as the union of its own artery and vein masks — not whatever vessel channel a model may also publish. LUNet publishes one; it is declared above and not used, so that every artery/vein model's vessel score means the same thing.
 
@@ -93,9 +93,9 @@ python -m benchmarks --benchmark av --max-samples 20
 | `subset` | the dataset's own subcollection — for REYIA, the collection the photograph came from |
 | `split` | the split the dataset published, or `unspecified` |
 | `reader` | which annotator the row is scored against, where a dataset keeps them apart |
-| `native_side` | the side of the native square, in pixels — every score below is measured in it |
+| `crop_side` | the side of the crop square, in pixels — every score below is measured in it |
 | `outcome` | `graded`, or `failed` with the reason in `note` |
-| `resampling` | how the model's output reached the native frame |
+| `resampling` | how the model's output reached the crop frame |
 | `artery_dice` | overlap with the reader's arteries, 0 to 1 — **empty** where the model or the dataset says nothing about the classes, which is not the same as a zero |
 | `vein_dice` | overlap with the reader's veins, on the same terms |
 | `vessels_dice` | overlap with the reader's vessels — **derived as artery ∪ vein on each side that has the two classes**, and the map itself on a side that has only vessels |

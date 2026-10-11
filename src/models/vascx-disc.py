@@ -10,8 +10,8 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The store grid this reads. VascX resamples every photograph so the fundus diameter fills a
-#: 1024-pixel square, which is what the store's `1024/` already is.
+#: The grid the store is read at. VascX resamples every photograph so the fundus diameter fills a
+#: 1024-pixel square, which is what the crop read at 1024 already is.
 GRID = 1024
 
 #: What the network itself sees, from the checkpoint's own configuration.
@@ -66,7 +66,7 @@ class VascxDisc:
         return torch.cat([item["image"], item["ce"]], dim=0)
 
     def outline(self, images: torch.Tensor, sides: list[int]) -> list[Outlines]:
-        """One probability map per photograph, resampled to each one's own native frame."""
+        """One probability map per photograph, resampled to each one's own crop frame."""
         with torch.no_grad():
             probabilities = self._loaded().predict_step({"image": images.to(self.device)})
         return [
