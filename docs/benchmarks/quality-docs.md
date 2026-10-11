@@ -56,7 +56,7 @@ model's own verdict. Each adapter declares the rule its project applies, and the
 | Dataset | Photographs | Reference | Black canvas | Excluded, and why | Available |
 | --- | --- | --- | --- | --- | --- |
 | [fives](../datasets/fives.md) | 800 | derived | 0.000 | none | yes |
-| [fqs](../datasets/fqs.md) | 2245 | published | 0.036 | none | yes |
+| [fqs](../datasets/fqs.md) | 2245 | published | 0.035 | none | yes |
 | [mshf](../datasets/mshf.md) | 546 | published | 0.000 | 237 below the size floor; 19 no reference to score against | yes |
 | [papila](../datasets/papila.md) | 488 | assumed | 0.188 | none | yes |
 | [eyeq](../datasets/eyeq.md) | — | — | — | — | **no** — no store built |

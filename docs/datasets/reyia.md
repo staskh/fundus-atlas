@@ -66,6 +66,7 @@ age-related macular degeneration including geographic atrophy, drusen and fibrot
 ```bash
 # the archive is link-shared on Kaggle: download it by hand first
 uv run python -m datasets.reyia --archive ~/Downloads/archive.zip
+uv run python -m datasets.fetch_disc_estimation --dataset reyia
 uv run python -m datasets.fetch_um_resolution --dataset reyia
 ```
 
@@ -87,7 +88,8 @@ REYIA marks a crossing **magenta**, where Fundus-AVSeg and HRF-AV both use green
 dataset declares its own palette rather than sharing one.
 
 The photographs come from nine other collections and the authors publish no scale, so
-`fetch_um_resolution` measures each subset separately — eight cameras, eight figures.
+`fetch_um_resolution` measures each subset separately — eight cameras, seven figures, since MAGREBHIA's
+discs disagree too widely to give it one (section 7).
 
 ## 3. The images
 
@@ -114,7 +116,7 @@ photographs mixes fields of view by a factor of four or more.
 
 | | |
 | --- | --- |
-| Microns per pixel | Unknown for every subcollection |
+| Microns per pixel | Not published. **Inferred per subset**, each the median of every optic disc estimated in it ([evidence](../../results/um_resolution/reyia.json)): ENRICH **5.588 µm/px**; PAPILA subset **6.141**; FIVES-AV **8.364**; MESSIDOR-AV **8.410**; TREND-AV **6.098**; mBRSET **7.723**; GRAPE **8.740**. MAGREBHIA has none (below). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Modality | Colour fundus photography, with AV-WIDE's ultra-wide-field images a separate case |
 
 
@@ -163,8 +165,8 @@ photographs mixes fields of view by a factor of four or more.
 - **Three quarters of the archive is synthetic.** 7,712 of its 10,075 files are
   [RLAD](../models/rlad.md)-generated images rather than photographs — sixteen generations of one
   training split. They are not built, and nothing in this catalogue may be measured on them.
-- **MAGREB's discs scatter too widely to give it a scale.** Its 32 sampled optic discs disagree by
-  14.9% of their median, above the tenth this atlas accepts as one camera, so those 69 photographs
+- **MAGREB's discs scatter too widely to give it a scale.** Its 69 estimated optic discs disagree
+  by 16.0% of their median, above the tenth this atlas accepts as one camera, so those 69 photographs
   carry no microns-per-pixel figure. Every other subset has one.
 
 - **Not downloadable programmatically** (section 2), which makes reproducible use awkward.

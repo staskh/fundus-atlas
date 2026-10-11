@@ -1,7 +1,7 @@
 {
-  "builder_version": 6,
+  "builder_version": 7,
   "dataset": "fundus-avseg",
-  "fingerprint": "a04851dc89fa8c967dc3ae8f88892c9cb600b65940f2e07feeb1d876301e0657",
+  "fingerprint": "d6a1d6602cc7eb98f64cecceb4d7fb4d0db4e3330362f74c283a4fad0ed16650",
   "frame": "crop",
   "grid": 512,
   "model": "segformer-disc-cup",

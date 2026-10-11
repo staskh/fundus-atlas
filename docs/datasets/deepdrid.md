@@ -70,7 +70,7 @@ uv run python -m datasets.deepdrid                          # clones and builds 
 | | |
 | --- | --- |
 | Resolution (pixels) | Six sizes: 1736×1824 (1,294 images), 1976×1984 (660), 1734×1821 (18), 2230×1725 (10), 2232×1727 (10), 1592×1728 (8). Mostly near-square with the circular field cropped close; the two landscape sizes are the twenty white-surround images noted in section 7 |
-| Microns per pixel | Not published. **Inferred, per size**: 1736×1824 → **8.019 µm/px**; 1976×1984 → **7.073**; 2230×1725 → **6.339**, each from the median optic disc of a sample, [evidence](../../results/um_resolution/deepdrid.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred, per size**: 1736×1824 → **7.266 µm/px**; 1976×1984 → **6.433**; 2230×1725 → **5.810**, each the median of every optic disc estimated at that size, [evidence](../../results/um_resolution/deepdrid.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Not stated uniformly |
 | Field of view | Not stated |
 | Centring | **Dual view per eye** — one macula-centred and one disc-centred photograph of the same eye |

@@ -255,21 +255,22 @@ they are the only places this method can be checked at all:
 
 | Dataset | From its stated field angle | From the median optic disc | They differ by |
 | --- | --- | --- | --- |
-| [PAPILA](../../../docs/datasets/papila.md), 30° | 3.777 | 3.994 | **5.8%** |
-| [HRF](../../../docs/datasets/hrf.md), 45° | 4.130 | 4.980 | **21%** |
+| [PAPILA](../../../docs/datasets/papila.md), 30° | 3.777 | 3.799 | **0.6%** |
+| [HRF](../../../docs/datasets/hrf.md), 45° | 4.130 | 4.740 | **15%** |
 
-Read the second row the other way: under HRF's stated field its median disc is **1,490 µm**, not the
-1,800 µm this method assumes; under the disc figure its field spans **54°**, not the stated 45°.
+Read the second row the other way: under HRF's stated field its median disc is **1,568 µm**, not the
+1,800 µm this method assumes; under the disc figure its field spans **52°**, not the stated 45°.
 Nothing here can say which of the two is wrong, and both derivations are this repository's rather
 than an author's — the 300 µm per degree constant is a posterior-pole approximation, and a camera's
 quoted angle is not always the angle subtended at the retina.
 
-**So a `disc_anchored` figure is good to somewhere between a twentieth and a fifth**, on the two
+**So a `disc_anchored` figure is good to somewhere between a hundredth and a seventh**, on the two
 datasets where it could be checked at all. Quote it as an order of magnitude for a camera, never as
 a calibration, and never report a disc size in millimetres from it — that number was assumed.
 
 Re-run this comparison whenever the typical disc, the disc model or the gate changes, and record
-what it becomes.
+what it becomes. Measured with LUNet v2's disc segmenter on a sample of 32, the two rows read 5.8%
+and 21%; the SegFormer model on every estimated disc closed both.
 
 ## 10. Where this is documented for a reader
 

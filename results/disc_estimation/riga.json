@@ -1,0 +1,11 @@
+{
+  "builder_version": 4,
+  "dataset": "riga",
+  "fingerprint": "10e2197bef6950e4e86290829f41ec10abcb16c4ee273aa68a64571157d6684e",
+  "frame": "crop",
+  "grid": 512,
+  "model": "segformer-disc-cup",
+  "n_cup": 740,
+  "n_disc": 741,
+  "n_images": 744
+}

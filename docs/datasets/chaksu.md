@@ -80,7 +80,7 @@ Three subcollections, one per camera, and they are not the same shape.
 | | |
 | --- | --- |
 | Resolution (pixels) | **2448×3264 — portrait**, taller than wide |
-| Microns per pixel | Not published. **Inferred: 4.598 µm/px** — from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/chaksu.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 4.242 µm/px** — the median of 1,071 optic discs estimated one per photograph, [evidence](../../results/um_resolution/chaksu.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Remidio |
 | Field of view | Not stated |
 | Centring | Disc-visible |
@@ -94,7 +94,7 @@ landscape photographs may crop the wrong axis silently.
 | | |
 | --- | --- |
 | Resolution (pixels) | 2048×1536 |
-| Microns per pixel | Not published. **Inferred: 6.002 µm/px** — from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/chaksu.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 5.713 µm/px** — the median of 126 optic discs estimated one per photograph, [evidence](../../results/um_resolution/chaksu.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Forus 3Nethra Classic |
 | Field of view | Not stated |
 | Centring | Disc-visible |
@@ -110,7 +110,7 @@ loses 0.15% the same way; Remidio is round.
 | | |
 | --- | --- |
 | Resolution (pixels) | 1920×1440, with an elliptical field about 1441×1221 |
-| Microns per pixel | Not published. **Inferred: 8.451 µm/px** — from the median optic disc of 32 photographs, [evidence](../../results/um_resolution/chaksu.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
+| Microns per pixel | Not published. **Inferred: 8.411 µm/px** — the median of 145 optic discs estimated one per photograph, [evidence](../../results/um_resolution/chaksu.json). Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Bosch handheld |
 | Field of view | Not stated |
 | Centring | Disc-visible |

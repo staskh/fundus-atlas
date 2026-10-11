@@ -491,8 +491,9 @@ the provenance tables (`### 2.3 How to fetch` where the page has 2.1 and 2.2). I
 - **Anything peculiar** to this dataset that a person running it will hit: an archive format needing
   an external tool, a legacy spreadsheet, a mask palette, a file that must be skipped.
 - **The microns-per-pixel scale**, if the authors published none: the `How to fetch` subsection
-  names `python -m datasets.fetch_um_resolution` as a required follow-on, and says which
-  subcollections it covers. Section 8.
+  names `python -m datasets.fetch_um_resolution` as a required follow-on, preceded by
+  `python -m datasets.fetch_disc_estimation` so the scale is read from every photograph's disc
+  rather than from a sample, and says which subcollections it covers. Section 8.
 
 Keep it to what someone running the command needs. The *provenance* — citation, licence, home page —
 is already in the tables above it and must not be repeated.
@@ -535,9 +536,10 @@ every row, so a consumer never has to look it up and can always see where it cam
 **When there is no published scale, the fetcher is not finished until `fetch_um_resolution` has
 run.** That is a separate command, not a step inside `python -m datasets.<slug>`: the store build
 must not load a disc model, and the inferred figure must not be silently written into
-`manifest.csv`. The command samples photographs that share a subset and a raw size — 10%
+`manifest.csv`. The command groups photographs that share a subset and a raw size — 10%
 tolerance on width and height, per the `fetch-um-resolution` skill, section 4 — measures the
-disc with [lunetv2-odc](../../../docs/models/lunetv2-odc.md), and writes one camera-level
+disc with [segformer-disc-cup](../../../docs/models/segformer-disc-cup.md) — read from
+`results/disc_estimation/` where every disc is already estimated — and writes one camera-level
 `um_per_px` to `results/um_resolution/` when the discs agree closely enough. Re-run it whenever
 the store, the model, or the sampling contract changes — a stale JSON is a wrong millimetre scale
 on every biomarker that trusts it.
@@ -632,18 +634,18 @@ stops following the circle.
   `crop_x0 = crop_y0 = 0` and `crop_side` equal to `raw_width` and `raw_height` — so a consumer
   never has to know which photographs were spared to measure them correctly.
 
-Measured against the stores built so far, the photographs that would keep their frame:
+In the stores as built, the photographs that keep their frame:
 
 | Dataset | Kept at their frame | Where they are |
 | --- | --- | --- |
 | [FIVES](../../../docs/datasets/fives.md) | 800 of 800 | every photograph, 2048² |
-| [GRAPE](../../../docs/datasets/grape.md) | 630 of 631 | all three frame sizes |
+| [GRAPE](../../../docs/datasets/grape.md) | 629 of 631 | all three frame sizes |
 | [REYIA](../../../docs/datasets/reyia.md) | 501 of 563 | all of `enrich`, `fives`, `grape`, `mbrset`, `messidor` and `papila`; 55 of 69 in `magreb`; none of `trend` |
-| [FQS](../../../docs/datasets/fqs.md) | 132 of 2,245 | some of the 1942² photographs; none of the off-square ones |
+| [FQS](../../../docs/datasets/fqs.md) | 134 of 2,245 | some of the 1942² photographs; none of the off-square ones |
 | [Fundus-AVSeg](../../../docs/datasets/fundus-avseg.md) | 79 of 100 | all of `square`, 1280²; none of `large` |
 | [MSHF](../../../docs/datasets/mshf.md) | 70 of 802 | 69 in `cfp`, at 1534²; one in `local1` |
 
-REYIA's `trend` is square at 2560² and is cropped: its edges move by 9.6%, because the field sits
+REYIA's `trend` is square at 2560² and is cropped: its edges move by about 10%, because the field sits
 inside the frame with a wide surround. [RIGA](../../../docs/datasets/riga.md) keeps its frame for a
 different reason — its images are crops with no field boundary at all, recorded as
 `assumed_full_frame` — and is not an instance of this rule.

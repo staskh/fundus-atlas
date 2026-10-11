@@ -25,17 +25,19 @@ vessel width or a lesion size in pixels cannot be turned into millimetres, and n
 cameras cannot be read against each other. Where the authors published a scale, the detail page
 records it. Where they did not — the majority — this catalogue infers a **camera-level** scale
 from the typical optic disc (about 1.8 mm across), one number per subcollection of photographs
-that share a device and a similar pixel size. A sample of those photographs is outlined with
-[LUNet v2's disc segmenter](models/lunetv2-odc.md), and the median disc is kept only when the
-discs agree closely enough to trust as one camera. The evidence is committed under
+that share a device and a similar pixel size. The discs are outlined by the
+[SegFormer disc-and-cup model](models/segformer-disc-cup.md) — every photograph's, where the atlas
+has already estimated each disc under [`results/disc_estimation/`](../results/disc_estimation/),
+otherwise a sample — and the median disc is kept only when the discs agree closely enough to trust
+as one camera. The evidence is committed under
 [`results/um_resolution/`](../results/um_resolution/), and the figure is copied into the store's
 manifest, where `resolution_source` says `disc_anchored` so that nobody mistakes it for an author's
 measurement.
 
 **What that inference is worth is measurable on two datasets.** [PAPILA](datasets/papila.md) and
 [HRF](datasets/hrf.md) state a field angle, which gives a scale without assuming any disc size. On
-PAPILA the two derivations agree to **5.8%**; on HRF they differ by **21%**. Read every inferred
-figure in this catalogue as a camera scale good to somewhere between a twentieth and a fifth — and
+PAPILA the two derivations agree to **0.6%**; on HRF they differ by **15%**. Read every inferred
+figure in this catalogue as a camera scale good to somewhere between a hundredth and a seventh — and
 none of them as a per-eye calibration.
 
 ## 1. Summary
@@ -360,6 +362,15 @@ top-left corner, which may be negative) and how wide it is (`crop_side`). It als
 `pad_fraction`, the share of the square that is fill rather than photograph — what the benchmark
 pages call **black canvas**. A model is shown that fill too, which is why the benchmark pages report
 it per dataset.
+
+**A photograph its authors already cropped square keeps its own frame.** Some datasets publish
+photographs already cut to the field of view on a square canvas. Cropping those again would move
+each edge by a few dozen pixels, shaving real retina off one side and adding fill on the other, for
+no gain. So where the photograph is square and the square above would move every edge by less than
+3% of its width, the photograph itself is the square: `crop_x0` and `crop_y0` are 0 and `crop_side`
+is the photograph's own width. The field of view is still found and recorded. This is decided
+**photograph by photograph**, so one dataset can hold both kinds — [MSHF](datasets/mshf.md)'s
+1534-pixel square photographs keep their frame while its rectangular ones are cropped.
 
 ### 5.3 What goes into the square
 

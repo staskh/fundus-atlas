@@ -59,6 +59,7 @@ not say who drew the contours.
 
 ```bash
 uv run python -m datasets.hrf                      # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset hrf
 uv run python -m datasets.fetch_um_resolution --dataset hrf
 ```
 
@@ -77,7 +78,7 @@ into this fetcher.
 
 The authors publish no microns-per-pixel scale. They state a 45° field, so the store derives one per
 photograph from each frame's own fitted field; the second command then measures a second figure from
-the optic disc, and the two disagree by 21% (section 7).
+the optic disc, and the two disagree by 15% (section 7).
 
 ### 2.5 VC-Net — a secondary copy of the HRF-AV labels
 
@@ -111,7 +112,7 @@ of this dataset should come from.
 | | |
 | --- | --- |
 | Resolution (pixels) | 3504×2336 — the largest in this catalogue |
-| Microns per pixel | Not published, and **two derivations disagree**: 4.130 µm/px from the stated 45° field, 4.980 from the median optic disc ([evidence](../../results/um_resolution/hrf.json)). The manifest carries the disc figure. Section 7 |
+| Microns per pixel | Not published, and **two derivations disagree**: 4.130 µm/px from the stated 45° field, 4.740 from the median optic disc ([evidence](../../results/um_resolution/hrf.json)). The manifest carries the disc figure. Section 7 |
 | Camera | Canon CR-1, non-mydriatic |
 | Field of view | 45° |
 | Centring | Mixed |
@@ -160,13 +161,13 @@ figure to read automated disc results against, rather than assuming one.
   The second group contributed the **classification**, not the segmentation. A model scored against
   both the vessel gold standard and the artery/vein maps has therefore been scored against one
   tracing twice, and the two numbers are not independent evidence.
-- **The two available scales disagree by a fifth.** *Our finding:* the stated 45° field gives
-  4.130 µm/px; the median optic disc gives 4.980. Under the first, HRF's median disc measures
-  1,490 µm rather than the 1,800 µm the disc method assumes; under the second, its field spans 54°
+- **The two available scales disagree by about a seventh.** *Our finding:* the stated 45° field
+  gives 4.130 µm/px; the median optic disc gives 4.740. Under the first, HRF's median disc measures
+  1,568 µm rather than the 1,800 µm the disc method assumes; under the second, its field spans 52°
   rather than the stated 45°. Nothing here settles which is wrong — both are this repository's
   derivations, the 300 µm-per-degree constant is an approximation, and a camera's quoted angle need
   not be the angle subtended at the retina. It is the widest disagreement between the two methods in
-  this catalogue, against 5.8% on [PAPILA](papila.md).
+  this catalogue, against 0.6% on [PAPILA](papila.md).
 - **About a quarter of the arteriovenous crossings are not marked as crossings, and each unmarked
   one is a gap in whichever vessel the annotator did not paint through.** *Our finding, 2026-10-04.*
   HRF-AV uses three colours and nothing else — red artery, blue vein, and **green for a crossing**,
