@@ -39,11 +39,13 @@ crossing-specific clinical signs are read.
 
 ## 3. Major publications by the authors
 
-Unknown — no publication was found, and the repository carries clear signs of being under peer
-review: the README's own clone instructions point at an anonymised repository (`anon-retina/OCULAR`),
-the weights are hosted under an anonymous Hugging Face account, and the release of new annotations
-is promised "upon paper publication". Cite the repository for now, and check for a paper before
-relying on it.
+[Plaza 2026](../papers/plaza-2026.md) — Plaza G, Sanchez M, Serra-Castanera A, Valls-Esteve A, Mata
+Miquel C, Camara O, Galdran A. *Beyond Dice: Clinically Meaningful Large-Scale Retinal Artery/Vein
+Segmentation.* MICCAI 2026 Satellite Events, OMIA workshop, paper OMIA_030 (2026-09-21). Open
+access at https://papers.miccai.org/miccai-2026-sat/OMIA_030; no DOI established.
+
+The code and weights are still hosted under the accounts set up for anonymous review, and the
+release of the new annotations is promised "upon paper publication", which has now happened.
 
 ## 4. Segmentation models used
 

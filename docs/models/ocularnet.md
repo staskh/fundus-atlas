@@ -33,10 +33,12 @@ guarantee usable biomarkers.
 
 ## 3. Major publications by the authors
 
-Unknown — no publication was found, and the repository shows the marks of being under review: its
-own clone instructions point at an anonymised repository, the weights sit under an anonymous Hugging
-Face account, and further annotations are promised "upon paper publication". Check for a paper
-before relying on this model.
+[Plaza 2026](../papers/plaza-2026.md) — Plaza G, Sanchez M, Serra-Castanera A, Valls-Esteve A, Mata
+Miquel C, Camara O, Galdran A. *Beyond Dice: Clinically Meaningful Large-Scale Retinal Artery/Vein
+Segmentation.* MICCAI 2026 Satellite Events, OMIA workshop, paper OMIA_030 (2026-09-21). Open
+access at https://papers.miccai.org/miccai-2026-sat/OMIA_030; no DOI established.
+
+The weights and the code are still hosted under the accounts set up for anonymous review.
 
 ## 4. What it produces
 
@@ -104,9 +106,13 @@ suggests.
 
 ## 8. Performance as reported by the authors
 
-The repository states that the model improves agreement in vascular topology, junctions and vessel
-calibre across diverse datasets, evaluated in and out of distribution. No paper was found, so there
-are no citable per-dataset numbers yet. Recorded as the authors' claim.
+The authors report agreement between biomarkers computed from the model's masks and from the
+expert's — intraclass correlation over photographs, on their five out-of-distribution test sets —
+and claim the highest agreement of any model they compared for almost every biomarker, venous
+branching angle excepted. They also report that it does **not** have the best overlap: Dice 71.8 for
+arteries and 75.0 for veins, below the same network trained on overlap losses alone. The table and
+the test sets are summarised on [Plaza 2026](../papers/plaza-2026.md). These are the authors'
+claims.
 
 ## 9. Used by
 

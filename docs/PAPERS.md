@@ -55,7 +55,13 @@ yet are omitted; they appear when the first paper of that kind is added.
 | [Stosic 2006](papers/stosic-2006.md) | 2006 | Retinal vessels as geometrical multifractals | Fractal dimension; STARE; PVBM | 🟡 | 2026-09-22 |
 | [Vargas 2026](papers/vargas-2026.md) | 2026 | Sparsity, temporal angle, disc–fovea distance; VascX toolbox | Sparsity; temporal angle; VascX | 🟡 | 2026-09-21 |
 
-### 1.2 Findings — a result that changes how a number in this atlas should be read
+### 1.2 Comparisons — methods compared on shared terms, which this atlas's comparisons should be read against
+
+| Paper | Year | What it is for | Relates to | Open | Last checked |
+| --- | --- | --- | --- | --- | --- |
+| [Plaza 2026](papers/plaza-2026.md) | 2026 | A/V models graded by biomarker agreement, not Dice | OCULARNet; AutoMorph; VascX | ✅ | 2026-10-11 |
+
+### 1.3 Findings — a result that changes how a number in this atlas should be read
 
 | Paper | Year | What it is for | Relates to | Open | Last checked |
 | --- | --- | --- | --- | --- | --- |
@@ -169,7 +175,6 @@ Papers that describe a catalogued model and are not already in section 4.1.
 | Zhou 2021 | 2021 | BF-Net / Learning-AVSegmentation | [BF-Net](models/bf-net.md); [AutoMorph A/V](models/automorph-artery-vein.md) |
 | Zhou 2021 | 2021 | SEGAN vessel segmenter | [SEGAN](models/segan-vessel.md) |
 | Zhou 2022 | 2022 | AutoMorph pipeline | [AutoMorph](projects/automorph.md); [AutoMorphalyzer](projects/automorphalyzer.md); [AutoMorphClass](projects/automorphclass.md) |
-| — | — | OCULARNet: no paper yet | [OCULARNet](models/ocularnet.md); [project](projects/ocularnet.md) |
 | — | — | Retina-MVP A/V: no paper | [Retina-MVP A/V](models/retina-mvp-av.md) |
 | — | — | SegFormer disc/cup weights: no paper | [SegFormer disc/cup](models/segformer-disc-cup.md) |
 
