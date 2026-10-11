@@ -40,7 +40,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 
 | Model | Produces | Architecture | Grid (in → out) | Trained on | Weights | Training code | License | Used by | Last commit | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [OCULARNet](models/ocularnet.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-b3 encoder | 1024², **only with `--resize`** | 14 public A/V datasets | Yes | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
+| [OCULARNet](models/ocularnet.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-b3 encoder | 1024², **only with `--resize`** | 14 public A/V datasets | Yes | Yes, in the repository | Weights MIT (model card); code none stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-10-11 |
 | [OCULARNet-nano](models/ocularnet-nano.md) | Artery, vein, **crossings**, background | U-Net with RepVGG-a0 encoder, ensemble of 5 | 1024², **only with `--resize`** | The same 14 datasets, five folds | **Withdrawn** — the URLs answer 401 | Yes, in the repository | None stated | [OCULARNet](projects/ocularnet.md) | 2026-08 | 2026-09-10 |
 | [VascX artery/vein](models/vascx-artery-vein.md) | Artery against vein, **softmax — no crossings** | U-Net ensemble | 1024² | 15+ published datasets plus Rotterdam Study images | Yes | No | Code not stated; weights AGPL-3.0 | [VascX](projects/vascx.md) | 2026-08 | 2026-09-10 |
 | [Retina-MVP A/V](models/retina-mvp-av.md) | Background, artery, vein | U-Net with a ResNet-34 encoder | 512² → back to original, nearest neighbour | **Unknown — none named** | Yes | Yes, in the repository | **None stated** | — | 2025-12 | 2026-09-16 |

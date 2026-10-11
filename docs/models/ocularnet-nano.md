@@ -28,9 +28,8 @@ by the nano ensemble is not a result produced by OCULARNet, and the two should n
 
 ## 3. Major publications by the authors
 
-Unknown — no publication was found. The repository shows the marks of being under review: anonymised
-clone instructions, an anonymous weights account, and further annotations promised "upon paper
-publication".
+[Plaza 2026](../papers/plaza-2026.md) describes the full [OCULARNet](ocularnet.md) and does not
+mention this variant. No publication describing the nano model was found.
 
 ## 4. What it produces
 
@@ -99,7 +98,8 @@ suggests.
 
 ## 8. Performance as reported by the authors
 
-No paper was found, and the repository publishes no separate numbers for the nano variant. Whether
+The paper on the full model reports no numbers for the nano variant, and neither does the
+repository. Whether
 it matches the full model is Unknown, which is the first thing to establish before using it in place
 of OCULARNet.
 
@@ -121,4 +121,4 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-10-11

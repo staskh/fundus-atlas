@@ -313,8 +313,8 @@ These fixtures are **ours**, small, and committed — they are not a dataset and
   (`utils/archives.GitSource`: sparse clone at a pinned commit, provenance recorded), into a
   git-ignored `.atlas_code/<slug>/`.
 - Nothing third-party is committed. `CLAUDE.md` §2.1 forbids it, and half of these could not be
-  redistributed anyway: OCULAR, SuperRetina and the MIDL24 vessel weights state **no licence at
-  all**; VascX's weights are AGPL-3.0.
+  redistributed anyway: OCULAR's code, SuperRetina and the MIDL24 vessel weights state **no licence
+  at all**; OCULARNet's weights are MIT and VascX's are AGPL-3.0.
 
 ### 8.1 One environment, and what that costs
 

@@ -29,18 +29,23 @@ crossing-specific clinical signs are read.
 - **Code:** **None stated.** The repository contains no LICENSE file and GitHub reports no license,
   which means no permission to reuse or redistribute has been granted, whatever the intent. Ask the
   authors before building on it.
-- **Model weights:** No license stated on either Hugging Face repository.
+- **Model weights:** OCULARNet's weights are **MIT**, declared in the model card's metadata
+  (`license: mit`) on [Anon-User-Retina/OCULARNet](https://huggingface.co/Anon-User-Retina/OCULARNet),
+  commit `63cc6b80` (2026-06-09). OCULARNet-nano's repository answers 401, so its licence cannot
+  be read.
 - **Datasets:** each aggregated dataset keeps its own license, and the authors link to the original
   source of every one rather than redistributing images. The optic-disc and field-of-view masks they
   add are their own contribution, distributed from Google Drive.
 
 ## 3. Major publications by the authors
 
-Unknown — no publication was found, and the repository carries clear signs of being under peer
-review: the README's own clone instructions point at an anonymised repository (`anon-retina/OCULAR`),
-the weights are hosted under an anonymous Hugging Face account, and the release of new annotations
-is promised "upon paper publication". Cite the repository for now, and check for a paper before
-relying on it.
+[Plaza 2026](../papers/plaza-2026.md) — Plaza G, Sanchez M, Serra-Castanera A, Valls-Esteve A, Mata
+Miquel C, Camara O, Galdran A. *Beyond Dice: Clinically Meaningful Large-Scale Retinal Artery/Vein
+Segmentation.* MICCAI 2026 Satellite Events, OMIA workshop, paper OMIA_030 (2026-09-21). Open
+access at https://papers.miccai.org/miccai-2026-sat/OMIA_030; no DOI established.
+
+The code and weights are still hosted under the accounts set up for anonymous review, and the
+release of the new annotations is promised "upon paper publication", which has now happened.
 
 ## 4. Segmentation models used
 
@@ -156,9 +161,9 @@ project's issue tracker or code was found to change the numbers a user would rep
   becomes a dataset entry of its own.
 - The `--ensemble` flag runs the five nano folds together; a single-fold run and an ensemble run are
   different models and should not be pooled in one analysis.
-- Absent a license (section 2), this is currently readable but not reusable. That is the single
-  thing to watch on this project.
+- The code has no license (section 2), so it is readable but not reusable; OCULARNet's weights are
+  MIT. A license on the code is the single thing to watch on this project.
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-10-11

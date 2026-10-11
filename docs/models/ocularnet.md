@@ -26,14 +26,19 @@ guarantee usable biomarkers.
 
 - **Code:** **None stated.** No LICENSE file, so no permission to reuse or redistribute has been
   granted regardless of intent. Ask the authors.
-- **Model weights:** No license stated on either Hugging Face repository.
+- **Model weights:** **MIT**, declared in the model card's metadata (`license: mit`) on
+  [Anon-User-Retina/OCULARNet](https://huggingface.co/Anon-User-Retina/OCULARNet), commit
+  `63cc6b80` (2026-06-09). The repository holds no LICENSE file of its own; the card's tag is the
+  whole of the grant, and it covers the weights, not the code above.
 
 ## 3. Major publications by the authors
 
-Unknown — no publication was found, and the repository shows the marks of being under review: its
-own clone instructions point at an anonymised repository, the weights sit under an anonymous Hugging
-Face account, and further annotations are promised "upon paper publication". Check for a paper
-before relying on this model.
+[Plaza 2026](../papers/plaza-2026.md) — Plaza G, Sanchez M, Serra-Castanera A, Valls-Esteve A, Mata
+Miquel C, Camara O, Galdran A. *Beyond Dice: Clinically Meaningful Large-Scale Retinal Artery/Vein
+Segmentation.* MICCAI 2026 Satellite Events, OMIA workshop, paper OMIA_030 (2026-09-21). Open
+access at https://papers.miccai.org/miccai-2026-sat/OMIA_030; no DOI established.
+
+The weights and the code are still hosted under the accounts set up for anonymous review.
 
 ## 4. What it produces
 
@@ -101,9 +106,13 @@ suggests.
 
 ## 8. Performance as reported by the authors
 
-The repository states that the model improves agreement in vascular topology, junctions and vessel
-calibre across diverse datasets, evaluated in and out of distribution. No paper was found, so there
-are no citable per-dataset numbers yet. Recorded as the authors' claim.
+The authors report agreement between biomarkers computed from the model's masks and from the
+expert's — intraclass correlation over photographs, on their five out-of-distribution test sets —
+and claim the highest agreement of any model they compared for almost every biomarker, venous
+branching angle excepted. They also report that it does **not** have the best overlap: Dice 71.8 for
+arteries and 75.0 for veins, below the same network trained on overlap losses alone. The table and
+the test sets are summarised on [Plaza 2026](../papers/plaza-2026.md). These are the authors'
+claims.
 
 ## 9. Used by
 
@@ -120,8 +129,9 @@ None recorded as of 2026-09-10 — an absence of findings, not a clean bill of h
 - **Crossings change what downstream code sees.** A four-class output is not a drop-in replacement
   for a three-class artery/vein mask; code expecting the latter needs to decide what to do with the
   crossings class rather than ignore it silently.
-- With no license (section 2) this is currently readable but not reusable.
+- The weights are MIT and the code carries no licence (section 2): the checkpoint may be reused,
+  the inference and training code may be read but not reused.
 
 ---
 
-**Links and license last checked:** 2026-09-10
+**Links and license last checked:** 2026-10-11

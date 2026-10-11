@@ -602,6 +602,52 @@ circle from the stored centre and radius.
 - `fov_cx`, `fov_cy` and `fov_r` stay in the manifest as the **geometry that produced the crop**.
   They describe the circle that was fitted; they are not a substitute for the mask.
 
+### 9.1 A photograph its authors already cropped is not cropped again
+
+Some datasets distribute photographs **already cropped to the field of view on a square frame**.
+Running the crop over them again changes almost nothing, and what it does change has a cost:
+each edge moves by a few dozen pixels, so a strip of real retina is shaved off one side and an
+equal strip of invented padding is pasted onto the other, and every coordinate the dataset
+published has to be translated by an offset that exists only because of us.
+
+**So where the frame is square and the crop would move every edge by less than 3% of the side, the
+frame is the crop**: `crop_x0 = crop_y0 = 0` and `crop_side` is the frame's own side. Everything
+else in this section still happens. The field of view is still detected (or read from the
+dataset's mask), the mask is still written, and `fov_cx`, `fov_cy` and `fov_r` still record the
+fitted circle, because a field-angle scale and every area measurement need it. Only the square
+stops following the circle.
+
+- **The decision is made per image**, after that image's shape is read and its crop estimated —
+  not declared for a dataset. **Expect one store to hold both**: a dataset mixing cameras, frame
+  sizes or exporters will have some photographs kept at their frame and others cropped, and that is
+  the rule working, not an inconsistency. MSHF's `cfp` subcollection is the worked example: its
+  1534² photographs qualify and its 1924×1556 ones in the same subcollection do not.
+- **The test**, on the square the ordinary crop would produce:
+  `max(|x0|, |y0|, |x0 + side − width|, |y0 + side − height|) / side < 0.03`, on a frame whose width
+  equals its height.
+- **Square means square.** A frame a few pixels off square, such as FQS's 1944×1942, is not
+  covered: keeping it would make the stored image not square, and every consumer assumes it is.
+- **Never for `assumed_full_frame`.** With no field found there is no crop estimate to judge.
+- **The manifest says which happened.** A kept frame is readable from the row itself —
+  `crop_x0 = crop_y0 = 0` and `crop_side` equal to `raw_width` and `raw_height` — so a consumer
+  never has to know which photographs were spared to measure them correctly.
+
+Measured against the stores built so far, the photographs that would keep their frame:
+
+| Dataset | Kept at their frame | Where they are |
+| --- | --- | --- |
+| [FIVES](../../../docs/datasets/fives.md) | 800 of 800 | every photograph, 2048² |
+| [GRAPE](../../../docs/datasets/grape.md) | 630 of 631 | all three frame sizes |
+| [REYIA](../../../docs/datasets/reyia.md) | 501 of 563 | all of `enrich`, `fives`, `grape`, `mbrset`, `messidor` and `papila`; 55 of 69 in `magreb`; none of `trend` |
+| [FQS](../../../docs/datasets/fqs.md) | 132 of 2,245 | some of the 1942² photographs; none of the off-square ones |
+| [Fundus-AVSeg](../../../docs/datasets/fundus-avseg.md) | 79 of 100 | all of `square`, 1280²; none of `large` |
+| [MSHF](../../../docs/datasets/mshf.md) | 70 of 802 | 69 in `cfp`, at 1534²; one in `local1` |
+
+REYIA's `trend` is square at 2560² and is cropped: its edges move by 9.6%, because the field sits
+inside the frame with a wide surround. [RIGA](../../../docs/datasets/riga.md) keeps its frame for a
+different reason — its images are crops with no field boundary at all, recorded as
+`assumed_full_frame` — and is not an instance of this rule.
+
 ## 10. Optic disc and cup: contours, not rasters
 
 Disc and cup are stored as **polygon nodes in a CSV per image**, one file holding every structure and
