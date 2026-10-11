@@ -559,6 +559,9 @@ the same way.
 
 ## 9. Field of view: a true crop and paste, not a redrawn circle
 
+The reader-facing account of this — what a clinician needs to know about the square a model is
+shown — is `docs/DATASETS.md` section 5. Keep the two in step when the crop rule changes.
+
 **What counts as surround.** Not "the dark part" — cameras and exporters disagree, and the same
 dataset can hold both conventions: twenty of DeepDRiD's photographs write the area outside the
 field **white**, the rest write it black, and others in this catalogue write a flat grey. What every
