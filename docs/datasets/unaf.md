@@ -40,6 +40,7 @@ Europe, China, North America or India.
 | --- | --- | --- | --- |
 | Artery/vein | Reference standard; reader count not stated | Native | — |
 | Disease | Per eye | — | Diabetic retinopathy |
+| Optic disc, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | OCULAR's 1024×1024 copy | No field-of-view mask: OCULAR treats these images as already cropped to the field. A Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 

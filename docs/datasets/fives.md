@@ -53,6 +53,8 @@ one carrying the quality spreadsheet.
 | Quality | Graded per photograph | — | Illumination, blur and low-contrast components in `Quality Assessment.xlsx`, per split |
 | Disease | One label per eye | — | Four classes, encoded in the filename letter: `A` AMD, `D` DR, `G` glaucoma, `N` normal |
 
+**Announced, not released.** [OCULAR](../projects/ocularnet.md) lists all 800 FIVES photographs among the datasets it will give artery/vein labels to "upon paper publication", drawn by OCULARNet at 1024×1024 and refined by hand against the vessel tracing. Its README links no files for them (checked 2026-10-12).
+
 ## 5. Inheritance
 
 - **Reuses images from:** No shared images established — FIVES is an original collection.

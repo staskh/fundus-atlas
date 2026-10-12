@@ -15,6 +15,8 @@ a small adult's, and every model here trained on adult eyes.
 
 ## 2. Provenance
 
+### 2.1 CHASE-DB1 — the photographs and vessel tracings
+
 | | |
 | --- | --- |
 | Home | Kingston University Research Data Repository, <https://researchdata.kingston.ac.uk/96/> |
@@ -23,6 +25,19 @@ a small adult's, and every model here trained on adult eyes.
 | Licence | **Not established** — check the repository record before redistributing |
 | Content | 28 images; see section 3 on the two resolutions in circulation |
 | Annotations | Two independent observers' vessel segmentations, kept separate |
+
+### 2.2 OCULAR — artery/vein labels
+
+| | |
+| --- | --- |
+| Home | The OCULAR repository, <https://github.com/GonzaloPlaaza/OCULAR>, section "Release of New Artery-Vein Annotations" |
+| Download | **direct, no registration** — a public Google Drive folder, <https://drive.google.com/drive/folders/1jPAG5RtM_bwzvYWlwGnHWCdUdYBEShr-> |
+| Citation | Plaza G, Sanchez M, Serra-Castanera A, Valls-Esteve A, Mata Miquel C, Camara O, Galdran A. *Beyond Dice: Clinically Meaningful Large-Scale Retinal Artery/Vein Segmentation.* MICCAI 2026 Satellite Events, OMIA workshop, paper OMIA_030 — [Plaza 2026](../papers/plaza-2026.md) |
+| Licence | **not stated** — the OCULAR repository has no LICENSE file |
+| Content | 28 PNG label maps, one per photograph (checked 2026-10-12) |
+| Annotations | Supplies artery, vein and crossing labels, drawn by [OCULARNet](../models/ocularnet.md) at 1024×1024, cut back to this dataset's own vessel tracing and corrected by hand |
+
+These are the first artery/vein labels for CHASE-DB1, and they are a model's. Every vessel pixel in them is one the CHASE observers drew; what OCULAR adds is which class each is, and that is OCULARNet's call wherever its authors did not overrule it.
 
 ## 3. The images
 
@@ -43,11 +58,12 @@ which is closer to a screening setting than most datasets here.
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
 | Vessels | **Two, kept separate** | Native | Both are distributed; the first is conventionally used as ground truth |
+| Artery, vein and crossing, by [OCULAR](../projects/ocularnet.md) | One model, refined by OCULAR's authors | **1024×1024**, not this dataset's native size | A model's output corrected by hand, not an independent reader: where the model and the corrector agree on a mistake, it stays. Section 2.2 |
 
 ## 5. Inheritance
 
 - **Reuses images from:** No shared images established.
-- **Its images are reused by:** None established.
+- **Its images are reused by:** [OCULAR](../projects/ocularnet.md), which adds artery/vein labels to them (section 2.2). It did not train or evaluate OCULARNet on them.
 
 ## 6. Use as a benchmark
 

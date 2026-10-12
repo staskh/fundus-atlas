@@ -1,5 +1,8 @@
 # ARIA (Automated Retinal Image Analyzer)
 
+*Not the ARIA image dataset from Liverpool (Automated Retinal Image Analysis), which is catalogued
+at [ARIA (dataset)](../datasets/aria-dataset.md).*
+
 ARIA detects blood vessels in a fundus photograph and measures their diameter, using wavelet-based
 detection followed by a refinement step that locates each vessel edge precisely. It is MATLAB
 software with a graphical interface, written to be adapted: its author explicitly designed it so

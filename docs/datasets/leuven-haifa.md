@@ -45,6 +45,7 @@ Its cost is access: a signed data transfer agreement, and non-commercial terms.
 | Quality | Scored per photograph | — | Produced with an automated quality network rather than by a grader |
 | Disease | One label per eye | — | Glaucoma, in three categories, plus healthy |
 | Other labels | — | — | Age, sex, and **twelve published vessel measurements** — tortuosity, fractal dimensions, branching |
+| Optic disc, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | OCULAR's 1024×1024 copy | No field-of-view mask: OCULAR treats these images as already cropped to the field. A Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 

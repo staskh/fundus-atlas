@@ -45,6 +45,8 @@ Access is the obstacle: a signed licence, negotiated case by case.
 | Disease | Per eye | — | DR severity on the International Clinical Diabetic Retinopathy scale |
 | Other labels | — | Native | **Fovea centre** — a second landmark, so a disc-to-fovea axis can be built |
 
+**Announced, not released.** [OCULAR](../projects/ocularnet.md) lists the 200 UoA-DR photographs, at 1024×1024 rather than the 2124×2056 the distributor publishes among the datasets it will give artery/vein labels to "upon paper publication", drawn by OCULARNet at 1024×1024 and refined by hand against the vessel tracing. Its README links no files for them (checked 2026-10-12).
+
 ## 5. Inheritance
 
 - **Reuses images from:** No shared images established.

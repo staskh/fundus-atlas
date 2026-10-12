@@ -44,6 +44,7 @@ Tromsø subset that is not yet available.
 | Vessels | Reference standard | Native | — |
 | Optic disc | Reference standard | Native | Which, with the vessels, is what a zone-based calibre measurement needs |
 | Other labels | **Two experts, plus their average** | — | **AVR as a number per image**, measured with IVAN. It is a scalar, not a pixel map of a measurement zone — so reproducing it means running a pipeline's own calibre code and comparing the number |
+| Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop of the field; field-of-view mask at native | Released where the dataset lacked them, as a Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 
@@ -53,8 +54,10 @@ Tromsø subset that is not yet available.
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None trained on it. [OCULARNet](../models/ocularnet.md)
-  lists INSPIRE in its **training** collection, so it is in-sample for that model;
+- **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
+  [OCULARNet-nano](../models/ocularnet-nano.md) — INSPIRE is in their **training** collection, as
+  15 photographs at 1444×1444, a rendition of 15 of these 40 (OCULAR README); so it is in-sample
+  for those models, at least for those 15;
   [LUNet](../models/lunet.md) uses it as a held-out external test.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** whether a pipeline's [AVR](../biomarkers/calibre.md) agrees with two experts'

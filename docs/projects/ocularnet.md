@@ -67,12 +67,13 @@ release of the new annotations is promised "upon paper publication", which has n
   field of view, resolution, country and pathologies, which makes it the most explicit statement of
   training-data diversity of any entry in this catalogue.
 
-  **But six of those fourteen entries are one download.** ENRICH, FIVES-AV, MAGREBHIA, MESSIDOR-AV,
-  AV-WIDE and TREND-AV are all served from the same Kaggle URL — [REYIA](../datasets/reyia.md)'s
-  link-shared archive — so the list counts one compilation's subsets six times, and two of those
-  subsets are annotations of [FIVES](../datasets/fives.md) and [MESSIDOR](../datasets/messidor.md)
-  photographs that the list does not otherwise name. A count of datasets is not a count of
-  independent evidence.
+  **But six of those fourteen entries are one download.** ENRICH, FIVES-AV, GRAPE, MAGREBHIA,
+  MESSIDOR-AV and PAPILA are all served from the same Kaggle URL — [REYIA](../datasets/reyia.md)'s
+  link-shared archive — so the list counts one compilation's subsets six times, and four of those
+  subsets are REYIA's renditions of [FIVES](../datasets/fives.md), [GRAPE](../datasets/grape.md),
+  [MESSIDOR](../datasets/messidor.md) and [PAPILA](../datasets/papila.md) photographs. Three of the
+  out-of-distribution tests — mBRSET, TREND-AV and AV-WIDE — are further subsets of the same
+  archive. A count of datasets is not a count of independent evidence.
 - **Weights publicly available:** Yes.
 - **Download URLs:**
   - OCULARNet: https://huggingface.co/Anon-User-Retina/OCULARNet/resolve/main/OCULARNet.pth
@@ -157,8 +158,16 @@ project's issue tracker or code was found to change the numbers a user would rep
   it will also belong in the dataset catalogue for the OCULAR annotation collection.
 - **Promised release.** The authors state that upon publication they will release artery-vein
   segmentations for 1,791 images across several open datasets, produced with OCULARNet and
-  semi-automatically refined against ground-truth binary vessel annotations. If that lands, it
-  becomes a dataset entry of its own.
+  semi-automatically refined against ground-truth binary vessel annotations. Part of it has landed:
+  as of 2026-10-12 public label folders exist for [ARIA](../datasets/aria-dataset.md),
+  [CHASE-DB1](../datasets/chase-db1.md), [DR HAGIS](../datasets/dr-hagis.md),
+  [DRiDB](../datasets/dridb.md), [FOVEA](../datasets/fovea-dataset.md) and
+  [ORVS](../datasets/orvs.md); [VEVIO](../datasets/vevio.md)'s folder asks for a Google sign-in; and
+  [FIVES](../datasets/fives.md), [IDRiD](../datasets/idrid.md), [MAPLES-DR](../datasets/maples-dr.md),
+  [STARE](../datasets/stare.md), [TREND](../datasets/trend.md) and [UoA-DR](../datasets/uoa-dr.md)
+  have no link yet. Each is recorded as an annotation layer on that dataset's own page rather than
+  as a dataset of its own. The disc and field-of-view masks OCULAR publishes for its training and
+  test sets all ask for a Google sign-in.
 - The `--ensemble` flag runs the five nano folds together; a single-fold run and an ensemble run are
   different models and should not be pooled in one analysis.
 - The code has no license (section 2), so it is readable but not reusable; OCULARNet's weights are

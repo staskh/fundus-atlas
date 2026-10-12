@@ -44,6 +44,8 @@ ceiling.
 | Vessels | **Two, kept separate** — Adam Hoover's set is the one used as ground truth, Valentina Kouznetsova's as a human baseline | Native | The second set is what lets a model's score be compared against a person's |
 | Disease | Per image | — | Ten of the twenty show pathology |
 
+**Announced, not released.** [OCULAR](../projects/ocularnet.md) lists 18 STARE photographs (of the 20 here) among the datasets it will give artery/vein labels to "upon paper publication", drawn by OCULARNet at 1024×1024 and refined by hand against the vessel tracing. Its README links no files for them (checked 2026-10-12).
+
 ## 5. Inheritance
 
 - **Reuses images from:** No shared images established.

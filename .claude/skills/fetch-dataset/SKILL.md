@@ -13,10 +13,10 @@ what it built.
 The catalogue in `docs/datasets/` says what a dataset *is*. A fetcher makes it *usable*, and the two
 must agree: every fetcher is accompanied by an update to its dataset page (section 7 below).
 
-**The reason the store is normalised rather than raw.** Forty-three datasets arrive as forty-three
+**The reason the store is normalised rather than raw.** Fifty-two datasets arrive as fifty-two
 layouts — RAR archives, per-split folders, spreadsheets of labels, masks in three palettes, images
-from 565 to 4288 pixels across. Any comparison that reads them directly re-implements those
-forty-three layouts in every consumer. One store means a consumer reads `manifest.csv`, asks for a
+from 565 to 4752 pixels across. Any comparison that reads them directly re-implements those
+fifty-two layouts in every consumer. One store means a consumer reads `manifest.csv`, asks for a
 photograph at a size, and gets pixels resized from the crop as they are read.
 
 ## 1. What you produce

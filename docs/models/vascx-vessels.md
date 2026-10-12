@@ -64,6 +64,7 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 | --- | --- | --- | --- |
 | More than fifteen published annotated datasets, combined | Training | Their own authors | In the paper; the per-model split is not restated here |
 | Dutch cohort images, principally the Rotterdam Study | Training | The cohort's graders | In the paper |
+| [DR HAGIS](../datasets/dr-hagis.md), all 40 | Training, vessels only | The dataset's grader | VascX paper Table 1 |
 
 The training set absorbs most of the public annotated data, so few public datasets remain for a
 blind benchmark of this model. That cuts both ways: broad training is why it generalises, and also

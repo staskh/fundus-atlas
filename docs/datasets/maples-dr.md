@@ -59,6 +59,8 @@ label archive.
 | Disease | Regraded | — | DR and macular-oedema grades, regraded rather than inherited |
 | Other labels | Retinologists | 1500×1500 | Six lesion classes, macula location |
 
+**Announced, not released.** [OCULAR](../projects/ocularnet.md) lists these 198 photographs, as "MESSIDOR-MAPLES-DR", at 1444×1444 among the datasets it will give artery/vein labels to "upon paper publication", drawn by OCULARNet at 1024×1024 and refined by hand against the vessel tracing. Its README links no files for them (checked 2026-10-12). Those would be refined against MAPLES-DR's own vessel labels.
+
 **The annotation grid is not the image grid.** Labels were drawn at 1500×1500 and stored at native
 size, so their effective precision is the 1500 grid's, whatever their file dimensions say. Treating
 "MESSIDOR native" and "the grid the retinologist drew on" as the same thing is the mistake this page

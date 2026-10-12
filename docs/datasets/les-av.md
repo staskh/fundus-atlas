@@ -85,6 +85,7 @@ assumes a fixed shape.
 | Vessels | Derived from the A/V labels | Native | — |
 | Disease | One label per eye | — | **Glaucoma subtype**: normal, normal-tension, open-angle — the only subtype labels in this catalogue |
 | Clinical measurements | — | — | Blood pressure, heart rate, intraocular pressure per patient |
+| Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop of the field; field-of-view mask at native | Released where the dataset lacked them, as a Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 
