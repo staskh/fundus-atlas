@@ -379,3 +379,45 @@ def test_a_photograph_with_nothing_annotated_is_still_set_aside(tmp_path: Path) 
 
     assert scored[0]["counts"]["processed"] == 0
     assert scored[0]["counts"]["excluded"] == {"no vessel annotation to score against": 1}
+
+
+def a_record(model: str, dataset: str, dice: float, photographs: int) -> dict[str, object]:
+    """One stored result, as the index reads it from `results/`."""
+    measured = {"mean": dice, "median": dice, "n": photographs, "spread": 0.0}
+    return {
+        "model": model,
+        "dataset": dataset,
+        "summary": {
+            "complete": True,
+            "processed": photographs,
+            "total": photographs,
+            "segmentations": photographs,
+            "structures": ["artery", "vein"],
+            "seconds_per_photograph": 1.0,
+            **{
+                f"{structure}_{metric}": measured
+                for structure in ("artery", "vein", "vessels")
+                for metric in ("dice", "cldice", "betti")
+            },
+        },
+    }
+
+
+def test_a_dataset_held_apart_is_reported_beside_the_pool_and_not_in_it(tmp_path: Path) -> None:
+    """A dataset only some models have scored, or a different instrument, must not move one row of
+    the pooled table and not the others."""
+    records = [
+        a_record("bands", "hrf", 0.5, 10),
+        a_record("bands", "av-wide", 0.9, 26),
+        a_record("other", "hrf", 0.6, 10),
+    ]
+    lines = list(av.index_section(records, tmp_path))
+    text = "\n".join(lines)
+    pooled = [line for line in lines if line.startswith("| [bands]") and "| 10 |" in line]
+
+    assert "Pooled over **hrf**." in text
+    assert pooled and "0.500" in pooled[0]
+    assert "av-wide" in av.APART
+    assert any(
+        line.startswith("| [bands]") and "av-wide" in line and "0.900" in line for line in lines
+    )

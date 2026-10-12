@@ -98,6 +98,7 @@ and a reader comparing its vessel score with another model's is comparing a pred
 | [reyia](../datasets/reyia.md) | 559 | 1 | derived here as the union; the archive publishes no separate tracing | 4 no vessel annotation to score against | yes |
 | [fives](../datasets/fives.md) | 798 | 1 | **its own tracing, and the only annotation it has**: no artery/vein labels at all | 2 no vessel annotation to score against | yes |
 | [rav](../datasets/rav.md) | 206 | 1 | derived here as the union of the artery, vein and unknown layers; none published apart | none | yes |
+| [av-wide](../datasets/reyia.md) | 26 | 1 | derived here as the union; the archive publishes no separate tracing | none | yes |
 | [les-av](../datasets/les-av.md) | — | — | — | — | **no** — no store built |
 | [rite](../datasets/rite.md) | — | — | — | — | **no** — no store built |
 <!-- /generated -->

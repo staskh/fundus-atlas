@@ -1,0 +1,77 @@
+{
+  "builder_version": 7,
+  "dataset": "av-wide",
+  "discs": "disc_estimation",
+  "fingerprint": "e22572b5675f31d80882e2aa4ec50ea6aba907329e468e0fa95f2513aba7de50",
+  "groups": [
+    {
+      "accepted": false,
+      "keys": [
+        "avwide_wide_image_02",
+        "avwide_wide_image_04",
+        "avwide_wide_image_07",
+        "avwide_wide_image_08",
+        "avwide_wide_image_11",
+        "avwide_wide_image_15",
+        "avwide_wide_image_22",
+        "avwide_wide_image_24",
+        "avwide_wide_image_25"
+      ],
+      "mad_disc_px": 9.94,
+      "mad_over_median": 0.1276,
+      "median_disc_px": 77.9,
+      "n_estimated": 10,
+      "n_measured": 9,
+      "note": "too-few: fewer than 16 discs were measured, which is too few for a median",
+      "raw_height": 1237,
+      "raw_width": 1237,
+      "subset": "avwide"
+    },
+    {
+      "accepted": false,
+      "keys": [
+        "avwide_wide_image_05",
+        "avwide_wide_image_10",
+        "avwide_wide_image_12",
+        "avwide_wide_image_14",
+        "avwide_wide_image_19",
+        "avwide_wide_image_23",
+        "avwide_wide_image_26",
+        "avwide_wide_image_28",
+        "avwide_wide_image_30"
+      ],
+      "mad_disc_px": 11.76,
+      "mad_over_median": 0.1215,
+      "median_disc_px": 96.8,
+      "n_estimated": 10,
+      "n_measured": 9,
+      "note": "too-few: fewer than 16 discs were measured, which is too few for a median",
+      "raw_height": 1371,
+      "raw_width": 1371,
+      "subset": "avwide"
+    },
+    {
+      "accepted": false,
+      "keys": [
+        "avwide_wide_image_13",
+        "avwide_wide_image_17",
+        "avwide_wide_image_18",
+        "avwide_wide_image_20",
+        "avwide_wide_image_27",
+        "avwide_wide_image_29"
+      ],
+      "mad_disc_px": 34.75,
+      "mad_over_median": 0.4637,
+      "median_disc_px": 74.94,
+      "n_estimated": 6,
+      "n_measured": 6,
+      "note": "too-few: fewer than 16 discs were measured, which is too few for a median",
+      "raw_height": 1531,
+      "raw_width": 1531,
+      "subset": "avwide"
+    }
+  ],
+  "model": "segformer-disc-cup",
+  "spread_gate": 0.1,
+  "typical_disc_um": 1800.0
+}

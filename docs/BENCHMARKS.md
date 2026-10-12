@@ -10,13 +10,13 @@ What this repository measured against what experts annotated, on the same images
 
 [How it is run](benchmarks/av-docs.md) · [What came out](benchmarks/av-results.md) · [The analysis](../notebooks/av.ipynb) · [Every score](../results/av/)
 
-Pooled over **avrdb, fives, fundus-avseg, hrf, rav, reyia**. **Dice** is overlap with what the annotator drew, 0 to 1. **clDice** asks the connectedness question instead — how much of each centreline falls inside the other's mask — and the two are read together: a model can cover the vessels and lose the network, or trace the network at the wrong width. **Vessels** is the union of each model's own arteries and veins, derived the same way for every model and for every annotator. **Betti** counts the topological features — components and loops — of either map that have no counterpart in the other, so it counts downwards where the other two count upwards, and it has no ceiling. It is pooled here as a **mean over photographs**, which is the only form that pools exactly; the results page quotes medians, which are lower, because the tail is long.
+Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with what the annotator drew, 0 to 1. **clDice** asks the connectedness question instead — how much of each centreline falls inside the other's mask — and the two are read together: a model can cover the vessels and lose the network, or trace the network at the wrong width. **Vessels** is the union of each model's own arteries and veins, derived the same way for every model and for every annotator. **Betti** counts the topological features — components and loops — of either map that have no counterpart in the other, so it counts downwards where the other two count upwards, and it has no ceiling. It is pooled here as a **mean over photographs**, which is the only form that pools exactly; the results page quotes medians, which are lower, because the tail is long.
 
 **Except for [segan-vessel](models/segan-vessel.md)**, which does not separate arteries from veins: its vessel map is its own prediction rather than a union, and its class cells are empty because it was never asked. It is a reference for that column, not a competitor in it.
 
 | Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [ocularnet](models/ocularnet.md) | 1,808 | 0.823 | 0.848 | 0.852 | 0.883 | 106 | 4.139 | mixed: in-sample, in-sample-unclear-split, out-of-sample |
+| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.853 | 0.884 | 104 | 4.283 | mixed: in-sample, in-sample-unclear-split |
 | [lunet](models/lunet.md) | 1,602 | 0.778 | 0.804 | 0.838 | 0.864 | 67 | 20.152 | unknown |
 | [segan-vessel](models/segan-vessel.md) | 1,602 | — | — | 0.832 | 0.862 | 186 | 1.928 | mixed: in-sample-unclear-split, out-of-sample |
 | [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.804 | 0.829 | 172 | 19.945 | mixed: in-sample-unclear-split, out-of-sample |
@@ -25,11 +25,19 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, rav, reyia**. **Dice** is overlap
 
 **Where to start.**
 
-- **For arteries against veins**: **ocularnet** (artery 0.823, vein 0.848). **lunet** is 0.045 behind on the two together (artery 0.778, vein 0.804).
-- **For the vessel network itself**, which is what a connectedness measurement rests on: **ocularnet** (clDice 0.883, against 0.864 for lunet).
-- **For a network that will be measured rather than looked at**, where a broken branch is a branch nothing counts: **lunet** (67 unmatched features a photograph, against 106 for ocularnet).
+- **For arteries against veins**: **ocularnet** (artery 0.829, vein 0.853). **lunet** is 0.050 behind on the two together (artery 0.778, vein 0.804).
+- **For the vessel network itself**, which is what a connectedness measurement rests on: **ocularnet** (clDice 0.884, against 0.864 for lunet).
+- **For a network that will be measured rather than looked at**, where a broken branch is a branch nothing counts: **lunet** (67 unmatched features a photograph, against 104 for ocularnet).
 
 **A vessel score is not a second opinion on a class score.** In most of these datasets the vessel annotation *is* the artery/vein annotation, so the two columns are one measurement seen twice — [what came out](benchmarks/av-results.md) says which, and holds the per-dataset detail these pooled figures hide.
+
+**Held apart from the pool**, and reported here dataset by dataset rather than averaged into it:
+
+- [rav](datasets/rav.md): in-sample for VascX, whose group annotated it, and held out of OCULARNet; its tracings were seeded by a model before the annotators corrected them.
+
+| Model | Dataset | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Marked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [ocularnet](models/ocularnet.md) | rav | 206 | 0.800 | 0.827 | 0.844 | 0.877 | 125 | out-of-sample |
 
 ## Biomarkers against arithmetic
 
