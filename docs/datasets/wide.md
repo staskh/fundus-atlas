@@ -6,8 +6,9 @@ it, inside several models' training and test sets. At 200° it captures the whol
 far periphery, where almost no other dataset in this catalogue looks at all.
 
 The distinction between this release and the copy in circulation matters: the originals are
-3900×3072, and the widely used AV-WIDE subset is **26 of them at 829×1531** — under a quarter of the
-linear detail.
+3900×3072, and the widely used AV-WIDE subset is **26 of them**, tabulated at 829×1531 and held in
+REYIA's archive as letterboxed squares of 1217 to 1631 pixels — well under half the linear detail
+either way.
 
 ## 1. What it is
 
@@ -55,7 +56,8 @@ a redistribution — see section 5.
 
 - **Reuses images from:** No shared images established — an original collection.
 - **Its images are reused by:** **[REYIA](reyia.md)**, which carries **26 of the 30 photographs,
-  resized to 829×1531** and distributed under the name **AV-WIDE**. That copy is what reaches
+  resized** — tabulated at 829×1531, letterboxed squares of 1217 to 1631 pixels in its archive — and
+  distributed under the name **AV-WIDE**. That copy is what reaches
   [OCULARNet](../models/ocularnet.md)'s far out-of-distribution test set. A result reported on
   "AV-WIDE" is therefore a result on a downsized rendition, redistributed by a third party under a
   licence that prohibits redistribution.
@@ -64,10 +66,12 @@ a redistribution — see section 5.
 
 - **Catalogued models trained on these images:** None — but [OCULARNet](../models/ocularnet.md) and
   [OCULARNet-nano](../models/ocularnet-nano.md) use the AV-WIDE copy as a **far out-of-distribution
-  test**, which is the right use for it.
+  test**, which is the right use for it. This atlas builds that copy as the `av-wide` store
+  (`python -m datasets.av_wide`, from REYIA's archive), and the
+  [artery/vein benchmark](../benchmarks/av-results.md) scores it apart from its pooled figures.
 - **Below a model's measuring grid:** No at native resolution — far above every grid in
-  [MODELS.md](../MODELS.md). The circulating AV-WIDE copy at 829×1531 is a different matter, and
-  sits below the 1024 grid on one axis.
+  [MODELS.md](../MODELS.md). The circulating AV-WIDE copy is a different matter: tabulated at 829×1531,
+  below the 1024 grid on one axis, though the squares in REYIA's archive are 1217 to 1631.
 - **What it can answer:** how an artery/vein method behaves on the peripheral retina, and — through
   the graph annotations — whether it reconstructs the vascular *tree* rather than merely the pixels.
   Both are questions no other dataset here supports.
