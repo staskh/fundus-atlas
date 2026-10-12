@@ -73,14 +73,6 @@ WHY_NOT = {
 #: Datasets worth fetching next, and what each would settle.
 WORTH_FETCHING = (
     (
-        "rav",
-        (
-            "206 photographs no catalogued model names in training, from a population cohort with "
-            "quality mixed on purpose — the closest thing here to a held-out test set"
-        ),
-        "direct, but its host's bot gate refuses some networks",
-    ),
-    (
         "les-av",
         "22 photographs, direct, and it completes the contamination picture for BF-Net",
         "direct",
@@ -168,6 +160,7 @@ DERIVED = {
     "avrdb": "**drawn, but not independent**: it agrees with the union to within 0.4–0.6%",
     "reyia": "derived here as the union; the archive publishes no separate tracing",
     "fives": "**its own tracing, and the only annotation it has**: no artery/vein labels at all",
+    "rav": "derived here as the union of the artery, vein and unknown layers; none published apart",
 }
 
 #: Datasets whose photographs appear in another dataset here, so that pooling a figure over both

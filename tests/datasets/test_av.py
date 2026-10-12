@@ -219,3 +219,39 @@ def test_with_the_guard_open_a_grey_falls_to_the_background() -> None:
 
     assert list(masks["vessels"][0] > 0) == [False, False, True, True]
     assert masks["vein"][0, 2] and masks["artery"][0, 3]
+
+
+def a_layered_map() -> np.ndarray:
+    """One pixel of each combination RAV writes: R artery, B vein, G unknown, overlapping."""
+    return np.array(
+        [[[255, 0, 0], [0, 0, 255], [255, 0, 255], [0, 255, 0], [255, 255, 0], [0, 0, 0]]],
+        dtype=np.uint8,
+    )
+
+
+def test_layers_in_channels_are_read_one_class_per_channel() -> None:
+    masks = av.Layers(artery=0, vein=2, uncertain=1).masks(a_layered_map())
+
+    assert list(masks["artery"][0]) == [255, 0, 255, 0, 255, 0]
+    assert list(masks["vein"][0]) == [0, 255, 255, 0, 0, 0]
+
+
+def test_a_pixel_on_both_layers_is_both_vessels() -> None:
+    """An annotator who painted a crossing on both layers drew both vessels there."""
+    masks = av.Layers(artery=0, vein=2, uncertain=1).masks(a_layered_map())
+
+    assert masks["artery"][0, 2] == masks["vein"][0, 2] == 255
+
+
+def test_an_unknown_vessel_is_a_vessel_and_neither_class() -> None:
+    masks = av.Layers(artery=0, vein=2, uncertain=1).masks(a_layered_map())
+
+    assert list(masks["vessels"][0]) == [255, 255, 255, 255, 255, 0]
+    assert masks["artery"][0, 3] == masks["vein"][0, 3] == 0
+
+
+def test_a_layer_is_on_only_where_its_channel_is_bright() -> None:
+    """A faint value is a smudge, not a stroke; RAV's layers are written at 0 or 255."""
+    pixels = np.array([[[100, 0, 0], [200, 0, 0]]], dtype=np.uint8)
+
+    assert list(av.Layers(artery=0, vein=2).masks(pixels)["artery"][0]) == [0, 255]
