@@ -57,8 +57,8 @@ Its cost is access: a signed data transfer agreement, and non-commercial terms.
 
 - **Catalogued models trained on these images:** [LUNet](../models/lunet.md) trains on it entirely —
   its `UZLF_TRAIN` / `UZLF_VAL` / `UZLF_TEST` splits *are* this dataset — and
-  [OCULARNet](../models/ocularnet.md) includes it. Held out of the AutoMorph family and, as far as
-  can be established, of [VascX](../models/vascx-artery-vein.md).
+  [OCULARNet](../models/ocularnet.md) includes it, and so do [VascX vessels](../models/vascx-vessels.md) and [VascX artery/vein](../models/vascx-artery-vein.md), on all 240 (VascX paper, Table 1).
+  Held out of the AutoMorph family.
 - **Below a model's measuring grid:** No. Note that LUNet resamples even these 1444 images to 1472
   before inference.
 - **What it can answer:** two questions nothing else here can — held-out artery/vein accuracy against

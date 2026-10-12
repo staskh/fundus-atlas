@@ -1,6 +1,8 @@
 # ABOUTME: Whether a model saw a dataset before it was scored on it, from what its catalogue page
 # ABOUTME: states about its training data — never from a guess, and never merged with "unknown".
 
+from dataclasses import dataclass
+
 #: Every mark a result can carry. `unknown` is never merged with `out-of-sample`: one says the
 #: model did not train on these images, the other says nobody established what it trained on.
 OUT_OF_SAMPLE = "out-of-sample"
@@ -10,6 +12,45 @@ UNKNOWN = "unknown"
 
 #: A dataset trained on without the authors saying which part of it.
 ANY_SPLIT = "*"
+
+
+@dataclass(frozen=True)
+class Subsets:
+    """A dataset trained on through some of its own subcollections and not the others.
+
+    A compilation such as REYIA is several sources under one name, and a model can train on some
+    of them while holding the rest out as a test — so the mark follows the subset, as it follows
+    the split where a model trained on one split.
+    """
+
+    names: tuple[str, ...]
+
+
+#: The REYIA subsets OCULAR trains on, by the store's subset names: ENRICH, FIVES-AV, GRAPE,
+#: MAGREBHIA, MESSIDOR-AV and PAPILA. It holds out mBRSET and TREND-AV as out-of-distribution
+#: tests, and AV-WIDE, which the store does not build.
+OCULAR_REYIA = Subsets(("enrich", "fives", "grape", "magreb", "messidor", "papila"))
+
+#: docs/models/ocularnet.md section 6, from the OCULAR README's training table and Plaza 2026.
+#: FIVES, GRAPE, MESSIDOR and PAPILA are in it as REYIA's renditions of some of their photographs
+#: — 75 of FIVES' 800, for instance — which is in-sample with the part not stated. DRIVE's
+#: artery/vein labels are RITE's, so both names are the same photographs.
+OCULAR_TRAINING: dict[str, object] = {
+    "avrdb": ANY_SPLIT,
+    "drive": ANY_SPLIT,
+    "rite": ANY_SPLIT,
+    "fives": ANY_SPLIT,
+    "fundus-avseg": ANY_SPLIT,
+    "gave": ANY_SPLIT,
+    "grape": ANY_SPLIT,
+    "hrf": ANY_SPLIT,
+    "inspire-avr": ANY_SPLIT,
+    "les-av": ANY_SPLIT,
+    "leuven-haifa": ANY_SPLIT,
+    "messidor": ANY_SPLIT,
+    "papila": ANY_SPLIT,
+    "reyia": OCULAR_REYIA,
+}
 
 #: What each model's page names in its training-data section, and which splits of it. A model
 #: missing from here has no page saying, which is `unknown`.
@@ -48,19 +89,55 @@ TRAINED_ON: dict[str, dict[str, object]] = {
     # docs/models/beal.md section 6: REFUGE labelled; Drishti-GS and RIM-ONE as unlabelled target
     # domains, then tested on them — which is in-sample by any reading this atlas can defend.
     "beal": {"refuge": ANY_SPLIT, "drishti-gs": ANY_SPLIT, "rim-one-dl": ANY_SPLIT},
+    # docs/models/ocularnet.md and ocularnet-nano.md section 6: one training collection for both.
+    "ocularnet": OCULAR_TRAINING,
+    "ocularnet-nano": OCULAR_TRAINING,
+    # docs/models/vascx-*.md section 6, from the VascX paper's Table 1. Each model is a five-fold
+    # cross-validation ensemble, so the released ensemble has seen every image of its training
+    # data. RAV is the Rotterdam Study's photographs, annotated by VascX's own group, and VascX
+    # trains on Rotterdam Study images that are not published: the overlap is not established,
+    # so RAV is not cleared.
+    "vascx-vessels": {
+        "chase-db1": ANY_SPLIT,
+        "dr-hagis": ANY_SPLIT,
+        "hrf": ANY_SPLIT,
+        "reta": ANY_SPLIT,
+        "fives": ANY_SPLIT,
+        "leuven-haifa": ANY_SPLIT,
+        "rav": ANY_SPLIT,
+    },
+    "vascx-artery-vein": {
+        "rite": ANY_SPLIT,
+        "drive": ANY_SPLIT,
+        "hrf": ANY_SPLIT,
+        "les-av": ANY_SPLIT,
+        "leuven-haifa": ANY_SPLIT,
+        "rav": ANY_SPLIT,
+    },
+    # PALM is the remaining disc dataset; it is not catalogued here.
+    "vascx-disc": {
+        "origa": ANY_SPLIT,
+        "papila": ANY_SPLIT,
+        "idrid": ANY_SPLIT,
+        "adam": ANY_SPLIT,
+        "refuge": ANY_SPLIT,
+    },
+    "vascx-fovea": {"idrid": ANY_SPLIT, "adam": ANY_SPLIT, "refuge": ANY_SPLIT},
+    "vascx-quality": {"eyeq": ANY_SPLIT},
 }
 
-#: Models whose training data could not be established from their page. VascX names "more than
-#: fifteen published annotated datasets" without listing them, so no dataset can be cleared;
-#: LUNet v2's page cannot establish what it trained on at all.
-UNESTABLISHED = {"vascx-quality", "vascx-disc", "lunetv2-odc"}
+#: Models whose training data could not be established from their page: LUNet v2's page cannot
+#: establish what it trained on at all.
+UNESTABLISHED = {"lunetv2-odc"}
 
 
-def mark(model: str, dataset: str, split: str = "") -> str:
-    """What a result is worth, for this model on this dataset — or on one split of it.
+def mark(model: str, dataset: str, split: str = "", subset: str = "") -> str:
+    """What a result is worth, for this model on this dataset — or on one split or subset of it.
 
-    :param split: the split being reported. Left out, the answer is the one that hides least: a
-        summary over a dataset whose training half is in it is not out-of-sample.
+    :param split: the split being reported.
+    :param subset: the dataset's own subcollection being reported.
+        Either left out, the answer is the one that hides least: a summary over a dataset whose
+        training part is in it is not out-of-sample.
     """
     if model in UNESTABLISHED or model not in TRAINED_ON:
         return UNKNOWN
@@ -69,6 +146,10 @@ def mark(model: str, dataset: str, split: str = "") -> str:
         return OUT_OF_SAMPLE
     if trained == ANY_SPLIT:
         return IN_SAMPLE_UNCLEAR_SPLIT
+    if isinstance(trained, Subsets):
+        if not subset:
+            return IN_SAMPLE
+        return IN_SAMPLE if subset in trained.names else OUT_OF_SAMPLE
     if not split:
         return IN_SAMPLE
     return IN_SAMPLE if split in trained else OUT_OF_SAMPLE
@@ -81,3 +162,12 @@ def splits_disagree(model: str, dataset: str, splits: list[str]) -> bool:
     half and a test half is not a result.
     """
     return len({mark(model, dataset, split) for split in splits}) > 1
+
+
+def subsets_disagree(model: str, dataset: str, subsets: list[str]) -> bool:
+    """Whether this dataset's subsets carry different marks for this model.
+
+    Where they do, a report **must** break the dataset into its subsets, for the reason it must
+    break one into its splits.
+    """
+    return len({mark(model, dataset, subset=subset) for subset in subsets}) > 1

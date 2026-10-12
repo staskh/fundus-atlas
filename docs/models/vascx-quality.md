@@ -71,13 +71,9 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| More than fifteen published annotated datasets, combined | Training | Their own authors | In the paper; the per-model split is not restated here |
-| Dutch cohort images, principally the Rotterdam Study | Training | The cohort's graders | In the paper |
-| [EyeQ](../datasets/eyeq.md) — **for this model specifically** | Training | The EyeQ authors | Not stated. *(This atlas's observation: the published checkpoint's own configuration points its data at an `eyeq` dataset file — see section 10)* |
+| [EyeQ](../datasets/eyeq.md) | Training, 28,792 images | The EyeQ authors | Not stated in the paper. *(This atlas's observation: the published checkpoint's own configuration points its data at an `eyeq` dataset file — see section 10)* |
 
-The training set absorbs most of the public annotated data, so few public datasets remain for a
-blind benchmark of this model. That cuts both ways: broad training is why it generalises, and also
-why an independent evaluation is hard to construct.
+EyeQ is the only dataset the VascX paper Table 1 ([arXiv:2409.16016](https://arxiv.org/abs/2409.16016)) names for this model, so every other quality dataset here is out-of-sample for it.
 
 ## 7. Weights
 

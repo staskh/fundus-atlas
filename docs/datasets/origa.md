@@ -85,8 +85,8 @@ value rather than against another algorithm's mask.
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None established — ORIGA is **held out** of every
-  model in this catalogue.
+- **Catalogued models trained on these images:** [VascX disc](../models/vascx-disc.md), on all 650 (VascX paper, Table 1). Held out of every
+  other model in this catalogue.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** whether a computed cup-to-disc ratio agrees with a clinician's recorded
   one, on a population cohort. Nothing else here supports that check.

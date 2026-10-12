@@ -62,13 +62,15 @@ The others are [vessels](vascx-vessels.md), [artery/vein](vascx-artery-vein.md),
 
 | Dataset | Role | Annotations by | Split stated |
 | --- | --- | --- | --- |
-| More than fifteen published annotated datasets, combined | Training | Their own authors | In the paper; the per-model split is not restated here |
-| Dutch cohort images, principally the Rotterdam Study | Training | The cohort's graders | In the paper |
-| [DR HAGIS](../datasets/dr-hagis.md), all 40 | Training, vessels only | The dataset's grader | VascX paper Table 1 |
+| [CHASE-DB1](../datasets/chase-db1.md) | Training, 28 images | The dataset's own annotators | Five-fold cross-validation, grouped by eye; the released ensemble is the five folds together, so it has seen every image |
+| [DR HAGIS](../datasets/dr-hagis.md) | Training, 40 images | The dataset's own annotators | Five-fold cross-validation, grouped by eye; the released ensemble is the five folds together, so it has seen every image |
+| [HRF](../datasets/hrf.md) | Training, 45 images | The dataset's own annotators | Five-fold cross-validation, grouped by eye; the released ensemble is the five folds together, so it has seen every image |
+| [RETA](../datasets/reta.md) | Training, 54 images | The dataset's own annotators | Five-fold cross-validation, grouped by eye; the released ensemble is the five folds together, so it has seen every image |
+| [FIVES](../datasets/fives.md) | Training, 800 images | The dataset's own annotators | Five-fold cross-validation, grouped by eye; the released ensemble is the five folds together, so it has seen every image |
+| [Leuven-Haifa](../datasets/leuven-haifa.md) | Training, 240 images | The dataset's own annotators | Five-fold cross-validation, grouped by eye; the released ensemble is the five folds together, so it has seen every image |
+| Rotterdam Study, unpublished | Training, 352 images | The EyeNED Reading Center | Five-fold cross-validation, grouped by eye; the released ensemble is the five folds together, so it has seen every image. [RAV](../datasets/rav.md) is 206 Rotterdam Study photographs annotated by the same group; whether they overlap is not established, so RAV is **not** held out |
 
-The training set absorbs most of the public annotated data, so few public datasets remain for a
-blind benchmark of this model. That cuts both ways: broad training is why it generalises, and also
-why an independent evaluation is hard to construct.
+Listed in the VascX paper Table 1 ([arXiv:2409.16016](https://arxiv.org/abs/2409.16016)). Every public dataset above is therefore **in-sample** for this model, with no held-out part to report separately — the marks a benchmark gives it come from this table (`src/benchmarks/contamination.py`).
 
 ## 7. Weights
 

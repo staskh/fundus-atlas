@@ -97,7 +97,8 @@ annotations are not, so a Dice against RITE is not a Dice against DRIVE.
 - **Catalogued models trained on these images:** [BF-Net](../models/bf-net.md) and
   [Big W-Net](../models/big-wnet.md) train on it as DRIVE-AV;
   [OCULARNet](../models/ocularnet.md) and [OCULARNet-nano](../models/ocularnet-nano.md) include
-  DRIVE in their training list; every model that trained on DRIVE has seen these pixels.
+  DRIVE in their training list; [VascX artery/vein](../models/vascx-artery-vein.md) trains on RITE's 40 (VascX paper, Table 1). Every model that trained on DRIVE has
+  seen these pixels.
 - **Below a model's measuring grid:** **Yes** — 565×584, below every grid in
   [MODELS.md](../MODELS.md), so scores are computed on upsampled images.
 - **What it can answer:** comparability with the artery/vein literature, which is almost entirely

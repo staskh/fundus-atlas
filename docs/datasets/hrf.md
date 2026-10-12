@@ -146,7 +146,7 @@ figure to read automated disc results against, rather than assuming one.
 - **Catalogued models trained on these images:** [SEGAN vessel segmenter](../models/segan-vessel.md)
   (as part of `ALL-SIX`), [BF-Net](../models/bf-net.md) and [Big W-Net](../models/big-wnet.md) (via
   HRF-AV), [LWNet](../models/lwnet.md), [OCULARNet](../models/ocularnet.md) and
-  [OCULARNet-nano](../models/ocularnet-nano.md), and [LUNet](../models/lunet.md) uses a cropped HRF
+  [OCULARNet-nano](../models/ocularnet-nano.md), [VascX vessels](../models/vascx-vessels.md) and [VascX artery/vein](../models/vascx-artery-vein.md) (via HRF-AV) (VascX paper, Table 1), and [LUNet](../models/lunet.md) uses a cropped HRF
   as external test data. **A score on HRF is in-sample for almost every vessel and artery/vein model
   in this catalogue.**
 - **Below a model's measuring grid:** No — far above it, so it is downsampled heavily before

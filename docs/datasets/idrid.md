@@ -61,7 +61,8 @@ photographs.
 - **Catalogued models trained on these images:** None established for training among the
   segmentation models. The AutoMorph paper reports IDRiD as the **validation** set for its
   disc-and-cup model, so it is not fully held out for that model, and [RLAD](../models/rlad.md) trains its
-  generator on IDRiD's lesion training split.
+  generator on IDRiD's lesion training split. [VascX disc](../models/vascx-disc.md) trains on the 81 segmentation photographs and
+  [VascX fovea](../models/vascx-fovea.md) on all 516 (VascX paper, Table 1).
 - **Below a model's measuring grid:** No — far above every grid in [MODELS.md](../MODELS.md).
 - **What it can answer:** disc segmentation at native high resolution on an Indian population, under
   a permissive licence; and, paired with RETA, how much a fourfold downsizing costs a vessel

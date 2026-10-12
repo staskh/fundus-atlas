@@ -16,10 +16,10 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 | Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.854 | 0.884 | 107 | 2.665 | unknown |
+| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.853 | 0.884 | 107 | 3.913 | mixed: in-sample, in-sample-unclear-split |
 | [lunet](models/lunet.md) | 1,602 | 0.778 | 0.804 | 0.838 | 0.864 | 67 | 20.152 | unknown |
 | [segan-vessel](models/segan-vessel.md) | 1,602 | — | — | 0.832 | 0.862 | 186 | 1.928 | mixed: in-sample-unclear-split, out-of-sample |
-| [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.804 | 0.829 | 172 | 19.945 | unknown |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.804 | 0.829 | 172 | 19.945 | mixed: in-sample-unclear-split, out-of-sample |
 | [automorph-artery-vein](models/automorph-artery-vein.md) | 1,602 | 0.708 | 0.774 | 0.747 | 0.757 | 125 | 3.462 | mixed: in-sample-unclear-split, out-of-sample |
 | [bf-net](models/bf-net.md) | 1,602 | 0.491 | 0.601 | 0.614 | 0.625 | 167 | 0.459 | out-of-sample |
 
@@ -60,7 +60,7 @@ Pooled over **chaksu, grape, papila**, one comparison per reader. **Dice** is ov
 
 | Model | Photographs | Outlines | Disc Dice | Cup Dice | Ratio error | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [vascx-disc](models/vascx-disc.md) | 2,464 | 8,332 | 0.951 | — | — | 1.230 | unknown |
+| [vascx-disc](models/vascx-disc.md) | 2,464 | 8,332 | 0.951 | — | — | 1.230 | mixed: in-sample-unclear-split, out-of-sample |
 | [segformer-disc-cup](models/segformer-disc-cup.md) | 2,464 | 8,332 | 0.937 | 0.791 | -0.039 | 0.307 | out-of-sample |
 | [lunetv2-odc](models/lunetv2-odc.md) | 2,464 | 8,332 | 0.937 | 0.810 | -0.001 | 0.254 | unknown |
 | [automorph-disc-cup](models/automorph-disc-cup.md) | 2,464 | 8,332 | 0.856 | 0.712 | -0.031 | 0.448 | out-of-sample |
@@ -88,7 +88,7 @@ Each figure is computed over all those photographs **at once** rather than avera
 | Model | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | PAPILA kept | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [quickqual](models/quickqual.md) | 3,591 | 1.000 | 0.843 | 0.671 | 0.932 | 0.424 | — | out-of-sample |
-| [vascx-quality](models/vascx-quality.md) | 3,591 | 1.000 | 0.854 | 0.666 | 0.942 | 0.555 | — | unknown |
+| [vascx-quality](models/vascx-quality.md) | 3,591 | 1.000 | 0.854 | 0.666 | 0.942 | 0.555 | — | out-of-sample |
 | [automorph-quality-grader](models/automorph-quality-grader.md) | 3,591 | 1.000 | 0.840 | 0.648 | 0.925 | 0.391 | — | out-of-sample |
 | [quickqual-meme](models/quickqual-meme.md) | 3,591 | 1.000 | 0.775 | 0.555 | 0.915 | 0.527 | — | out-of-sample |
 | [fit-quality](models/fit-quality.md) | 3,591 | 1.000 | 0.737 | 0.503 | 0.940 | 0.279 | — | out-of-sample |
@@ -103,4 +103,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-10-05
+**Generated:** 2026-10-12

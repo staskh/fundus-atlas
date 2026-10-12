@@ -77,7 +77,8 @@ normalised a competitor's fovea-localisation error by average image size, and th
 - **Catalogued models trained on these images:** the
   [Fundus Image Toolbox fovea and disc locator](../models/fit-fovea-od.md), which pools ADAM with
   [REFUGE](refuge.md) and [IDRiD](idrid.md). It uses **265 of the 400** labelled photographs — the
-  ones whose disc mask is not blank — so a score for that model on ADAM is in-sample.
+  ones whose disc mask is not blank — so a score for that model on ADAM is in-sample. [VascX disc](../models/vascx-disc.md) trains
+  on 821 and [VascX fovea](../models/vascx-fovea.md) on all 1,200 (VascX paper, Table 1).
 - **Below a model's measuring grid:** No. At 2124×2056 and 1444×1444 it is above every measuring
   grid in this catalogue.
 - **What it can answer:** whether anything measured here behaves differently in **age-related

@@ -96,7 +96,8 @@ assumes a fixed shape.
 
 - **Catalogued models trained on these images:** [SEGAN vessel segmenter](../models/segan-vessel.md)
   (in `ALL-SIX`) and [BF-Net](../models/bf-net.md) (in `ALL-AV`) — so **in-sample twice** for the
-  AutoMorph family. Also in [OCULARNet](../models/ocularnet.md)'s training list.
+  AutoMorph family. Also in [OCULARNet](../models/ocularnet.md)'s training list, and [VascX artery/vein](../models/vascx-artery-vein.md) trains on
+  all 22 (VascX paper, Table 1).
 - **Below a model's measuring grid:** No — 1444×1620 sits above the AutoMorph grids and near the
   newer models' 1024.
 - **What it can answer:** whether accuracy varies with glaucoma subtype, and — uniquely here —

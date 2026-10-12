@@ -68,7 +68,7 @@ which is closer to a screening setting than most datasets here.
 ## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [SEGAN vessel segmenter](../models/segan-vessel.md)
-  (in `ALL-SIX`) and [LWNet](../models/lwnet.md). In-sample for both.
+  (in `ALL-SIX`), [LWNet](../models/lwnet.md) and [VascX vessels](../models/vascx-vessels.md), on all 28 (VascX paper, Table 1). In-sample for all three.
 - **Below a model's measuring grid:** Borderline — 960 pixels tall sits just above the 912 vessel
   grid and below the 1024 of the newer models.
 - **What it can answer:** whether a model trained on adult eyes transfers to children, and — through

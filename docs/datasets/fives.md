@@ -63,10 +63,10 @@ one carrying the quality spreadsheet.
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None established. FIVES appears in
+- **Catalogued models trained on these images:** [VascX vessels](../models/vascx-vessels.md), on all 800 (VascX paper, Table 1). FIVES also appears in
   [OCULARNet](../models/ocularnet.md)'s training list as **FIVES-AV** — a separate artery/vein
-  annotation of 75 of these photographs — so the images are in-sample for that model even though
-  this vessel annotation is not.
+  annotation of 75 of these photographs, through [REYIA](reyia.md) — so those images are in-sample
+  for that model even though this vessel annotation is not.
 - **Below a model's measuring grid:** No. At 2048 it is above every grid in
   [MODELS.md](../MODELS.md), so it is downsampled before measurement, which loses the thinnest
   vessels its annotation contains.

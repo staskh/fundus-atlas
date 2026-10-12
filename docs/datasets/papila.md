@@ -114,7 +114,8 @@ stays here and in the fetcher, which is what makes this comparison possible at a
 ## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [OCULARNet](../models/ocularnet.md) and
-  [OCULARNet-nano](../models/ocularnet-nano.md) list PAPILA in their training data. It is **held out**
+  [OCULARNet-nano](../models/ocularnet-nano.md) list PAPILA in their training data, and [VascX disc](../models/vascx-disc.md) trains on
+  all 488 (VascX paper, Table 1) — so a VascX disc score on PAPILA is in-sample. It is **held out**
   of the AutoMorph family's disc-and-cup model, which trained on [REFUGE](refuge.md) and
   [GAMMA](gamma.md), and of the
   [Hugging Face SegFormer](../models/segformer-disc-cup.md), which trained on REFUGE. [RLAD](../models/rlad.md)
