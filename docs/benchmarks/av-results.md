@@ -41,10 +41,10 @@ other, which is why both are carried.
 
 | Model | Photographs | Coverage | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [ocularnet](../models/ocularnet.md) | 1,602 | 1.000 | **0.829** | **0.853** | **0.854** | **0.884** | 97 | 2.6 | unknown |
+| [ocularnet](../models/ocularnet.md) | 1,602 | 1.000 | **0.829** | **0.853** | **0.854** | **0.884** | 97 | 2.6 | in-sample |
 | [lunet](../models/lunet.md) | 1,602 | 1.000 | 0.778 | 0.804 | 0.838 | 0.864 | **57** | 20.0 | unknown |
 | [segan-vessel](../models/segan-vessel.md) | 1,602 | 1.000 | — | — | 0.832 | 0.862 | **172** | 1.9 | mixed |
-| [vascx-artery-vein](../models/vascx-artery-vein.md) | 1,602 | 1.000 | 0.752 | 0.789 | 0.804 | 0.829 | 157 | 11.1 | unknown |
+| [vascx-artery-vein](../models/vascx-artery-vein.md) | 1,602 | 1.000 | 0.752 | 0.789 | 0.804 | 0.829 | 157 | 11.1 | mixed |
 | [automorph-artery-vein](../models/automorph-artery-vein.md) | 1,602 | 1.000 | 0.708 | 0.774 | 0.747 | 0.757 | 104 | 3.5 | mixed |
 | [bf-net](../models/bf-net.md) | 1,602 | 1.000 | 0.491 | 0.601 | 0.614 | 0.625 | 162 | **0.4** | out-of-sample |
 
@@ -423,8 +423,11 @@ maps under 0.5, it is not cheap so much as wrong quickly.
 
 **Four caveats would change this answer.**
 
-- **OCULARNet, LUNet and VascX are all marked `unknown`** — nobody established what they trained on,
-  so none of these datasets is held-out for them. The models with clean marks are the weakest two.
+- **OCULARNet trained on nearly everything it is scored on here** — AVRDB, Fundus-AVSeg, HRF, 75
+  of FIVES' photographs and six of REYIA's eight subsets. Its only held-out photographs are REYIA's
+  mBRSET and TREND-AV, 75 in all, and **on those it still leads**: artery Dice 0.774 against VascX's
+  0.715 and LUNet's 0.653, vessels 0.826 against LUNet's 0.817. VascX's artery/vein model is
+  in-sample on HRF and held out of the other four; LUNet is still `unknown`.
 - **The vessel reference runs at a threshold we chose**, 0.2 rather than its own 0.5, and how much
   that is worth per dataset was not measured — while its topology figures are the worst of the six,
   which is what that choice would be expected to cost (section 1.1).
@@ -434,9 +437,12 @@ maps under 0.5, it is not cheap so much as wrong quickly.
 
 ## 7. What these numbers do not say
 
-- **Contamination.** `unknown` is never merged with `out-of-sample`. OCULARNet, LUNet and VascX are
-  `unknown` on all five datasets; BF-Net is `out-of-sample` on all five; AutoMorph's model and the
-  vessel reference are `out-of-sample` on four and `in-sample-unclear-split` on HRF.
+- **Contamination.** `unknown` is never merged with `out-of-sample`. OCULARNet is
+  `in-sample-unclear-split` on AVRDB, FIVES, Fundus-AVSeg and HRF, and on REYIA in-sample on six
+  subsets and `out-of-sample` on mBRSET and TREND-AV — so a REYIA figure for it must be read by
+  subset. VascX's artery/vein model is `in-sample-unclear-split` on HRF and `out-of-sample` on the
+  other four, and so are AutoMorph's model and the vessel reference. BF-Net is `out-of-sample` on
+  all five. LUNet is `unknown` on all five.
 - **A threshold this repository chose.** Every artery/vein model is thresholded at its own
   upstream's 0.5; the vessel reference at 0.2, which is ours. Its masks are therefore thicker than
   its authors would draw them, its Dice and clDice both move with that choice, and **no sweep was

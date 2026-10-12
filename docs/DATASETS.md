@@ -73,18 +73,21 @@ labelled.
 | Dataset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Images | Resolution | Year | Quality | Vessels | A/V | Disc | Cup | Disease | Other labels | Licence | Down |
 | :------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [ADAM](datasets/adam.md) | 1,200 | 2124×2056 (824), 1444×1444 (376) | 2022 | — | — | — | ✅ masks, **some blank** | — | ✅ AMD / non-AMD | fovea coordinates; lesion masks — drusen, exudates, haemorrhages, scars | not stated | 🟡 |
+| [ARIA](datasets/aria-dataset.md) | 143 | 768×576 | 2008 | — | ✅ **×2 observers** | ✅ via OCULAR, model-drawn and hand-corrected | ✅ on 120 of 143 | — | ✅ cohort: AMD 23, diabetic 59, control 61 — not a grade | fovea on 120 of 143 | **not stated** — citation requested | ✅ |
 | [AVRDB](datasets/avrdb.md) | 100 | 1504×1000 | 2020 | — | ✅ | ✅ | ✅ optic nerve head | — | ✅ hypertensive retinopathy, papilloedema | **published AVR per image**, exudates, cotton-wool spots | **CC BY 4.0** | ✅ |
 | [BRSET](datasets/brset.md) | 16,266 | mixed | 2024 | ✅ focus / illumination / field / artefacts | — | — | — | — | ✅ multi-label + DR grades | anatomical flags, **demographics** | PhysioNet credentialed licence + DUA | ⛔ |
 | [Chákṣu](datasets/chaksu.md) | 1,345 | 2448×3264 **portrait**, 2048×1536, 1920×1440 | 2023 | — | — | — | ✅ **×5 experts** | ✅ **×5 experts** | ✅ glaucoma, **×5 independent decisions** | three cameras incl. handheld | **CC BY 4.0** | ✅ |
-| [CHASE-DB1](datasets/chase-db1.md) | 28 | 1280×960 distributor / 999×960 as circulated | 2012 | — | ✅ **×2 observers** | — | — | — | — | paediatric, multi-ethnic, hand-held camera | **not established** | ✅ |
+| [CHASE-DB1](datasets/chase-db1.md) | 28 | 1280×960 distributor / 999×960 as circulated | 2012 | — | ✅ **×2 observers** | ✅ via OCULAR, model-drawn and hand-corrected | — | — | — | paediatric, multi-ethnic, hand-held camera | **not established** | ✅ |
 | [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 (+256 UWF) | six sizes, 1592–2232 px; **dual view per eye** | 2020 | ✅ arbitrated, + artefact / clarity / field | — | — | — | — | ✅ DR, per image and per patient | dual-view pairing | **CC BY-SA 4.0** — share-alike | ✅ |
+| [DR HAGIS](datasets/dr-hagis.md) | 40 files, **39 distinct** | mixed, 2816×1880 to 4752×3168 | 2017 | — | ✅ one grader | ✅ via OCULAR, model-drawn and hand-corrected | — | — | ✅ by group: glaucoma, hypertension, DR, AMD, 10 each, all diabetic | field-of-view masks; three cameras | research and education only, **redistribution prohibited**; a Zenodo copy says CC BY 4.0 — conflicting | ✅ |
+| [DRiDB](datasets/dridb.md) | 50 | 720×576 | 2013 | — | ✅ **×5 experts** | ✅ via OCULAR, model-drawn and hand-corrected | ✅ **×5 experts** | — | **not established** — a DR clinic; no per-image grade found | lesions ×5 experts — microaneurysms, haemorrhages, hard and soft exudates; macula | research and education only; **copying, redistribution and commercial use prohibited** | ⛔ |
 | [DRIMDB](datasets/drimdb.md) | 216 | unknown | 2014 | ✅ good / bad / **outlier** | — | — | — | — | — | the outlier class: images that are not fundus photographs | not stated | ✅ |
 | [Drishti-GS](datasets/drishti-gs.md) | 101 | ~2896×1944 | 2015 | — | — | — | ✅ ×4 experts, **soft maps** | ✅ ×4 experts, soft maps | ✅ glaucoma | CDR, notching | "free to use" — not a standard licence | 🟡 |
 | [DRIVE](datasets/drive.md) | 40 | 565×584 | 2004 | — | ✅ + **second observer** on the test split | — | — | — | ✅ 7 of 40 with mild DR | field-of-view masks | research use, registration terms | 🟡 |
 | [DualModal2019](datasets/dualmodal2019.md) **(dual-modal)** | 30 | 1024×1024 | 2019 | — | — | ✅ | — | — | — | same eyes imaged two ways | **not stated** | 🟡 |
 | [EyeQ](datasets/eyeq.md) ← EyePACS | 28,792 | **highly mixed** — many devices | 2019 | ✅ Good / Usable / Reject | — | — | — | — | ✅ DR 0–4, from EyePACS | — | labels **not stated**; images under EyePACS competition terms | 🟡 |
 | [FIVES](datasets/fives.md) | 800 | 2048×2048 | 2022 | ✅ illumination / blur / contrast | ✅ consensus | — | — | — | ✅ AMD / DR / glaucoma / normal | — | **CC BY 4.0** | ✅ |
-| [FOVEA](datasets/fovea-dataset.md) +surgical | 80 (40 eyes ×2) | 1934×1960 and 1080×1920 | 2025 | — | ✅ **×2 readers** | — | ✅ **×2 readers** | — | — | paired preoperative / surgical-microscope views | **CC BY-NC-ND 4.0** — no derivatives | ✅ |
+| [FOVEA](datasets/fovea-dataset.md) +surgical | 80 (40 eyes ×2) | 1934×1960 and 1080×1920 | 2025 | — | ✅ **×2 readers** | ✅ via OCULAR, model-drawn and hand-corrected | ✅ **×2 readers** | — | — | paired preoperative / surgical-microscope views | **CC BY-NC-ND 4.0** — no derivatives | ✅ |
 | [FQS](datasets/fqs.md) | 2,246 | ~1942×1942 originals, plus a 1024×1024 copy | 2025 | ✅ **continuous 0–100 ×6 doctors** + three-class ×3 graders | — | — | — | — | — | ten cross-validation folds | **CC BY 4.0** | ✅ |
 | [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | 2656×1992 (21), 1280×1280 (79) | 2025 | ✅ high / low | ✅ derived from A/V | ✅ | — | — | ✅ four classes | eye side | **CC BY 4.0** | ✅ |
 | [FunPiQ](datasets/funpiq.md) ← EyeQ, BRSET, mBRSET | 300 | mixed, by source | 2026 | ✅ **pixel-level** degraded-region masks | — | — | — | — | — | — | annotations per Zenodo record; **images inherit PhysioNet terms** | ⛔ |
@@ -103,6 +106,7 @@ labelled.
 | [MESSIDOR](datasets/messidor.md) | 1,200 | 1440×960, 2240×1488, 2304×1536 | 2014 | — | — | — | — | — | ✅ DR 0–3 and macular-oedema risk 0–2 | — | research and educational use, ADCIS agreement | 🟡 |
 | [MSHF](datasets/mshf.md) +UWF | 1,302 | mixed by device | 2023 | ✅ **×3 readers**, illumination / clarity / contrast / overall | — | — | — | — | ✅ DR, glaucoma, healthy | camera class per image | **CC BY 4.0** | ✅ |
 | [ORIGA](datasets/origa.md) | 650 | 2048 tall, 2426–2616 wide | 2010 | — | — | — | ✅ | ✅ | ✅ glaucoma 168 / normal 482 | **published expert CDR**, eye side | research use, request-based | 🟡 |
+| [ORVS](datasets/orvs.md) | 49 | 1444×1444 | 2021 | — | ✅ one reader | ✅ via OCULAR, model-drawn and hand-corrected | — | — | — | 30° Zeiss Visucam 200, Calgary | **not stated** | ✅ |
 | [PAPILA](datasets/papila.md) | 488 | 2576×1934 | 2022 | — | — | — | ✅ ×2 experts | ✅ ×2 experts | ✅ healthy / suspect / glaucoma | full clinical record per eye | GPL-3.0 or later | ✅ |
 | [RAV](datasets/rav.md) | 206 | 1024×1024 (**authors' crop and resize**) | 2025 | ✅ mixed by design | — | ✅ | — | — | — | Rotterdam Study population cohort | **CC BY-NC 4.0 per the README; CC0 per the record — contradictory** | ✅ |
 | [RAVIR](datasets/ravir.md) **(IR)** | 36 | 768×768 | 2022 | — | — | ✅ | — | — | ✅ DR, hypertensive retinopathy | test masks withheld | usage protocol, not a standard grant | 🟡 |
@@ -114,8 +118,10 @@ labelled.
 | [RITE](datasets/rite.md) ← DRIVE | 40 | 565×584 | 2013 | — | ✅ (differs from DRIVE's) | ✅ | — | — | — | overlap and uncertain vessel classes | research use, citation required | ⛔ |
 | [RVD](datasets/rvd.md) **(video)** | 635 videos — **1,270 annotated frames** | 1800×1800 stated; deposit says `1080_crop` | 2023 | — | ✅ | ✅ | — | — | — | **eight vessel-width classes**; venous pulsation — presence, timing, peak and trough | **CC BY-NC-ND 4.0** — non-commercial, no derivatives | ✅ |
 | [STARE](datasets/stare.md) | 20 (vessel subset of 397) | 700×605 | 2000 | — | ✅ **×2 observers** | — | — | — | ✅ 10 of 20 with pathology | — | **not stated** | ✅ |
+| [TREND](datasets/trend.md) | 72 (+10 older, +22 rejected) | 2560×1920 | 2021 | ✅ good / bad, four criteria, reason per rejection | ✅ one reader, verified by an ophthalmologist | 48 via [REYIA](datasets/reyia.md)'s TREND-AV | — | — | — | **hand-held** non-mydriatic camera; healthy young adults; **published vessel measurements per image** | **CC BY 4.0** | ✅ |
 | [UNAF](datasets/unaf.md) | 15 | 1444×1444 as redistributed | 2024 | — | — | ✅ | — | — | ✅ DR | Paraguay — geographic coverage | **not established** | ❓ |
 | [UoA-DR](datasets/uoa-dr.md) | 200 | 2124×2056 | — | — | ✅ | — | ✅ boundary **and centre** | — | ✅ DR severity | **fovea centre** | custom signed agreement | ⛔ |
+| [VEVIO](datasets/vevio.md) **(video)** | 32 (16 frames + 16 mosaics) | 720×576 frames (640×480 per OCULAR); mosaics not stated | 2012 | — | ✅ | ✅ via OCULAR, **not public** | — | — | — | premature infants, ROP screening | **not stated** | ❓ |
 | [VICAVR](datasets/vicavr.md) | 58 | 768×584 | — | — | — | ✅ **×3 experts** | — | — | — | **published calibres at several radii** | research use, no standard licence | ⛔ |
 | [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | 3900×3072 | 2015 | — | — | ✅ **×2 raters** | — | — | ✅ healthy / AMD | **vascular graph annotations** | research and educational use; **redistribution prohibited** | ✅ |
 
@@ -139,6 +145,7 @@ image itself.
 | [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | A quality **score from an automated network**, not a human grader | — |
 | [DRIMDB](datasets/drimdb.md) | 216 | Three classes: good, bad, and **outlier** — photographs that are not of a retina | Unknown how many readers |
 | [RAV](datasets/rav.md) | 206 | Not a grade: poor-quality photographs were **kept on purpose** rather than excluded | — |
+| [TREND](datasets/trend.md) | 104 | Good / bad against four criteria, with a written reason for every rejection — **the 22 rejected photographs are published** | One ophthalmologist |
 | [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | High / low — 83 high-quality, 17 low-quality | Per photograph |
 
 [FunPiQ](datasets/funpiq.md) re-annotates photographs already in EyeQ, BRSET and mBRSET, so it is
@@ -158,17 +165,24 @@ in the Vessels column of the summary and are not repeated here.
 | [REYIA](datasets/reyia.md) ← 9 sources | 589 | Artery/vein maps | A compilation: 478 of the 589 photographs come from other datasets. Scoring REYIA and its sources counts the same eyes twice |
 | [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | Arterioles and venules | **Two readers kept separate** on the test split — a junior drawing and a senior's correction |
 | [RAV](datasets/rav.md) | 206 | Artery/vein segmentation | Population cohort (Rotterdam Study); quality mixed by design |
+| [ARIA](datasets/aria-dataset.md) | 143 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader. ARIA's own release has vessels only |
 | [AVRDB](datasets/avrdb.md) | 100 | Artery/vein network | Also publishes an **AVR number per image** |
-| [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | Pixel-level artery/vein | Newer than the models in this catalogue, so it can evaluate them |
+| [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | Pixel-level artery/vein | Newer than most models in this catalogue, so it can evaluate them — but not [OCULARNet](models/ocularnet.md), which trained on it |
+| [FOVEA](datasets/fovea-dataset.md) +surgical | 80 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader. FOVEA is CC BY-NC-ND, which a derived layer may not sit well with |
 | [VICAVR](datasets/vicavr.md) | 58 | Artery/vein labels **near the disc**, not a dense whole-image map | **Three experts**; published calibres at several radii from the disc |
 | [GAVE](datasets/gave.md) | 50 | Vessel and artery/vein labels | Reader count not stated |
+| [DRiDB](datasets/dridb.md) | 50 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader. Labels download freely; photographs by e-mail request only |
+| [ORVS](datasets/orvs.md) | 49 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
 | [HRF](datasets/hrf.md) | 45 | Arteries and veins as separate classes | The **HRF-AV** layer, added by a second group; the original release has vessels only |
+| [DR HAGIS](datasets/dr-hagis.md) | 40 (39 distinct) | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
 | [RITE](datasets/rite.md) ← DRIVE | 40 | Four classes: artery, vein, overlap, uncertain | **RITE is DRIVE** — the same 40 photographs. Widely cited as "DRIVE-AV" |
 | [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | **AVR as a number per image**, from two experts using IVAN — not a pixel map of arteries and veins | In this list because it distinguishes arterioles from venules as a measurement, not as a mask |
 | [RAVIR](datasets/ravir.md) **(IR)** | 36 | Artery and vein segmentations | **Infrared reflectance**, not colour fundus photography. Test masks withheld |
+| [VEVIO](datasets/vevio.md) **(video)** | 32 | Artery, vein, crossing and uncertain, via the OCULAR layer | **Video indirect ophthalmoscopy of premature infants**, frames and mosaics. The label folder was not publicly viewable on 2026-10-12 |
 | [IOSTAR](datasets/iostar.md) **(SLO)** | 30 | Artery/vein | Scanning laser ophthalmoscopy, not a colour photograph |
 | [DualModal2019](datasets/dualmodal2019.md) **(dual-modal)** | 30 | Artery/vein | Same eyes imaged two ways |
 | [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | Artery/vein | **Two independent raters, kept separate**. A 200° Optos field, not a standard photograph |
+| [CHASE-DB1](datasets/chase-db1.md) | 28 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader. Children's eyes, hand-held camera |
 | [LES-AV](datasets/les-av.md) | 22 | Artery/vein maps | Vessel masks are derived from the A/V labels, not drawn independently |
 | [UNAF](datasets/unaf.md) | 15 | Artery/vein segmentation | Paraguay — the smallest set here; its value is geographic coverage |
 
@@ -204,8 +218,10 @@ cup, so they cannot yield a cup-to-disc ratio.
 | [ADAM](datasets/adam.md) | 1,200 | Disc **masks**; some are entirely blank | A blank mask means no disc was annotated in that photograph, not that there is no disc. No cup |
 | [IDRiD](datasets/idrid.md) | 516 | Disc masks on **81 of 516** — the segmentation subset only | The other 435 have disease grades and no disc outline. No cup |
 | [UoA-DR](datasets/uoa-dr.md) | 200 | Disc **boundary and centre** | The centre is what a zone-based vessel measurement needs. No cup |
+| [ARIA](datasets/aria-dataset.md) | 143 | Disc and fovea outlines on **120 of 143** — control and diabetic only | None for the 23 AMD photographs. No cup |
 | [AVRDB](datasets/avrdb.md) | 100 | Optic **nerve head** | Alongside arteries, veins and a published AVR. No cup |
 | [FOVEA](datasets/fovea-dataset.md) +surgical | 80 | Disc, **×2 readers**, on preoperative and surgical-microscope views | Paired views of the same eye. No cup |
+| [DRiDB](datasets/dridb.md) | 50 | Disc, **×5 experts**; macula also marked | Whether the five are released separately or merged is not established. No cup |
 | [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | Disc reference | There so a zone-based calibre measurement has a centre. No cup |
 | [IOSTAR](datasets/iostar.md) **(SLO)** | 30 | Disc | Scanning laser ophthalmoscopy, not a colour photograph. No cup |
 
@@ -240,10 +256,12 @@ no glaucoma label, so it is not in this table.
 | [Leuven-Haifa (UZLF)](datasets/leuven-haifa.md) | 240 | — | ✅ three categories, plus healthy | — | Twelve published vessel measurements |
 | [UoA-DR](datasets/uoa-dr.md) | 200 | ✅ International Clinical Diabetic Retinopathy scale | — | — | — |
 | [MAPLES-DR](datasets/maples-dr.md) ← MESSIDOR | 198 | ✅ **regraded** DR, not inherited from MESSIDOR | — | — | Macular oedema, **regraded**; six lesion classes |
+| [ARIA](datasets/aria-dataset.md) | 143 | 59 diabetic subjects, **no retinopathy grade** | — | ✅ 23 | 61 controls. A cohort label per subject, not a grade |
 | [Drishti-GS](datasets/drishti-gs.md) | 101 | — | ✅ glaucoma | — | Cup-to-disc ratio, notching |
 | [AVRDB](datasets/avrdb.md) | 100 | — | — | — | **Hypertensive retinopathy** and **papilloedema**; published AVR |
 | [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | ✅ 20 | ✅ 20 | ✅ 20 | 40 normal. One class per eye |
 | [HRF](datasets/hrf.md) | 45 | ✅ 15 | ✅ 15 | — | 15 healthy. One class per eye |
+| [DR HAGIS](datasets/dr-hagis.md) | 40 (39 distinct) | ✅ 10 — a group, not a grade; every patient diabetic | ✅ 10 | ✅ 10 | Systemic hypertension, 10. Images 24 and 32 are the same photograph, in both the DR and AMD groups |
 | [DRIVE](datasets/drive.md) | 40 | 7 of 40 with mild early changes; 33 with none | — | — | A **collection description**, not a per-image grade file |
 | [RAVIR](datasets/ravir.md) **(IR)** | 36 | ✅ represented | — | — | Hypertensive retinopathy. Infrared reflectance, not colour |
 | [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | — | — | ✅ healthy / AMD, with the AMD subtype described | — |
@@ -263,7 +281,8 @@ that in both directions; each detail page repeats its own half of the link.
 | **[REFUGE](datasets/refuge.md) ⊃ REFUGE** | REFUGE2's 2,000 photographs **contain** the first edition's 1,200, of which 800 are the AutoMorph family's disc/cup training data. A number quoted on REFUGE2 is therefore partly in-sample and partly not, and pooling the editions hides which. |
 | **[REYIA](datasets/reyia.md) ← nine datasets** | A compilation: 478 of its 589 photographs come from [FIVES](datasets/fives.md) (75), [PAPILA](datasets/papila.md) (78), MESSIDOR, Magrabia, mBRSET, GRAPE, TREND and AV-WIDE; only its 111-image ENRICH set is new. Every row carries its source, which is what makes the overlap traceable. |
 | **[WIDE](datasets/wide.md) → [REYIA](datasets/reyia.md)** | REYIA's **AV-WIDE** is 26 of WIDE's 30 photographs, **resized from 3900×3072 to 829×1531** — under a quarter of the linear detail. Every "AV-WIDE" result in the literature is measured on that rendition, and WIDE's own licence prohibits redistribution. |
-| **REYIA's subsets, counted six times** | ENRICH, FIVES-AV, MAGREBHIA, MESSIDOR-AV, AV-WIDE and TREND-AV are six of the fourteen training datasets [OCULARNet](models/ocularnet.md) lists — and all six are served from REYIA's single link-shared Kaggle URL. Two of them are annotations of FIVES and MESSIDOR photographs the list does not name separately. A count of datasets is not a count of independent evidence. |
+| **[TREND](datasets/trend.md) → [REYIA](datasets/reyia.md)** | REYIA's **TREND-AV** is 48 of TREND's photographs — 41 of its 72 young eyes and 7 of its 10 older comparison set — held at 2560×2560 against TREND's 2560×1920. OCULARNet's near out-of-distribution "TREND-AV" results are on TREND's eyes |
+| **REYIA's subsets, counted six times** | ENRICH, FIVES-AV, GRAPE, MAGREBHIA, MESSIDOR-AV and PAPILA are six of the fourteen training datasets [OCULARNet](models/ocularnet.md) lists — and all six are served from REYIA's single link-shared Kaggle URL. Four of them are REYIA's renditions of FIVES, GRAPE, MESSIDOR and PAPILA photographs, not those datasets' own releases. Three of its five out-of-distribution tests — mBRSET, TREND-AV and AV-WIDE — are further subsets of the same archive. A count of datasets is not a count of independent evidence. |
 | **[G1020](datasets/g1020.md), [ORIGA](datasets/origa.md), REFUGE** | Distributed together in one third-party Kaggle bundle, <https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets>. That is packaging, not shared photographs — the three are separate collections, and the bundle's licence field is the uploader's, not any depositor's. |
 
 ## 3. Not colour fundus photography
@@ -278,6 +297,7 @@ These look like fundus datasets in a file browser and cannot be pooled with them
 | [FOVEA](datasets/fovea-dataset.md) *(40 of its 80)* | **Surgical microscope video frames**, video-compressed, with the illumination and magnification of an operating theatre | The pairing with preoperative photographs of the same eye is the design's whole value |
 | [WIDE](datasets/wide.md) | **Ultra-wide-field at 200°** on an Optos 200Tx — four times the field of a standard photograph, with heavy peripheral projection distortion | The only ultra-wide dataset here with vessel-level annotation, and the only one publishing a vascular **graph**. Its circulating AV-WIDE copy inside [REYIA](datasets/reyia.md) is 26 of 30 images at a fifth of the pixel count |
 | [IOSTAR](datasets/iostar.md) | **Scanning laser ophthalmoscopy** — the image is formed by scanning a laser, so vessel contrast, colour and noise all differ | It carries the only **vessel junction** annotation in this catalogue, which is the ground truth [bifurcation angles](biomarkers/topology.md) and [junction counts](biomarkers/topology.md) need. It is also, unexpectedly, part of the AutoMorph vessel model's training data |
+| [VEVIO](datasets/vevio.md) | **Video indirect ophthalmoscopy** — compressed 720×576 video frames of infant eyes with lens reflections, plus software mosaics of five frames each | The only infant, retinopathy-of-prematurity screening source here. Its artery/vein labels were seeded by OCULARNet, so they are no independent test of it |
 
 ## 4. How to read this table
 

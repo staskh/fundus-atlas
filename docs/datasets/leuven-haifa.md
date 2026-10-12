@@ -45,6 +45,7 @@ Its cost is access: a signed data transfer agreement, and non-commercial terms.
 | Quality | Scored per photograph | — | Produced with an automated quality network rather than by a grader |
 | Disease | One label per eye | — | Glaucoma, in three categories, plus healthy |
 | Other labels | — | — | Age, sex, and **twelve published vessel measurements** — tortuosity, fractal dimensions, branching |
+| Optic disc, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | OCULAR's 1024×1024 copy | No field-of-view mask: OCULAR treats these images as already cropped to the field. A Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 
@@ -56,8 +57,8 @@ Its cost is access: a signed data transfer agreement, and non-commercial terms.
 
 - **Catalogued models trained on these images:** [LUNet](../models/lunet.md) trains on it entirely —
   its `UZLF_TRAIN` / `UZLF_VAL` / `UZLF_TEST` splits *are* this dataset — and
-  [OCULARNet](../models/ocularnet.md) includes it. Held out of the AutoMorph family and, as far as
-  can be established, of [VascX](../models/vascx-artery-vein.md).
+  [OCULARNet](../models/ocularnet.md) includes it, and so do [VascX vessels](../models/vascx-vessels.md) and [VascX artery/vein](../models/vascx-artery-vein.md), on all 240 (VascX paper, Table 1).
+  Held out of the AutoMorph family.
 - **Below a model's measuring grid:** No. Note that LUNet resamples even these 1444 images to 1472
   before inference.
 - **What it can answer:** two questions nothing else here can — held-out artery/vein accuracy against

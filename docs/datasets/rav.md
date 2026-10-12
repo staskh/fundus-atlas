@@ -55,11 +55,10 @@ binding: a non-commercial clause written by the authors is not waived by a metad
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** none stated explicitly, but
-  [VascX](../models/vascx-artery-vein.md) trains on "more than fifteen published annotated datasets
-  with colour-fundus images from Dutch studies, principally the Rotterdam Study" — these
-  photographs' own cohort, annotated by the same group. **Treat RAV as in-sample for VascX unless
-  its authors say otherwise**, and as held out of the AutoMorph family.
+- **Catalogued models trained on these images:** none stated explicitly, but [VascX vessels](../models/vascx-vessels.md) and [VascX artery/vein](../models/vascx-artery-vein.md) train on
+  352 and 215 unpublished Rotterdam Study images (VascX paper, Table 1) — these photographs' own cohort, annotated by
+  the same group. Whether the two overlap is not established, so **RAV is treated as in-sample for
+  VascX** unless its authors say otherwise, and as held out of the AutoMorph family.
 - **Below a model's measuring grid:** No, at 1024 — which is also VascX's own grid.
 - **What it can answer:** artery/vein accuracy on a population cohort rather than a clinic series,
   across a realistic quality range. For VascX, it answers a regression question rather than a

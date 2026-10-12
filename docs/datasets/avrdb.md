@@ -80,6 +80,9 @@ Three things about the archive a person running this will meet, all handled by t
 | Optic nerve head | As above | Native | On the same photographs |
 | Disease | One label per image | — | Hypertensive retinopathy and papilloedema |
 | Other labels | — | — | **A published arteriovenous ratio per image**, plus hard exudates and cotton-wool spots |
+| Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop of the field; field-of-view mask at native | Released where the dataset lacked them, as a Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
+
+OCULAR's README tabulates its AVRDB copy at **1000×1054** rather than the deposit's 1504×1000 — its crop of the field, the size its disc mask above refers to.
 
 ## 5. Inheritance
 

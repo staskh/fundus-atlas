@@ -30,7 +30,7 @@ right about and what a model does with it is a keep-rate, not an accuracy.
 | Model | Coverage | Accuracy | Cohen's κ | PAPILA kept | Marked |
 | --- | --- | --- | --- | --- | --- |
 | [quickqual](../models/quickqual.md) | 1.000 | 0.843 | **0.671** | 0.424 | out-of-sample |
-| [vascx-quality](../models/vascx-quality.md) | 1.000 | **0.854** | 0.666 | 0.555 | unknown |
+| [vascx-quality](../models/vascx-quality.md) | 1.000 | **0.854** | 0.666 | 0.555 | out-of-sample |
 | [automorph-quality-grader](../models/automorph-quality-grader.md) | 1.000 | 0.840 | 0.648 | 0.391 | out-of-sample |
 | [quickqual-meme](../models/quickqual-meme.md) | 1.000 | 0.775 | 0.555 | 0.527 | out-of-sample |
 | [fit-quality](../models/fit-quality.md) | 1.000 | 0.737 | 0.503 | 0.279 | out-of-sample |
@@ -79,9 +79,9 @@ accuracy column, which is why this section comes before the per-dataset detail.
 | quickqual-meme | 0.725 / 0.315 | 0.778 / 0.563 | 0.833 / 0.656 | 0.527 |
 | fit-quality | 0.570 / 0.181 | 0.792 / 0.595 | 0.756 / 0.484 | 0.279 |
 
-No model has seen any of these four datasets in training, so far as their pages state — except
-VascX, whose page publishes no list at all and whose own checkpoint names EyeQ. Its rows are marked
-`unknown` rather than cleared.
+No model has seen any of these four datasets in training, so far as their pages state. VascX's
+quality model is among them: its paper names EyeQ as its only training set, which matches what its
+own checkpoint names.
 
 ### 3.1 By camera and split
 
@@ -200,9 +200,8 @@ the choice between them is about which mistake you would rather make than about 
   stated** — which is the reason to check before shipping it, not a reason against measuring it.
 - **VascX quality** has the highest accuracy (0.854) and κ 0.666, five thousandths behind. It keeps
   0.960 of usable photographs, so it is the choice where losing a photograph costs more than
-  measuring a bad one. Two caveats: it carries `unknown`, because nobody published what it trained
-  on and its own checkpoint names EyeQ, so its lead cannot be called clean; and its weights are
-  AGPL-3.0.
+  measuring a bad one. It is `out-of-sample` here — its paper names EyeQ alone — so its lead is a
+  clean one. The caveat is its licence: its weights are AGPL-3.0.
 - **AutoMorph's grader** is a close third (κ 0.648) and behaves like VascX, keeping 0.908 and
   discarding 0.723. If you are already running AutoMorph, there is no measured reason here to
   replace it.
@@ -219,8 +218,8 @@ disc-centred photographs should read section 4.5 first, where every model discar
 
 ## 6. What these numbers do not say
 
-- **`unknown` is not `out-of-sample`.** VascX publishes no training list; its results are not
-  comparable with the others on that axis.
+- **Every model here is marked from a published training list**, so none of these results is
+  `unknown`; all five are `out-of-sample` on all four datasets.
 - **The three references are different statements.** FQS's grade is its own, FIVES's is derived by
   this repository from three component scores, PAPILA's is assumed. A model measured against a
   derived grade is measured against that rule as much as against the dataset.

@@ -35,7 +35,7 @@ people to a clinic.
 
 | Model | Photographs | Coverage | Disc Dice | Cup Dice | Ratio error | Marked |
 | --- | --- | --- | --- | --- | --- | --- |
-| [vascx-disc](../models/vascx-disc.md) | 2,464 | 1.000 | **0.951** | — | — | unknown |
+| [vascx-disc](../models/vascx-disc.md) | 2,464 | 1.000 | **0.951** | — | — | mixed |
 | [lunetv2-odc](../models/lunetv2-odc.md) | 2,464 | 1.000 | 0.937 | **0.810** | **−0.001** | unknown |
 | [segformer-disc-cup](../models/segformer-disc-cup.md) | 2,464 | 1.000 | 0.937 | 0.791 | −0.039 | out-of-sample |
 | [automorph-disc-cup](../models/automorph-disc-cup.md) | 2,464 | 1.000 | 0.856 | 0.712 | −0.031 | out-of-sample |
@@ -274,16 +274,18 @@ the answer, below. **VascX disc**, if you need only the disc and can afford five
   published says what it trained on, so none of these datasets can be called clean for it — and its
   own project, [PVBM](../projects/pvbm.md), **never reads the cup channel these numbers come from**,
   so nobody has evidenced it before. Its licence is unstated and its ancestor is non-commercial.
-- **[VascX disc](../models/vascx-disc.md)** has the best disc on two of three datasets and the best
-  pooled disc Dice (0.951), and is the steadiest: it never once drops below Dice 0.5 on more than
-  0.3% of outlines. It finds **no cup**, so it cannot produce a cup-to-disc ratio at all, and it
-  costs **1.2 to 1.3 seconds per photograph on an Apple GPU** against a quarter of a second for the
-  other three. It also carries `unknown`.
+- **[VascX disc](../models/vascx-disc.md)** has the best pooled disc Dice (0.951) and is the
+  steadiest: it never once drops below Dice 0.5 on more than 0.3% of outlines. **Its best dataset is
+  one it trained on**: VascX's paper lists all 488 PAPILA photographs in its disc training, so its
+  0.951 there is in-sample. On the two it never saw it is second — 0.954 on Chákṣu behind
+  SegFormer's 0.958, and 0.921 on GRAPE behind LUNet v2's 0.929. It finds **no cup**, so it cannot
+  produce a cup-to-disc ratio at all, and it costs **1.2 to 1.3 seconds per photograph on an Apple
+  GPU** against a quarter of a second for the other three.
 - **[SegFormer](../models/segformer-disc-cup.md)** is the close second for a full disc-and-cup
   answer: the best disc on Chákṣu (0.958, above the readers' band) and a cup at 0.791 against LUNet
   v2's 0.810. It is the only model whose licence is clean — **Apache-2.0 on both code and weights** —
-  and the only one of the four marked `out-of-sample` on every dataset with a published training
-  list. If licensing or provenance matters more to you than a hundredth of Dice, this is the one to
+  and one of the two marked `out-of-sample` on every dataset here, with AutoMorph's model, which
+  came last. If licensing or provenance matters more to you than a hundredth of Dice, this is the one to
   take. Watch its ratio: it misses one in six of Chákṣu's eyes over the 0.6 threshold.
 - **[AutoMorph's disc-and-cup model](../models/automorph-disc-cup.md)** is last on every pooled
   measure here and unusable on disc-centred photographs (section 4.1). If you are running AutoMorph
@@ -302,9 +304,9 @@ places; treat the seconds as an order of magnitude, not a specification.
 
 ## 7. What these numbers do not say
 
-- **`unknown` is not `out-of-sample`.** Both models recommended in section 6 carry it: neither VascX
-  nor LUNet v2 publishes what it trained on, so neither can be shown not to have seen these
-  photographs. The two `out-of-sample` models are the two that came third and fourth.
+- **`unknown` is not `out-of-sample`.** LUNet v2 carries it: nothing published says what it trained
+  on, so it cannot be shown not to have seen these photographs. VascX's disc model is in-sample on
+  PAPILA, which its paper lists in training, and `out-of-sample` on Chákṣu and GRAPE.
 - **A model inside the readers' band has not been shown to be better than a reader**, for the reason
   in section 5. No sentence on this page should be quoted as "the model outperformed the
   ophthalmologists".

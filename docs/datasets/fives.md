@@ -53,6 +53,8 @@ one carrying the quality spreadsheet.
 | Quality | Graded per photograph | — | Illumination, blur and low-contrast components in `Quality Assessment.xlsx`, per split |
 | Disease | One label per eye | — | Four classes, encoded in the filename letter: `A` AMD, `D` DR, `G` glaucoma, `N` normal |
 
+**Announced, not released.** [OCULAR](../projects/ocularnet.md) lists all 800 FIVES photographs among the datasets it will give artery/vein labels to "upon paper publication", drawn by OCULARNet at 1024×1024 and refined by hand against the vessel tracing. Its README links no files for them (checked 2026-10-12).
+
 ## 5. Inheritance
 
 - **Reuses images from:** No shared images established — FIVES is an original collection.
@@ -61,10 +63,10 @@ one carrying the quality spreadsheet.
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None established. FIVES appears in
+- **Catalogued models trained on these images:** [VascX vessels](../models/vascx-vessels.md), on all 800 (VascX paper, Table 1). FIVES also appears in
   [OCULARNet](../models/ocularnet.md)'s training list as **FIVES-AV** — a separate artery/vein
-  annotation of 75 of these photographs — so the images are in-sample for that model even though
-  this vessel annotation is not.
+  annotation of 75 of these photographs, through [REYIA](reyia.md) — so those images are in-sample
+  for that model even though this vessel annotation is not.
 - **Below a model's measuring grid:** No. At 2048 it is above every grid in
   [MODELS.md](../MODELS.md), so it is downsampled before measurement, which loses the thinnest
   vessels its annotation contains.

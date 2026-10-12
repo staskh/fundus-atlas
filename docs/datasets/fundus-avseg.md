@@ -106,6 +106,7 @@ states **no field angle for either**, so the sensor size is the only separator a
 | Quality | Per photograph | — | 83 high-quality, 17 low-quality |
 | Disease | One label per eye | — | Four classes |
 | Other labels | — | — | Eye side |
+| Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop of the field; field-of-view mask at native | Released where the dataset lacked them, as a Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 

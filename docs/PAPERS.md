@@ -108,9 +108,11 @@ its group, so a missing paper is visible rather than silent.
 | Budai 2013 | 2013 | HRF vessels | [HRF](datasets/hrf.md) |
 | Chalakkal et al. | — | UoA-DR (deposit citation) | [UoA-DR](datasets/uoa-dr.md) |
 | Decencière 2014 | 2014 | Messidor | [Messidor](datasets/messidor.md); [MAPLES-DR](datasets/maples-dr.md) |
+| Estrada 2012 | 2012 | VEVIO | [VEVIO](datasets/vevio.md) |
 | Estrada 2015 | 2015 | WIDE; REYIA photographs | [WIDE](datasets/wide.md); [REYIA](datasets/reyia.md) |
 | Fang 2022 | 2022 | ADAM challenge | [ADAM](datasets/adam.md) |
 | Fang et al. | 2022 | REFUGE2 | [REFUGE](datasets/refuge.md) |
+| Farnell 2008 | 2008 | ARIA (Liverpool image set) | [ARIA (dataset)](datasets/aria-dataset.md) |
 | Fhima 2024 | 2024 | UNAF, with LUNet | [UNAF](datasets/unaf.md); [LUNet](models/lunet.md) |
 | Fhima 2025 | 2025 | REYIA; RLAD | [REYIA](datasets/reyia.md); [RLAD](models/rlad.md) |
 | FOVEA | 2025 | FOVEA | [FOVEA](datasets/fovea-dataset.md) |
@@ -121,6 +123,7 @@ its group, so a missing paper is visible rather than silent.
 | Fundus AVSeg | 2025 | Fundus AVSeg | [Fundus AVSeg](datasets/fundus-avseg.md) |
 | Hatamizadeh 2022 | 2022 | RAVIR | [RAVIR](datasets/ravir.md) |
 | Hemelings 2019 | 2019 | HRF artery/vein | [HRF](datasets/hrf.md) |
+| Holm 2017 | 2017 | DR HAGIS | [DR HAGIS](datasets/dr-hagis.md) |
 | Hoover 2000 | 2000 | STARE | [STARE](datasets/stare.md) |
 | HRF-Seg+ | 2025 | HRF disc, cup, zones | [HRF](datasets/hrf.md) |
 | Hu 2013 | 2013 | RITE artery/vein | [RITE](datasets/rite.md) |
@@ -138,7 +141,10 @@ its group, so a missing paper is visible rather than silent.
 | Niemeijer 2011 | 2011 | INSPIRE-AVR | [INSPIRE-AVR](datasets/inspire-avr.md) |
 | Orlando 2018 | 2018 | LES-AV | [LES-AV](datasets/les-av.md) |
 | Orlando 2020 | 2020 | REFUGE challenge | [REFUGE](datasets/refuge.md) |
+| Popovic 2021 | 2021 | TREND; REYIA's TREND-AV photographs | [TREND](datasets/trend.md); [REYIA](datasets/reyia.md) |
 | Porwal 2018 | 2018 | IDRiD | [IDRiD](datasets/idrid.md); [RETA](datasets/reta.md) |
+| Prentašić 2013 | 2013 | DRiDB | [DRiDB](datasets/dridb.md) |
+| Sarhan 2021 | 2021 | ORVS | [ORVS](datasets/orvs.md) |
 | Şevik 2014 | 2014 | DRIMDB | [DRIMDB](datasets/drimdb.md) |
 | Sivaswamy 2015 | 2015 | Drishti-GS | [Drishti-GS](datasets/drishti-gs.md) |
 | Staal 2004 | 2004 | DRIVE; RITE photographs | [DRIVE](datasets/drive.md); [RITE](datasets/rite.md) |

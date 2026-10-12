@@ -128,6 +128,7 @@ of this dataset should come from.
 | Optic disc and cup contours | One | Native | HRF-Seg+, 40 of 45 images |
 | Disease | One label per eye | — | Healthy / glaucoma / diabetic retinopathy, 15 each |
 | Field-of-view mask | — | Native | Supplied per image |
+| Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop of the field; field-of-view mask at native | Released where the dataset lacked them, as a Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 The two experts' disc centres are the useful rarity here: they sit a median of about 10 pixels apart
 on a disc roughly 379 pixels across — under 3% of a disc diameter — which gives a human agreement
@@ -145,7 +146,7 @@ figure to read automated disc results against, rather than assuming one.
 - **Catalogued models trained on these images:** [SEGAN vessel segmenter](../models/segan-vessel.md)
   (as part of `ALL-SIX`), [BF-Net](../models/bf-net.md) and [Big W-Net](../models/big-wnet.md) (via
   HRF-AV), [LWNet](../models/lwnet.md), [OCULARNet](../models/ocularnet.md) and
-  [OCULARNet-nano](../models/ocularnet-nano.md), and [LUNet](../models/lunet.md) uses a cropped HRF
+  [OCULARNet-nano](../models/ocularnet-nano.md), [VascX vessels](../models/vascx-vessels.md) and [VascX artery/vein](../models/vascx-artery-vein.md) (via HRF-AV) (VascX paper, Table 1), and [LUNet](../models/lunet.md) uses a cropped HRF
   as external test data. **A score on HRF is in-sample for almost every vessel and artery/vein model
   in this catalogue.**
 - **Below a model's measuring grid:** No — far above it, so it is downsampled heavily before

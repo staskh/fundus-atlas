@@ -44,6 +44,8 @@ and fovea annotations on 81**. It is the highest-resolution dataset in this cata
 | Disease | Graded per image | — | Diabetic retinopathy 0–4 and macular-oedema risk 0–2, on all 516 |
 | Other labels | — | Native | Four lesion classes on the 81; fovea coordinates |
 
+**Announced, not released.** [OCULAR](../projects/ocularnet.md) lists 81 IDRiD photographs — the segmentation subset, which carries no vessel tracing of its own; [RETA](reta.md) traces vessels on IDRiD photographs, but OCULAR does not say which tracing it would refine against among the datasets it will give artery/vein labels to "upon paper publication", drawn by OCULARNet at 1024×1024 and refined by hand against the vessel tracing. Its README links no files for them (checked 2026-10-12).
+
 No vessel annotation ships with IDRiD — that is [RETA](reta.md)'s contribution to the same
 photographs.
 
@@ -59,7 +61,8 @@ photographs.
 - **Catalogued models trained on these images:** None established for training among the
   segmentation models. The AutoMorph paper reports IDRiD as the **validation** set for its
   disc-and-cup model, so it is not fully held out for that model, and [RLAD](../models/rlad.md) trains its
-  generator on IDRiD's lesion training split.
+  generator on IDRiD's lesion training split. [VascX disc](../models/vascx-disc.md) trains on the 81 segmentation photographs and
+  [VascX fovea](../models/vascx-fovea.md) on all 516 (VascX paper, Table 1).
 - **Below a model's measuring grid:** No — far above every grid in [MODELS.md](../MODELS.md).
 - **What it can answer:** disc segmentation at native high resolution on an Indian population, under
   a permissive licence; and, paired with RETA, how much a fourfold downsizing costs a vessel

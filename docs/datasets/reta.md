@@ -54,9 +54,9 @@ The 1024×1024 figure is the **authors' rendition**, not the camera's output: ID
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None established — RETA postdates the AutoMorph
-  family's vessel training and is absent from the other models' stated lists. **Genuinely held out**,
-  which is rare for a vessel dataset here.
+- **Catalogued models trained on these images:** [VascX vessels](../models/vascx-vessels.md), on all 54 (VascX paper, Table 1). Otherwise none
+  established — RETA postdates the AutoMorph family's vessel training and is absent from the other
+  models' stated lists, so it is held out of every vessel model here **except VascX's**.
 - **Below a model's measuring grid:** No — 1024 sits above the 912 vessel grid, just.
 - **What it can answer:** held-out vessel accuracy against an unusually careful annotation. Its 54
   usable images make it small, so treat differences as indicative.

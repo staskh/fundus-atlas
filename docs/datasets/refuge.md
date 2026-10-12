@@ -106,8 +106,9 @@ Three subcollections, by camera. The split is the domain shift, not an accident 
   [AutoMorph's disc-and-cup model](../models/automorph-disc-cup.md) (REFUGE's 800, with [GAMMA](gamma.md)), the
   [Hugging Face SegFormer](../models/segformer-disc-cup.md) (fine-tuned on REFUGE), and
   [BEAL](../models/beal.md) and [ISFA](../models/isfa.md), both of which use REFUGE as their
-  **labelled source domain** for domain adaptation. **REFUGE cannot fairly evaluate any of those
-  four**, which leaves [PAPILA](papila.md) and [G1020](g1020.md) as the practical alternatives.
+  **labelled source domain** for domain adaptation; and [VascX disc](../models/vascx-disc.md) and [VascX fovea](../models/vascx-fovea.md), which train on REFUGE2's
+  2,000 (VascX paper, Table 1). **REFUGE cannot fairly evaluate any of those six.** [G1020](g1020.md) is the practical
+  alternative; [PAPILA](papila.md) is too, except for VascX's disc model, which trained on it.
 - **Below a model's measuring grid:** No.
 - **What it can answer:** how a disc/cup method behaves across a camera change, which is the
   challenge's own design. Not generalisation for the models above.

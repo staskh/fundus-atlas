@@ -68,20 +68,21 @@ mention this variant. No publication describing the nano model was found.
 | --- | --- | --- | --- |
 | [AVRDB](../datasets/avrdb.md), [DRIVE](../datasets/drive.md) (its artery/vein labels are [RITE](../datasets/rite.md)'s), ENRICH, [FIVES-AV](../datasets/fives.md), [Fundus-AVSeg](../datasets/fundus-avseg.md), [GAVE](../datasets/gave.md), [GRAPE](../datasets/grape.md), [HRF](../datasets/hrf.md), [INSPIRE](../datasets/inspire-avr.md), [LES-AV](../datasets/les-av.md), [Leuven-Haifa](../datasets/leuven-haifa.md), MAGREBHIA, [MESSIDOR-AV](../datasets/messidor.md), [PAPILA](../datasets/papila.md) | Training | Their own authors, plus harmonised field-of-view and disc annotations from the OCULAR release | Yes — five folds, with template split CSVs in the repository |
 | [DualModal](../datasets/dualmodal2019.md), [UNAF](../datasets/unaf.md) | In-distribution test | Their own authors | Yes |
-| TREND-AV, [IOSTAR-AV](../datasets/iostar.md), [MBRSET](../datasets/mbrset.md) | Near out-of-distribution test | Their own authors | Yes |
+| TREND-AV (on [TREND](../datasets/trend.md)'s photographs), [IOSTAR-AV](../datasets/iostar.md), [MBRSET](../datasets/mbrset.md) | Near out-of-distribution test | Their own authors | Yes |
 | [AV-WIDE](../datasets/wide.md), [RAVIR](../datasets/ravir.md) | Far out-of-distribution test | Their own authors | Yes |
 
 The same fourteen training datasets are therefore unavailable for a fair benchmark of this model as
 for OCULARNet.
 
 
-**Six of the fourteen training entries are one download.** ENRICH, FIVES-AV, MAGREBHIA,
-MESSIDOR-AV, AV-WIDE and TREND-AV are all served from the same Kaggle URL, which is
+**Six of the fourteen training entries are one download.** ENRICH, FIVES-AV, GRAPE, MAGREBHIA,
+MESSIDOR-AV and PAPILA are all served from the same Kaggle URL, which is
 [REYIA](../datasets/reyia.md)'s link-shared archive — so the training list counts one compilation's
-subsets as six datasets. Two of those subsets are themselves annotations of photographs from
-[FIVES](../datasets/fives.md) and [MESSIDOR](../datasets/messidor.md), which appear nowhere else in
-the list under their own names. The training data is therefore less independent than the count
-suggests.
+subsets as six datasets. Four of those subsets are REYIA's 1444×1444 renditions of photographs from
+[FIVES](../datasets/fives.md), [GRAPE](../datasets/grape.md), [MESSIDOR](../datasets/messidor.md)
+and [PAPILA](../datasets/papila.md), not those datasets' own releases. Three of the five
+out-of-distribution test sets — mBRSET, TREND-AV and AV-WIDE — come from the same archive too, as
+other subsets of it. The training data is therefore less independent than the count suggests.
 
 ## 7. Weights
 

@@ -41,6 +41,7 @@ seen, which nothing else in this catalogue asks.
 | --- | --- | --- | --- |
 | Artery/vein | Reference standard | Native | Test masks withheld for the leaderboard, as with [RETA](reta.md) |
 | Disease | Per eye | — | Diabetic and hypertensive retinopathy |
+| Optic disc, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | OCULAR's 1024×1024 copy | No field-of-view mask: OCULAR treats these images as already cropped to the field. A Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 

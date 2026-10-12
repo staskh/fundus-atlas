@@ -51,8 +51,9 @@ illumination and focus than any tabletop dataset here.
 
 ## 6. Use as a benchmark
 
-- **Catalogued models trained on these images:** None established directly. Note that REYIA, which
-  contains mBRSET photographs, is a training set for nothing here but shares images with several.
+- **Catalogued models trained on these images:** None established. [OCULARNet](../models/ocularnet.md)
+  holds out the 30 mBRSET photographs in [REYIA](reyia.md) as a **near out-of-distribution test**
+  ([Plaza 2026](../papers/plaza-2026.md)), so they are out-of-sample for it.
 - **Below a model's measuring grid:** Varies by device.
 - **What it can answer:** whether a quality gate trained on tabletop screening photographs rejects
   handheld images the way a clinician would — the most realistic domain shift in this catalogue for

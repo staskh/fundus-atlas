@@ -65,7 +65,7 @@ These are the authors' measurements on their own split. This atlas's own compari
 | [OCULARNet-nano](../models/ocularnet-nano.md) | Same authors and repository; the paper does not describe it |
 | [OCULARNet project](../projects/ocularnet.md) | The code this paper describes |
 | [AutoMorph artery/vein](../models/automorph-artery-vein.md), [VascX artery/vein](../models/vascx-artery-vein.md) | Used as comparators |
-| [mBRSET](../datasets/mbrset.md), [IOSTAR](../datasets/iostar.md), [RAVIR](../datasets/ravir.md), [WIDE](../datasets/wide.md), [REYIA](../datasets/reyia.md) (its `trend` subset is TREND-AV) | Out-of-distribution test sets |
+| [mBRSET](../datasets/mbrset.md), [IOSTAR](../datasets/iostar.md), [RAVIR](../datasets/ravir.md), [WIDE](../datasets/wide.md), [REYIA](../datasets/reyia.md) (its `trend` subset is TREND-AV, on [TREND](../datasets/trend.md)'s photographs) | Out-of-distribution test sets |
 | [DualModal](../datasets/dualmodal2019.md), [UNAF](../datasets/unaf.md) | In-distribution test sets |
 | [Tortuosity](../biomarkers/tortuosity.md), [Calibre](../biomarkers/calibre.md), [Regions of interest](../biomarkers/regions-of-interest.md) | Biomarkers it measures agreement on |
 | [Naim 2026](naim-2026.md) | The same argument made for tortuosity |

@@ -18,6 +18,8 @@ not just redistribution.
 
 ## 2. Provenance
 
+### 2.1 FOVEA — the images, vessels and discs
+
 | | |
 | --- | --- |
 | Home | figshare; code at <https://github.com/rvimlab/FOVEA> |
@@ -32,6 +34,19 @@ images on import — cropping to the field of view, resampling onto a measuring 
 which is plausibly the creation of a derivative work. Under `ND` such a copy may not be
 redistributable, and depending on how "derivative" is read it may be a problem even for a private
 analysis copy. Read the licence before building anything on it.
+
+### 2.2 OCULAR — artery/vein labels
+
+| | |
+| --- | --- |
+| Home | The OCULAR repository, <https://github.com/GonzaloPlaaza/OCULAR>, section "Release of New Artery-Vein Annotations" |
+| Download | **direct, no registration** — a public Google Drive folder, <https://drive.google.com/drive/folders/1WFu9ot_uC0vJvh-YpFvJBS5_L--z8aNQ> |
+| Citation | Plaza G, Sanchez M, Serra-Castanera A, Valls-Esteve A, Mata Miquel C, Camara O, Galdran A. *Beyond Dice: Clinically Meaningful Large-Scale Retinal Artery/Vein Segmentation.* MICCAI 2026 Satellite Events, OMIA workshop, paper OMIA_030 — [Plaza 2026](../papers/plaza-2026.md) |
+| Licence | **not stated** — the OCULAR repository has no LICENSE file |
+| Content | Two folders, `preoperative` and `intraoperative` (checked 2026-10-12) |
+| Annotations | Supplies artery, vein and crossing labels, drawn by [OCULARNet](../models/ocularnet.md) at 1024×1024, cut back to this dataset's own vessel tracing and corrected by hand |
+
+**This layer sits awkwardly with FOVEA's own licence.** FOVEA is CC BY-NC-ND 4.0, and a set of labels painted onto its images and its vessel masks is plausibly the derivative work that `ND` forbids distributing. That is *our reading*, not a finding against anyone; establish the position with FOVEA's authors before relying on this layer.
 
 ## 3. The images
 
@@ -65,11 +80,12 @@ Two subcollections, and they are different instruments.
 | --- | --- | --- | --- |
 | Vessels | **Two, kept separate** | Native | On both the preoperative and intraoperative images |
 | Optic disc | **Two, kept separate** | Native | As above |
+| Artery, vein and crossing, by [OCULAR](../projects/ocularnet.md) | One model, refined by OCULAR's authors | **1024×1024**, not this dataset's native size | A model's output corrected by hand, not an independent reader: where the model and the corrector agree on a mistake, it stays. Section 2.2 |
 
 ## 5. Inheritance
 
 - **Reuses images from:** No shared images established.
-- **Its images are reused by:** None established.
+- **Its images are reused by:** [OCULAR](../projects/ocularnet.md), which adds artery/vein labels to them (section 2.2). It did not train or evaluate OCULARNet on them.
 
 ## 6. Use as a benchmark
 

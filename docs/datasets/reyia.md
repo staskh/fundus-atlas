@@ -54,8 +54,10 @@ age-related macular degeneration including geographic atrophy, drusen and fibrot
   separate dataset paper. The name matches the ERA-CVD project *Endothelial Retinal Imaging as
   Indicator of Cognitive Vascular Health*, which would fit the Belgian origin, but no publication
   tying that project to these images was established.
-- **TREND-AV** — 48 photographs at 1444×1444, 45°, healthy eyes. **No describing publication and no
-  independent distribution were found**; it appears in the literature only as a REYIA subset.
+- **TREND-AV** — 48 photographs, 45°, healthy eyes. Its photographs are [TREND](trend.md)'s (Popovic
+  et al., PLoS ONE 2021, Zenodo 4521044), which the OCULAR paper cites for it: by file name, 41 come
+  from TREND's 72 young-adult photographs and 7 from its 10-image older comparison set. The
+  artery/vein annotation itself still has no describing publication.
 - **MAGREBHIA** — 69 photographs at 1444×1444, 30°, from North Africa, with glaucoma. Likewise no
   describing publication established. Note the near-collision with **Magrabia**, which is something
   else entirely: a 95-image Saudi subcollection of [RIGA](riga.md) from the Magrabi Eye Center.
@@ -104,7 +106,7 @@ which redistributes these subsets under these names.
 | FIVES-AV | 75 | 1444×1444 | 45° | China | — | [FIVES](fives.md) |
 | MAGREBHIA | 69 | 1444×1444 | 30° | North Africa | glaucoma | None established (section 2.2) |
 | MESSIDOR-AV | 66 | 1444×1444 | 45° | France | diabetic retinopathy | [MESSIDOR](messidor.md) |
-| TREND-AV | 48 | 1444×1444 | 45° | Not stated | healthy | None established (section 2.2) |
+| TREND-AV | 48 | 1444×1444 as tabulated; **2560×2560 in this atlas's store**, against TREND's own 2560×1920 | 45° | Montenegro | healthy | [TREND](trend.md) |
 | **AV-WIDE** | 26 | 829×1531 | **200°** | United States | AMD | [WIDE](wide.md), resized from 3900×3072 |
 | mBRSET and GRAPE subsets | the remainder | per source | per source | Brazil, China | mixed | [mBRSET](mbrset.md), [GRAPE](grape.md) |
 
@@ -126,24 +128,30 @@ photographs mixes fields of view by a factor of four or more.
 | --- | --- | --- | --- |
 | Artery/vein | One standard | Per-source native size | The dataset's contribution |
 | Other labels | — | — | A source-dataset attribution per photograph, which is what makes the overlap traceable |
+| Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop; field-of-view mask at native | One folder per subset (ENRICH, FIVES-AV, GRAPE, MAGREBHIA, MESSIDOR-AV, PAPILA, AV-WIDE, mBRSET — disc only — and TREND-AV), each a Google Drive folder that asks for a Google sign-in (checked 2026-10-12): not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 
 - **Reuses images from:** **[FIVES](fives.md) (75), [PAPILA](papila.md) (78),
-  [MESSIDOR](messidor.md), MAGREBHIA (69), [mBRSET](mbrset.md), [GRAPE](grape.md), TREND-AV (48) and
+  [MESSIDOR](messidor.md), MAGREBHIA (69), [mBRSET](mbrset.md), [GRAPE](grape.md), [TREND](trend.md) (48, as TREND-AV) and
   a re-annotated [AV-WIDE](wide.md) (26)** — 478 of its 589 photographs come from elsewhere; only the
   111-image ENRICH set is new.
   **And most of them are resized**: as section 3 shows, subset after subset arrives at 1444×1444
   whatever its source camera produced, and AV-WIDE is reduced from [WIDE](wide.md)'s 3900×3072 to
   829×1531. These are renditions of other people's photographs, not the photographs themselves.
-  MAGREBHIA, TREND-AV and ENRICH have no pages of their own and are documented as subcollections in
-  sections 2.2 and 3.
-- **Its images are reused by:** None established.
+  MAGREBHIA and ENRICH have no pages of their own and are documented as subcollections in sections
+  2.2 and 3; TREND-AV's photographs are [TREND](trend.md)'s.
+- **Its images are reused by:** [OCULAR](../projects/ocularnet.md), whose collection redistributes these subsets under these names: ENRICH, FIVES-AV, GRAPE, MAGREBHIA, MESSIDOR-AV and PAPILA for training, and mBRSET, TREND-AV and AV-WIDE as out-of-distribution tests.
 
 ## 6. Use as a benchmark
 
 - **Catalogued models trained on these images:** [RLAD](../models/rlad.md), which comes from the same paper
-  that published REYIA and trains on its ENRICH subcollection. Otherwise none established directly.
+  that published REYIA and trains on its ENRICH subcollection; and [OCULARNet](../models/ocularnet.md)
+  and [OCULARNet-nano](../models/ocularnet-nano.md), which train on **six of its subsets** — ENRICH,
+  FIVES-AV, GRAPE, MAGREBHIA, MESSIDOR-AV and PAPILA — and hold out **mBRSET and TREND-AV** as
+  near out-of-distribution tests and AV-WIDE as a far one ([Plaza 2026](../papers/plaza-2026.md);
+  OCULAR README). A REYIA score for OCULARNet is in-sample except on those two subsets, and must be
+  broken down by subset rather than quoted whole.
   But because its
   photographs come from datasets that *are* training data for several models here, a REYIA score is
   **partly in-sample for reasons that have nothing to do with REYIA** — which is exactly the trap

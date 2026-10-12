@@ -78,8 +78,8 @@ many cameras, and no curated dataset supplies them.
 - **Catalogued models trained on these images:**
   [AutoMorph's quality grader](../models/automorph-quality-grader.md) trained on the 12,543-image
   training split, and [QuickQual](../models/quickqual.md) fitted its classifier on EyeQ and reports
-  its accuracy on the EyeQ test split. **So the two quality models in this catalogue share their
-  training labels**, and neither can be evaluated on EyeQ against the other in a way that favours
+  its accuracy on the EyeQ test split, and [VascX quality](../models/vascx-quality.md) trains on all 28,792 (VascX paper, Table 1). **So three of the
+  quality models in this catalogue share their training labels**, and neither can be evaluated on EyeQ against the other in a way that favours
   neither.
 - **Below a model's measuring grid:** Mixed, by image.
 - **What it can answer:** quality grading at a scale nothing else approaches. It cannot answer

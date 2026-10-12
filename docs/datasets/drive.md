@@ -46,6 +46,7 @@ govern use.
 | --- | --- | --- | --- |
 | Vessels | One per image on the training split; **two observers on the test split**, kept separate | Native | The second observer is the reason DRIVE can state a human agreement ceiling |
 | Field-of-view mask | — | Native | Supplied per image |
+| Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop of the field; field-of-view mask at native | Released where the dataset lacked them, as a Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
 
 ## 5. Inheritance
 
@@ -60,7 +61,8 @@ govern use.
 - **Catalogued models trained on these images:** [SEGAN vessel segmenter](../models/segan-vessel.md)
   (in `ALL-SIX`), [LWNet](../models/lwnet.md), [BF-Net](../models/bf-net.md) and
   [Big W-Net](../models/big-wnet.md) (via DRIVE-AV, the RITE labels),
-  [OCULARNet](../models/ocularnet.md) and [OCULARNet-nano](../models/ocularnet-nano.md). **In-sample
+  [OCULARNet](../models/ocularnet.md) and [OCULARNet-nano](../models/ocularnet-nano.md), and [VascX artery/vein](../models/vascx-artery-vein.md)
+  through RITE's labels on these photographs (VascX paper, Table 1). **In-sample
   for essentially every vessel model here.**
 - **Below a model's measuring grid:** **Yes, and this matters.** At 565×584 it is smaller than every
   grid in [MODELS.md](../MODELS.md) — 912 for vessels, 720 for artery/vein, 512 for disc/cup, 1024
