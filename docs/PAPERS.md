@@ -66,6 +66,7 @@ yet are omitted; they appear when the first paper of that kind is added.
 | Paper | Year | What it is for | Relates to | Open | Last checked |
 | --- | --- | --- | --- | --- | --- |
 | [Naim 2026](papers/naim-2026.md) | 2026 | Dice can look fine while tortuosity is wrong | Tortuosity; tracing; DRIVE | ✅ | 2026-09-21 |
+| [Zhou 2024](papers/zhou-2024.md) | 2024 | Better A/V overlap need not mean better density or fractal dimension | CF-Loss U-Net; density; BF-Net | 🟡 | 2026-10-13 |
 
 ## 2. How to read this table
 

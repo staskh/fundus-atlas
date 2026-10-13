@@ -47,6 +47,7 @@ Grouped by purpose. Within each group the most recently committed model comes fi
 | [AutoMorph artery/vein](models/automorph-artery-vein.md) | Background, artery, vein, crossings | GAN-based binary-to-multi fusion, ensemble of 8 | 720² → back to original, nearest neighbour | DRIVE-AV, HRF-AV, LES-AV combined (`ALL-AV`) | Yes | No — the architecture's training code is in Learning-AVSegmentation | Apache-2.0 host, **over GPL-3.0 code** | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2025-06 | 2026-09-18 |
 | [LUNet](models/lunet.md) | Arterioles and venules | U-Net variant, TensorFlow | 1472² | UZLF (Leuven-Haifa) 1444×1444 | Yes | Yes, in the repository | **CC BY-NC 4.0 — non-commercial** | — | 2024-12 | 2026-09-10 |
 | [Big W-Net](models/big-wnet.md) | Artery against vein | W-Net, larger configuration | 512² or 1024², by config | DRIVE-AV, HRF-AV | Yes | Yes, in the repository | MIT | — | 2024-01 | 2026-09-10 |
+| [CF-Loss U-Net](models/cf-loss.md) | Background, artery, vein, **uncertain** (crossings and unidentified vessels) | U-Net, trained against vessel density and fractal dimension | 720² → back to original, bicubic | DRIVE-AV, LES-AV, HRF-AV — **one set of weights each** | Yes | Yes, in the repository | MIT; weights none stated | — | 2023-05 | 2026-10-13 |
 | [BF-Net](models/bf-net.md) | Artery against vein, by binary-to-multi fusion | GAN-based, main plus branch generator | 720² → back to original | DRIVE-AV, LES-AV, HRF-AV | Yes | Yes, in the repository | GPL-3.0 | [AutoMorph](projects/automorph.md), [AutoMorphalyzer](projects/automorphalyzer.md), [AutoMorphClass](projects/automorphclass.md) | 2023-02 | 2026-09-10 |
 | [VC-Net](models/vc-net.md) | Background, crossing, vein, artery, **plus a vessel map** | U-Net decoder on a Res2Net-50 encoder, vessel branch constraining the A/V branch | **Native, padded to a multiple of 512** (32 for DRIVE); 512² patches | DRIVE-AV, HRF-AV, LES-AV, Tongren, Kailuan — **one set of weights each** | **No — none published** | Yes, in the repository | **None stated** | — | 2021-04 | 2026-09-19 |
 
@@ -126,13 +127,14 @@ telling *capability* apart rather than for ranking the numbers against the refer
 | [OCULARNet](models/ocularnet.md) | softmax, 4 exclusive classes | **crossing** | added to both | 1.64% |
 | [OCULARNet-nano](models/ocularnet-nano.md) | softmax, 4 exclusive classes | **crossing** | added to both | not benchmarked |
 | [VC-Net](models/vc-net.md) | softmax, 4 classes, plus a vessel head | **crossing** | not benchmarked | not benchmarked |
+| [CF-Loss U-Net](models/cf-loss.md) | softmax, 4 exclusive classes | *uncertain* — **crossings and unidentified vessels together** | scored as its own class by its authors; not benchmarked | not benchmarked |
 | [Big W-Net](models/big-wnet.md) | softmax, 4 classes → **argmax over 3** | *uncertain* | **split half to artery, half to vein, then argmaxed** — so never both | not benchmarked |
 | [Retina-MVP A/V](models/retina-mvp-av.md) | softmax, 3 classes → argmax | none | — | not benchmarked |
 | [VascX A/V](models/vascx-artery-vein.md) | softmax, 4 exclusive classes | *unclassified*, **not a crossing class** | read past | **0.000%** |
 
 **There are only two ways to express a crossing, and a model has to do one of them.**
 
-- **A crossing class that is folded back into both vessels.** Five of the nine carry one. It is worth
+- **A crossing class that is folded back into both vessels.** Six of the ten carry one, though CF-Loss U-Net's also holds vessels its annotators could not classify. It is worth
   being clear about why the folding is necessary: inside a softmax a crossing class is a *third
   label*, not an overlap — the network says "crossing here", not "artery and vein here". The overlap
   appears only because an adapter puts those pixels back into both masks, which is what an annotator

@@ -172,6 +172,10 @@ model; see [retipy.md](../projects/retipy.md) section 8.
   pixels — it is crossings exactly.
 - The same repository trains only artery/vein models. The binary vessel model that AutoMorph pairs
   with this one is a different network — see [segan-vessel.md](segan-vessel.md).
+- **The same authors later retrained this architecture with a different loss**, CF-Loss, which
+  penalises errors in vessel density and fractal dimension ([Zhou 2024](../papers/zhou-2024.md)).
+  Those BF-Net weights are not published; the U-Net they did publish is
+  [CF-Loss U-Net](cf-loss.md).
 - Reference 6 of the README credits the GAN backbone to the SEGAN paper, which is how the two models
   come to share an ancestry while remaining distinct.
 
