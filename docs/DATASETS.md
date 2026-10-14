@@ -109,7 +109,7 @@ labelled.
 | [ORVS](datasets/orvs.md) | 49 | 1444×1444 | 2021 | — | ✅ one reader | ✅ via OCULAR, model-drawn and hand-corrected | — | — | — | 30° Zeiss Visucam 200, Calgary | **not stated** | ✅ |
 | [PAPILA](datasets/papila.md) | 488 | 2576×1934 | 2022 | — | — | — | ✅ ×2 experts | ✅ ×2 experts | ✅ healthy / suspect / glaucoma | full clinical record per eye | GPL-3.0 or later | ✅ |
 | [RAV](datasets/rav.md) | 206 | 1024×1024 (**authors' crop and resize**) | 2025 | ✅ mixed by design | — | ✅ | — | — | — | Rotterdam Study population cohort | **CC BY-NC 4.0 per the README; CC0 per the record — contradictory** | ✅ |
-| [RAVIR](datasets/ravir.md) **(IR)** | 36 | 768×768 | 2022 | — | — | ✅ | — | — | ✅ DR, hypertensive retinopathy | test masks withheld | usage protocol, not a standard grant | 🟡 |
+| [RAVIR](datasets/ravir.md) **(IR)** | 42 | 768×768 | 2022 | — | — | ✅ | — | — | — | test masks withheld | CC BY-NC-SA 4.0 | ✅ |
 | [REFUGE / REFUGE2](datasets/refuge.md) | 1,200 / 2,000 | mixed — 2124×2056, 1634×1634, + | 2020 | — | — | — | ✅ consensus | ✅ consensus | ✅ glaucoma | fovea coordinate | research and educational, challenge terms | 🟡 |
 | [RETA](datasets/reta.md) ← IDRiD, resized | 81 — **54 masks public** | 1024×1024 | 2022 | — | ✅ | — | — | — | — | inter- and intra-annotator disambiguation record | **CC BY 4.0** | ✅ |
 | [REYIA](datasets/reyia.md) ← 9 sources | 589 | mixed, by source | 2025 | — | — | ✅ | — | — | mixed, by source | per-image source attribution | MIT on the compilation; **sources stricter** | ⛔ |
@@ -174,10 +174,10 @@ in the Vessels column of the summary and are not repeated here.
 | [DRiDB](datasets/dridb.md) | 50 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader. Labels download freely; photographs by e-mail request only |
 | [ORVS](datasets/orvs.md) | 49 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
 | [HRF](datasets/hrf.md) | 45 | Arteries and veins as separate classes | The **HRF-AV** layer, added by a second group; the original release has vessels only |
+| [RAVIR](datasets/ravir.md) **(IR)** | 42 | Artery and vein segmentations | **Infrared reflectance**, not colour fundus photography. Test masks withheld |
 | [DR HAGIS](datasets/dr-hagis.md) | 40 (39 distinct) | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
 | [RITE](datasets/rite.md) ← DRIVE | 40 | Four classes: artery, vein, overlap, uncertain | **RITE is DRIVE** — the same 40 photographs. Widely cited as "DRIVE-AV" |
 | [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | **AVR as a number per image**, from two experts using IVAN — not a pixel map of arteries and veins | In this list because it distinguishes arterioles from venules as a measurement, not as a mask |
-| [RAVIR](datasets/ravir.md) **(IR)** | 36 | Artery and vein segmentations | **Infrared reflectance**, not colour fundus photography. Test masks withheld |
 | [VEVIO](datasets/vevio.md) **(video)** | 32 | Artery, vein, crossing and uncertain, via the OCULAR layer | **Video indirect ophthalmoscopy of premature infants**, frames and mosaics. The label folder was not publicly viewable on 2026-10-12 |
 | [IOSTAR](datasets/iostar.md) **(SLO)** | 30 | Artery/vein | Scanning laser ophthalmoscopy, not a colour photograph |
 | [DualModal2019](datasets/dualmodal2019.md) **(dual-modal)** | 30 | Artery/vein | Same eyes imaged two ways |
@@ -263,7 +263,6 @@ no glaucoma label, so it is not in this table.
 | [HRF](datasets/hrf.md) | 45 | ✅ 15 | ✅ 15 | — | 15 healthy. One class per eye |
 | [DR HAGIS](datasets/dr-hagis.md) | 40 (39 distinct) | ✅ 10 — a group, not a grade; every patient diabetic | ✅ 10 | ✅ 10 | Systemic hypertension, 10. Images 24 and 32 are the same photograph, in both the DR and AMD groups |
 | [DRIVE](datasets/drive.md) | 40 | 7 of 40 with mild early changes; 33 with none | — | — | A **collection description**, not a per-image grade file |
-| [RAVIR](datasets/ravir.md) **(IR)** | 36 | ✅ represented | — | — | Hypertensive retinopathy. Infrared reflectance, not colour |
 | [WIDE](datasets/wide.md) **(ultra-wide-field 200°)** | 30 | — | — | ✅ healthy / AMD, with the AMD subtype described | — |
 | [LES-AV](datasets/les-av.md) | 22 | — | ✅ **subtypes**: normal, normal-tension, open-angle — the only subtype labels here | — | Blood pressure, heart rate, intraocular pressure |
 | [STARE](datasets/stare.md) | 20 | — | — | — | **10 of 20 show pathology**, not named as a disease scheme |
