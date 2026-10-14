@@ -15,7 +15,8 @@ throughout; the dataset, the reader and the structure sit inside it.
 | 6 | Model against model | agreement on the same photographs, and where it is not evidence |
 | 7 | The hard cases | segmentations drawn over the photograph, up to eight per dataset, labelled |
 | 8 | What each model costs | seconds per photograph, beside the device |
-| 9 | What this cannot say | contamination, derived ground truths, resampling |
+| 9 | Held apart | each dataset in `benchmark.APART`, model by model with its contamination mark, beside the pooled figures and never averaged into them |
+| 10 | What this cannot say | contamination, derived ground truths, resampling |
 
 ## 2. Dice and clDice are read together or not at all
 

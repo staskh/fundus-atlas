@@ -1,0 +1,76 @@
+{
+  "benchmark": "av",
+  "dataset": "av-wide",
+  "fingerprint": "27607a97d62823c4a17fefa9402a4f241e1fde43f29cb5816cb9d27e4a3560e5",
+  "model": "vascx-artery-vein",
+  "summary": {
+    "artery_betti": {
+      "mean": 635.7307692307693,
+      "median": 596.5,
+      "n": 26,
+      "spread": 349.3429610538472
+    },
+    "artery_cldice": {
+      "mean": 0.5472235769230769,
+      "median": 0.545624,
+      "n": 26,
+      "spread": 0.08047005424866162
+    },
+    "artery_dice": {
+      "mean": 0.5521781538461539,
+      "median": 0.562783,
+      "n": 26,
+      "spread": 0.07912235096680831
+    },
+    "complete": true,
+    "device": "mps",
+    "excluded": {},
+    "failed": 0,
+    "photographs": 26,
+    "processed": 26,
+    "seconds_per_photograph": 23.949487208323553,
+    "segmentations": 26,
+    "structures": [
+      "artery",
+      "vein"
+    ],
+    "timed_photographs": 25,
+    "total": 26,
+    "vein_betti": {
+      "mean": 622.3076923076923,
+      "median": 550.5,
+      "n": 26,
+      "spread": 301.2845280858367
+    },
+    "vein_cldice": {
+      "mean": 0.5554896538461539,
+      "median": 0.551894,
+      "n": 26,
+      "spread": 0.056312258758258855
+    },
+    "vein_dice": {
+      "mean": 0.5873433076923077,
+      "median": 0.5760255,
+      "n": 26,
+      "spread": 0.049040738084050114
+    },
+    "vessels_betti": {
+      "mean": 1236.3076923076924,
+      "median": 1175.0,
+      "n": 26,
+      "spread": 564.4550652709737
+    },
+    "vessels_cldice": {
+      "mean": 0.5897173076923077,
+      "median": 0.5843845,
+      "n": 26,
+      "spread": 0.05974553977737536
+    },
+    "vessels_dice": {
+      "mean": 0.6025678461538462,
+      "median": 0.6049800000000001,
+      "n": 26,
+      "spread": 0.04921661979429642
+    }
+  }
+}

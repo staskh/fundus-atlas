@@ -1,26 +1,26 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "e61b2e7711c37c80fb2cf114f8b436b77271ca3137aa0cc835e1e94bf85bf25f",
+  "fingerprint": "f74062bc693d90a37bd9df27fa6660ee368ba95e7259ffac4ec134503914c7c8",
   "model": "automorph-artery-vein",
   "summary": {
     "artery_betti": {
-      "mean": 102.69,
-      "median": 97.0,
+      "mean": 102.63,
+      "median": 94.5,
       "n": 100,
-      "spread": 36.18471915049224
+      "spread": 34.62561335196822
     },
     "artery_cldice": {
-      "mean": 0.8449413200000001,
-      "median": 0.8539764999999999,
+      "mean": 0.8452097200000002,
+      "median": 0.8509665,
       "n": 100,
-      "spread": 0.038955311244265524
+      "spread": 0.039356547329276736
     },
     "artery_dice": {
-      "mean": 0.8234301999999998,
-      "median": 0.825293,
+      "mean": 0.8238688699999998,
+      "median": 0.825794,
       "n": 100,
-      "spread": 0.038825261569498795
+      "spread": 0.03882826321654241
     },
     "complete": true,
     "device": "mps",
@@ -28,7 +28,7 @@
     "failed": 0,
     "photographs": 100,
     "processed": 100,
-    "seconds_per_photograph": 3.6810418185353395,
+    "seconds_per_photograph": 3.9453037087170575,
     "segmentations": 100,
     "structures": [
       "artery",
@@ -37,40 +37,40 @@
     "timed_photographs": 99,
     "total": 100,
     "vein_betti": {
-      "mean": 110.31,
-      "median": 101.5,
+      "mean": 108.81,
+      "median": 100.5,
       "n": 100,
-      "spread": 39.040413676086985
+      "spread": 38.6128722060403
     },
     "vein_cldice": {
-      "mean": 0.85130522,
-      "median": 0.855639,
+      "mean": 0.8514456399999999,
+      "median": 0.8558385,
       "n": 100,
-      "spread": 0.04178303889488653
+      "spread": 0.042420010448494715
     },
     "vein_dice": {
-      "mean": 0.84259789,
-      "median": 0.8452489999999999,
+      "mean": 0.84305847,
+      "median": 0.8455035,
       "n": 100,
-      "spread": 0.03804120149335323
+      "spread": 0.03821565940173085
     },
     "vessels_betti": {
-      "mean": 199.7,
-      "median": 191.5,
+      "mean": 197.89,
+      "median": 188.0,
       "n": 100,
-      "spread": 53.884598912861925
+      "spread": 49.48795712089963
     },
     "vessels_cldice": {
-      "mean": 0.8956466200000002,
-      "median": 0.898193,
+      "mean": 0.8955916500000001,
+      "median": 0.8983814999999999,
       "n": 100,
-      "spread": 0.026088190724839467
+      "spread": 0.026838555832374815
     },
     "vessels_dice": {
-      "mean": 0.86535151,
-      "median": 0.8669875,
+      "mean": 0.8655502600000001,
+      "median": 0.866796,
       "n": 100,
-      "spread": 0.02792410367102049
+      "spread": 0.028460714102643312
     }
   }
 }

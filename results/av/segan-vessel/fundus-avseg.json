@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "dc00ce0bb02302d462281b83b7e5fada0419353dc1e5db305d23ab7f275fb97c",
+  "fingerprint": "c2e7b269717d996e461949d392446beccb1810fa563296ea3120c5aac119d9e5",
   "model": "segan-vessel",
   "summary": {
     "complete": true,
@@ -10,7 +10,7 @@
     "failed": 0,
     "photographs": 100,
     "processed": 100,
-    "seconds_per_photograph": 2.061664042939553,
+    "seconds_per_photograph": 2.289325815705451,
     "segmentations": 100,
     "structures": [
       "vessels"
@@ -18,22 +18,22 @@
     "timed_photographs": 99,
     "total": 100,
     "vessels_betti": {
-      "mean": 228.85,
-      "median": 216.0,
+      "mean": 225.41,
+      "median": 211.5,
       "n": 100,
-      "spread": 64.67617412927267
+      "spread": 64.96692927944186
     },
     "vessels_cldice": {
-      "mean": 0.91468783,
-      "median": 0.9184795,
+      "mean": 0.9146848100000001,
+      "median": 0.9194085000000001,
       "n": 100,
-      "spread": 0.020360902523736516
+      "spread": 0.020731330112028507
     },
     "vessels_dice": {
-      "mean": 0.8857052099999998,
-      "median": 0.8921835,
+      "mean": 0.8855497900000002,
+      "median": 0.8917995,
       "n": 100,
-      "spread": 0.021526909810418687
+      "spread": 0.021524110278148552
     }
   }
 }
