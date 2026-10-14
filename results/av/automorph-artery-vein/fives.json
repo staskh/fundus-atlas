@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "c21bb92c4798c0c1a403763682cef534ac343167a5c40f08931a0a9118a08cdc",
+  "fingerprint": "b0c3ffb117b01f6fdf8fbff4582520a5927994c52599ca165c287ae03048b598",
   "model": "automorph-artery-vein",
   "summary": {
     "complete": true,
@@ -12,31 +12,31 @@
     "failed": 0,
     "photographs": 798,
     "processed": 798,
-    "seconds_per_photograph": 3.5956402525418265,
+    "seconds_per_photograph": 4.2390012889311715,
     "segmentations": 798,
     "structures": [
       "artery",
       "vein"
     ],
-    "timed_photographs": 799,
+    "timed_photographs": 797,
     "total": 798,
     "vessels_betti": {
-      "mean": 94.49749373433583,
+      "mean": 94.22431077694236,
       "median": 93.0,
       "n": 798,
-      "spread": 30.03818570145213
+      "spread": 29.911792805442946
     },
     "vessels_cldice": {
-      "mean": 0.7296461365914787,
-      "median": 0.8048525,
+      "mean": 0.7283734072681703,
+      "median": 0.8060179999999999,
       "n": 798,
-      "spread": 0.20873453424831212
+      "spread": 0.2094481784669327
     },
     "vessels_dice": {
-      "mean": 0.7166970513784462,
-      "median": 0.787825,
+      "mean": 0.7172735325814538,
+      "median": 0.790476,
       "n": 798,
-      "spread": 0.2057521600325651
+      "spread": 0.20652069371883436
     }
   }
 }

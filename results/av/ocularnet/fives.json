@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "c71ee3f9decd556854f86e62b65bd794ea0efa293c3fb8d1597c935e5dcf9228",
+  "fingerprint": "aa3b96a2f7fbf6a37e7f754890ed5c8a9edfe62343f334c0860530dfa394bde1",
   "model": "ocularnet",
   "summary": {
     "complete": true,
@@ -12,31 +12,31 @@
     "failed": 0,
     "photographs": 798,
     "processed": 798,
-    "seconds_per_photograph": 2.357219939819671,
+    "seconds_per_photograph": 4.203854771751333,
     "segmentations": 798,
     "structures": [
       "artery",
       "vein"
     ],
-    "timed_photographs": 799,
+    "timed_photographs": 797,
     "total": 798,
     "vessels_betti": {
-      "mean": 94.234335839599,
-      "median": 93.0,
+      "mean": 88.05388471177945,
+      "median": 87.0,
       "n": 798,
-      "spread": 29.70985801304648
+      "spread": 27.53413654693397
     },
     "vessels_cldice": {
-      "mean": 0.8896523872180451,
-      "median": 0.9153445,
+      "mean": 0.8893464310776942,
+      "median": 0.9151229999999999,
       "n": 798,
-      "spread": 0.09245537092433341
+      "spread": 0.09258359059503098
     },
     "vessels_dice": {
-      "mean": 0.848498492481203,
-      "median": 0.870374,
+      "mean": 0.8482661829573935,
+      "median": 0.870279,
       "n": 798,
-      "spread": 0.0889882991808731
+      "spread": 0.08833299990205162
     }
   }
 }

@@ -97,7 +97,8 @@ and a reader comparing its vessel score with another model's is comparing a pred
 | [avrdb](../datasets/avrdb.md) | 100 | 1 | **drawn, but not independent**: it agrees with the union to within 0.4–0.6% | none | yes |
 | [reyia](../datasets/reyia.md) | 559 | 1 | derived here as the union; the archive publishes no separate tracing | 4 no vessel annotation to score against | yes |
 | [fives](../datasets/fives.md) | 798 | 1 | **its own tracing, and the only annotation it has**: no artery/vein labels at all | 2 no vessel annotation to score against | yes |
-| [rav](../datasets/rav.md) | — | — | — | — | **no** — no store built |
+| [rav](../datasets/rav.md) | 206 | 1 | derived here as the union of the artery, vein and unknown layers; none published apart | none | yes |
+| [av-wide](../datasets/reyia.md) | 26 | 1 | derived here as the union; the archive publishes no separate tracing | none | yes |
 | [les-av](../datasets/les-av.md) | — | — | — | — | **no** — no store built |
 | [rite](../datasets/rite.md) | — | — | — | — | **no** — no store built |
 <!-- /generated -->
@@ -121,7 +122,6 @@ REYIA and those datasets counts the same eyes twice: **fives** and **reyia** sha
 <!-- generated: worth_fetching -->
 | Dataset | What it would settle | Cost |
 | --- | --- | --- |
-| [rav](../datasets/rav.md) | 206 photographs no catalogued model names in training, from a population cohort with quality mixed on purpose — the closest thing here to a held-out test set | direct, but its host's bot gate refuses some networks |
 | [les-av](../datasets/les-av.md) | 22 photographs, direct, and it completes the contamination picture for BF-Net | direct |
 | [rite](../datasets/rite.md) | the 40 DRIVE photographs every artery/vein paper reports, which is what makes a number here comparable with the literature | registration |
 <!-- /generated -->

@@ -61,7 +61,10 @@ SKIPPED = [
         "the 7,712 files of REYIA/GENERATED_IMAGES: sixteen generations of synthetic photographs "
         "from the RLAD generator, which are not photographs of eyes"
     ),
-    "the AVWIDE subset, an ultra-wide-field instrument beside 45 degree cameras",
+    (
+        "the AVWIDE subset, an ultra-wide-field instrument beside 45 degree cameras, which is "
+        "built from the same archive into a store of its own by datasets.av_wide, as av-wide"
+    ),
 ]
 
 #: REYIA's colours. Magenta is the crossing, where Fundus-AVSeg and HRF-AV both use green — which is
@@ -95,8 +98,13 @@ EXTRA_COLUMNS = [
 ]
 
 
-def discover(layers: dict[str, Path]) -> list[build.SourceRecord]:
-    """Every photograph of every built subset, with the label map its vessels are drawn in."""
+def discover(
+    layers: dict[str, Path], subsets: tuple[str, ...] = SOURCES_BUILT
+) -> list[build.SourceRecord]:
+    """Every photograph of every built subset, with the label map its vessels are drawn in.
+
+    :param subsets: which of the archive's source collections to build.
+    """
     archive = layers[SLUG]
     held: dict[tuple[str, str, str], archives.Member] = {}
     for member in archives.members(archive, under=f"{ROOT}/"):
@@ -104,7 +112,7 @@ def discover(layers: dict[str, Path]) -> list[build.SourceRecord]:
         if len(parts) < 4 or JUNK in parts[-1]:
             continue
         subset, folder, name = parts[1], parts[2], parts[-1]
-        if subset not in SOURCES_BUILT:
+        if subset not in subsets:
             continue
         held[(subset, folder, Path(name).stem)] = member
 

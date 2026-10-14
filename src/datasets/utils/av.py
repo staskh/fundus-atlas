@@ -166,6 +166,42 @@ class Ink:
         return {name: _written(distance > self.threshold)}
 
 
+class Layers:
+    """An annotation drawn as one layer per class, each written into its own colour channel.
+
+    RAV's annotators coloured arteries and veins on separate layers, and an unknown vessel on a
+    third, and the file carries them as the red, blue and green channels. There is no palette to
+    read and no crossing colour: a pixel painted on both the artery and the vein layer is both
+    vessels, which is the store's rule for a crossing already.
+
+    :param artery: the channel holding the artery layer.
+    :param vein: the channel holding the vein layer.
+    :param uncertain: the channel holding vessels the annotator could not classify, if any. They
+        join `vessels` and neither class.
+    :param threshold: how bright a channel must be for its layer to count as painted.
+    """
+
+    def __init__(
+        self, artery: int, vein: int, uncertain: int | None = None, threshold: int = 127
+    ) -> None:
+        self.artery = artery
+        self.vein = vein
+        self.uncertain = uncertain
+        self.threshold = threshold
+
+    def masks(self, pixels: np.ndarray, name: str = "av") -> dict[str, np.ndarray]:
+        """The store's binary masks for one layered map."""
+        painted = pixels > self.threshold
+        artery = painted[..., self.artery]
+        vein = painted[..., self.vein]
+        unknown = painted[..., self.uncertain] if self.uncertain is not None else False
+        return {
+            "artery": _written(artery),
+            "vein": _written(vein),
+            "vessels": _written(artery | vein | unknown),
+        }
+
+
 def _named(colours: dict[tuple[int, int, int], str], wanted: str) -> tuple[int, int, int]:
     """The colour a palette gives one class, for the background it always declares."""
     for colour, name in colours.items():

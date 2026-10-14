@@ -18,7 +18,7 @@ from models.utils import catalogue
 from models.utils.outlines import Outlines
 from torch.utils.data import DataLoader
 
-from . import photographs, report, runs
+from . import contamination, photographs, report, runs
 from .loaders.av import ArteryVeinLoader
 from .loaders.base import CROPS, FLOOR, available, collate
 from .metrics import av as metrics
@@ -48,7 +48,7 @@ GOAL = (
 #: `fives` annotates vessels and neither class, so no model is scored on arteries or veins there
 #: and every model is scored on the vessel column — which is the only dataset here outside the six
 #: the vessel reference trained on.
-DATASETS = ("hrf", "fundus-avseg", "avrdb", "reyia", "fives", "rav", "les-av", "rite")
+DATASETS = ("hrf", "fundus-avseg", "avrdb", "reyia", "fives", "rav", "av-wide", "les-av", "rite")
 
 #: The models, by the slug of their catalogue page. `segan-vessel` answers about vessels alone and
 #: takes part as a reference for that column rather than as an entry in the class ones.
@@ -72,14 +72,6 @@ WHY_NOT = {
 
 #: Datasets worth fetching next, and what each would settle.
 WORTH_FETCHING = (
-    (
-        "rav",
-        (
-            "206 photographs no catalogued model names in training, from a population cohort with "
-            "quality mixed on purpose — the closest thing here to a held-out test set"
-        ),
-        "direct, but its host's bot gate refuses some networks",
-    ),
     (
         "les-av",
         "22 photographs, direct, and it completes the contamination picture for BF-Net",
@@ -168,6 +160,22 @@ DERIVED = {
     "avrdb": "**drawn, but not independent**: it agrees with the union to within 0.4–0.6%",
     "reyia": "derived here as the union; the archive publishes no separate tracing",
     "fives": "**its own tracing, and the only annotation it has**: no artery/vein labels at all",
+    "rav": "derived here as the union of the artery, vein and unknown layers; none published apart",
+    "av-wide": "derived here as the union; the archive publishes no separate tracing",
+}
+
+#: Datasets reported beside the pooled table rather than in it, and why. Both are held out of
+#: OCULARNet's training, which is what makes them worth reporting at all — and neither belongs in
+#: a pool every other figure is read against.
+APART = {
+    "rav": (
+        "in-sample for VascX, whose group annotated it, and held out of OCULARNet; its tracings "
+        "were seeded by a model before the annotators corrected them"
+    ),
+    "av-wide": (
+        "ultra-wide-field at 200°, a different instrument from every 30–45° camera in the pool, "
+        "and held out of OCULARNet"
+    ),
 }
 
 #: Datasets whose photographs appear in another dataset here, so that pooling a figure over both
@@ -688,7 +696,12 @@ COLUMNS = {
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
-    """This benchmark's entry in the index: one row per model, pooled, and where to start."""
+    """This benchmark's entry in the index: one row per model, pooled, and where to start.
+
+    The datasets in `APART` are left out of the pool and given a table of their own after it.
+    """
+    apart = [record for record in records if record["dataset"] in APART]
+    records = [record for record in records if record["dataset"] not in APART]
     pooled = _pooled(records)
     yield (
         f"Pooled over **{report.datasets_of(records)}**. **Dice** is overlap with what the "
@@ -741,6 +754,38 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
         yield left
         yield ""
     yield from _where_to_start(pooled)
+    yield from _held_apart(apart)
+
+
+def _held_apart(records: list[dict[str, object]]) -> Iterable[str]:
+    """The datasets kept out of the pool, one row per model and dataset, each with its reason."""
+    if not records:
+        return
+    yield ""
+    yield (
+        "**Held apart from the pool**, and reported here dataset by dataset rather than averaged "
+        "into it:"
+    )
+    yield ""
+    for dataset in sorted({str(record["dataset"]) for record in records}):
+        yield f"- [{dataset}]({photographs.page(dataset)}): {APART[dataset]}."
+    yield ""
+    yield (
+        "| Model | Dataset | Photographs | Artery Dice | Vein Dice | Vessels Dice | "
+        "Vessels clDice | Vessels Betti | Marked |"
+    )
+    yield "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
+    for record in sorted(records, key=lambda found: (found["dataset"], found["model"])):
+        model, dataset = str(record["model"]), str(record["dataset"])
+        found = _pooled([record])[model]
+        yield (
+            f"| [{model}](models/{model}.md) | {dataset} | {found['photographs']:,} | "
+            f"{report.number(found['artery_dice'])} | {report.number(found['vein_dice'])} | "
+            f"{report.number(found['vessels_dice'])} | "
+            f"{report.number(found['vessels_cldice'])} | "
+            f"{report.number(found['vessels_betti'], places=0)} | "
+            f"{contamination.mark(model, dataset)} |"
+        )
 
 
 def _pooled(records: list[dict[str, object]]) -> dict[str, dict[str, object]]:

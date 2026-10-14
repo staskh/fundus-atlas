@@ -16,20 +16,40 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 | Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.853 | 0.884 | 107 | 3.913 | mixed: in-sample, in-sample-unclear-split |
-| [lunet](models/lunet.md) | 1,602 | 0.778 | 0.804 | 0.838 | 0.864 | 67 | 20.152 | unknown |
-| [segan-vessel](models/segan-vessel.md) | 1,602 | — | — | 0.832 | 0.862 | 186 | 1.928 | mixed: in-sample-unclear-split, out-of-sample |
-| [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.804 | 0.829 | 172 | 19.945 | mixed: in-sample-unclear-split, out-of-sample |
-| [automorph-artery-vein](models/automorph-artery-vein.md) | 1,602 | 0.708 | 0.774 | 0.747 | 0.757 | 125 | 3.462 | mixed: in-sample-unclear-split, out-of-sample |
-| [bf-net](models/bf-net.md) | 1,602 | 0.491 | 0.601 | 0.614 | 0.625 | 167 | 0.459 | out-of-sample |
+| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.853 | 0.884 | 104 | 4.283 | mixed: in-sample, in-sample-unclear-split |
+| [lunet](models/lunet.md) | 1,602 | 0.778 | 0.804 | 0.838 | 0.864 | 67 | 26.653 | unknown |
+| [segan-vessel](models/segan-vessel.md) | 1,602 | — | — | 0.832 | 0.862 | 185 | 2.099 | mixed: in-sample-unclear-split, out-of-sample |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.803 | 0.828 | 168 | 21.112 | mixed: in-sample-unclear-split, out-of-sample |
+| [automorph-artery-vein](models/automorph-artery-vein.md) | 1,602 | 0.707 | 0.774 | 0.747 | 0.756 | 124 | 3.708 | mixed: in-sample-unclear-split, out-of-sample |
+| [bf-net](models/bf-net.md) | 1,602 | 0.492 | 0.600 | 0.616 | 0.626 | 167 | 0.610 | out-of-sample |
 
 **Where to start.**
 
 - **For arteries against veins**: **ocularnet** (artery 0.829, vein 0.853). **lunet** is 0.050 behind on the two together (artery 0.778, vein 0.804).
 - **For the vessel network itself**, which is what a connectedness measurement rests on: **ocularnet** (clDice 0.884, against 0.864 for lunet).
-- **For a network that will be measured rather than looked at**, where a broken branch is a branch nothing counts: **lunet** (67 unmatched features a photograph, against 107 for ocularnet).
+- **For a network that will be measured rather than looked at**, where a broken branch is a branch nothing counts: **lunet** (67 unmatched features a photograph, against 104 for ocularnet).
 
 **A vessel score is not a second opinion on a class score.** In most of these datasets the vessel annotation *is* the artery/vein annotation, so the two columns are one measurement seen twice — [what came out](benchmarks/av-results.md) says which, and holds the per-dataset detail these pooled figures hide.
+
+**Held apart from the pool**, and reported here dataset by dataset rather than averaged into it:
+
+- [av-wide](datasets/reyia.md): ultra-wide-field at 200°, a different instrument from every 30–45° camera in the pool, and held out of OCULARNet.
+- [rav](datasets/rav.md): in-sample for VascX, whose group annotated it, and held out of OCULARNet; its tracings were seeded by a model before the annotators corrected them.
+
+| Model | Dataset | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Marked |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [automorph-artery-vein](models/automorph-artery-vein.md) | av-wide | 26 | 0.474 | 0.579 | 0.560 | 0.572 | 1347 | out-of-sample |
+| [bf-net](models/bf-net.md) | av-wide | 26 | 0.192 | 0.340 | 0.345 | 0.342 | 1138 | out-of-sample |
+| [lunet](models/lunet.md) | av-wide | 26 | 0.685 | 0.707 | 0.748 | 0.729 | 1060 | unknown |
+| [ocularnet](models/ocularnet.md) | av-wide | 26 | 0.663 | 0.697 | 0.707 | 0.713 | 1208 | out-of-sample |
+| [segan-vessel](models/segan-vessel.md) | av-wide | 26 | — | — | 0.690 | 0.758 | 1186 | out-of-sample |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | av-wide | 26 | 0.552 | 0.587 | 0.603 | 0.590 | 1236 | out-of-sample |
+| [automorph-artery-vein](models/automorph-artery-vein.md) | rav | 206 | 0.736 | 0.783 | 0.813 | 0.830 | 137 | out-of-sample |
+| [bf-net](models/bf-net.md) | rav | 206 | 0.557 | 0.655 | 0.707 | 0.727 | 160 | out-of-sample |
+| [lunet](models/lunet.md) | rav | 206 | 0.751 | 0.779 | 0.837 | 0.873 | 62 | unknown |
+| [ocularnet](models/ocularnet.md) | rav | 206 | 0.800 | 0.827 | 0.844 | 0.877 | 125 | out-of-sample |
+| [segan-vessel](models/segan-vessel.md) | rav | 206 | — | — | 0.786 | 0.843 | 211 | out-of-sample |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | rav | 206 | 0.783 | 0.814 | 0.841 | 0.862 | 205 | in-sample-unclear-split |
 
 ## Biomarkers against arithmetic
 
@@ -103,4 +123,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-10-12
+**Generated:** 2026-10-14

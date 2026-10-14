@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from benchmarks import av, disc, docs, quality
+from benchmarks import av, disc, docs, photographs, quality
 
 BENCHMARKS = (disc, av, quality)
 
@@ -86,3 +86,10 @@ def test_the_committed_configuration_page_is_current(benchmark) -> None:
         f"{page} is stale — refresh it with "
         f"`python -m benchmarks --benchmark {benchmark.NAME} --docs`"
     )
+
+
+def test_a_store_catalogued_under_another_page_links_to_that_page() -> None:
+    """AV-WIDE is a layer of REYIA's page, not a page of its own."""
+    (entry,) = photographs.material(["av-wide"], [], {}, [], lambda found: {})["declared"]
+
+    assert entry["page"] == "../datasets/reyia.md"

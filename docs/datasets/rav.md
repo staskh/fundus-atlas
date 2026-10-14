@@ -30,13 +30,43 @@ repository's own metadata field says CC0-1.0 — public domain, no attribution, 
 clause. Nothing available settles which the depositors meant, so treat the **stricter** statement as
 binding: a non-commercial clause written by the authors is not waived by a metadata field.
 
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.rav                                        # downloads and builds the crop
+uv run python -m datasets.rav --archive ~/Downloads/doi-10.34894-9oimwy.zip   # the zip fetched by hand
+uv run python -m datasets.fetch_disc_estimation --dataset rav
+uv run python -m datasets.fetch_um_resolution --dataset rav
+```
+
+One zip of about 220 MB from DataverseNL, which builds it on request — so it carries no fixed
+checksum, and the manifest's per-image checksums are the record of what was built. **DataverseNL
+refuses automated requests from some networks**; where the download is refused, fetch the record's
+"Download all" zip in a browser and pass it with `--archive`. The archive is read where it lies.
+
+It builds all 206 photographs with three binary masks each — `artery`, `vein` and `vessels` — read
+from the layers the annotators painted: **red is the artery layer, blue the vein layer, green the
+unknown layer**, and a crossing is a pixel painted on both the artery and the vein layer. An unknown
+vessel is in `vessels` and in neither class. `vessels` is the union of the three layers; the archive
+publishes no independent vessel tracing.
+
+**The subset is the camera**, read from `metadata.csv` and written as lowercase words —
+`topcon_trc_50ex_dxc_950p` and eight more — because every photograph is a 1024×1024 rendition and the
+camera is the only thing left that tells two magnifications apart. The split is `unspecified`: the
+authors publish none. Two dataset-specific columns carry the participant: `patient_age`, in years
+when photographed, and `patient_sex`, `M` or `F`, as the metadata writes them. 201 of the 206
+photographs keep their frame, being already cropped square to the field; the other five are
+cropped to their detected field.
+
+The authors publish no scale. The two follow-on commands infer one per camera; see section 3.
+
 ## 3. The images
 
 | | |
 | --- | --- |
 | Resolution (pixels) | 1024×1024 — **the authors' rendition**, cropped to the circular field and resized, not a camera native |
-| Microns per pixel | Unknown — not published |
-| Camera | Rotterdam Study protocol devices; not stated per image |
+| Microns per pixel | Not published. **Inferred per camera**, each the median of every optic disc estimated with it ([evidence](../../results/um_resolution/rav.json)): TOPCON TRC-50EX **10.202 µm/px** (68 discs), 3D OCT-2000 **11.833** (60), 3D OCT-1000 Mark II **11.439** (27). The six other cameras hold 6 to 10 photographs each — too few discs for a median — and carry no scale, so 160 of the 206 photographs have one. Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale on the authors' rendition, not a per-eye calibration |
+| Camera | **Nine Topcon models, named per photograph** in `metadata.csv`: TRC-50EX + DXC-950P 71, 3D OCT-2000 FA Plus 61, 3D OCT-1000 Mark II 28, DRI OCT Triton plus – Fundus 10, 3D OCT-1000 8, DRI OCT Triton plus 8, TRC-50VT analog 7, TRC-50IX + D7100 7, TRC-50DX + D7100 6 |
 | Field of view | Not stated per image |
 | Centring | Mixed |
 | Modality | Colour fundus photography |
@@ -45,7 +75,7 @@ binding: a non-commercial clause written by the authors is not waived by a metad
 
 | Annotation | Readers | Drawn at | Notes |
 | --- | --- | --- | --- |
-| Artery/vein | EyeNED Reading Center | 1024×1024 | — |
+| Artery/vein | EyeNED Reading Center | 1024×1024 | **Three layers** — artery, vein, and vessels the grader could not classify — painted separately, so a crossing is on both the artery and the vein layer. **Not drawn from nothing**: per the README, graders started from a vessel segmentation model's output, corrected it, then coloured it and checked each tree's connectivity |
 | Quality | — | — | **Mixed on purpose** — the selection includes poor-quality photographs rather than excluding them, which is unusual and useful |
 
 ## 5. Inheritance
@@ -69,6 +99,13 @@ binding: a non-commercial clause written by the authors is not waived by a metad
 - **Contradictory licence statements** (section 2), unresolved.
 - The images are a pre-processed rendition, so a measurement in pixels is on the authors' grid, not
   the camera's.
+- **The annotation began as a model's output.** The README says the vessel tracing was a vessel
+  segmentation model's, "trained on publicly-available datasets", refined by hand before the arteries
+  and veins were coloured. Which model is not named; if it was VascX's own, a VascX score here is
+  measured against its own starting point. *Our reading of the README, not a stated fact.*
+- **Two camera names may be one camera.** `TOPCON DRI OCT Triton plus` (8) and `TOPCON DRI OCT
+  Triton plus - Fundus` (10) are kept as two subsets because the metadata writes them differently;
+  pooled, they would hold 18 photographs, enough for a scale. *Our observation; not established.*
 
 ## 8. Notes
 
@@ -78,4 +115,4 @@ binding: a non-commercial clause written by the authors is not waived by a metad
 
 ---
 
-**Links, licence and access last checked:** 2026-09-11
+**Links, licence and access last checked:** 2026-10-12

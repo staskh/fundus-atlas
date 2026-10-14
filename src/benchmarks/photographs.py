@@ -58,6 +58,15 @@ def subjects(
     }
 
 
+#: Stores whose catalogue page is not their slug: AV-WIDE is catalogued as a layer of REYIA.
+PAGES = {"av-wide": "reyia"}
+
+
+def page(slug: str) -> str:
+    """The catalogue page of a dataset's store, as a path from `docs/`."""
+    return f"datasets/{PAGES.get(slug, slug)}.md"
+
+
 def material(
     order: list[str],
     configured: list[dict[str, object]],
@@ -74,7 +83,7 @@ def material(
         "declared": [
             {
                 "slug": slug,
-                "page": f"../datasets/{slug}.md",
+                "page": f"../{page(slug)}",
                 "facts": facts(described[slug]) if slug in described else {},
                 "available": slug in described,
                 "why_not": missing.get(slug),
