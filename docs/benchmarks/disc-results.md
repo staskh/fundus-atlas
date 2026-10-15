@@ -15,6 +15,11 @@ not measured — ISFA publishes an ImageNet backbone rather than trained weights
 an unversioned Google Drive folder that nothing can pin. REFUGE, Drishti-GS, ORIGA and RIM-ONE DL are
 declared and not yet fetched.
 
+*Measured again on 2026-10-15 on GRAPE, whose store was rebuilt at builder version 7, and every
+figure on this page refreshed from the notebook. GRAPE's numbers moved by about a pixel and a
+hundredth of Dice. Some cells for Chákṣu and PAPILA had not been refreshed after the stores were
+rebuilt in October, and are corrected here: the "within 0.05" column of section 3 above all.*
+
 ## Contents
 
 1. [Summary](#1-summary)
@@ -76,10 +81,10 @@ structure *smaller* than the ophthalmologist did:
 
 | Model | Disc width | Disc height | Disc radius | Cup width | Cup height | Cup radius |
 | --- | --- | --- | --- | --- | --- | --- |
-| segformer-disc-cup | **+8.6** | **+2.2** | **+1.3** | −4.2 | −14.6 | −5.2 |
+| segformer-disc-cup | **+8.7** | **+2.2** | **+1.3** | −4.3 | −14.6 | −5.2 |
 | vascx-disc | −7.7 | −9.7 | −4.4 | — | — | — |
-| lunetv2-odc | −12.6 | −17.4 | −9.5 | −4.7 | −9.9 | −5.8 |
-| automorph-disc-cup | −10.3 | −7.7 | −12.6 | +1.2 | −15.4 | −7.0 |
+| lunetv2-odc | −12.6 | −17.3 | −9.5 | −4.6 | −9.8 | −5.8 |
+| automorph-disc-cup | −10.3 | −7.7 | −12.6 | +1.2 | −15.5 | −7.0 |
 
 Two things worth reading here. **Every model draws the cup short** — between 10 and 15 pixels less
 tall than the expert, consistently, all four — and a cup that is too short in a disc of about the
@@ -109,16 +114,16 @@ What each model drew:
 | Model | Dataset | Disc width | Disc height | Disc radius | Cup width | Cup height | Cup radius |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | vascx-disc | chaksu | 388 | 415 | 200.0 | — | — | — |
-| | grape | 239 | 283 | 130.0 | — | — | — |
+| | grape | 238 | 283 | 130.2 | — | — | — |
 | | papila | 446 | 472.5 | 228.7 | — | — | — |
 | segformer-disc-cup | chaksu | 406 | 426 | 207.2 | 191 | 187 | 93.5 |
-| | grape | 246 | 281 | 132.4 | 146 | 157 | 74.6 |
+| | grape | 248 | 283 | 132.6 | 145 | 158 | 74.6 |
 | | papila | 468 | 483 | 236.9 | 212 | 209 | 105.8 |
 | lunetv2-odc | chaksu | 378 | 407 | 195.0 | 197 | 200 | 96.9 |
-| | grape | 241 | 276 | 127.6 | 156 | 170 | 79.6 |
+| | grape | 242 | 275 | 128.4 | 156 | 169 | 79.6 |
 | | papila | 422.5 | 456.5 | 217.7 | 138 | 146 | 69.1 |
 | automorph-disc-cup | chaksu | 391 | 427 | 201.0 | 205 | 191 | 95.3 |
-| | grape | 240 | 276 | 128.9 | 139.5 | 157.5 | 74.1 |
+| | grape | 240 | 275.5 | 129.2 | 140 | 158 | 73.9 |
 | | papila | 410 | 416 | 194.6 | **234** | **224** | 110.5 |
 
 Read the bottom row against the readers' PAPILA line: where the ophthalmologists drew a cup of
@@ -145,14 +150,14 @@ another averages to nearly nothing. Per dataset, with the *absolute* error besid
 | Model | Dataset | Bias (signed) | Spread | Mean \|error\| | Within 0.05 of the expert |
 | --- | --- | --- | --- | --- | --- |
 | lunetv2-odc | chaksu | −0.005 | 0.081 | 0.061 | **0.522** |
-| | grape | +0.088 | 0.105 | 0.106 | 0.298 |
-| | papila | −0.034 | 0.065 | **0.054** | **0.529** |
-| segformer-disc-cup | chaksu | −0.062 | 0.079 | 0.077 | 0.396 |
-| | grape | +0.034 | 0.104 | 0.085 | 0.384 |
-| | papila | +0.083 | 0.098 | 0.102 | 0.272 |
-| automorph-disc-cup | chaksu | −0.061 | 0.094 | 0.083 | 0.372 |
-| | grape | +0.039 | 0.101 | 0.083 | 0.391 |
-| | papila | +0.166 | 0.143 | 0.189 | 0.078 |
+| | grape | +0.089 | 0.104 | 0.106 | 0.303 |
+| | papila | −0.034 | 0.065 | **0.054** | **0.552** |
+| segformer-disc-cup | chaksu | −0.062 | 0.079 | 0.077 | 0.397 |
+| | grape | +0.033 | 0.105 | 0.084 | 0.377 |
+| | papila | +0.083 | 0.098 | 0.102 | 0.300 |
+| automorph-disc-cup | chaksu | −0.061 | 0.094 | 0.083 | 0.389 |
+| | grape | +0.038 | 0.099 | 0.082 | 0.388 |
+| | papila | +0.166 | 0.143 | 0.189 | 0.101 |
 
 **The sign flips with the dataset for every model.** Each of the three reads the ratio low on Chákṣu
 and high on GRAPE. That is not a property anyone can correct for with a constant: a model calibrated
@@ -167,19 +172,19 @@ the ophthalmologist did not, or the reverse:
 | Model | Dataset | Model over 0.6, expert under | Model under 0.6, expert over | Experts over 0.6 |
 | --- | --- | --- | --- | --- |
 | lunetv2-odc | chaksu | 0.061 | 0.105 | 0.193 |
-| | grape | **0.263** | 0.022 | 0.301 |
+| | grape | **0.271** | 0.025 | 0.301 |
 | | papila | 0.011 | 0.017 | 0.077 |
 | segformer-disc-cup | chaksu | 0.007 | **0.164** | 0.193 |
-| | grape | 0.110 | 0.095 | 0.302 |
+| | grape | 0.110 | 0.087 | 0.302 |
 | | papila | 0.018 | 0.020 | 0.079 |
 | automorph-disc-cup | chaksu | 0.013 | 0.171 | 0.193 |
-| | grape | 0.120 | 0.069 | 0.302 |
+| | grape | 0.115 | 0.067 | 0.302 |
 | | papila | **0.177** | 0.012 | 0.072 |
 
 **This is the table to read before choosing.** The two failure directions are not symmetric and no
 model is good at both:
 
-- **LUNet v2 on GRAPE flags 26% of eyes over the threshold that the expert placed under it** — on a
+- **LUNet v2 on GRAPE flags 27% of eyes over the threshold that the expert placed under it** — on a
   glaucoma dataset where 30% genuinely are over. That is a lot of people sent forward.
 - **SegFormer and AutoMorph on Chákṣu miss about one in six of the eyes the expert placed over the
   threshold**, the opposite and more dangerous error.
@@ -191,9 +196,9 @@ model is good at both:
 | Model | Chákṣu disc / cup | GRAPE disc / cup | PAPILA disc / cup |
 | --- | --- | --- | --- |
 | vascx-disc | 0.954 / — | 0.921 / — | 0.951 / — |
-| segformer-disc-cup | **0.958** / 0.821 | 0.899 / 0.768 | 0.818 / 0.597 |
-| lunetv2-odc | 0.938 / **0.831** | **0.929** / 0.746 | **0.936** / 0.703 |
-| automorph-disc-cup | 0.895 / 0.753 | 0.907 / **0.772** | 0.554 / 0.396 |
+| segformer-disc-cup | **0.958** / 0.821 | 0.898 / 0.767 | 0.818 / 0.597 |
+| lunetv2-odc | 0.938 / **0.831** | **0.927** / 0.743 | **0.936** / 0.703 |
+| automorph-disc-cup | 0.895 / 0.753 | 0.907 / **0.773** | 0.554 / 0.396 |
 
 The three datasets are not three samples of one thing. [Chákṣu](../datasets/chaksu.md) is 1,345
 photographs from three cameras with five ophthalmologists each; [GRAPE](../datasets/grape.md) is 631
@@ -218,7 +223,7 @@ trusted on disc-centred photographs**, and AutoMorph's own pipeline has no check
 ### 4.2 Where each model is strongest is not the same dataset
 
 SegFormer has the best disc on Chákṣu and the third-best on PAPILA. LUNet v2 is the most even of the
-four — 0.929 to 0.938 on the disc across all three — while being beaten on Chákṣu by two models that
+four — 0.927 to 0.938 on the disc across all three — while being beaten on Chákṣu by two models that
 are worse elsewhere. A single pooled ranking hides this, which is why section 1 has one table and
 this section has another.
 
@@ -267,10 +272,11 @@ do.**
 the answer, below. **VascX disc**, if you need only the disc and can afford five times the compute.
 
 - **[LUNet v2](../models/lunetv2-odc.md)** has the best cup (0.810 pooled), the most even disc across
-  the three datasets (0.929 to 0.938), the smallest ratio bias (−0.001 pooled, and the only model
+  the three datasets (0.927 to 0.938), the smallest ratio bias (−0.001 pooled, and the only model
   inside the readers' own ratio disagreement on Chákṣu), and the most photographs within 0.05 of the
-  expert's ratio (0.52 on Chákṣu, 0.53 on PAPILA). It runs in **0.24 to 0.27 seconds per
-  photograph** on a CPU, the cheapest here. Two caveats: it is marked **`unknown`** — nothing
+  expert's ratio (0.52 on Chákṣu, 0.55 on PAPILA). It runs in **about a quarter of a second
+  per photograph** on a CPU, among the cheapest here — 0.24 to 0.26 on Chákṣu and PAPILA, though
+  its GRAPE re-measurement came out at 0.73 with nothing about the model changed. Two caveats: it is marked **`unknown`** — nothing
   published says what it trained on, so none of these datasets can be called clean for it — and its
   own project, [PVBM](../projects/pvbm.md), **never reads the cup channel these numbers come from**,
   so nobody has evidenced it before. Its licence is unstated and its ancestor is non-commercial.
@@ -278,7 +284,7 @@ the answer, below. **VascX disc**, if you need only the disc and can afford five
   steadiest: it never once drops below Dice 0.5 on more than 0.3% of outlines. **Its best dataset is
   one it trained on**: VascX's paper lists all 488 PAPILA photographs in its disc training, so its
   0.951 there is in-sample. On the two it never saw it is second — 0.954 on Chákṣu behind
-  SegFormer's 0.958, and 0.921 on GRAPE behind LUNet v2's 0.929. It finds **no cup**, so it cannot
+  SegFormer's 0.958, and 0.921 on GRAPE behind LUNet v2's 0.927. It finds **no cup**, so it cannot
   produce a cup-to-disc ratio at all, and it costs **1.2 to 1.3 seconds per photograph on an Apple
   GPU** against a quarter of a second for the other three.
 - **[SegFormer](../models/segformer-disc-cup.md)** is the close second for a full disc-and-cup
@@ -300,7 +306,8 @@ a fifth of the cost.
 All timings were measured on one Apple laptop (`mps` for three models, `cpu` for the ONNX file) and
 measure that machine as much as the model. One figure on this page was first recorded at 5.9 seconds
 per photograph and re-measured at 1.3 on an idle machine, with the scores identical to four decimal
-places; treat the seconds as an order of magnitude, not a specification.
+places, and LUNet v2's GRAPE figure nearly tripled between two runs of the same file; treat the seconds as
+an order of magnitude, not a specification.
 
 ## 7. What these numbers do not say
 
@@ -328,5 +335,5 @@ places; treat the seconds as an order of magnitude, not a specification.
 
 ---
 
-**Compiled from `notebooks/disc.ipynb` on:** 2026-09-17 · **Measured by**
+**Compiled from `notebooks/disc.ipynb` on:** 2026-10-15 · **Measured by**
 `python -m benchmarks --benchmark disc`

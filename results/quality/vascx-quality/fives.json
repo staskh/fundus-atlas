@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fives",
-  "fingerprint": "77c3331b0c655400526fdbe7fbb2e6f49623bc96b3bfefe836918246ba301724",
+  "fingerprint": "215739165da36cc6dce37d0510241b286376d46203013e261d87f15758ef0d61",
   "model": "vascx-quality",
   "summary": {
     "complete": true,
@@ -12,12 +12,12 @@
     "failed": 0,
     "gate": null,
     "gradeable": {
-      "accuracy": 0.9375,
-      "discarded_of_not_worth": 0.7530864197530864,
-      "kappa": 0.6744208761334223,
-      "kept_of_worth_measuring": 0.9582753824756607,
+      "accuracy": 0.935,
+      "discarded_of_not_worth": 0.7777777777777778,
+      "kappa": 0.6716290671423835,
+      "kept_of_worth_measuring": 0.952712100139082,
       "photographs": 800,
-      "roc_auc": 0.9681141503116468
+      "roc_auc": 0.9678222496952215
     },
     "graded": 800,
     "photographs": 800,
@@ -27,34 +27,36 @@
       "usable",
       "bad"
     ],
+    "seconds_per_photograph": 0.06814481938849297,
     "three_class": {
-      "accuracy": 0.765,
+      "accuracy": 0.7675,
       "confusion": {
         "bad": {
-          "bad": 61,
+          "bad": 63,
           "good": 0,
-          "usable": 20
+          "usable": 18
         },
         "good": {
           "bad": 5,
-          "good": 469,
-          "usable": 118
+          "good": 474,
+          "usable": 113
         },
         "usable": {
-          "bad": 25,
-          "good": 20,
-          "usable": 82
+          "bad": 29,
+          "good": 21,
+          "usable": 77
         }
       },
-      "kappa_quadratic": 0.7273539228129554,
+      "kappa_quadratic": 0.7343220254971549,
       "photographs": 800,
       "recall": {
-        "bad": 0.7530864197530864,
-        "good": 0.7922297297297297,
-        "usable": 0.6456692913385826
+        "bad": 0.7777777777777778,
+        "good": 0.8006756756756757,
+        "usable": 0.6062992125984252
       },
       "unused_by_the_reference": []
     },
+    "timed_photographs": 792,
     "total": 800
   }
 }

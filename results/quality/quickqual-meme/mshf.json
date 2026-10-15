@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "mshf",
-  "fingerprint": "af68d4a36c87c4d33140339af014ad19db298509a47da05b18222bf786022878",
+  "fingerprint": "ce668a2aec9e1b6a6929caf94049cd2359fb1ae51790bc57ade8f42890ab32df",
   "model": "quickqual-meme",
   "summary": {
     "complete": true,
@@ -17,17 +17,17 @@
       "accuracy": 0.4523809523809524,
       "carried": 546,
       "carried_share": 1.0,
-      "differs_from_the_verdict": 362,
+      "differs_from_the_verdict": 363,
       "kappa": 0.0,
       "photographs": 546
     },
     "gradeable": {
-      "accuracy": 0.8333333333333334,
+      "accuracy": 0.8315018315018315,
       "discarded_of_not_worth": 0.9531772575250836,
-      "kappa": 0.6559855985598559,
-      "kept_of_worth_measuring": 0.6882591093117408,
+      "kappa": 0.6520799567801189,
+      "kept_of_worth_measuring": 0.6842105263157895,
       "photographs": 546,
-      "roc_auc": 0.9565691305701868
+      "roc_auc": 0.9565826709815445
     },
     "graded": 546,
     "photographs": 546,
@@ -36,7 +36,9 @@
       "good",
       "bad"
     ],
+    "seconds_per_photograph": 0.051664069866619616,
     "three_class": null,
+    "timed_photographs": 538,
     "total": 546
   }
 }

@@ -80,10 +80,10 @@ Pooled over **chaksu, grape, papila**, one comparison per reader. **Dice** is ov
 
 | Model | Photographs | Outlines | Disc Dice | Cup Dice | Ratio error | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [vascx-disc](models/vascx-disc.md) | 2,464 | 8,332 | 0.951 | — | — | 1.230 | mixed: in-sample-unclear-split, out-of-sample |
-| [segformer-disc-cup](models/segformer-disc-cup.md) | 2,464 | 8,332 | 0.937 | 0.791 | -0.039 | 0.307 | out-of-sample |
-| [lunetv2-odc](models/lunetv2-odc.md) | 2,464 | 8,332 | 0.937 | 0.810 | -0.001 | 0.254 | unknown |
-| [automorph-disc-cup](models/automorph-disc-cup.md) | 2,464 | 8,332 | 0.856 | 0.712 | -0.031 | 0.448 | out-of-sample |
+| [vascx-disc](models/vascx-disc.md) | 2,464 | 8,332 | 0.951 | — | — | 1.262 | mixed: in-sample-unclear-split, out-of-sample |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | 2,464 | 8,332 | 0.937 | 0.791 | -0.039 | 0.235 | out-of-sample |
+| [lunetv2-odc](models/lunetv2-odc.md) | 2,464 | 8,332 | 0.937 | 0.810 | -0.001 | 0.407 | unknown |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | 2,464 | 8,332 | 0.856 | 0.712 | -0.031 | 0.254 | out-of-sample |
 
 **Where to start.**
 
@@ -107,16 +107,16 @@ Each figure is computed over all those photographs **at once** rather than avera
 
 | Model | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | PAPILA kept | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [quickqual](models/quickqual.md) | 3,591 | 1.000 | 0.843 | 0.671 | 0.932 | 0.424 | — | out-of-sample |
-| [vascx-quality](models/vascx-quality.md) | 3,591 | 1.000 | 0.854 | 0.666 | 0.942 | 0.555 | — | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | 3,591 | 1.000 | 0.840 | 0.648 | 0.925 | 0.391 | — | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | 3,591 | 1.000 | 0.775 | 0.555 | 0.915 | 0.527 | — | out-of-sample |
-| [fit-quality](models/fit-quality.md) | 3,591 | 1.000 | 0.737 | 0.503 | 0.940 | 0.279 | — | out-of-sample |
+| [quickqual](models/quickqual.md) | 3,591 | 1.000 | 0.847 | 0.679 | 0.934 | 0.424 | 0.040 | out-of-sample |
+| [vascx-quality](models/vascx-quality.md) | 3,591 | 1.000 | 0.852 | 0.663 | 0.941 | 0.555 | 0.066 | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | 3,591 | 1.000 | 0.840 | 0.646 | 0.924 | 0.391 | 0.776 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | 3,591 | 1.000 | 0.769 | 0.546 | 0.914 | 0.527 | 0.042 | out-of-sample |
+| [fit-quality](models/fit-quality.md) | 3,591 | 1.000 | 0.739 | 0.506 | 0.940 | 0.279 | 1.047 | out-of-sample |
 
 **Where to start.**
 
-- **As it ships**, agreeing with the readers at its own published threshold: **quickqual** (κ 0.671). **vascx-quality** is 0.004 behind (κ 0.666), which is close enough that the choice is about which mistake you would rather make.
-- **At ordering photographs**, which is what matters if you will set your own threshold rather than take the one it ships with: **vascx-quality** (ROC AUC 0.942), with **fit-quality** at 0.940 — too close to order by.
+- **As it ships**, agreeing with the readers at its own published threshold: **quickqual** (κ 0.679). **vascx-quality** is 0.016 behind (κ 0.663), which is close enough that the choice is about which mistake you would rather make.
+- **At ordering photographs**, which is what matters if you will set your own threshold rather than take the one it ships with: **vascx-quality** (ROC AUC 0.941), with **fit-quality** at 0.940 — too close to order by.
 - **Those are different models, and that is the finding.** vascx-quality separates good photographs from bad ones better than anything else here and then gates in the wrong place: it keeps 96% of the photographs the readers called worth measuring.
 
 Read [what came out](benchmarks/quality-results.md) before acting on this: coverage, contamination and the threshold each model happens to ship with all differ, and the caveats are there rather than here.

@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fives",
-  "fingerprint": "aef45d4e7887c5ed8f773ba329b7663ce63a213a7356ace76779872eb0782475",
+  "fingerprint": "7e9892e4b0a5fd9d39daa67a573346d042b6334b5748a278f25221cc005c86b3",
   "model": "automorph-quality-grader",
   "summary": {
     "complete": true,
@@ -11,20 +11,20 @@
     "excluded": {},
     "failed": 0,
     "gate": {
-      "accuracy": 0.77375,
-      "carried": 538,
-      "carried_share": 0.6725,
-      "differs_from_the_verdict": 71,
-      "kappa": 0.3757436755246685,
+      "accuracy": 0.77,
+      "carried": 535,
+      "carried_share": 0.66875,
+      "differs_from_the_verdict": 75,
+      "kappa": 0.37059049899516816,
       "photographs": 800
     },
     "gradeable": {
-      "accuracy": 0.8525,
+      "accuracy": 0.85375,
       "discarded_of_not_worth": 0.9506172839506173,
-      "kappa": 0.494262233603703,
-      "kept_of_worth_measuring": 0.8414464534075105,
+      "kappa": 0.49682829803246953,
+      "kept_of_worth_measuring": 0.8428372739916551,
       "photographs": 800,
-      "roc_auc": 0.9725270008070194
+      "roc_auc": 0.9722866120640807
     },
     "graded": 800,
     "photographs": 800,
@@ -34,8 +34,9 @@
       "usable",
       "bad"
     ],
+    "seconds_per_photograph": 0.7294863706302942,
     "three_class": {
-      "accuracy": 0.6325,
+      "accuracy": 0.61875,
       "confusion": {
         "bad": {
           "bad": 77,
@@ -43,25 +44,26 @@
           "usable": 4
         },
         "good": {
-          "bad": 34,
-          "good": 385,
-          "usable": 173
+          "bad": 33,
+          "good": 373,
+          "usable": 186
         },
         "usable": {
           "bad": 80,
-          "good": 3,
-          "usable": 44
+          "good": 2,
+          "usable": 45
         }
       },
-      "kappa_quadratic": 0.6041316262342771,
+      "kappa_quadratic": 0.5966705352351716,
       "photographs": 800,
       "recall": {
         "bad": 0.9506172839506173,
-        "good": 0.6503378378378378,
-        "usable": 0.3464566929133858
+        "good": 0.6300675675675675,
+        "usable": 0.3543307086614173
       },
       "unused_by_the_reference": []
     },
+    "timed_photographs": 792,
     "total": 800
   }
 }

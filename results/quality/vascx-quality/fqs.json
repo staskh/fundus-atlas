@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fqs",
-  "fingerprint": "a00c77df9bd2abfd89a7c852720e96a83de508aea66fce76b9d19810d677b964",
+  "fingerprint": "2e389507c08717979ea0a083e8bd1568f8c3e2d7417bd189647f806f2c21f7c0",
   "model": "vascx-quality",
   "summary": {
     "complete": true,
@@ -12,12 +12,12 @@
     "failed": 0,
     "gate": null,
     "gradeable": {
-      "accuracy": 0.8075723830734967,
-      "discarded_of_not_worth": 0.582089552238806,
-      "kappa": 0.582333495833843,
-      "kept_of_worth_measuring": 0.9693955623565417,
+      "accuracy": 0.8057906458797327,
+      "discarded_of_not_worth": 0.5767590618336887,
+      "kappa": 0.5780639098554635,
+      "kept_of_worth_measuring": 0.9701606732976281,
       "photographs": 2245,
-      "roc_auc": 0.9277031336921252
+      "roc_auc": 0.9278997133688862
     },
     "graded": 2245,
     "photographs": 2245,
@@ -27,34 +27,36 @@
       "usable",
       "bad"
     ],
+    "seconds_per_photograph": 0.06662635750925792,
     "three_class": {
       "accuracy": 0.6472160356347438,
       "confusion": {
         "bad": {
-          "bad": 546,
-          "good": 34,
-          "usable": 358
+          "bad": 541,
+          "good": 33,
+          "usable": 364
         },
         "good": {
           "bad": 1,
-          "good": 451,
-          "usable": 62
+          "good": 454,
+          "usable": 59
         },
         "usable": {
-          "bad": 39,
-          "good": 298,
-          "usable": 456
+          "bad": 38,
+          "good": 297,
+          "usable": 458
         }
       },
-      "kappa_quadratic": 0.6901995799822189,
+      "kappa_quadratic": 0.690984265837628,
       "photographs": 2245,
       "recall": {
-        "bad": 0.582089552238806,
-        "good": 0.877431906614786,
-        "usable": 0.575031525851198
+        "bad": 0.5767590618336887,
+        "good": 0.8832684824902723,
+        "usable": 0.5775535939470365
       },
       "unused_by_the_reference": []
     },
+    "timed_photographs": 2237,
     "total": 2245
   }
 }

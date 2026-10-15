@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "mshf",
-  "fingerprint": "44ee774289c859ef3b8cb0eaeb2aa096e26c56a4164c97f565cb6ae67ecd15d6",
+  "fingerprint": "8b56b7bb975ab4c259bce6077d5d0ed3bf2777e67968de1ac13a39f308e1a1c3",
   "model": "vascx-quality",
   "summary": {
     "complete": true,
@@ -29,6 +29,7 @@
       "good",
       "bad"
     ],
+    "seconds_per_photograph": 0.06362049682818866,
     "three_class": {
       "accuracy": 0.8058608058608059,
       "confusion": {
@@ -59,6 +60,7 @@
         "usable"
       ]
     },
+    "timed_photographs": 538,
     "total": 546
   }
 }
