@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "mshf",
-  "fingerprint": "89dccecf344714125025537db9a96fdc718cb7aed3536660f2006f69ede521ed",
+  "fingerprint": "4f960ee032e6635687bf9c7db49278a8e97aca9415b7fca0571e7da80a7e86e4",
   "model": "quickqual",
   "summary": {
     "complete": true,
@@ -20,7 +20,7 @@
       "kappa": 0.8430884184308842,
       "kept_of_worth_measuring": 0.854251012145749,
       "photographs": 546,
-      "roc_auc": 0.9853154238825776
+      "roc_auc": 0.9853695855280084
     },
     "graded": 546,
     "photographs": 546,
@@ -29,6 +29,7 @@
       "good",
       "bad"
     ],
+    "seconds_per_photograph": 0.04003143803862211,
     "three_class": {
       "accuracy": 0.8461538461538461,
       "confusion": {
@@ -59,6 +60,7 @@
         "usable"
       ]
     },
+    "timed_photographs": 538,
     "total": 546
   }
 }

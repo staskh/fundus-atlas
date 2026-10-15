@@ -9,6 +9,12 @@ separate page: [quality-docs.md](quality-docs.md).
 **5 of 5 declared models** and **4 of 6 declared datasets** took part. EyeQ and DRIMDB are declared
 and not yet fetched.
 
+*Measured again on 2026-10-15 on FIVES, FQS and MSHF, whose stores were rebuilt at builder version
+7, and every figure on this page refreshed from the notebook. Most moved by a hundredth or less;
+QuickQual's κ on FIVES rose from 0.471 to 0.500, which widens its pooled lead over VascX from five
+thousandths to sixteen. Two statements that did not match the notebook before this run are
+corrected where they stand (sections 4.3 and 4.4).*
+
 ## Contents
 
 1. [Summary](#1-summary)
@@ -29,11 +35,11 @@ right about and what a model does with it is a keep-rate, not an accuracy.
 
 | Model | Coverage | Accuracy | Cohen's κ | PAPILA kept | Marked |
 | --- | --- | --- | --- | --- | --- |
-| [quickqual](../models/quickqual.md) | 1.000 | 0.843 | **0.671** | 0.424 | out-of-sample |
-| [vascx-quality](../models/vascx-quality.md) | 1.000 | **0.854** | 0.666 | 0.555 | out-of-sample |
-| [automorph-quality-grader](../models/automorph-quality-grader.md) | 1.000 | 0.840 | 0.648 | 0.391 | out-of-sample |
-| [quickqual-meme](../models/quickqual-meme.md) | 1.000 | 0.775 | 0.555 | 0.527 | out-of-sample |
-| [fit-quality](../models/fit-quality.md) | 1.000 | 0.737 | 0.503 | 0.279 | out-of-sample |
+| [quickqual](../models/quickqual.md) | 1.000 | 0.847 | **0.679** | 0.424 | out-of-sample |
+| [vascx-quality](../models/vascx-quality.md) | 1.000 | **0.852** | 0.663 | 0.555 | out-of-sample |
+| [automorph-quality-grader](../models/automorph-quality-grader.md) | 1.000 | 0.840 | 0.646 | 0.391 | out-of-sample |
+| [quickqual-meme](../models/quickqual-meme.md) | 1.000 | 0.769 | 0.546 | 0.527 | out-of-sample |
+| [fit-quality](../models/fit-quality.md) | 1.000 | 0.739 | 0.506 | 0.279 | out-of-sample |
 
 **Accuracy and κ are read together.** Accuracy flatters a model on a dataset where one class
 dominates — a grader that keeps everything scores well on a collection that is mostly gradeable
@@ -54,11 +60,11 @@ Pooled over the three graded datasets:
 
 | Model | Of the photographs readers called worth measuring, kept | Of the rest, discarded |
 | --- | --- | --- |
-| vascx-quality | **0.960** | 0.670 |
-| automorph-quality-grader | 0.908 | 0.723 |
-| quickqual | 0.841 | 0.847 |
-| quickqual-meme | 0.697 | 0.908 |
-| fit-quality | 0.601 | **0.971** |
+| vascx-quality | **0.959** | 0.668 |
+| automorph-quality-grader | 0.908 | 0.722 |
+| quickqual | 0.846 | 0.848 |
+| quickqual-meme | 0.688 | 0.910 |
+| fit-quality | 0.604 | **0.972** |
 
 Read the two columns against each other. **VascX keeps almost every usable photograph and lets a
 third of the unusable ones through. The Fundus Image Toolbox ensemble does the reverse: it lets
@@ -73,11 +79,11 @@ accuracy column, which is why this section comes before the per-dataset detail.
 | Model | FIVES | FQS | MSHF | PAPILA |
 | --- | --- | --- | --- | --- |
 | | acc / κ | acc / κ | acc / κ | kept |
-| quickqual | 0.842 / 0.471 | 0.824 / 0.639 | 0.923 / 0.843 | 0.424 |
-| vascx-quality | 0.938 / 0.674 | 0.808 / 0.582 | 0.919 / 0.837 | 0.555 |
-| automorph-quality-grader | 0.852 / 0.494 | 0.816 / 0.605 | 0.921 / 0.839 | 0.391 |
-| quickqual-meme | 0.725 / 0.315 | 0.778 / 0.563 | 0.833 / 0.656 | 0.527 |
-| fit-quality | 0.570 / 0.181 | 0.792 / 0.595 | 0.756 / 0.484 | 0.279 |
+| quickqual | 0.859 / 0.500 | 0.824 / 0.640 | 0.923 / 0.843 | 0.424 |
+| vascx-quality | 0.935 / 0.672 | 0.806 / 0.578 | 0.919 / 0.837 | 0.555 |
+| automorph-quality-grader | 0.854 / 0.497 | 0.815 / 0.602 | 0.921 / 0.839 | 0.391 |
+| quickqual-meme | 0.715 / 0.304 | 0.773 / 0.554 | 0.832 / 0.652 | 0.527 |
+| fit-quality | 0.576 / 0.185 | 0.793 / 0.598 | 0.756 / 0.484 | 0.279 |
 
 No model has seen any of these four datasets in training, so far as their pages state. VascX's
 quality model is among them: its paper names EyeQ as its only training set, which matches what its
@@ -85,15 +91,16 @@ own checkpoint names.
 
 ### 3.1 By camera and split
 
-MSHF is two cameras, and they are not interchangeable — 245 tabletop photographs and 301 from a
-handheld. Accuracy and κ per camera:
+MSHF is two kinds of camera, and they are not interchangeable — 245 tabletop photographs and 301
+from handhelds, which the store keeps as two subsets, `local1` and `local2`, after the two folders
+the deposit publishes them in; they are read together here. Accuracy and κ per kind of camera:
 
 | Model | tabletop (cfp) | handheld (portable) | κ lost to the handheld |
 | --- | --- | --- | --- |
-| vascx-quality | 0.959 / κ 0.905 | 0.887 / κ 0.711 | 0.194 |
+| vascx-quality | 0.959 / κ 0.905 | 0.887 / κ 0.711 | 0.195 |
 | automorph-quality-grader | 0.955 / κ 0.901 | 0.894 / κ 0.708 | 0.193 |
-| quickqual | 0.943 / κ 0.876 | 0.907 / κ 0.750 | 0.126 |
-| quickqual-meme | 0.751 / κ 0.528 | 0.900 / κ 0.749 | **−0.221** |
+| quickqual | 0.943 / κ 0.876 | 0.907 / κ 0.750 | 0.125 |
+| quickqual-meme | 0.747 / κ 0.521 | 0.900 / κ 0.749 | **−0.228** |
 | fit-quality | 0.722 / κ 0.483 | 0.784 / κ 0.286 | 0.197 |
 
 Three of the five lose about 0.19 of κ on the handheld camera, which is the largest single effect
@@ -101,8 +108,8 @@ in this benchmark and is invisible in MSHF's dataset-level row. **QuickQual-MEME
 way**, scoring markedly better on the handheld group than on the tabletop one — the only model that
 does, and not something this benchmark can explain.
 
-FIVES's own train and test halves agree closely for every model — within 0.05 of accuracy and 0.06
-of κ — so its split is not doing any work here. FQS publishes no split.
+FIVES's own train and test halves agree closely for every model — within about 0.05 of accuracy and
+0.04 of κ — so its split is not doing any work here. FQS publishes no split.
 
 ## 4. What the analysis found
 
@@ -116,22 +123,22 @@ model reacts to**. The share each model keeps, by what is wrong with the photogr
 
 | illumination & contrast | blur | low contrast | photographs | vascx | automorph | quickqual | meme | toolbox |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| sound | sound | sound | 592 | 0.992 | 0.943 | 0.927 | 0.792 | 0.628 |
-| **bad** | sound | sound | 76 | 0.961 | 0.421 | 0.513 | 0.395 | 0.039 |
-| sound | **bad** | sound | 51 | 0.569 | 0.294 | 0.196 | 0.000 | 0.000 |
-| bad | bad | sound | 46 | 0.435 | 0.087 | 0.109 | 0.000 | 0.000 |
+| sound | sound | sound | 592 | 0.992 | 0.944 | 0.938 | 0.782 | 0.637 |
+| **bad** | sound | sound | 76 | 0.921 | 0.421 | 0.592 | 0.368 | 0.039 |
+| sound | **bad** | sound | 51 | 0.549 | 0.294 | 0.235 | 0.000 | 0.000 |
+| bad | bad | sound | 46 | 0.391 | 0.087 | 0.130 | 0.000 | 0.000 |
 | two or three defects | | | 35 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |
 
 Every model treats blur as more disqualifying than poor illumination, and every model discards
 everything with two defects. They differ on the single-defect photographs, which is where a gate
-earns its keep: VascX keeps 96% of the badly-illuminated ones, the toolbox ensemble keeps 4%.
+earns its keep: VascX keeps 92% of the badly-illuminated ones, the toolbox ensemble keeps 4%.
 
 ### 4.2 Models that learned from the same labels agree with each other
 
 QuickQual, QuickQual-MEME and the AutoMorph grader were all fitted on EyeQ's labels. On the graded
-datasets, AutoMorph's grader and VascX agree on **0.917** of photographs and QuickQual on 0.859,
-while the toolbox ensemble — trained on DeepDRiD and DRIMDB instead — sits apart from everything at
-0.653 to 0.833. Agreement among models fitted on one set of labels is not independent evidence.
+datasets, AutoMorph's grader and VascX agree on **0.919** of photographs and AutoMorph's grader and
+QuickQual on 0.862, while the toolbox ensemble — trained on DeepDRiD and DRIMDB instead — sits apart
+from everything at 0.654 to 0.835. Agreement among models fitted on one set of labels is not independent evidence.
 
 On PAPILA the whole matrix flattens to 0.70–0.87 and the toolbox ensemble moves **towards** the
 others. Where there is no quality to judge, what separates these models disappears.
@@ -139,8 +146,11 @@ others. Where there is no quality to judge, what separates these models disappea
 ### 4.3 Models fail where the readers failed
 
 MSHF and FQS kept their readers apart, so the photographs the readers themselves disagreed about
-can be separated from the ones they were sure of. Every model is right 0.87 to 0.95 of the time
-where three readers agreed, and 0.36 to 0.57 of the time where they did not.
+can be separated from the ones they were sure of. Where all three readers agreed, every model is
+right 0.87 to 0.92 of the time on FQS and 0.78 to 0.95 on MSHF; where they did not, 0.67 to 0.76
+on FQS and 0.36 to 0.57 on MSHF. *This page said 0.87 to 0.95 and 0.36 to 0.57 for both datasets
+together, which covered neither the toolbox ensemble on MSHF (0.778) nor any model on FQS's
+unsettled photographs.*
 
 That matters for how a score is read: a model marked wrong on a photograph its own readers could
 not settle is in different trouble from one marked wrong on an easy photograph.
@@ -151,8 +161,8 @@ not settle is in different trouble from one marked wrong on an easy photograph.
 worth. On the two-class question this benchmark asks, FQS's three graders agree with each other at
 **κ 0.486 – 0.626**, and MSHF's three annotators at **κ 0.857 – 0.877**.
 
-Against those bands: on FQS three of the five models sit inside the human range and QuickQual
-(0.639) sits above the best human pair — matching a committee whose members disagree with each
+Against those bands: on FQS four of the five models sit inside the human range and QuickQual
+(0.640) sits above the best human pair — matching a committee whose members disagree with each
 other more than the model disagrees with their vote. On MSHF **no model has reached the human
 floor** (best 0.843 against 0.857), so there is real room there and none on FQS.
 
@@ -171,16 +181,16 @@ the 3,591 photographs pooled:
 
 | Model | Averaged per dataset | Pooled over all three | Lost |
 | --- | --- | --- | --- |
-| automorph-quality-grader | 0.962 | 0.925 | **0.037** |
-| fit-quality | 0.964 | 0.940 | 0.024 |
-| quickqual | 0.954 | 0.932 | 0.022 |
-| quickqual-meme | 0.937 | 0.915 | 0.022 |
-| vascx-quality | 0.954 | **0.942** | **0.012** |
+| automorph-quality-grader | 0.962 | 0.924 | **0.038** |
+| fit-quality | 0.965 | 0.940 | 0.025 |
+| quickqual | 0.955 | 0.934 | 0.021 |
+| quickqual-meme | 0.937 | 0.914 | 0.023 |
+| vascx-quality | 0.954 | **0.941** | **0.013** |
 
 The pooled figure is the harder and more useful test: it asks whether a confidence of 0.6 means the
 same thing on FIVES as on MSHF. For every model it does not, and the ordering changes — averaged per
-dataset, **fit-quality** ranks best; pooled, **vascx-quality** does, with fit-quality two
-thousandths behind and the two indistinguishable.
+dataset, **fit-quality** ranks best; pooled, **vascx-quality** does, with fit-quality one
+thousandth behind and the two indistinguishable.
 
 That is the same fact as section 2 seen from another angle. A model whose scores shift between
 collections cannot carry one threshold across them, which is exactly why fit-quality's published
@@ -191,19 +201,20 @@ numbers are above, and neither model is clearly ahead of the other at it.
 
 ## 5. Which model to use
 
-**QuickQual**, for a general-purpose gate — and **VascX quality** is within a hundredth of it, so
-the choice between them is about which mistake you would rather make than about which is better.
+**QuickQual**, for a general-purpose gate — and **VascX quality** is within two hundredths of it on
+κ and ahead of it on accuracy, so the choice between them is about which mistake you would rather
+make than about which is better.
 
-- **QuickQual** has the highest agreement beyond chance (κ 0.671) and is the only model here that is
-  close to balanced: it keeps 0.841 of the usable photographs and discards 0.847 of the unusable.
-  It is `out-of-sample` on all four datasets, it is small and fast, and its licence is **not
-  stated** — which is the reason to check before shipping it, not a reason against measuring it.
-- **VascX quality** has the highest accuracy (0.854) and κ 0.666, five thousandths behind. It keeps
-  0.960 of usable photographs, so it is the choice where losing a photograph costs more than
+- **QuickQual** has the highest agreement beyond chance (κ 0.679) and is the only model here that is
+  close to balanced: it keeps 0.846 of the usable photographs and discards 0.848 of the unusable.
+  It is `out-of-sample` on all four datasets, it is small and fast — 0.04 seconds a photograph on
+  Apple MPS — and its licence is **not stated** — which is the reason to check before shipping it, not a reason against measuring it.
+- **VascX quality** has the highest accuracy (0.852) and κ 0.663, 0.016 behind. It keeps
+  0.959 of usable photographs, at 0.07 seconds a photograph, so it is the choice where losing a photograph costs more than
   measuring a bad one. It is `out-of-sample` here — its paper names EyeQ alone — so its lead is a
   clean one. The caveat is its licence: its weights are AGPL-3.0.
-- **AutoMorph's grader** is a close third (κ 0.648) and behaves like VascX, keeping 0.908 and
-  discarding 0.723. If you are already running AutoMorph, there is no measured reason here to
+- **AutoMorph's grader** is a close third (κ 0.646) and behaves like VascX, keeping 0.908 and
+  discarding 0.722. If you are already running AutoMorph, there is no measured reason here to
   replace it.
 - **The toolbox ensemble** should not be used at its published threshold: it discards two usable
   photographs in five. It ranks photographs about as well as anything here — its area under the ROC
@@ -234,5 +245,5 @@ disc-centred photographs should read section 4.5 first, where every model discar
 
 ---
 
-**Compiled from `notebooks/quality.ipynb` on:** 2026-09-16 · **Measured by**
+**Compiled from `notebooks/quality.ipynb` on:** 2026-10-15 · **Measured by**
 `python -m benchmarks --benchmark quality`

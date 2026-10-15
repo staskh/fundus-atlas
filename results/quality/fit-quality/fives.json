@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fives",
-  "fingerprint": "c51796b3046d3b54d0dd558ffb65af34dab8a8830461c3eb7866f046df693a93",
+  "fingerprint": "b1ff3370ddfdf46d14648a2ccfcd03eab23567d3ef68289f271b5fc482c500b9",
   "model": "fit-quality",
   "summary": {
     "complete": true,
@@ -11,20 +11,20 @@
     "excluded": {},
     "failed": 0,
     "gate": {
-      "accuracy": 0.57,
-      "carried": 375,
-      "carried_share": 0.46875,
+      "accuracy": 0.57625,
+      "carried": 380,
+      "carried_share": 0.475,
       "differs_from_the_verdict": 0,
-      "kappa": 0.1808304807262986,
+      "kappa": 0.1849981968986658,
       "photographs": 800
     },
     "gradeable": {
-      "accuracy": 0.57,
+      "accuracy": 0.57625,
       "discarded_of_not_worth": 1.0,
-      "kappa": 0.1808304807262986,
-      "kept_of_worth_measuring": 0.521557719054242,
+      "kappa": 0.1849981968986658,
+      "kept_of_worth_measuring": 0.5285118219749653,
       "photographs": 800,
-      "roc_auc": 0.973076460790879
+      "roc_auc": 0.974055186387129
     },
     "graded": 800,
     "photographs": 800,
@@ -34,7 +34,9 @@
       "usable",
       "bad"
     ],
+    "seconds_per_photograph": 1.9299290161526932,
     "three_class": null,
+    "timed_photographs": 792,
     "total": 800
   }
 }

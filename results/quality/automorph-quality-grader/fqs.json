@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fqs",
-  "fingerprint": "3cf783b971be6d193d93518d24857509f5580d0d6309a1e0353a0d7d20a8a383",
+  "fingerprint": "d3ff2182976c04733739a0db5fe7a3c93c56d4b750db84fbc0bc7766b71f12b8",
   "model": "automorph-quality-grader",
   "summary": {
     "complete": true,
@@ -11,20 +11,20 @@
     "excluded": {},
     "failed": 0,
     "gate": {
-      "accuracy": 0.8481069042316258,
-      "carried": 1388,
-      "carried_share": 0.6182628062360802,
-      "differs_from_the_verdict": 217,
-      "kappa": 0.6839259253448431,
+      "accuracy": 0.8489977728285077,
+      "carried": 1386,
+      "carried_share": 0.6173719376391982,
+      "differs_from_the_verdict": 220,
+      "kappa": 0.685875446439443,
       "photographs": 2245
     },
     "gradeable": {
-      "accuracy": 0.8164810690423162,
-      "discarded_of_not_worth": 0.6215351812366737,
-      "kappa": 0.6050589888000273,
-      "kept_of_worth_measuring": 0.9563886763580719,
+      "accuracy": 0.8151447661469933,
+      "discarded_of_not_worth": 0.6194029850746269,
+      "kappa": 0.6021205149809895,
+      "kept_of_worth_measuring": 0.9556235654169855,
       "photographs": 2245,
-      "roc_auc": 0.9299291334343693
+      "roc_auc": 0.9297219498746296
     },
     "graded": 2245,
     "photographs": 2245,
@@ -34,13 +34,14 @@
       "usable",
       "bad"
     ],
+    "seconds_per_photograph": 0.8225662409824186,
     "three_class": {
-      "accuracy": 0.6512249443207127,
+      "accuracy": 0.6494432071269488,
       "confusion": {
         "bad": {
-          "bad": 583,
-          "good": 36,
-          "usable": 319
+          "bad": 581,
+          "good": 37,
+          "usable": 320
         },
         "good": {
           "bad": 4,
@@ -48,20 +49,21 @@
           "usable": 45
         },
         "usable": {
-          "bad": 53,
-          "good": 326,
-          "usable": 414
+          "bad": 54,
+          "good": 327,
+          "usable": 412
         }
       },
-      "kappa_quadratic": 0.6979564586244592,
+      "kappa_quadratic": 0.695832067797014,
       "photographs": 2245,
       "recall": {
-        "bad": 0.6215351812366737,
+        "bad": 0.6194029850746269,
         "good": 0.9046692607003891,
-        "usable": 0.5220680958385876
+        "usable": 0.519546027742749
       },
       "unused_by_the_reference": []
     },
+    "timed_photographs": 2237,
     "total": 2245
   }
 }
