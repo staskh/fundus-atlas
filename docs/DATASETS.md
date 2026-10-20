@@ -108,7 +108,7 @@ labelled.
 | [ORIGA](datasets/origa.md) | 650 | 2048 tall, 2426–2616 wide | 2010 | — | — | — | ✅ | ✅ | ✅ glaucoma 168 / normal 482 | **published expert CDR**, eye side | research use, request-based | 🟡 |
 | [ORVS](datasets/orvs.md) | 49 | 1444×1444 | 2021 | — | ✅ one reader | ✅ via OCULAR, model-drawn and hand-corrected | — | — | — | 30° Zeiss Visucam 200, Calgary | **not stated** | ✅ |
 | [PAPILA](datasets/papila.md) | 488 | 2576×1934 | 2022 | — | — | — | ✅ ×2 experts | ✅ ×2 experts | ✅ healthy / suspect / glaucoma | full clinical record per eye | GPL-3.0 or later | ✅ |
-| [RAV](datasets/rav.md) | 206 | 1024×1024 (**authors' crop and resize**) | 2025 | ✅ mixed by design | — | ✅ | — | — | — | Rotterdam Study population cohort | **CC BY-NC 4.0 per the README; CC0 per the record — contradictory** | ✅ |
+| [RAV](datasets/rav.md) | 206 | 1024×1024 (**authors' crop and resize**) | 2025 | ✅ mixed by design | ✅ derived from A/V and unclassified vessels | ✅ | — | — | — | Rotterdam Study population cohort | **CC BY-NC 4.0 per the README; CC0 per the record — contradictory** | ✅ |
 | [RAVIR](datasets/ravir.md) **(IR)** | 42 | 768×768 | 2022 | — | — | ✅ | — | — | — | test masks withheld | CC BY-NC-SA 4.0 | ✅ |
 | [REFUGE / REFUGE2](datasets/refuge.md) | 1,200 / 2,000 | mixed — 2124×2056, 1634×1634, + | 2020 | — | — | — | ✅ consensus | ✅ consensus | ✅ glaucoma | fovea coordinate | research and educational, challenge terms | 🟡 |
 | [RETA](datasets/reta.md) ← IDRiD, resized | 81 — **54 masks public** | 1024×1024 | 2022 | — | ✅ | — | — | — | — | inter- and intra-annotator disambiguation record | **CC BY 4.0** | ✅ |
@@ -174,7 +174,7 @@ in the Vessels column of the summary and are not repeated here.
 | [DRiDB](datasets/dridb.md) | 50 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader. Labels download freely; photographs by e-mail request only |
 | [ORVS](datasets/orvs.md) | 49 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
 | [HRF](datasets/hrf.md) | 45 | Arteries and veins as separate classes | The **HRF-AV** layer, added by a second group; the original release has vessels only |
-| [RAVIR](datasets/ravir.md) **(IR)** | 42 | Artery and vein segmentations | **Infrared reflectance**, not colour fundus photography. Test masks withheld |
+| [RAVIR](datasets/ravir.md) **(IR)** | 42 (23 with masks) | Artery and vein segmentations | **Infrared reflectance**, not colour fundus photography. Test masks withheld |
 | [DR HAGIS](datasets/dr-hagis.md) | 40 (39 distinct) | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
 | [RITE](datasets/rite.md) ← DRIVE | 40 | Four classes: artery, vein, overlap, uncertain | **RITE is DRIVE** — the same 40 photographs. Widely cited as "DRIVE-AV" |
 | [INSPIRE-AVR](datasets/inspire-avr.md) | 40 | **AVR as a number per image**, from two experts using IVAN — not a pixel map of arteries and veins | In this list because it distinguishes arterioles from venules as a measurement, not as a mask |

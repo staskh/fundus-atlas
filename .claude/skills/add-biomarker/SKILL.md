@@ -96,8 +96,8 @@ implementation computes to a catalogued `biomarker/variant/structure` or to `Non
 
 ```python
 PER_CLASS: dict[str, str | None] = {
-    "area": "vessel-area-and-length/area/{side}",
-    "median_tortuosity": "tortuosity/hart-tau1/{side}",
+    "area": "density/area/{side}",
+    "median_tortuosity": "tortuosity/hart-tau1/{side}/median",
     "perimeter": None,          # nothing catalogued describes it — yet
     ...
 }

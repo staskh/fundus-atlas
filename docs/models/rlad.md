@@ -46,8 +46,8 @@ than rely on the file. Recorded as a defect in section 10.
   [10.48550/arXiv.2503.01190](https://doi.org/10.48550/arXiv.2503.01190) · also on
   [OpenReview](https://openreview.net/forum?id=41dtT6feKo).
 
-The same paper introduces [REYIA](../datasets/reyia.md), 586 manually segmented retinal images,
-which **is** published.
+The same paper introduces [REYIA](../datasets/reyia.md) — 586 manually segmented retinal images
+by its own count, 589 in the archive — which **is** published.
 
 ## 4. What it produces
 
@@ -199,8 +199,9 @@ training recipes, not between downloadable models.
   lesion segmenter, all SwinV2-tiny, all unpublished. If their weights are ever released, each is a
   page here — the disc-and-cup one would be directly comparable with the models in the
   [disc-and-cup benchmark](../benchmarks/disc-results.md).
-- **The dataset is the part you can use today.** [REYIA](../datasets/reyia.md) — 586 manually
-  segmented photographs, including the 111-image ENRICH set — came from this work and is public.
+- **The dataset is the part you can use today.** [REYIA](../datasets/reyia.md) — 589 manually
+  segmented photographs in the archive (the paper says 586), including the 111-image ENRICH set —
+  came from this work and is public.
 
 ---
 
