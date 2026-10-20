@@ -1,33 +1,33 @@
 {
   "benchmark": "disc",
   "dataset": "papila",
-  "fingerprint": "df674f57eab2079114f89475d08f37fe4d5997635f77c0f93baf741370a5f57b",
+  "fingerprint": "778a88f30e1ef75f5e1c3c2cd727d40e225fc908c68178c84d22f3a598fa851b",
   "model": "segformer-disc-cup",
   "summary": {
     "complete": true,
     "cup_area_ratio_error": {
-      "mean": 0.057989284922394684,
+      "mean": 0.05808117184035477,
       "median": 0.06388150000000001,
       "n": 902,
-      "spread": 0.0716637849052387
+      "spread": 0.07144246905400566
     },
     "cup_center_offset": {
-      "mean": 25.145188283446714,
-      "median": 19.751498,
+      "mean": 25.176211674603177,
+      "median": 19.7577795,
       "n": 882,
-      "spread": 47.003067541514206
+      "spread": 47.0133490620723
     },
     "cup_dice": {
-      "mean": 0.596681725409836,
+      "mean": 0.5963716618852458,
       "median": 0.6820495,
       "n": 976,
-      "spread": 0.28739580949341526
+      "spread": 0.28767180103723156
     },
     "cup_height_error": {
-      "mean": 38.93197278911565,
+      "mean": 39.01587301587302,
       "median": 39.0,
       "n": 882,
-      "spread": 46.78989946587266
+      "spread": 46.7613686539167
     },
     "cup_outside_its_disc": {
       "mean": 0.0,
@@ -36,53 +36,53 @@
       "spread": 0.0
     },
     "cup_radius_error": {
-      "mean": 23.249259778911565,
+      "mean": 23.247616307256234,
       "median": 22.937936,
       "n": 882,
-      "spread": 22.099575387410468
+      "spread": 22.08818131630096
     },
     "cup_vertical_ratio_error": {
-      "mean": 0.08264126303854874,
-      "median": 0.0762835,
+      "mean": 0.082888731292517,
+      "median": 0.07651050000000001,
       "n": 882,
-      "spread": 0.09780832613840486
+      "spread": 0.09769111881180485
     },
     "device": "mps",
     "disc_center_offset": {
-      "mean": 22.221340442350332,
-      "median": 13.0514475,
+      "mean": 22.26629421396896,
+      "median": 13.0708095,
       "n": 902,
-      "spread": 37.69471277143041
+      "spread": 37.758302155928924
     },
     "disc_dice": {
-      "mean": 0.8184919415983606,
-      "median": 0.9211579999999999,
+      "mean": 0.8183262049180328,
+      "median": 0.9211415000000001,
       "n": 976,
-      "spread": 0.2676773744819017
+      "spread": 0.2678731269921763
     },
     "disc_height_error": {
-      "mean": -5.130820399113082,
+      "mean": -5.254988913525499,
       "median": 8.0,
       "n": 902,
-      "spread": 94.8546826674304
+      "spread": 95.1740810954395
     },
     "disc_radius_error": {
-      "mean": 2.359034354767184,
-      "median": 9.8176305,
+      "mean": 2.298653312638581,
+      "median": 9.796609,
       "n": 902,
-      "spread": 33.899838675147805
+      "spread": 34.06966409154769
     },
     "excluded": {},
     "failed": 0,
     "outlines": 976,
     "photographs": 488,
     "processed": 488,
-    "seconds_per_photograph": 0.24891418270352814,
+    "seconds_per_photograph": 0.20326841718417185,
     "structures": [
       "disc",
       "cup"
     ],
-    "timed_photographs": 486,
+    "timed_photographs": 484,
     "total": 488
   }
 }

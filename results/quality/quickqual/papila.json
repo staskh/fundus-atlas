@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "papila",
-  "fingerprint": "bc504f67bcfd47f8286306376de69b23a7874f448bdf9b2a04bad1fb06196d31",
+  "fingerprint": "5cc526f9a864db28ecf87fec03cd3d858b42ee68d9c02f847c93d8d78e4ef955",
   "model": "quickqual",
   "summary": {
     "complete": true,
@@ -25,6 +25,7 @@
     "reference_grades": [
       "good"
     ],
+    "seconds_per_photograph": 0.042168161368075135,
     "three_class": {
       "accuracy": 0.3709016393442623,
       "confusion": {
@@ -56,6 +57,7 @@
         "bad"
       ]
     },
+    "timed_photographs": 480,
     "total": 488
   }
 }
