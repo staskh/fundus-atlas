@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "koch",
-  "fingerprint": "4ba8ab9c766b814ea36e10e03033d21e325510653cdee2e594f9ed0eb9eb5c53",
+  "fingerprint": "6d40fbf822ce1c3375cf903f58cd80e9f247de107d0c5d0638e52fa7fa299edb",
   "model": "fundus-biomarkers",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 4,
     "renderings": 4,
-    "seconds_per_photograph": 2.9122500000000002,
-    "seconds_per_rendering": 2.9122500000000002,
+    "seconds_per_photograph": 4.12625,
+    "seconds_per_rendering": 4.12625,
     "side": 2048,
     "timed_photographs": 4,
     "total": 4,

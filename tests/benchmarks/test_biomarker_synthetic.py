@@ -97,6 +97,24 @@ def test_a_category_is_recorded_as_it_was_said() -> None:
     assert row["said_area_artery"] == "1234.000000"
 
 
+def test_a_category_counts_as_an_answer_and_has_no_spread(tmp_path) -> None:
+    """The index pools what was said; a category was said, but it has no size to spread over."""
+    a_result(
+        tmp_path,
+        "straight",
+        [
+            {"rotation": "0.0", "said_area_artery": "100.0", "said_centring": "disc"},
+            {"rotation": "30.0", "said_area_artery": "110.0", "said_centring": "macula"},
+        ],
+    )
+
+    pooled = benchmark._pooled([{"model": "pvbm"}], tmp_path)["pvbm"]
+
+    assert pooled["answered"] == 4
+    assert pooled["columns"] == 2
+    assert pooled["spread"] == "9.1%"
+
+
 def test_the_committed_configuration_page_is_current() -> None:
     """A stale page fails the suite rather than sitting wrong in a public reference.
 

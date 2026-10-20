@@ -555,7 +555,11 @@ def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[s
                     if not said:
                         continue
                     answered += 1
-                    by_quantity.setdefault(f"{path.stem}/{key}", []).append(float(said))
+                    try:
+                        value = float(said)
+                    except ValueError:  # a category was said; it has no size to spread over
+                        continue
+                    by_quantity.setdefault(f"{path.stem}/{key}", []).append(value)
         spreads = [
             (max(values) - min(values)) / max(abs(v) for v in values)
             for values in by_quantity.values()
