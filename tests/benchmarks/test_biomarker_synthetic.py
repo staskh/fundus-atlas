@@ -72,6 +72,31 @@ def test_a_rendering_that_answered_in_part_is_measured_rather_than_failed() -> N
     assert "RecursionError" in row["note"], "and the reason it could not answer is still recorded"
 
 
+class Categorising:
+    """An implementation whose answer for one column is a category rather than a number."""
+
+    slug = "categorising"
+
+    def keys(self):
+        return ("area_artery", "centring")
+
+    def measure(self, artery, vein, fov, disc, um_per_px):
+        return {"area_artery": 1234.0, "centring": "disc"}
+
+
+def test_a_category_is_recorded_as_it_was_said() -> None:
+    """Every column an implementation computes is stored, and a category has no number to round."""
+    adapter = Categorising()
+    built = benchmark.library.build("straight", side=2048, rotation=0.0, um_per_px=5.0)
+
+    row = benchmark._row(
+        adapter, built, 0.0, adapter.measure(None, None, None, None, None), 0.1, ""
+    )
+
+    assert row["said_centring"] == "disc"
+    assert row["said_area_artery"] == "1234.000000"
+
+
 def test_the_committed_configuration_page_is_current() -> None:
     """A stale page fails the suite rather than sitting wrong in a public reference.
 

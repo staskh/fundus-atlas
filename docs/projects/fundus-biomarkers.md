@@ -18,7 +18,7 @@ re-derive the measurements from the masks.
 - **Repository:** `git@github.com:PhenoAI/fundus-biomarkers.git` — **private**; access on request.
 - **Version described here:** the commit pinned in `src/upstreams/fundus_biomarkers.py`.
 - **Most recent commit:** 2026-10
-- **Language and how it runs:** Python library; `measure(retina)` returns one dictionary.
+- **Language and how it runs:** Python library; a `Retina` record's `biomarkers` is one dictionary.
 - **Training code included:** Not applicable — no model is trained or shipped.
 
 ## 2. License
@@ -58,8 +58,17 @@ no `vessels` structure.
 **Zone C** — Cheung et al. 2010's Extended zone, 2–5 disc radii from the disc centre
 ([regions of interest](../biomarkers/regions-of-interest.md) §4) — is reported wherever zone B is.
 
-Not implemented: `topology/temporal-angle` and the `landmarks` family, which need a fovea or an
-optic cup the library is not given.
+`landmarks`: the cup-to-disc ratios are computed only from disc and cup **masks**, which the
+synthetic benchmark does not hand it, so there they are empty; `landmarks/CDR-horizontal` is a
+ratio this catalogue does not name yet. The library also answers the photograph's **centring** —
+`disc`, `macula` or `unknown` — from the disc circle; it is a category rather than a measurement,
+stored under the library's own name `landmarks.centring`.
+
+Uncatalogued: `density/skeleton-length-rooted`, the skeleton length of the part of the traced tree
+that reaches the disc, stored under the library's own spelling.
+
+Not implemented: `topology/temporal-angle` and `landmarks/disc-fovea-distance`, which need a fovea
+the library is not given.
 
 ## 7. Examples and notebooks
 

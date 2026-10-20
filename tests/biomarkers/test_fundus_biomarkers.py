@@ -47,6 +47,11 @@ def test_a_missing_class_is_none_and_never_borrowed(adapter, shape) -> None:
     assert found["density/area/artery"] is not None
 
 
+def test_the_photograph_s_centring_is_answered_as_the_library_says_it(adapter, shape) -> None:
+    found = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, UM_PER_PX)
+    assert found["landmarks.centring"] in {"disc", "macula", "unknown"}
+
+
 def test_without_a_scale_nothing_is_guessed(adapter, shape) -> None:
     found = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, None)
     assert all(value is None for value in found.values())
