@@ -1,6 +1,7 @@
 # ABOUTME: Tests for the AVRDB fetcher: one folder per photograph, arteries and veins drawn on white
 # ABOUTME: in separate files, and the crossings the dataset itself puts in both of them.
 
+import csv
 import io
 import zipfile
 from pathlib import Path
@@ -115,6 +116,20 @@ def test_a_misspelled_drawing_is_still_that_drawing(tmp_path: Path) -> None:
 
     assert sorted(found["im006106"].maps) == ["artery", "vein", "vessels"]
     assert not found["im006106"].notes
+
+
+def test_a_built_store_holds_every_drawing(tmp_path: Path) -> None:
+    """Each drawing is read under the very name the dataset published it as, and must survive that."""
+    archive = an_archive(tmp_path)
+    root = tmp_path / "store"
+
+    assert avrdb.main(["--archive", str(archive), "--data-root", str(root), "--jobs", "1"]) == 0
+
+    with open(root / avrdb.SLUG / "manifest.csv") as f:
+        rows = list(csv.DictReader(f))
+    assert {row["maps"] for row in rows} == {"artery;vein;vessels;fov"}
+    artery = np.asarray(Image.open(root / avrdb.SLUG / "crop" / "artery" / "im006106.png"))
+    assert artery.any()
 
 
 def test_a_drawing_filed_under_another_photographs_name_is_still_found(tmp_path: Path) -> None:
