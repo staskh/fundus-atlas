@@ -1,7 +1,7 @@
 {
-  "builder_version": 5,
+  "builder_version": 7,
   "dataset": "chaksu",
-  "fingerprint": "f7721a86ef91677e929a639d95e5b239360427b2755ccb7797ccb6053790b073",
+  "fingerprint": "7aaebb7f3cb3470ba4ac6b1fc1bf37f3725fea7d3c278f560167070d36cdb9b8",
   "frame": "crop",
   "grid": 512,
   "model": "segformer-disc-cup",

@@ -1,8 +1,8 @@
 {
-  "builder_version": 5,
+  "builder_version": 7,
   "dataset": "chaksu",
   "discs": "disc_estimation",
-  "fingerprint": "7c51a4c9636b5db3dd1e05aef09b583f0c38036d8ac48bb65d8fbff1f8b8b982",
+  "fingerprint": "dd8304e6fcc04e044b35f1cd9a199a74435dac22a8bccff5c8c8fc04bf254ccd",
   "groups": [
     {
       "accepted": true,
@@ -294,14 +294,14 @@
         "test_forus_99"
       ],
       "mad_disc_px": 13.25,
-      "mad_over_median": 0.0421,
-      "median_disc_px": 315.08,
+      "mad_over_median": 0.042,
+      "median_disc_px": 315.15,
       "n_estimated": 126,
       "n_measured": 126,
       "raw_height": 1536,
       "raw_width": 2048,
       "subset": "forus",
-      "um_per_px": 5.7128
+      "um_per_px": 5.7116
     },
     {
       "accepted": true,
@@ -1378,15 +1378,15 @@
         "test_remidio_img_4560",
         "test_remidio_img_4561"
       ],
-      "mad_disc_px": 23.1,
-      "mad_over_median": 0.0544,
-      "median_disc_px": 424.38,
+      "mad_disc_px": 23.02,
+      "mad_over_median": 0.0542,
+      "median_disc_px": 424.54,
       "n_estimated": 1073,
       "n_measured": 1071,
       "raw_height": 3264,
       "raw_width": 2448,
       "subset": "remidio",
-      "um_per_px": 4.2415
+      "um_per_px": 4.2399
     },
     {
       "accepted": false,
@@ -1395,7 +1395,7 @@
       ],
       "mad_disc_px": 0.0,
       "mad_over_median": 0.0,
-      "median_disc_px": 357.64,
+      "median_disc_px": 357.74,
       "n_estimated": 1,
       "n_measured": 1,
       "note": "too-few: fewer than 16 discs were measured, which is too few for a median",

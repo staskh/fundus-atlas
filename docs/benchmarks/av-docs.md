@@ -94,7 +94,7 @@ and a reader comparing its vessel score with another model's is comparing a pred
 | --- | --- | --- | --- | --- | --- |
 | [hrf](../datasets/hrf.md) | 45 | 1 | **the same tracing**: 0.004% of pixels differ from the artery/vein union | none | yes |
 | [fundus-avseg](../datasets/fundus-avseg.md) | 100 | 1 | derived from the artery/vein labels by the authors | none | yes |
-| [avrdb](../datasets/avrdb.md) | 100 | 1 | **drawn, but not independent**: it agrees with the union to within 0.4–0.6% | none | yes |
+| [avrdb](../datasets/avrdb.md) | 0 | 1 | **drawn, but not independent**: it agrees with the union to within 0.4–0.6% | 100 no vessel annotation to score against | yes |
 | [reyia](../datasets/reyia.md) | 559 | 1 | derived here as the union; the archive publishes no separate tracing | 4 no vessel annotation to score against | yes |
 | [fives](../datasets/fives.md) | 798 | 1 | **its own tracing, and the only annotation it has**: no artery/vein labels at all | 2 no vessel annotation to score against | yes |
 | [rav](../datasets/rav.md) | 206 | 1 | derived here as the union of the artery, vein and unknown layers; none published apart | none | yes |
