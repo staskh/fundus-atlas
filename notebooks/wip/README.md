@@ -6,7 +6,9 @@ page. That rule is in the `analyse-benchmark` skill and these do not change it.
 
 These are the other kind — a focused reading of **one** implementation, or one question somebody
 asked once, written to be read rather than to be compiled into anything. Nothing generates them,
-nothing links to them from `docs/`, and no test requires them to exist.
+no test requires them to exist, and the one link from `docs/` — in
+[calibre.md](../../docs/biomarkers/calibre.md) §9 — points at a finding they show rather than at a
+result of record.
 
 ## What that means for a reader
 
@@ -25,6 +27,8 @@ nothing links to them from `docs/`, and no test requires them to exist.
 | [biomarker-synthetic-automorph.ipynb](biomarker-synthetic-automorph.ipynb) | what AutoMorph returns on `straight`, `arc` and `sinusoid`, under its own column names, at each angle |
 | [biomarker-synthetic-automorphalyzer.ipynb](biomarker-synthetic-automorphalyzer.ipynb) | the same of AutoMorphalyzer, whose 54 columns report most quantities once per measurement zone |
 | [biomarker-synthetic-automorphclass.ipynb](biomarker-synthetic-automorphclass.ipynb) | the same of AutoMorphClass, read against the ancestor both rewrites share |
+| [vascx-features-on-photographs.ipynb](vascx-features-on-photographs.ipynb) | what VascX's features read on a few photographs, from the expert's artery/vein map and from VascX's own |
+| [vascx-tracing-one-artery.ipynb](vascx-tracing-one-artery.ipynb) | how VascX traces one artery of one HRF photograph, stage by stage, through its own objects |
 
-The comparison across all six implementations — the one the benchmark exists to make — is in
+The comparison across all seven implementations — the one the benchmark exists to make — is in
 [../biomarker-synthetic.ipynb](../biomarker-synthetic.ipynb).

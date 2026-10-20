@@ -1,6 +1,6 @@
 # Synthetic biomarker benchmark — what came out
 
-Six biomarker implementations were run over the same **36 renderings** — nine drawn shapes at four
+Seven biomarker implementations were run over the same **36 renderings** — nine drawn shapes at four
 angles each — on a 2048² grid at 5 µm per pixel, with arteries 80 µm wide, veins 120 µm and an
 optic disc 1800 µm across. Nothing here was photographed and nothing was annotated: every shape was
 *drawn* from equations, so what it ought to measure follows from arithmetic rather than from
@@ -11,14 +11,18 @@ Every number on this page comes from `results/biomarker-synthetic/`; the reading
 re-measured for the 2026-09-30 revision**: not one stored value changed, because a run records
 what an implementation returned and records no mapping at all. What changed is the names those
 values answer to and the units they are compared in — which is the whole point of keeping the two
-apart, and the reason a correction to the catalogue costs no compute. **The measurements
-are reproducible**: clearing `results/` and running all 54 pairs again reproduces every stored value
-exactly, to the last decimal, and the only columns that move are the timings. How the benchmark
+apart, and the reason a correction to the catalogue costs no compute — unless the renamed names
+sit in a declaration the fingerprint covers, as PVBM's `units` do, which makes its stored results
+read as stale though no value changed. **The measurements are reproducible**: clearing `results/`
+and running the six compared below — 54 pairs — again reproduced every stored value exactly, to
+the last decimal, and the only columns that move are the timings. How the benchmark
 is configured is a separate page, [biomarker-synthetic-docs.md](biomarker-synthetic-docs.md), and
 the shapes with their derivations are in
 [the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb).
 
-**All six are on this page together, and that is the point.** The question is whether these
+**Six are on this page together, and that is the point.** The seventh, Pheno's own
+[fundus-biomarkers](../projects/fundus-biomarkers.md), is measured and appears in the notebook's
+tables only. The question is whether these
 programs compute the same quantity, and that question lives across a row — one biomarker, six
 columns. The columns stand in **lineage order**: [PVBM](../projects/pvbm.md) and
 [OCULAR](../projects/ocularnet.md), which imports PVBM's helpers at runtime; then
@@ -63,7 +67,7 @@ difference **across a boundary** is two independent readings of the same definit
 | | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
 | Biomarkers produced | 30 | 18 | 18 | 54 | 18 | 20 |
-| …matching a canonical name | 20 | 10 | 15 | 23 | 15 | 8 |
+| …matching a canonical name | 20 | 10 | 15 | 23 | 15 | 6 |
 | Comparable measurements | 312 | 304 | 372 | 388 | 372 | **80** |
 | Median disagreement | 3.7% | 3.0% | 8.2% | 6.1% | 5.5% | **0.0%** |
 | Within 25% of the geometry | 90% | **95%** | 80% | 92% | 91% | 90% |
@@ -104,7 +108,7 @@ judge, and the counts above only mean something once they are kept apart:
 
 - **The catalogue may have no name for it.** AutoMorphalyzer returns 17 quantities with no
   canonical name — `average_local_calibre` at every zone, `tortuosity_density` and
-  `tortuosity_distance` at zone C, and two Knudtson equivalents at zone C. VascX returns 12,
+  `tortuosity_distance` at zone C, and two Knudtson equivalents at zone C. VascX returns 14,
   PVBM 10. *That count fell from 23 when the vocabulary gained a region: AutoMorphalyzer's zone-B
   tortuosity columns now have a catalogued name, because the region is part of the name rather
   than a thing the catalogue could not express.* These are measured and stored under the implementation's
@@ -113,9 +117,9 @@ judge, and the counts above only mean something once they are kept apart:
   catalogue or a mapping nobody has made — both are work somebody can do, and the notebook's
   section 1 lists them by name.
 - **No shape may settle it.** A quantity can carry a catalogued name and still have no theoretical
-  value here. This is why VascX's eight canonical names yield six judged biomarkers, and why
-  AutoMorphalyzer's zone-B columns — newly nameable — are still judged against nothing: no shape
-  here is drawn to pin a value inside that annulus, only across it.
+  value here. This is why AutoMorphalyzer's 23 canonical names yield 17 judged biomarkers: its
+  zone-B columns — newly nameable — are still judged against nothing, because no shape here is
+  drawn to pin a value inside that annulus, only across it.
 - **The program may simply never answer.** AutoMorphalyzer returns 54 columns of which 40 ever
   carry a value.
 

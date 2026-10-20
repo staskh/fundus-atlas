@@ -19,9 +19,10 @@ above all, since the 40 DRIVE photographs it carries are what every artery/vein 
 *This page previously said that nothing had been measured yet, and listed what was ready and what
 was not. Both of those sections have gone: the run they were waiting for has happened.*
 
-*Every figure was measured again on 2026-10-14, after the FIVES, Fundus-AVSeg and REYIA stores were
-rebuilt at builder version 7. Scores moved by a few thousandths at most and no ordering of models
-changed; the seconds moved more, and section 1 says why that is not the models. Three statements
+*The FIVES, Fundus-AVSeg and REYIA figures were measured again on 2026-10-14, after those stores
+were rebuilt at builder version 7, and RAV and AV-WIDE were measured for the first time; HRF and
+AVRDB kept their September measurements. Scores moved by a few thousandths at most and no ordering
+of models changed; the seconds moved more, and section 1 says why that is not the models. Three statements
 this page made in September did not match its own tables, and are corrected where they stand.*
 
 ## Contents

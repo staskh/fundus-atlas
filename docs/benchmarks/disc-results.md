@@ -86,11 +86,11 @@ structure *smaller* than the ophthalmologist did:
 | lunetv2-odc | −12.6 | −17.3 | −9.5 | −4.6 | −9.8 | −5.8 |
 | automorph-disc-cup | −10.3 | −7.7 | −12.6 | +1.2 | −15.5 | −7.0 |
 
-Two things worth reading here. **Every model draws the cup short** — between 10 and 15 pixels less
-tall than the expert, consistently, all four — and a cup that is too short in a disc of about the
-right height is a cup-to-disc ratio that reads low. And **only SegFormer's disc errs large**; the
-other three draw both structures small, so their two errors partly cancel in the ratio while
-SegFormer's compound.
+Two things worth reading here. **Every model that draws a cup draws it short** — between 10 and
+16 pixels less tall than the expert, consistently, all three (VascX draws no cup) — and a cup that
+is too short in a disc of about the right height is a cup-to-disc ratio that reads low. And **only
+SegFormer's disc errs large**; LUNet v2 and AutoMorph draw the disc small and the cup short, so
+their two errors partly cancel in the ratio while SegFormer's compound.
 
 **A signed bias is worse than scatter of the same size**, because it moves every patient the same
 way. All the biases above are signed and none is negligible.
@@ -132,8 +132,9 @@ Read the bottom row against the readers' PAPILA line: where the ophthalmologists
 same way, which is why its PAPILA bias in section 3 is +0.166 rather than the near-zero its Chákṣu
 figures might suggest.
 
-The rest is calmer than the Dice scores imply. On Chákṣu and GRAPE every model's disc is within
-about 5% of the readers' in each dimension, and the disagreement that matters is in the cup.
+The rest is calmer than the Dice scores imply. On Chákṣu every model's disc is within about 5% of
+the readers' in each dimension; on GRAPE every model draws it larger, by 6 to 11%. The disagreement
+that matters is still in the cup.
 
 **Every number above is a column of the evidence** — `said_disc_width`, `said_cup_height`,
 `said_disc_center_x` and their `truth_` counterparts, one row per reader — so a study that needs
@@ -211,8 +212,8 @@ AutoMorph's disc falls to **0.554** on PAPILA against 0.895 and 0.907 elsewhere 
 0.396. Nothing comparable happens to the other three: LUNet v2 scores 0.936 on the same photographs.
 
 The notebook's size columns say what goes wrong rather than that something does: on PAPILA AutoMorph
-draws the disc **51 pixels off centre and far too small**, and **9% of all its disc outlines land
-below Dice 0.5** — not imprecise, but somewhere else. PAPILA is disc-centred at 30°, so the disc
+draws the disc **51 pixels off centre and far too small**, and **39% of its PAPILA disc outlines
+land below Dice 0.5** (9% pooled over all three datasets) — not imprecise, but somewhere else. PAPILA is disc-centred at 30°, so the disc
 fills a much larger share of the frame than in the macula-centred screening photographs AutoMorph
 was fitted on. A model trained on one framing does not transfer to the other, and this is what that
 looks like.
@@ -286,7 +287,8 @@ the answer, below. **VascX disc**, if you need only the disc and can afford five
   0.951 there is in-sample. On the two it never saw it is second — 0.954 on Chákṣu behind
   SegFormer's 0.958, and 0.921 on GRAPE behind LUNet v2's 0.927. It finds **no cup**, so it cannot
   produce a cup-to-disc ratio at all, and it costs **1.2 to 1.3 seconds per photograph on an Apple
-  GPU** against a quarter of a second for the other three.
+  GPU** against about a quarter of a second for the other three (LUNet v2's GRAPE re-measurement
+aside, above).
 - **[SegFormer](../models/segformer-disc-cup.md)** is the close second for a full disc-and-cup
   answer: the best disc on Chákṣu (0.958, above the readers' band) and a cup at 0.791 against LUNet
   v2's 0.810. It is the only model whose licence is clean — **Apache-2.0 on both code and weights** —
