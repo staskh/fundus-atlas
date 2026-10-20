@@ -1,7 +1,7 @@
 {
-  "builder_version": 6,
+  "builder_version": 7,
   "dataset": "hrf",
-  "fingerprint": "6fa40aba0e402f7d31aff47c6bbaf4daa5ced52994f54ed6de844722373fbe34",
+  "fingerprint": "8b541078ecd0808a0f7cdacf2d1f8f874fb27c09363d1bceeb9a280167e79d98",
   "frame": "crop",
   "grid": 512,
   "model": "segformer-disc-cup",

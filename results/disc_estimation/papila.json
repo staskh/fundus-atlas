@@ -1,7 +1,7 @@
 {
-  "builder_version": 5,
+  "builder_version": 7,
   "dataset": "papila",
-  "fingerprint": "90ec6df0ab837284d11601cbae7c4df1da175b6e3a84d794b5439609dac3a084",
+  "fingerprint": "f0a01c88e63bdab89bd4aa0848bec73363b62feb441bffeb4aa7e439c433e57f",
   "frame": "crop",
   "grid": 512,
   "model": "segformer-disc-cup",

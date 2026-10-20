@@ -1,8 +1,8 @@
 {
-  "builder_version": 4,
+  "builder_version": 7,
   "dataset": "riga",
   "discs": "disc_estimation",
-  "fingerprint": "0ec07c3774a21d297cd63df05c05948b45368b116ec9be504dcb079f71c4d661",
+  "fingerprint": "99c6f1d922a6f611e0b18b645e1645fc519571e3cfedcf0650fdc16e2358f1dc",
   "groups": [
     {
       "accepted": true,

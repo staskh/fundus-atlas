@@ -1,8 +1,8 @@
 {
-  "builder_version": 6,
+  "builder_version": 7,
   "dataset": "hrf",
   "discs": "disc_estimation",
-  "fingerprint": "f9ce305b4bd2d0ce08105b8024c51884ca7d91f9f8d43fceaac369624c5960dc",
+  "fingerprint": "b6fd38c0c7a9b2ddfd1a58aa10352db9a27f8f5c5943d6dbc30c676034b071e2",
   "groups": [
     {
       "accepted": true,

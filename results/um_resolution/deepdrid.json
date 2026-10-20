@@ -1,8 +1,8 @@
 {
-  "builder_version": 4,
+  "builder_version": 7,
   "dataset": "deepdrid",
   "discs": "disc_estimation",
-  "fingerprint": "956a4913c26cc492ad337fcf60d43618a4fbb9915961c4026887ab79ca339e44",
+  "fingerprint": "388de32c0facf69818ff6c196cdd6e3c89600366cc65a8003f25c940ae9a2f65",
   "groups": [
     {
       "accepted": true,
