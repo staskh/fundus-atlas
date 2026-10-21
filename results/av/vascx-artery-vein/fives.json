@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "1b3d12732902033f6642ce4af77b9f05dc08e65a8dd0d9702ee0c51aa209b0f0",
+  "fingerprint": "76b34db5b1b4dd08c5f7da92c6bd8ddffe9ba39aee386b0c5a7e2adf027f28fd",
   "model": "vascx-artery-vein",
   "summary": {
     "complete": true,

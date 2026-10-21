@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "reyia",
-  "fingerprint": "31ad7482b7c3f0816fded4937f8774f0dd77deba8c27bd3e4e2077879efe75a5",
+  "fingerprint": "7ae234c96e78b7f417f8147c594b70bc68a4a72a361591ce17a49710f7116ab6",
   "model": "lunet",
   "summary": {
     "artery_betti": {

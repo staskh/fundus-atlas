@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "04dfec832374afb7b793df9e77b55c5fe1c4ed7998c961b9496aa24225efa2bf",
+  "fingerprint": "f1db3f7b53d2a1d4e2ac810d31a126b8a886d5a11b33de1fea883fb9726923cc",
   "model": "bf-net",
   "summary": {
     "complete": true,

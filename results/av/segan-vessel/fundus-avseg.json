@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "c2e7b269717d996e461949d392446beccb1810fa563296ea3120c5aac119d9e5",
+  "fingerprint": "d76e728ede784bc84cbf50ce2a43bf435bac65f75d17c901639a3f98108a3424",
   "model": "segan-vessel",
   "summary": {
     "complete": true,

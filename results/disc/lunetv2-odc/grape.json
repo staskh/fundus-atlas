@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "grape",
-  "fingerprint": "0ddd53ed1e8cc00fad0ea418183fdca3ee365600fedf4795e1a380eb8b61e77e",
+  "fingerprint": "8e5d316e0bff447c155e09c626fe61e512735ae93502092ebfffad6dcaa14ae7",
   "model": "lunetv2-odc",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "hrf",
-  "fingerprint": "6b748b4fac1d02b7214add6bfc4bd8a577a055556c4594e3efe19d7aaa78beca",
+  "fingerprint": "5ac3d8bd246b5b15bbffaf5a6cb43bb73adbecac0ab892bc277340eb31d7bcce",
   "model": "ocularnet",
   "summary": {
     "artery_betti": {

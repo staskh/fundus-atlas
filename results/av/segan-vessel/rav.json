@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "rav",
-  "fingerprint": "0566c16505fc7fb8102ef84631e9d27812f3be074db4a50da7438bfc6234b1c5",
+  "fingerprint": "1cfc3539444007762b34a0eca215c8acf75b2d189236e1215ec705b2a4f5b638",
   "model": "segan-vessel",
   "summary": {
     "complete": true,

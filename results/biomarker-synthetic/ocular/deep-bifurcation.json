@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "deep-bifurcation",
-  "fingerprint": "897fb697789a61e679eba91febd4942cb11fd7efff3b12f4fa8ae5dc94c6c347",
+  "fingerprint": "1f450b73bc1f85049461bfdd75d1a8e52fa886a6ebc64cb1685d2af4c860c0fe",
   "model": "ocular",
   "summary": {
     "complete": true,

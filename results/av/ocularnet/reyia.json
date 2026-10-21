@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "reyia",
-  "fingerprint": "be20196fce9cf8d93c1ddb228a9ad6ac4494750c69761f2c6a21bfb3ae49ec7b",
+  "fingerprint": "879d762af1765ff9dbee5072479d70e7711a1a10fe7890d9e50b9243ecbca577",
   "model": "ocularnet",
   "summary": {
     "artery_betti": {

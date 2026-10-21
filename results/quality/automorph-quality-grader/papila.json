@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "papila",
-  "fingerprint": "21b058fbf95a0c1c7007a084ffbf253378bb779d26ebac47839c9410eebf3cb1",
+  "fingerprint": "020afcd36bb08f1f4c674103544b68543e1fc5a25ec18ba8821c138ea08f9a3c",
   "model": "automorph-quality-grader",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "mshf",
-  "fingerprint": "ee6f47d5d78654ccb2be2cb46f76351898e40f695235ebd1298cc50e5a8e0907",
+  "fingerprint": "b2037c3aa58f46a15cccaa553faf13320e3b53e32fb54203e06aeb1b33732b06",
   "model": "automorph-quality-grader",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fqs",
-  "fingerprint": "e3978d5ae18c62800dd1840592324c7c54791c11a5eacd0b1f9023604106c0ed",
+  "fingerprint": "731ced7bf2426f79955c16e53617f4ebdb99f0bc0d2f02205a1dade7a85e6f9a",
   "model": "quickqual-meme",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fqs",
-  "fingerprint": "d3ff2182976c04733739a0db5fe7a3c93c56d4b750db84fbc0bc7766b71f12b8",
+  "fingerprint": "182d1d962ce1860200e7c3704248bddc243a3a492927aa06f85191d39f569cf5",
   "model": "automorph-quality-grader",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "avrdb",
-  "fingerprint": "afd6d044afa1ee6b4018a87723d2a755eb081d99457b39552060236028a2b72d",
+  "fingerprint": "ad6875af727b9d006e721f9fad522f567181ad2b49a78f254b9d6a92efd27b53",
   "model": "vascx-artery-vein",
   "summary": {
     "artery_betti": {

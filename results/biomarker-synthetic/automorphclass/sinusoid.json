@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "sinusoid",
-  "fingerprint": "1b71d9f7690e6b2019ae8ab034be1918da0d2467b2e2f696d654663155cea628",
+  "fingerprint": "e9f8f3077ffffcd2e6006e99508e345d528a785192d068471d0c2f7cb7349f70",
   "model": "automorphclass",
   "summary": {
     "complete": true,

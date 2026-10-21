@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "grape",
-  "fingerprint": "760343f9a348a2ccd520057ad4160bb051367bbc2298d72761a1739cb9176aba",
+  "fingerprint": "eaa2d9a5a69baf57398ae2a246675524c2ab24acea3e2dc6d231477aa3800920",
   "model": "vascx-disc",
   "summary": {
     "complete": true,

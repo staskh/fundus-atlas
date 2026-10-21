@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "chaksu",
-  "fingerprint": "c5b57e1d668a887bfa87293f7d4c19e152007851b5b9eb74c72bf70905a98922",
+  "fingerprint": "342d2252216e6b56da2c8f7d3e9e304167bb7ed832f4437fe31c46d709a2323b",
   "model": "lunetv2-odc",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "sinusoid",
-  "fingerprint": "d86cccac4eb76aae5a92f42dc284c69d497234526f74221d40c3b551dbb509a3",
+  "fingerprint": "711a2db0631871e5312a7d26da84ae93b0c586fb5f16f1e3a076f3f10bc20a29",
   "model": "ocular",
   "summary": {
     "complete": true,

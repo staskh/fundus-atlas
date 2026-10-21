@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "disjoint",
-  "fingerprint": "d019ba19b89f930616a945cbd4a17472c7343ccfcde9b04c78ed96be4ae84bf5",
+  "fingerprint": "56f87d81c5da1a9cb48ec9e8bd26129219e3da96ec65ff330752674f9d3e14af",
   "model": "automorphclass",
   "summary": {
     "complete": true,

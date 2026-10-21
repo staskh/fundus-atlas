@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "koch",
-  "fingerprint": "d7143fb22693f0a234f3800442b9c592b78a153fa78331d2f4cf69c74b6a35c8",
+  "fingerprint": "5ccc98131c83cfe3b445bd19a1a9a6c4fe184b517234d19c8ea50a64fbcea362",
   "model": "ocular",
   "summary": {
     "complete": true,

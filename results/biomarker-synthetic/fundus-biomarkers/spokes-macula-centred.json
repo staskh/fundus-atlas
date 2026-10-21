@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spokes-macula-centred",
-  "fingerprint": "20a80a4fcafa4626dc507b722bdedd605ea680571f6e3cb332e28fd1028ee04a",
+  "fingerprint": "672b07ef50cfde78617aede08d641060ef9f5fd416dc6568eab18dda3492da53",
   "model": "fundus-biomarkers",
   "summary": {
     "complete": true,

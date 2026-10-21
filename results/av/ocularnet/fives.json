@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "aa3b96a2f7fbf6a37e7f754890ed5c8a9edfe62343f334c0860530dfa394bde1",
+  "fingerprint": "6411cb95b9ae01b227139d5a8f237a3092b334f4d5d24cd33fce6df0ec9ff81a",
   "model": "ocularnet",
   "summary": {
     "complete": true,
