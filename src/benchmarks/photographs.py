@@ -99,6 +99,7 @@ def fingerprint(module, fingerprinted: tuple[str, ...], keeps_masks: bool) -> li
     said = [
         f"the facts each model declares that bear on its numbers: {', '.join(fingerprinted)}",
         "the sha256 of the weights actually loaded",
+        "the upstream code they run in — its pinned commit and the content of every patch applied",
         "the store's slug and builder version",
         f"this benchmark's name, `VERSION` ({module.VERSION}) and size floor ({FLOOR} pixels)",
     ]

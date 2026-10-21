@@ -329,6 +329,9 @@ FINGERPRINTED = (
     "threshold",
     "gate_threshold",
     "backbone",
+    # The code the weights run in: its pinned commit and the content of every patch applied to it.
+    # The same weights run by different code are a different measurement.
+    "upstream",
 )
 
 

@@ -116,10 +116,9 @@ that the benchmark did not report — not about what it fingerprints, not about 
 evidence is, not about which flags it honours.
 
 This is the rule the page existed without, and it cost: a shared writer once told readers of the
-synthetic biomarker benchmark that its fingerprint covered the sha256 of loaded weights, the
-patches applied and a store's builder version, that each row was a photograph, and that
-`--random-samples` drew from a recorded seed. It has no weights, no patches, no store, no
-photographs, and ignores that flag. Every sentence came from prose written for a different
+synthetic biomarker benchmark that its fingerprint covered the sha256 of loaded weights and a
+store's builder version, that each row was a photograph, and that `--random-samples` drew from a
+recorded seed. It has no weights, no store, no photographs, and ignores that flag. Every sentence came from prose written for a different
 benchmark and applied to this one by a writer that had no way of knowing better.
 
 ## 6. Rules

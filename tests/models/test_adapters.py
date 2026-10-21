@@ -20,6 +20,14 @@ SEGMENTERS = [slug for slug, purpose in purposes().items() if purpose == "disc/c
 VESSELS = [slug for slug, purpose in purposes().items() if purpose == "artery/vein"]
 
 
+@pytest.mark.parametrize("slug", SLUGS)
+def test_every_model_declares_the_code_it_runs(slug: str) -> None:
+    """The benchmarks fingerprint `upstream`, so a model that left it out could not be told stale."""
+    upstream = catalogue.load(slug, device="cpu").declare()["upstream"]
+
+    assert upstream["commit"]
+
+
 def photograph(size: int) -> np.ndarray:
     """A square with a lit disc in it, dark outside, as a store's photographs are."""
     pixels = np.zeros((size, size, 3), dtype=np.uint8)

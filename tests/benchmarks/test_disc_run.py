@@ -26,9 +26,12 @@ class Circles:
     grid = 512
     structures = ("disc", "cup")
 
-    def __init__(self, radius: float = 0.2, fails: bool = False) -> None:
+    def __init__(
+        self, radius: float = 0.2, fails: bool = False, upstream: dict | None = None
+    ) -> None:
         self.radius = radius
         self.fails = fails
+        self.upstream = upstream or {"commit": "a", "patches": {}}
         self.outlined: list[str] = []
 
     def declare(self) -> dict[str, object]:
@@ -42,6 +45,7 @@ class Circles:
             "resampling": "probabilities to native, bilinear, then thresholded",
             "threshold": 0.5,
             "ensemble": 1,
+            "upstream": self.upstream,
         }
 
     def identity(self) -> str:
@@ -207,6 +211,24 @@ def test_changed_weights_throw_away_what_was_measured(tmp_path: Path) -> None:
 
     scored = disc.run(
         [Circles(radius=0.3)],
+        ["papila"],
+        results=tmp_path / "results",
+        root=store,
+        record=tmp_path / "runs",
+    )
+
+    assert scored[0]["measured"] == 2
+
+
+def test_changed_upstream_code_throws_away_what_was_measured(tmp_path: Path) -> None:
+    """The same weights run by different code are a different measurement."""
+    store = a_store(tmp_path)
+    disc.run(
+        [Circles()], ["papila"], results=tmp_path / "results", root=store, record=tmp_path / "runs"
+    )
+
+    scored = disc.run(
+        [Circles(upstream={"commit": "b", "patches": {}})],
         ["papila"],
         results=tmp_path / "results",
         root=store,

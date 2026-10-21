@@ -44,8 +44,9 @@ Four duties, in this order:
    `models/utils/grading.py` for quality, a fixed class order for artery/vein, probabilities where
    the model emits them — and the `graded` / `declined` / `failed` outcome.
 4. **Declares itself**: purpose class, the store grid it reads, the grid the network sees, whether
-   it emits probabilities, its ensemble size, and its upstream's provenance, so that the run can
-   record all of it without asking the model.
+   it emits probabilities, its ensemble size, and its upstream's provenance under `upstream`, so
+   that the run can record all of it without asking the model. `upstream` is fingerprinted: a
+   moved commit or a new patch makes every stored result of this model stale.
 
 It must **not** score anything, choose a dataset, write a result, or read the ground truth. Those
 are the benchmark's job, and keeping them out is what makes two adapters comparable.

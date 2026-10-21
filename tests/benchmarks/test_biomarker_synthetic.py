@@ -115,6 +115,39 @@ def test_a_category_counts_as_an_answer_and_has_no_spread(tmp_path) -> None:
     assert pooled["spread"] == "9.1%"
 
 
+class Counting:
+    """An implementation that answers one constant and counts how often it was asked."""
+
+    slug = "counting"
+
+    def __init__(self, upstream: dict) -> None:
+        self.upstream = upstream
+        self.asked = 0
+
+    def declare(self):
+        return {"slug": self.slug, "keys": ["area_artery"], "upstream": self.upstream}
+
+    def identity(self) -> str:
+        return "a"
+
+    def keys(self):
+        return ("area_artery",)
+
+    def measure(self, artery, vein, fov, disc, um_per_px):
+        self.asked += 1
+        return {"area_artery": 1.0}
+
+
+def test_a_new_patch_measures_everything_again(tmp_path) -> None:
+    """The same commit with a patch on top is different code, and its answers may differ."""
+    benchmark._pair(Counting({"commit": "a", "patches": {}}), "straight", tmp_path, False, 1)
+
+    patched = Counting({"commit": "a", "patches": {"001-fix.patch": "c0ffee"}})
+    benchmark._pair(patched, "straight", tmp_path, False, 1)
+
+    assert patched.asked == 1
+
+
 def test_the_committed_configuration_page_is_current() -> None:
     """A stale page fails the suite rather than sitting wrong in a public reference.
 
