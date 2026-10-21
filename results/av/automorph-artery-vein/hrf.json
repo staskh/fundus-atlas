@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "hrf",
-  "fingerprint": "1ee67a5035c4bc63d38bba7d8a433c54405c67c98d832d65134ae0216a430d94",
+  "fingerprint": "bd4aeb3be7abb1d62fba26df3e53cb117c00427b4d02394c2eb08933bb38f7a1",
   "model": "automorph-artery-vein",
   "summary": {
     "artery_betti": {
@@ -28,13 +28,13 @@
     "failed": 0,
     "photographs": 45,
     "processed": 45,
-    "seconds_per_photograph": 3.3787530313902163,
+    "seconds_per_photograph": 3.5543658712889408,
     "segmentations": 45,
     "structures": [
       "artery",
       "vein"
     ],
-    "timed_photographs": 41,
+    "timed_photographs": 44,
     "total": 45,
     "vein_betti": {
       "mean": 321.2,

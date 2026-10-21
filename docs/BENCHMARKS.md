@@ -16,12 +16,12 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 | Model | Photographs | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.853 | 0.884 | 104 | 4.283 | mixed: in-sample, in-sample-unclear-split |
-| [lunet](models/lunet.md) | 1,602 | 0.778 | 0.804 | 0.838 | 0.864 | 67 | 26.653 | unknown |
-| [segan-vessel](models/segan-vessel.md) | 1,602 | — | — | 0.832 | 0.862 | 185 | 2.099 | mixed: in-sample-unclear-split, out-of-sample |
-| [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.803 | 0.828 | 168 | 21.112 | mixed: in-sample-unclear-split, out-of-sample |
-| [automorph-artery-vein](models/automorph-artery-vein.md) | 1,602 | 0.707 | 0.774 | 0.747 | 0.756 | 124 | 3.708 | mixed: in-sample-unclear-split, out-of-sample |
-| [bf-net](models/bf-net.md) | 1,602 | 0.492 | 0.600 | 0.616 | 0.626 | 167 | 0.610 | out-of-sample |
+| [ocularnet](models/ocularnet.md) | 1,602 | 0.829 | 0.853 | 0.853 | 0.884 | 104 | 4.226 | mixed: in-sample, in-sample-unclear-split |
+| [lunet](models/lunet.md) | 1,602 | 0.778 | 0.804 | 0.838 | 0.864 | 67 | 26.015 | unknown |
+| [segan-vessel](models/segan-vessel.md) | 1,602 | — | — | 0.832 | 0.862 | 185 | 2.108 | mixed: in-sample-unclear-split, out-of-sample |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | 1,602 | 0.752 | 0.789 | 0.803 | 0.828 | 168 | 11.922 | mixed: in-sample-unclear-split, out-of-sample |
+| [automorph-artery-vein](models/automorph-artery-vein.md) | 1,602 | 0.707 | 0.774 | 0.747 | 0.756 | 124 | 3.775 | mixed: in-sample-unclear-split, out-of-sample |
+| [bf-net](models/bf-net.md) | 1,602 | 0.492 | 0.600 | 0.616 | 0.626 | 167 | 0.614 | out-of-sample |
 
 **Where to start.**
 
@@ -64,7 +64,7 @@ Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identica
 | [automorph](projects/automorph.md) | 36 | 18 | 648 | 100.0% |
 | [automorphalyzer](projects/automorphalyzer.md) | 36 | 54 | 1344 | 100.0% |
 | [automorphclass](projects/automorphclass.md) | 36 | 18 | 648 | 100.0% |
-| [fundus-biomarkers](projects/fundus-biomarkers.md) | 36 | 623 | 20804 | 100.0% |
+| [fundus-biomarkers](projects/fundus-biomarkers.md) | 36 | 633 | 16792 | 100.0% |
 | [ocular](projects/ocularnet.md) | 36 | 18 | 568 | 100.0% |
 | [pvbm](projects/pvbm.md) | 36 | 30 | 976 | 100.0% |
 | [vascx](projects/vascx.md) | 36 | 20 | 424 | 98.6% |
@@ -80,15 +80,15 @@ Pooled over **chaksu, grape, papila**, one comparison per reader. **Dice** is ov
 
 | Model | Photographs | Outlines | Disc Dice | Cup Dice | Ratio error | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [vascx-disc](models/vascx-disc.md) | 2,464 | 8,332 | 0.951 | — | — | 1.262 | mixed: in-sample-unclear-split, out-of-sample |
-| [segformer-disc-cup](models/segformer-disc-cup.md) | 2,464 | 8,332 | 0.937 | 0.791 | -0.039 | 0.235 | out-of-sample |
-| [lunetv2-odc](models/lunetv2-odc.md) | 2,464 | 8,332 | 0.937 | 0.810 | -0.001 | 0.407 | unknown |
-| [automorph-disc-cup](models/automorph-disc-cup.md) | 2,464 | 8,332 | 0.856 | 0.712 | -0.031 | 0.254 | out-of-sample |
+| [vascx-disc](models/vascx-disc.md) | 2,464 | 8,332 | 0.951 | — | — | 1.119 | mixed: in-sample-unclear-split, out-of-sample |
+| [segformer-disc-cup](models/segformer-disc-cup.md) | 2,464 | 8,332 | 0.937 | 0.791 | -0.039 | 0.199 | out-of-sample |
+| [lunetv2-odc](models/lunetv2-odc.md) | 2,464 | 8,332 | 0.937 | 0.809 | -0.001 | 0.392 | unknown |
+| [automorph-disc-cup](models/automorph-disc-cup.md) | 2,464 | 8,332 | 0.855 | 0.712 | -0.032 | 0.216 | out-of-sample |
 
 **Where to start.**
 
 - **For the disc alone**: **vascx-disc** (Dice 0.951). **segformer-disc-cup** is 0.014 behind (0.937), which is inside the disagreement between two ophthalmologists — the benchmark cannot separate them.
-- **For a cup-to-disc ratio**, which is what leaves the building: **lunetv2-odc**, whose ratio sits -0.001 from the ophthalmologists' on average, against -0.031 for automorph-disc-cup.
+- **For a cup-to-disc ratio**, which is what leaves the building: **lunetv2-odc**, whose ratio sits -0.001 from the ophthalmologists' on average, against -0.032 for automorph-disc-cup.
 - **vascx-disc finds no cup at all**, so it cannot produce that ratio at any score. The two rows above answer different questions and a reader needs to know which one they are asking.
 
 A pooled bias near zero can be a model reading high on one dataset and low on another — [what came out](benchmarks/disc-results.md) breaks it apart, and holds the readers' own disagreement, which is the ceiling any of this is read against.
@@ -107,11 +107,11 @@ Each figure is computed over all those photographs **at once** rather than avera
 
 | Model | Photographs | Coverage | Accuracy | Cohen's κ | ROC AUC | PAPILA kept | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [quickqual](models/quickqual.md) | 3,591 | 1.000 | 0.847 | 0.679 | 0.934 | 0.424 | 0.040 | out-of-sample |
-| [vascx-quality](models/vascx-quality.md) | 3,591 | 1.000 | 0.852 | 0.663 | 0.941 | 0.555 | 0.066 | out-of-sample |
-| [automorph-quality-grader](models/automorph-quality-grader.md) | 3,591 | 1.000 | 0.840 | 0.646 | 0.924 | 0.391 | 0.776 | out-of-sample |
-| [quickqual-meme](models/quickqual-meme.md) | 3,591 | 1.000 | 0.769 | 0.546 | 0.914 | 0.527 | 0.042 | out-of-sample |
-| [fit-quality](models/fit-quality.md) | 3,591 | 1.000 | 0.739 | 0.506 | 0.940 | 0.279 | 1.047 | out-of-sample |
+| [quickqual](models/quickqual.md) | 3,591 | 1.000 | 0.847 | 0.679 | 0.934 | 0.424 | 0.041 | out-of-sample |
+| [vascx-quality](models/vascx-quality.md) | 3,591 | 1.000 | 0.852 | 0.663 | 0.941 | 0.555 | 0.065 | out-of-sample |
+| [automorph-quality-grader](models/automorph-quality-grader.md) | 3,591 | 1.000 | 0.840 | 0.646 | 0.924 | 0.391 | 0.742 | out-of-sample |
+| [quickqual-meme](models/quickqual-meme.md) | 3,591 | 1.000 | 0.769 | 0.546 | 0.914 | 0.527 | 0.041 | out-of-sample |
+| [fit-quality](models/fit-quality.md) | 3,591 | 1.000 | 0.739 | 0.506 | 0.940 | 0.279 | 0.951 | out-of-sample |
 
 **Where to start.**
 
@@ -123,4 +123,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-10-14
+**Generated:** 2026-10-21

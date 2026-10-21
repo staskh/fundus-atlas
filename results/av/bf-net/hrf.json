@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "hrf",
-  "fingerprint": "999a65e01a92a82c25acfbc9dac0df5afed5981d34da40dc44478079571822de",
+  "fingerprint": "8d0b10abe96b3c9d7be58992cd5148f80ce3d3f7b59e1d2d88ed1ad4018a918d",
   "model": "bf-net",
   "summary": {
     "artery_betti": {
@@ -28,7 +28,7 @@
     "failed": 0,
     "photographs": 45,
     "processed": 45,
-    "seconds_per_photograph": 0.48835207670444186,
+    "seconds_per_photograph": 0.5172552207368426,
     "segmentations": 45,
     "structures": [
       "artery",

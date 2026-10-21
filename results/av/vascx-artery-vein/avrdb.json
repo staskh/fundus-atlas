@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "avrdb",
-  "fingerprint": "ba51bfa0e882e515d4d52ccd06314c4fb90f4299c9a354afac8e79383050fab7",
+  "fingerprint": "afd6d044afa1ee6b4018a87723d2a755eb081d99457b39552060236028a2b72d",
   "model": "vascx-artery-vein",
   "summary": {
     "artery_betti": {
@@ -28,7 +28,7 @@
     "failed": 0,
     "photographs": 100,
     "processed": 100,
-    "seconds_per_photograph": 10.02136809045844,
+    "seconds_per_photograph": 8.946693204997127,
     "segmentations": 100,
     "structures": [
       "artery",

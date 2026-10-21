@@ -20,10 +20,11 @@ above all, since the 40 DRIVE photographs it carries are what every artery/vein 
 was not. Both of those sections have gone: the run they were waiting for has happened.*
 
 *The FIVES, Fundus-AVSeg and REYIA figures were measured again on 2026-10-14, after those stores
-were rebuilt at builder version 7, and RAV and AV-WIDE were measured for the first time; HRF and
-AVRDB kept their September measurements. Scores moved by a few thousandths at most and no ordering
-of models changed; the seconds moved more, and section 1 says why that is not the models. Three statements
-this page made in September did not match its own tables, and are corrected where they stand.*
+were rebuilt at builder version 7, and RAV and AV-WIDE were measured for the first time. HRF and
+AVRDB were measured again on 2026-10-21, after their stores were rebuilt too; every score came out
+identical and only the seconds moved. On the first three, scores moved by a few thousandths at
+most and no ordering of models changed; the seconds moved more, and section 1 says why that is not
+the models. Three statements this page made in September did not match its own tables, and are corrected where they stand.*
 
 ## Contents
 
@@ -50,10 +51,10 @@ other, which is why both are carried.
 | Model | Photographs | Coverage | Artery Dice | Vein Dice | Vessels Dice | Vessels clDice | Vessels Betti | Seconds each | Marked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [ocularnet](../models/ocularnet.md) | 1,602 | 1.000 | **0.829** | **0.853** | **0.853** | **0.884** | 93 | 5.7 | in-sample |
-| [lunet](../models/lunet.md) | 1,602 | 1.000 | 0.778 | 0.804 | 0.838 | 0.864 | **57** | 28.0 | unknown |
-| [segan-vessel](../models/segan-vessel.md) | 1,602 | 1.000 | — | — | 0.832 | 0.862 | **170** | 2.2 | mixed |
-| [vascx-artery-vein](../models/vascx-artery-vein.md) | 1,602 | 1.000 | 0.752 | 0.789 | 0.803 | 0.828 | 151 | 12.7 | mixed |
-| [automorph-artery-vein](../models/automorph-artery-vein.md) | 1,602 | 1.000 | 0.707 | 0.774 | 0.747 | 0.756 | 104 | 3.9 | mixed |
+| [lunet](../models/lunet.md) | 1,602 | 1.000 | 0.778 | 0.804 | 0.838 | 0.864 | **57** | 27.9 | unknown |
+| [segan-vessel](../models/segan-vessel.md) | 1,602 | 1.000 | — | — | 0.832 | 0.862 | **170** | 2.1 | mixed |
+| [vascx-artery-vein](../models/vascx-artery-vein.md) | 1,602 | 1.000 | 0.752 | 0.789 | 0.803 | 0.828 | 151 | 11.4 | mixed |
+| [automorph-artery-vein](../models/automorph-artery-vein.md) | 1,602 | 1.000 | 0.707 | 0.774 | 0.747 | 0.756 | 104 | 4.0 | mixed |
 | [bf-net](../models/bf-net.md) | 1,602 | 1.000 | 0.492 | 0.600 | 0.616 | 0.626 | 164 | **0.7** | out-of-sample |
 
 ***The Betti matching error is not normalised, and is not suitable for comparison between
@@ -85,11 +86,10 @@ asked about, and none of the 9,612 failed. Six photographs were set aside by the
 having nothing to score against — four in REYIA, two in FIVES (section 4.2) — which is ours and not
 a model's failure.
 
-**The seconds are photograph-weighted here**, and for one model that matters. The index page
-[BENCHMARKS.md](../BENCHMARKS.md) averages the five per-dataset figures instead, which lets HRF's 45
-photographs weigh as much as REYIA's 559; VascX costs 54.3 seconds a photograph on HRF and 9.9 on
-FIVES, so the index reports 21.1 seconds against the 12.7 above. Both are right about different
-questions. Measured on Apple MPS, except LUNet, which runs on the CPU through TensorFlow because its
+**The seconds are photograph-weighted here.** The index page [BENCHMARKS.md](../BENCHMARKS.md)
+averages the five per-dataset figures instead, which lets HRF's 45 photographs weigh as much as
+REYIA's 559. The two agree to within a second for every model; VascX differs most, at 11.4 seconds
+here against 11.9 there. Measured on Apple MPS, except LUNet, which runs on the CPU through TensorFlow because its
 checkpoint is a Keras 2.11 file.
 
 **The seconds rose when the rebuilt datasets were measured again, and the models did not change.**
@@ -97,7 +97,9 @@ On the three datasets re-measured on 2026-10-14, the same weights on the same ma
 80% longer than in September — LUNet from about 20 seconds a photograph to 28–36, BF-Net on REYIA
 from 0.44 to 1.07 — while the pairs left alone kept their September figures. That is the caveat
 every timing here carries, made concrete: these seconds measure how busy the machine was as well as
-the model, and the column is good to within a factor of two, not to its decimal.
+the model, and the column is good to within a factor of two, not to its decimal. HRF makes the
+point the other way: re-measured on 2026-10-21 after its store was rebuilt, VascX took 9.4 seconds
+a photograph where in September it took 54.3, with the same weights and the same scores.
 
 **A mean hides a tail.** The share of photographs a model loses outright separates models that look
 close in the table:
@@ -491,7 +493,7 @@ unions here. **The exception is FIVES**, the only dataset neither contaminated f
 carrying a derived annotation, where [segan-vessel](../models/segan-vessel.md) leads 0.855 to 0.848
 — seven thousandths, which is not a gap — while OCULARNet leads clDice there by 0.025. Read
 together: the vessel model covers marginally more area, OCULARNet traces a better-connected network.
-And the vessel model is cheap, at 2.2 seconds a photograph.
+And the vessel model is cheap, at 2.1 seconds a photograph.
 
 **If cost dominates, weigh VascX rather than BF-Net.** BF-Net is the only model under a second —
 0.7 seconds, eight times quicker than OCULARNet — but at 0.616 vessels Dice with a fifth of its vessel

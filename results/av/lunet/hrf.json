@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "hrf",
-  "fingerprint": "6d51167ba22d1dc6b235ed8eb3be4229c29d95361440fae84983d664a4efadbb",
+  "fingerprint": "1256f8252749a46d720e55f7ccfe1d7de80169c0894cb418b49d8e069b5fcacf",
   "model": "lunet",
   "summary": {
     "artery_betti": {
@@ -28,13 +28,13 @@
     "failed": 0,
     "photographs": 45,
     "processed": 45,
-    "seconds_per_photograph": 19.92092502343883,
+    "seconds_per_photograph": 18.339345716701988,
     "segmentations": 45,
     "structures": [
       "artery",
       "vein"
     ],
-    "timed_photographs": 41,
+    "timed_photographs": 44,
     "total": 45,
     "vein_betti": {
       "mean": 210.66666666666666,

@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "hrf",
-  "fingerprint": "121a06a5b527051d3991bc7bc732cd0213000a02e12e93f821565e43eb21fbf0",
+  "fingerprint": "fbfd484ca111961e95cb62452224fb76f99964cbc4a544e166f53bc90500416d",
   "model": "segan-vessel",
   "summary": {
     "complete": true,
@@ -10,7 +10,7 @@
     "failed": 0,
     "photographs": 45,
     "processed": 45,
-    "seconds_per_photograph": 1.9015023958180046,
+    "seconds_per_photograph": 1.9459274100795896,
     "segmentations": 45,
     "structures": [
       "vessels"

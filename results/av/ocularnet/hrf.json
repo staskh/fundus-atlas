@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "hrf",
-  "fingerprint": "6d9b714fa900e875439f1087ffdea6278503042a48c93344525ab8eb544acc55",
+  "fingerprint": "6b748b4fac1d02b7214add6bfc4bd8a577a055556c4594e3efe19d7aaa78beca",
   "model": "ocularnet",
   "summary": {
     "artery_betti": {
@@ -28,13 +28,13 @@
     "failed": 0,
     "photographs": 45,
     "processed": 45,
-    "seconds_per_photograph": 2.4235599929024665,
+    "seconds_per_photograph": 2.543856058830649,
     "segmentations": 45,
     "structures": [
       "artery",
       "vein"
     ],
-    "timed_photographs": 41,
+    "timed_photographs": 44,
     "total": 45,
     "vein_betti": {
       "mean": 256.22222222222223,
