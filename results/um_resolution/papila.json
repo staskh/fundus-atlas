@@ -1,8 +1,8 @@
 {
-  "builder_version": 5,
+  "builder_version": 7,
   "dataset": "papila",
   "discs": "disc_estimation",
-  "fingerprint": "47f68890c15a9ddacebee6b39754bd18cd8a267356636c033bbec096b7ef5901",
+  "fingerprint": "dfbb922105c4dfd5949f3f447746662c7766580f19ff9a393aeec51fad047f66",
   "groups": [
     {
       "accepted": true,

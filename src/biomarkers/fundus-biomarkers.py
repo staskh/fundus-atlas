@@ -19,6 +19,9 @@ class FundusBiomarkers:
     **It is written against this catalogue**, so its names *are* catalogued names. Any name the
     vocabulary does not accept is answered under the library's own spelling, the slashes replaced
     by dots, so it is stored and measured but claims nothing.
+
+    **One answer is a category, not a number**: the photograph's centring — disc, macula or
+    unknown. It is answered as the library says it, with no conversion.
     """
 
     slug = "fundus-biomarkers"
@@ -61,24 +64,23 @@ class FundusBiomarkers:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
-    ) -> dict[str, float | None]:
+    ) -> dict[str, float | str | None]:
         """Everything the library computes, under catalogued names, in pixels."""
         self.trouble = {}
         names = self._names()
-        answers: dict[str, float | None] = dict.fromkeys(names.values())
+        answers: dict[str, float | str | None] = dict.fromkeys(names.values())
         if um_per_px is None:
             return answers
-        measure, retina = self._loaded()
+        retina, circle = self._loaded()
         blank = np.zeros(fov.shape, dtype=bool)
-        record = retina.Retina(
-            artery=blank if artery is None else np.asarray(artery, dtype=bool),
-            vein=blank if vein is None else np.asarray(vein, dtype=bool),
-            fov=np.asarray(fov, dtype=bool),
-            um_per_px=float(um_per_px),
-            disc=retina.Disc(cx=float(disc[0]), cy=float(disc[1]), r=float(disc[2])),
-        )
         try:
-            found = measure.measure(record)
+            found = retina(
+                artery=blank if artery is None else np.asarray(artery, dtype=bool),
+                vein=blank if vein is None else np.asarray(vein, dtype=bool),
+                fov=np.asarray(fov, dtype=bool),
+                um_per_px=float(um_per_px),
+                disc=circle(cx=float(disc[0]), cy=float(disc[1]), r=float(disc[2])),
+            ).biomarkers
         except Exception as failure:  # one failure must not lose the row; its reason is kept
             self.trouble["measure"] = repr(failure)
             return answers
@@ -89,16 +91,24 @@ class FundusBiomarkers:
             structure = own.split("/")[2] if own.count("/") >= 2 else ""
             if value is None or structure in missing or (structure == "both" and missing):
                 continue
+            if isinstance(value, str):
+                answers[answered] = value
+                continue
             answers[answered] = float(value) / um_per_px ** _length_power(answered)
         return answers
 
     def _names(self) -> dict[str, str]:
         """The library's name → the name answered under: itself where catalogued, else its own
-        spelling with dots, which carries no slash and so claims no catalogued biomarker."""
-        measure, _ = self._loaded()
+        spelling with dots, which carries no slash and so claims no catalogued biomarker.
+
+        The library answers its full set of names whatever the photograph, None where a value
+        cannot be had, so an empty retina lists them all."""
+        retina, circle = self._loaded()
+        blank = np.zeros((64, 64), dtype=bool)
+        empty = retina(artery=blank, vein=blank, fov=~blank, um_per_px=10.0, disc=circle(32, 32, 4))
         return {
             own: own if canonical.known(own) and _checks(own) else own.replace("/", ".")
-            for own in measure.names()
+            for own in sorted(empty.biomarkers)
         }
 
     def _loaded(self):

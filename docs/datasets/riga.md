@@ -17,7 +17,7 @@ sources, and 460 of them are [MESSIDOR](messidor.md) photographs.
 | | |
 | --- | --- |
 | Home | University of Michigan Deep Blue, DOI [10.7302/Z23R0R29](https://doi.org/10.7302/Z23R0R29) — [record](https://deepblue.lib.umich.edu/data/concern/data_sets/3b591905z) |
-| Download | **direct, no registration** — the BinRushed, Magrabia and MESSIDOR archives from that page, about 13 GB together; Globus for the full deposit |
+| Download | **no registration, but a browser** — the BinRushed, Magrabia and MESSIDOR archives from that page, about 13 GB together, behind a bot challenge a script cannot pass (§2.1); Globus for the full deposit |
 | Citation | Almazroa A, Alodhayb S, Osman E, Ramadan E, Hummadi M, Dlaim M, et al. *Retinal fundus images for glaucoma analysis: the RIGA dataset.* SPIE Medical Imaging 2018. DOI: [10.1117/12.2293584](https://doi.org/10.1117/12.2293584) |
 | Licence | **CC BY-NC 4.0** — attribution, **non-commercial** |
 | Content | 750 images from three sources |

@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "deep-bifurcation",
-  "fingerprint": "a69ea94c4acc2cde78adf031d6829fd15f11e5c895f191a0034ae0ba769e7d24",
+  "fingerprint": "e5971f01a41d804ac4baecbaa1bd5227c903cf797e5a11f927bf057a12fd1706",
   "model": "pvbm",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 4,
     "renderings": 4,
-    "seconds_per_photograph": 17.258499999999998,
-    "seconds_per_rendering": 17.258499999999998,
+    "seconds_per_photograph": 16.1285,
+    "seconds_per_rendering": 16.1285,
     "side": 2048,
     "timed_photographs": 4,
     "total": 4,

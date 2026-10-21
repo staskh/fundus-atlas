@@ -1,8 +1,8 @@
 {
-  "builder_version": 6,
+  "builder_version": 7,
   "dataset": "avrdb",
   "discs": "disc_estimation",
-  "fingerprint": "b4e243156c2ab8726cb2604002eb5277e5c3c908b5072160f3b83fcbbd62bbcd",
+  "fingerprint": "c03d257aa4ed58f6695f088968cfeec0bac1ef7702a60f8d8636cbff6942fef7",
   "groups": [
     {
       "accepted": true,

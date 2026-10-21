@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "avrdb",
-  "fingerprint": "81b234abb068ca6eb559150d2179845501d47bc8858622bc935a78369a189922",
+  "fingerprint": "398eb6ff0a81bae85ce4114cd1293b9c64bf14de9749582ed263862b485f5e6d",
   "model": "ocularnet",
   "summary": {
     "artery_betti": {
@@ -28,7 +28,7 @@
     "failed": 0,
     "photographs": 100,
     "processed": 100,
-    "seconds_per_photograph": 2.8252386927474777,
+    "seconds_per_photograph": 2.4212900669210486,
     "segmentations": 100,
     "structures": [
       "artery",

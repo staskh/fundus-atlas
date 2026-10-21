@@ -58,7 +58,7 @@ Claims made by an author and measurements made here are always labelled separate
 
 ## 5. Status
 
-Early. The structure and conventions are being set up; catalogue entries are not yet published.
+Early. The catalogues and four benchmarks are published; the conventions behind them still change.
 
 A summary paper is planned, under the working title:
 

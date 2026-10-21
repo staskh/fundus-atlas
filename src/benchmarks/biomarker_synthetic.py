@@ -277,9 +277,17 @@ def _row(
     # cannot quietly decide what counts as agreement, and the same evidence can be re-read against
     # a corrected ground truth without measuring anything again.
     for key in adapter.keys():
-        value = answered.get(key)
-        row[f"said_{key}"] = "" if value is None else f"{float(value):.6f}"
+        row[f"said_{key}"] = _said(answered.get(key))
     return row
+
+
+def _said(value: object) -> str:
+    """One answer as the evidence spells it: a number to six places, a category as it was said."""
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    return f"{float(value):.6f}"
 
 
 def _summarise(rows: list[dict[str, object]], wanted: list[float]) -> dict[str, object]:
@@ -547,7 +555,11 @@ def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[s
                     if not said:
                         continue
                     answered += 1
-                    by_quantity.setdefault(f"{path.stem}/{key}", []).append(float(said))
+                    try:
+                        value = float(said)
+                    except ValueError:  # a category was said; it has no size to spread over
+                        continue
+                    by_quantity.setdefault(f"{path.stem}/{key}", []).append(value)
         spreads = [
             (max(values) - min(values)) / max(abs(v) for v in values)
             for values in by_quantity.values()

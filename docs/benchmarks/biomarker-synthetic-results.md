@@ -1,6 +1,6 @@
 # Synthetic biomarker benchmark — what came out
 
-Six biomarker implementations were run over the same **36 renderings** — nine drawn shapes at four
+Seven biomarker implementations were run over the same **36 renderings** — nine drawn shapes at four
 angles each — on a 2048² grid at 5 µm per pixel, with arteries 80 µm wide, veins 120 µm and an
 optic disc 1800 µm across. Nothing here was photographed and nothing was annotated: every shape was
 *drawn* from equations, so what it ought to measure follows from arithmetic rather than from
@@ -11,21 +11,26 @@ Every number on this page comes from `results/biomarker-synthetic/`; the reading
 re-measured for the 2026-09-30 revision**: not one stored value changed, because a run records
 what an implementation returned and records no mapping at all. What changed is the names those
 values answer to and the units they are compared in — which is the whole point of keeping the two
-apart, and the reason a correction to the catalogue costs no compute. **The measurements
-are reproducible**: clearing `results/` and running all 54 pairs again reproduces every stored value
-exactly, to the last decimal, and the only columns that move are the timings. How the benchmark
+apart, and the reason a correction to the catalogue costs no compute — unless the renamed names
+sit in a declaration the fingerprint covers, as PVBM's `units` do, which makes its stored results
+read as stale though no value changed. **The measurements are reproducible**: clearing `results/`
+and running the six compared below — 54 pairs — again reproduced every stored value exactly, to
+the last decimal, and the only columns that move are the timings. How the benchmark
 is configured is a separate page, [biomarker-synthetic-docs.md](biomarker-synthetic-docs.md), and
 the shapes with their derivations are in
 [the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb).
 
-**All six are on this page together, and that is the point.** The question is whether these
-programs compute the same quantity, and that question lives across a row — one biomarker, six
+**All seven are on this page together, and that is the point.** The question is whether these
+programs compute the same quantity, and that question lives across a row — one biomarker, seven
 columns. The columns stand in **lineage order**: [PVBM](../projects/pvbm.md) and
 [OCULAR](../projects/ocularnet.md), which imports PVBM's helpers at runtime; then
 [AutoMorph](../projects/automorph.md) and its two descendants,
 [AutoMorphalyzer](../projects/automorphalyzer.md) and
 [AutoMorphClass](../projects/automorphclass.md); then [VascX](../projects/vascx.md), which shares
-code with none of them. A difference **between neighbours** is a change somebody made on purpose; a
+code with none of them; and last [fundus-biomarkers](../projects/fundus-biomarkers.md), Pheno's own
+reference implementation, which shares code with none of them either and whose owner is also this
+atlas's owner — its numbers are published like everybody's and are **not independently verified**
+(section 10). A difference **between neighbours** is a change somebody made on purpose; a
 difference **across a boundary** is two independent readings of the same definition.
 
 > **PVBM now measures with `GeometryAnalysis`**, from 2026-09-26, having used the deprecated
@@ -57,20 +62,21 @@ difference **across a boundary** is two independent readings of the same definit
 7. [Which to reach for, and at what question](#7-which-to-reach-for-and-at-what-question)
 8. [What these numbers do not say](#8-what-these-numbers-do-not-say)
 9. [What changed, and what it did not](#9-what-changed-and-what-it-did-not)
+10. [fundus-biomarkers, the seventh implementation](#10-fundus-biomarkers-the-seventh-implementation)
 
 ## 1. Summary
 
-| | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
-| --- | --- | --- | --- | --- | --- | --- |
-| Biomarkers produced | 30 | 18 | 18 | 54 | 18 | 20 |
-| …matching a canonical name | 20 | 10 | 15 | 23 | 15 | 8 |
-| Comparable measurements | 312 | 304 | 372 | 388 | 372 | **80** |
-| Median disagreement | 3.7% | 3.0% | 8.2% | 6.1% | 5.5% | **0.0%** |
-| Within 25% of the geometry | 90% | **95%** | 80% | 92% | 91% | 90% |
-| Quantities that move when the image turns | 9 / 30 | 8 / 18 | 16 / 18 | 19 / 40 | 11 / 18 | **4 / 20** |
-| Biomarkers disagreeing with the geometry | 7 / 20 | 5 / 10 | 9 / 15 | **3 / 17** | 4 / 15 | 2 / 6 |
-| Exceptions | 0 | 0 | 0 | 0 | 0 | 0 |
-| Seconds per image | **19.2** | 2.2 | 0.9 | 3.9 | **0.5** | 2.8 |
+| | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx | fundus-biomarkers |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Biomarkers produced | 30 | 18 | 18 | 54 | 18 | 20 | 633 |
+| …matching a canonical name | 20 | 10 | 15 | 23 | 15 | 6 | 625 |
+| Comparable measurements | 312 | 304 | 372 | 388 | 372 | **80** | 2,884 |
+| Median disagreement | 3.7% | 3.0% | 8.2% | 6.1% | 5.5% | **0.0%** | **0.0%** |
+| Within 25% of the geometry | 90% | **95%** | 80% | 92% | 91% | 90% | **98%** |
+| Quantities that move when the image turns | 9 / 30 | 8 / 18 | 16 / 18 | 19 / 40 | 11 / 18 | **4 / 20** | 116 / 629 |
+| Biomarkers disagreeing with the geometry | 7 / 20 | 5 / 10 | 9 / 15 | **3 / 17** | 4 / 15 | 2 / 6 | 11 / 185 |
+| Exceptions | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Seconds per image | **17.5** | 2.2 | 0.9 | 3.9 | **0.5** | 2.8 | 4.0 |
 
 **Every figure here is taken against a noise floor of 1% of the biomarker's own size**, meaning the
 largest value the shapes require of it anywhere in the store. A difference smaller than that counts
@@ -91,9 +97,9 @@ columns are not ranked by them, because the columns are not answering the same q
 twenty. Measuring less, more carefully, is a defensible engineering choice and it is not the
 same achievement as measuring more. Section 7 says what can actually be concluded.
 
-Two figures stand out on their own terms. **PVBM takes about forty times longer per image than
-AutoMorphClass** — 19.2 seconds against 0.5 — which over a study of fifty thousand photographs is
-about eleven days of compute against seven hours. **Nothing raises any more**, which took giving
+Two figures stand out on their own terms. **PVBM takes about thirty-five times longer per image
+than AutoMorphClass** — 17.5 seconds against 0.5 — which over a study of fifty thousand photographs
+is about ten days of compute against seven hours. **Nothing raises any more**, which took giving
 PVBM the recursion limit its own fork sets, and cost it the appearance of being the steadiest thing
 here (section 3).
 
@@ -104,7 +110,7 @@ judge, and the counts above only mean something once they are kept apart:
 
 - **The catalogue may have no name for it.** AutoMorphalyzer returns 17 quantities with no
   canonical name — `average_local_calibre` at every zone, `tortuosity_density` and
-  `tortuosity_distance` at zone C, and two Knudtson equivalents at zone C. VascX returns 12,
+  `tortuosity_distance` at zone C, and two Knudtson equivalents at zone C. VascX returns 14,
   PVBM 10. *That count fell from 23 when the vocabulary gained a region: AutoMorphalyzer's zone-B
   tortuosity columns now have a catalogued name, because the region is part of the name rather
   than a thing the catalogue could not express.* These are measured and stored under the implementation's
@@ -113,9 +119,9 @@ judge, and the counts above only mean something once they are kept apart:
   catalogue or a mapping nobody has made — both are work somebody can do, and the notebook's
   section 1 lists them by name.
 - **No shape may settle it.** A quantity can carry a catalogued name and still have no theoretical
-  value here. This is why VascX's eight canonical names yield six judged biomarkers, and why
-  AutoMorphalyzer's zone-B columns — newly nameable — are still judged against nothing: no shape
-  here is drawn to pin a value inside that annulus, only across it.
+  value here. This is why AutoMorphalyzer's 23 canonical names yield 17 judged biomarkers: its
+  zone-B columns — newly nameable — are still judged against nothing, because no shape here is
+  drawn to pin a value inside that annulus, only across it.
 - **The program may simply never answer.** AutoMorphalyzer returns 54 columns of which 40 ever
   carry a value.
 
@@ -546,6 +552,45 @@ truth to be judged against. What changed is a claim this page was making about i
 normalises by, every mapping of its columns onto a unit-bearing name is suspect — not only the one
 that misbehaved.
 
+## 10. fundus-biomarkers, the seventh implementation
+
+*Added 2026-10-21, measured at its pinned commit `571bc81`.* Pheno's reference implementation
+answers under the catalogue's own names, which is why its column is so much longer than the rest:
+633 quantities, 625 of them catalogued, over the field of view and zones B and C. It is published
+here like every other implementation, and **none of it is independently verified**: the
+implementation and the atlas share an owner (`PLAN-BIOMARKER.md` §5.6).
+
+**Where the shapes settle a value, it mostly agrees.** Of 2,884 comparable measurements the median
+disagreement is 0.0% and 98% fall within 25% of the geometry. 11 of its 185 judged biomarkers are
+out by more than 25% somewhere, and they fall into three groups (notebook section 4):
+
+- **Standard deviations measured against a geometry that requires zero.** `calibre/width/*/std` and
+  `topology/branching-angle/*/std` read 4,000% to 9,800% out, worst on `deep-bifurcation`. A
+  straight vessel of constant width has a width deviation of exactly 0, so any small residue — 0.98
+  µm in the worst case — is a large multiple of a 1% floor. That is what the number is, not that the
+  widths are wrong; but it is also not agreement.
+- **Counts on `deep-bifurcation`.** `topology/endpoints` is out by 94% and `topology/junctions` by
+  57% for both classes, against PVBM's and OCULAR's 43% and 86% on the same shape.
+- **`tortuosity/spline-curvature` on `straight`**, out by 106% for arteries in all three of its
+  statistics, where the geometry requires zero curvature.
+
+**Turning the picture moves more of it than of anything else here**: 116 of 629 quantities move by
+more than 10% across the four angles (notebook section 3). Half of them, 58, are standard
+deviations, whose value on these shapes is near zero, so a small rotation-dependent residue is a
+large share of it. The rest are 24 spline-curvature statistics (moving by 11% to 144%), the 23
+box-counting and multifractal dimensions (all between 10% and 17%), five connected-component counts
+(80% to 109%), the zone-C central retinal equivalents (23% to 32%), and three whole-vessel
+tortuosities just over the line. The worst single case is `calibre/width/artery/B/std` on `disjoint`, which reads 0 at one angle
+and 0.66 µm at another.
+
+**Two of its answers are not measurements in this benchmark's sense.** The photograph's centring —
+`disc`, `macula` or `unknown` — is a category and is stored as the library said it, outside every
+numeric comparison. The cup-to-disc ratios are empty here, because they need disc and cup masks the
+shapes do not carry.
+
+It takes 4.0 seconds per image, on the CPU.
+
 ---
 
-**Compiled from** [notebooks/biomarker-synthetic.ipynb](../../notebooks/biomarker-synthetic.ipynb).
+**Compiled from** [notebooks/biomarker-synthetic.ipynb](../../notebooks/biomarker-synthetic.ipynb)
+on 2026-10-21.

@@ -1,7 +1,7 @@
 {
-  "builder_version": 4,
+  "builder_version": 7,
   "dataset": "deepdrid",
-  "fingerprint": "79988f567ee820fb764daf85b0a292310a25b394c61b7ff19910a0a71b4f7349",
+  "fingerprint": "d25155398f87ae0c7c7e0140b24655bf037a045b25f6b11518746560054a6120",
   "frame": "crop",
   "grid": 512,
   "model": "segformer-disc-cup",

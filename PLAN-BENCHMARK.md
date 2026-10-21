@@ -1,7 +1,8 @@
 # Benchmarks: the plan
 
-What we decided and why, before any of it is built. Sections marked **Decided** are settled;
-**Open** needs Stas's call. Nothing here is code.
+What we decided and why. Sections marked **Decided** are settled; **Open** needs Stas's call. Four
+benchmarks are now built, and where this plan and the code or the skills differ, the code and the
+skills are the authority.
 
 The catalogues answer *what exists*. The benchmarks answer the question the README promises and no
 catalogue can: **do two of these agree, measured on the same images, on the same terms?**
@@ -46,7 +47,7 @@ AutoMorphalyzer replaced it with QuickQual — so it is **benchmarked as a stand
 from the AutoMorph repository without the pipeline around it. It is a model like any other; only the
 pipeline is out of scope.
 
-**The seven built stores are a beginning, not the set.** Datasets are fetched as a benchmark needs
+**The fourteen built stores are a beginning, not the set.** Datasets are fetched as a benchmark needs
 them; every benchmark names the datasets it wants, and the ones not yet built are a work item rather
 than a limitation. The same goes for models: **adding one must mean adding one file**, which is what
 section 10 is designed around.
@@ -171,7 +172,7 @@ so instead of averaging them.
 1. **Quality. Built** — [what came out](docs/benchmarks/quality-results.md), and
    [how it is configured](docs/benchmarks/quality-docs.md). Five models on
    [FIVES](docs/datasets/fives.md), [FQS](docs/datasets/fqs.md), [MSHF](docs/datasets/mshf.md) and
-   [PAPILA](docs/datasets/papila.md): four datasets, 4,087 photographs each.
+   [PAPILA](docs/datasets/papila.md): four datasets, 4,079 photographs each.
    [DeepDRiD](docs/datasets/deepdrid.md) is held back because the toolbox ensemble trained on it;
    [EyeQ](docs/datasets/eyeq.md) and [DRIMDB](docs/datasets/drimdb.md) are the next to fetch, and
    both are in-sample for three of the five models, which is the reason to have them.
@@ -186,21 +187,30 @@ so instead of averaging them.
    grader's probability of `bad` stays under 0.25; AutoMorphalyzer carries every photograph
    whatever [QuickQual-MEME](docs/models/quickqual-meme.md) says; AutoMorphClass has no quality
    stage at all; VascX writes three logits nothing reads.
-2. **Disc and cup: segmentation and biomarkers together**, as one benchmark, because the biomarkers
-   are arithmetic on the same contours. Datasets: [Chákṣu](docs/datasets/chaksu.md),
-   [GRAPE](docs/datasets/grape.md), and [ORIGA](docs/datasets/origa.md) once its archive arrives —
-   ORIGA being the one with a published cup-to-disc ratio to check against.
-3. **Arteries and veins: segmentation — artery/vein models only.** Vessel-only models are **not
-   benchmarked for now** and are kept for later; an artery/vein model already produces a vessel mask
-   as the union of its classes, so the question "how good are the vessels" is answered without them.
+2. **Disc and cup: segmentation and biomarkers together. Built** —
+   [what came out](docs/benchmarks/disc-results.md), and
+   [how it is configured](docs/benchmarks/disc-docs.md). One benchmark, because the biomarkers are
+   arithmetic on the same contours. Four models on [Chákṣu](docs/datasets/chaksu.md),
+   [GRAPE](docs/datasets/grape.md) and [PAPILA](docs/datasets/papila.md).
+   [ORIGA](docs/datasets/origa.md), the one with a published cup-to-disc ratio to check against,
+   waits for an archive fetched by hand; REFUGE, Drishti-GS and RIM-ONE DL are declared and not
+   yet fetched.
+3. **Arteries and veins: segmentation — artery/vein models only. Built** —
+   [what came out](docs/benchmarks/av-results.md), and
+   [how it is configured](docs/benchmarks/av-docs.md). Vessel-only models are **not benchmarked as
+   entries**; an artery/vein model already produces a vessel mask as the union of its classes, so
+   the question "how good are the vessels" is answered without them. One vessel-only model,
+   [SeGAN](docs/models/segan-vessel.md), runs beside them as a reference for the vessel column
+   only.
    Each A/V model is scored three ways on the same output:
    - **arteries** against the annotation's arteries,
    - **veins** against its veins,
    - **A+V**, both classes merged on each side, which is the vessel score.
 
    Three numbers, because a model can find the vessels and colour them wrongly, and one number
-   cannot show that. None of the seven stores carries A/V, so this benchmark needs datasets fetched
-   first: HRF-AV, LES-AV, RITE, IOSTAR, Leuven-Haifa and their kin.
+   cannot show that. Measured on HRF (with HRF-AV), Fundus-AVSeg, AVRDB, REYIA and FIVES, with RAV
+   and AV-WIDE held apart; LES-AV and RITE are declared and not yet fetched, and IOSTAR and
+   Leuven-Haifa are not declared.
 4. **Arteries and veins: biomarkers**, separately from the segmentation, since the interesting
    result is the paired one — the same calibre, tortuosity and fractal dimension computed on the
    annotation and on each model's mask.
@@ -240,7 +250,8 @@ different code for one formula. So the comparison table declares, per biomarker,
 implementations compute *the same defined quantity*; where they do not, they appear in the same
 table and are never subtracted from one another.
 
-**Where the score is computed: the annotation's own frame** — the store's `native/`. The ground
+**Where the score is computed: the annotation's own frame** — the store's `crop/`, the one frame
+it keeps at full resolution. The ground
 truth is the one thing that must not be altered to make a comparison convenient. Every result
 records the model's own grid beside the score, since a model working at 512 against a 2048-pixel
 annotation is handicapped in a way the number alone does not show.
@@ -272,9 +283,11 @@ on the largest photographs (Chákṣu's Remidio is 2448×3264), not time.
 **Decided — new, and it belongs before the dataset benchmarks rather than after.** Built as the
 `biomarker-synthetic` benchmark; `build-benchmark/biomarker-synthetic.md` holds its rules. Scope
 agreed 2026-09-20: every catalogued biomarker that does not need the fovea — so disc-fovea distance
-and temporal angle are out, sparsity is in, measured in pixels rather than as a fraction of a
-distance it cannot have, and the arteriovenous ratio is in, on shapes carrying both classes at
-known widths.
+and temporal angle are out, sparsity is in, and the arteriovenous ratio is in, on shapes carrying
+both classes at known widths. *Two parts of that scope moved: every length is now compared in
+microns, never pixels (`PLAN-BIOMARKER.md` §2.2), and VascX's sparsity mapping was withdrawn, since
+its sparsity is a ratio to the disc–fovea distance rather than a distance (`PLAN-BIOMARKER.md`
+§3.2).*
 
 **No pass mark, and no automated selection.** Which implementations go on to the dataset benchmark
 is a judgement made by a person on this evidence, in separate work. A benchmark that also chose
@@ -307,8 +320,9 @@ These fixtures are **ours**, small, and committed — they are not a dataset and
 
 **Decided, per Stas's acceptance.**
 
-- **Pip-installable upstreams are installed, not cloned**, at an **exact pinned version** — PVBM and
-  the Fundus Image Toolbox today. A clone happens only if we need to patch.
+- **Pip-installable upstreams are installed, not cloned**, at an **exact pinned version** — the
+  Fundus Image Toolbox today. A clone happens when we need to patch, or when the upstream's code has
+  to be read again: PVBM and VascX are cloned for that reason (`add-upstream` §2.1).
 - **Everything else is fetched by pinned clone**, the same mechanism the datasets use
   (`utils/archives.GitSource`: sparse clone at a pinned commit, provenance recorded), into a
   git-ignored `.atlas_code/<slug>/`.
@@ -368,7 +382,7 @@ that bonus.
 1. **Pre- and post-processing goes in our adapter, not their code.** `src/models/<slug>.py` prepares
    the input and interprets the output, and calls their model. Our changes are then ordinary code of
    ours — reviewable, testable, no patch to rot.
-2. **A change that must be inside their code is a patch file**, `src/models/patches/<slug>/NNN-*.patch`,
+2. **A change that must be inside their code is a patch file**, `src/upstreams/patches/<slug>/NNN-*.patch`,
    applied after the pinned clone. Against a pinned commit it cannot rot, because the commit cannot
    move. Each patch's commit says what it fixes and why.
 3. **No forks.** Forking OCULAR, SuperRetina or the MIDL24 weights would republish code nobody
@@ -443,8 +457,8 @@ the same — so an adapter takes masks, the field of view, the disc and the scal
 **everything that implementation computes, in one dictionary, under its own names**. Splitting it
 per measurement would mean repeating the same traversal a dozen times, or pretending the numbers
 are independent when they are not. The translation from somebody's column name to a catalogued
-biomarker and variant lives in `src/biomarkers/naming.py`, reviewed on its own, because that
-translation is a claim and it is frequently wrong. `add-biomarker` holds the detail.
+biomarker and variant lives in a naming table at the top of each adapter, beside the calls whose
+output it describes, because that translation is a claim and it is frequently wrong. `add-biomarker` holds the detail.
 
 The rest of this section stands. A biomarker implementation usually lives inside somebody's
 project — PVBM's tortuosity, AutoMorph's central retinal equivalents — and each expects its input in
@@ -486,10 +500,11 @@ that grouping stays a question for the analysis.
 
 Two practical points that follow from batching:
 
-- **Batch at the model's grid, score at native.** Photographs differ in size, so a batch is only
-  possible once they are on a common grid — which is exactly what the store's `512/` and `1024/`
-  directories are for, and why they exist. The loader therefore yields images at the size the model
-  asks for, and the **ground truth is loaded at native by the scorer**, not stacked into the batch.
+- **Batch at the model's grid, score in the crop.** Photographs differ in size, so a batch is only
+  possible once they are on a common grid. The store keeps one full-resolution `crop/` and the
+  loader resizes each photograph to the size the model asks for as it reads it
+  (`resample.read_photograph`); the **ground truth is loaded in the crop by the scorer**, not
+  stacked into the batch.
 - **The ground truth of a multi-reader dataset does not stack.** Chákṣu has five contours per
   structure and they are polygons of differing length, so the collate function keeps them as a list
   rather than padding them into a tensor.
@@ -503,11 +518,12 @@ src/
     utils/              pinned clone, pinned install, patch application
     patches/<project>/  patch files, where an upstream must be changed
   models/               ONE MODULE PER CATALOGUED MODEL — the adapters of 10.2
-  biomarkers/           our implementations and the adapters of 10.3
-    synthetic/          the generators of section 7
+  biomarkers/           the adapters of 10.3, one per implementation, and the vocabulary
   benchmarks/           one module per benchmark; the scorer; the report writers
     __main__.py         one entry point: `python -m benchmarks --benchmark <name>`
     loaders/            the PyTorch datasets of 10.4
+    metrics/            what each benchmark measures about one output
+    shapes/             the generators of section 7
 tests/
   datasets/ upstreams/ models/ biomarkers/ benchmarks/
 notebooks/              one analysis notebook per benchmark — section 12
@@ -520,8 +536,8 @@ results/<benchmark>/<model>/<dataset>.csv    committed — per-image scores, the
 results/<benchmark>/<model>/<dataset>.json   committed — the summary, the fingerprint, and how much is done
 docs/
   BENCHMARKS.md                 committed — one row per model × dataset, across every benchmark
-  benchmarks/<slug>-docs.md     committed — generated: how that benchmark is configured and run
-  benchmarks/<slug>-results.md  committed — generated: what came out, model by model
+  benchmarks/<slug>-docs.md     committed — prose, with marked blocks refreshed by `--docs`
+  benchmarks/<slug>-results.md  committed — written from the notebook
 ```
 
 The benchmark's own name leads the path so that two benchmarks scoring the same model on the same
@@ -573,7 +589,8 @@ could change a score:
   prose beside them. Hashing a whole declaration means rewording a sentence throws away hours of
   measurement; the benchmark names the keys that bear on the numbers. The mirror hazard is a
   behaviour hiding inside a sentence, so any constant a model acts on is declared as a number;
-- the sha256 of the weights actually loaded, and the patches applied, by content;
+- the sha256 of the weights actually loaded. *Patches are not in it yet*: none has been written,
+  and the first one must enter the fingerprint by content when it is;
 - the store's `builder_version`;
 - the metric set, the resampling path, and the benchmark's own version.
 
@@ -607,7 +624,8 @@ or one it excluded, never both and never neither.
 expensive part and are not what gets kept: the scores are.
 
 The trap this design has to avoid is a stale score outliving the thing that produced it. That is
-what the fingerprint is for, and why it covers the patches by content rather than by name.
+what the fingerprint is for, and why a patch, once one exists, must enter it by content rather than
+by name.
 
 ## 12. Notebooks and the two written documents
 
@@ -632,12 +650,13 @@ A benchmark produces four things, and they are for different readers:
    readers, what the failures look like as images. A table says a model scores 0.82; the notebook is
    where someone finds out that the 0.82 is two populations and one of them is a camera.
 
-Both documents are **generated by the run**, so they cannot drift from the numbers — but at
-different moments. **The configuration page is written before the measuring starts**, because every
-word of it is known before a photograph is scored: a run that dies halfway still leaves an accurate
-account of itself, and anybody can read what a run is about to do before committing hours of it. It
-is regenerated after any change to the benchmark's code, run or no run. **The results page is
-written after the measuring finishes**, because it needs the numbers.
+**Neither document is written by a run.** The configuration page is prose with marked blocks,
+and those blocks are refreshed from the JSON the benchmark reports about itself by
+`python -m benchmarks --benchmark <name> --docs`, in the commit that changes the benchmark's code;
+a test fails while it is stale (`document-benchmark`). It can therefore be written before the
+benchmark exists, which is the order to prefer. **The results page is written from the notebook**
+after the measuring finishes, because it needs the numbers (`report-benchmark`). What a run does
+write is the index, `docs/BENCHMARKS.md`.
 
 Both carry the prose rules of `CLAUDE.md` §4: for a reader who is not a software engineer, numbered headings,
 a map rather than a leaderboard. The notebook is where judgement goes; the two documents are where
@@ -655,10 +674,11 @@ in `.claude/skills/`:
 | --- | --- |
 | `add-upstream` | Bringing in a third-party repository: pinning, patching, importing, recording provenance — **written** |
 | `add-model` | A model adapter: the interface, what it must declare, what it must not do, and the model page it must match — **written** |
-| `add-biomarker-implementation` | A biomarker adapter or our own implementation: variants, units, inputs, and the synthetic fixtures it must pass — waiting for its first instance |
+| `add-biomarker` | A biomarker adapter: one per implementation, its naming table, units and inputs — **written** |
 | `build-benchmark` | A benchmark: what it runs on, its loaders, its metrics, its fingerprint and its incremental behaviour — **written** |
 | `analyse-benchmark` | The notebook: what every benchmark's analysis must show, so two of them can be read against each other — **written** |
-| `report-benchmark` | The two generated documents: their sections, and the rule that they are generated rather than written — **written** |
+| `document-benchmark` | The configuration page: the JSON a benchmark reports about itself and the marked blocks refreshed from it — **written** |
+| `report-benchmark` | The results page, written from the notebook, and the index above every benchmark — **written** |
 
 ### 13.1 Common rules, and one file per benchmark
 
@@ -667,7 +687,7 @@ in `.claude/skills/`:
 ```
 .claude/skills/build-benchmark/SKILL.md      what is true of every benchmark
 .claude/skills/build-benchmark/quality.md    what is true only of the quality benchmark
-.claude/skills/build-benchmark/disc-cup.md   …added when that benchmark is built
+.claude/skills/build-benchmark/disc.md       …and one for each other benchmark: av.md, biomarker-synthetic.md
 ```
 
 The main file holds the shape — the run's key, the exclusions, the fingerprint, the command line,
@@ -682,18 +702,18 @@ else's special case to find one paragraph of shared rule.
 
 Each is written **when its first instance is built**, from what that instance actually taught —
 which is how `fetch-dataset` got rules 13.1 to 13.10, none of which could have been written in
-advance. Five of the six were written from the quality benchmark; the sixth waits for the first
-biomarker implementation.
+advance. Five were written from the quality benchmark, `add-biomarker` from the first biomarker
+implementation, and `document-benchmark` when runs stopped writing the configuration page.
 
 ## 14. Open questions
 
 1. **Which datasets to fetch next**, in the order the benchmarks need them: EyeQ and DRIMDB for
    quality; REFUGE, Drishti-GS, G1020, RIM-ONE DL for disc and cup ([PAPILA](docs/datasets/papila.md)
-   is built); HRF, RITE, LES-AV, IOSTAR, Leuven-Haifa for arteries and veins.
+   is built); RITE, LES-AV, IOSTAR, Leuven-Haifa for arteries and veins (HRF is built).
 2. **ORIGA** still needs its archive by hand before the disc/cup benchmark can use its `ExpCDR`.
-3. **Which A/V models exist to benchmark**, now that vessel-only models are deferred: BF-Net through
-   AutoMorphClass and AutoMorphalyzer, VascX artery/vein, OCULARNet and OCULARNet-nano, LUNet. Worth
-   confirming that list is the intended one before the datasets are fetched for it.
+3. ~~**Which A/V models exist to benchmark**~~ **Settled by the benchmark as built:** VascX
+   artery/vein, OCULARNet, LUNet, AutoMorph's artery/vein model and BF-Net, with SeGAN as the vessel
+   reference. OCULARNet-nano is declared and cannot be measured: its weights answer HTTP 401.
 4. **Why every quality model rejects most of [PAPILA](docs/datasets/papila.md).** Between 38% and
    72% of a curated, disc-centred, two-expert-annotated dataset is called not worth measuring, and
    the black canvas of its square crop is not the cause — trimming it makes the rejection worse.
@@ -702,4 +722,4 @@ biomarker implementation.
 
 ---
 
-**Written:** 2026-09-14 · **Revised after the first benchmark:** 2026-09-15
+**Written:** 2026-09-14 · **Revised after the first benchmark:** 2026-09-15 · **Checked against the code:** 2026-10-20

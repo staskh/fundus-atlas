@@ -157,8 +157,8 @@ the authority on it:
 - `src/models/<slug>.py` — one adapter per catalogued **model**, matching `docs/models/<slug>.md`.
   Five models from one repository are five adapters and one upstream.
 - `src/biomarkers/<slug>.py` — one adapter per **implementation** of somebody's biomarker code,
-  matching `docs/projects/<slug>.md`, beside `naming.py`, which is the only place a project's own
-  column name is translated into a catalogued biomarker and variant.
+  matching `docs/projects/<slug>.md`. Its naming table, at the top of the same file, is the only
+  place a project's own column name is translated into a catalogued biomarker and variant.
 - `src/benchmarks/` — one module per benchmark, its loaders, its scorer and its report writer.
 - `results/` — committed evidence: per-image benchmark scores, inferred camera scales under
   `results/um_resolution/` for datasets that published no microns-per-pixel figure, and

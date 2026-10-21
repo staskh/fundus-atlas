@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "avrdb",
-  "fingerprint": "80d12ac4b4a857d0c0fab77f8d98b0e6c61ee90a10e1609e09701a3d770a3167",
+  "fingerprint": "501de83e7652349f1b61888eb50a8a34486f619b08c179bb08ea980d4aa57c1c",
   "model": "lunet",
   "summary": {
     "artery_betti": {
@@ -28,7 +28,7 @@
     "failed": 0,
     "photographs": 100,
     "processed": 100,
-    "seconds_per_photograph": 20.58734973825256,
+    "seconds_per_photograph": 18.978589201611797,
     "segmentations": 100,
     "structures": [
       "artery",

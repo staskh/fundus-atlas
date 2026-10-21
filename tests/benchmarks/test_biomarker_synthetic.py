@@ -72,6 +72,49 @@ def test_a_rendering_that_answered_in_part_is_measured_rather_than_failed() -> N
     assert "RecursionError" in row["note"], "and the reason it could not answer is still recorded"
 
 
+class Categorising:
+    """An implementation whose answer for one column is a category rather than a number."""
+
+    slug = "categorising"
+
+    def keys(self):
+        return ("area_artery", "centring")
+
+    def measure(self, artery, vein, fov, disc, um_per_px):
+        return {"area_artery": 1234.0, "centring": "disc"}
+
+
+def test_a_category_is_recorded_as_it_was_said() -> None:
+    """Every column an implementation computes is stored, and a category has no number to round."""
+    adapter = Categorising()
+    built = benchmark.library.build("straight", side=2048, rotation=0.0, um_per_px=5.0)
+
+    row = benchmark._row(
+        adapter, built, 0.0, adapter.measure(None, None, None, None, None), 0.1, ""
+    )
+
+    assert row["said_centring"] == "disc"
+    assert row["said_area_artery"] == "1234.000000"
+
+
+def test_a_category_counts_as_an_answer_and_has_no_spread(tmp_path) -> None:
+    """The index pools what was said; a category was said, but it has no size to spread over."""
+    a_result(
+        tmp_path,
+        "straight",
+        [
+            {"rotation": "0.0", "said_area_artery": "100.0", "said_centring": "disc"},
+            {"rotation": "30.0", "said_area_artery": "110.0", "said_centring": "macula"},
+        ],
+    )
+
+    pooled = benchmark._pooled([{"model": "pvbm"}], tmp_path)["pvbm"]
+
+    assert pooled["answered"] == 4
+    assert pooled["columns"] == 2
+    assert pooled["spread"] == "9.1%"
+
+
 def test_the_committed_configuration_page_is_current() -> None:
     """A stale page fails the suite rather than sitting wrong in a public reference.
 

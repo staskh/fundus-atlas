@@ -590,7 +590,7 @@ def test_a_published_mask_is_never_replaced_by_a_derived_one(tmp_path) -> None:
     drawn = build.as_masks(np.zeros((4, 4, 3), dtype=np.uint8), palette, "av")
 
     assert "vessels" in drawn, "the union is produced"
-    assert build.published_wins({"vessels", "fov"}, drawn) == {"artery", "vein"}, (
+    assert build.published_wins({"av", "vessels", "fov"}, drawn, "av") == {"artery", "vein"}, (
         "and dropped where the dataset published its own"
     )
 

@@ -105,14 +105,17 @@ def as_masks(pixels: np.ndarray, reader: object, name: str = "av") -> dict[str, 
     return reader.masks(pixels, name)
 
 
-def published_wins(declared: set[str], derived: dict[str, np.ndarray]) -> set[str]:
+def published_wins(declared: set[str], derived: dict[str, np.ndarray], reading: str) -> set[str]:
     """Which of a reader's masks to keep, given what the dataset published in its own right.
 
     Expanding an artery/vein map yields a vessel union as well, and where the dataset drew its own
     vessels — HRF did, by hand, years before anyone separated its arteries — the union must not
     replace it. Two independent annotations are worth more than one of them measured twice.
+
+    The mask a reader returns under the name of the map it was reading is that map, not something
+    derived from another, and is always kept: AVRDB draws each class in its own file.
     """
-    return {kind for kind in derived if kind not in declared}
+    return {kind for kind in derived if kind == reading or kind not in declared}
 
 
 def run(
@@ -373,7 +376,8 @@ def _build_one(
             continue
         if name in readers:
             drawn_as = readers[name].masks(_read(_handle(source, raw), "RGB"), name)
-            drawn_as = {kind: drawn_as[kind] for kind in published_wins(set(record.maps), drawn_as)}
+            kept = published_wins(set(record.maps), drawn_as, name)
+            drawn_as = {kind: drawn_as[kind] for kind in kept}
         else:
             drawn_as = {name: _read(_handle(source, raw), "L")}
         for kind, found in drawn_as.items():

@@ -1,7 +1,8 @@
 # Biomarkers: the plan
 
-What we decided and why, before any of it is built. Sections marked **Decided** are settled;
-**Open** needs Stas's call. Nothing here is code.
+What we decided and why. Sections marked **Decided** are settled; **Open** needs Stas's call. Most
+of it is now built: the vocabulary is `src/biomarkers/canonical.py`, and where this plan and that
+file differ, the file is the authority.
 
 This is the standing plan for **the biomarkers themselves** — what they are called, what defines
 them, and what makes two of them comparable. It is separate from
@@ -72,14 +73,14 @@ family / biomarker / structure / [roi] / [statistic]
 
 | Part | What it is | Examples | Default |
 | --- | --- | --- | --- |
-| `family` | the page in `docs/biomarkers/`, the kind of thing measured | `tortuosity`, `vessel-calibre` | required |
-| `biomarker` | **the definition, not the word** — which formula | `hart-tau1`, `knudtson` | required |
+| `family` | the page in `docs/biomarkers/`, the kind of thing measured | `tortuosity`, `calibre` | required |
+| `biomarker` | **the definition, not the word** — which formula | `hart-tau1`, `CRE-knudtson` | required |
 | `structure` | what it was measured over | `artery`, `vein`, `vessels`, `both` | required |
 | `roi` | the region it was measured within | `fov`, `B`, `C`, and any name added later | **`fov`** |
 | `statistic` | how per-segment values were pooled | `mean`, `median`, `std`, `length-weighted` | **`median`** |
 
 So `tortuosity/hart-tau1/artery` is the median τ1 over the whole field of view, and
-`vessel-calibre/mean-width/artery/B/mean` says all five parts outright. Both optional parts may be
+`calibre/width/artery/B/mean` says all five parts outright. Both optional parts may be
 omitted, and **the statistic may be given while the region is not** — in which case the region is
 the field of view.
 
@@ -92,17 +93,20 @@ record says which parts apply to it at all, and what each defaults to when omitt
 
 | Family | `structure` | `roi` | `statistic` |
 | --- | --- | --- | --- |
-| `vessel-calibre`, `tortuosity`, `vascular-density`, `fractal-dimension` | applies | defaults to `fov` | defaults to `median` |
-| `central-retinal-equivalents`, `avr` | applies | **required** — there is no field-of-view-wide CRAE | none |
-| `cup-to-disc-ratio`, `disc-fovea-distance`, `temporal-angle` | **none** — they are not measured over a vessel class | does not apply | none |
+| `calibre`, `tortuosity`, `density`, `topology` | applies | defaults to `fov` | defaults to `median` |
+| `landmarks` | **none** — not measured over a vessel class | does not apply | none |
 
-So `cup-to-disc-ratio/vertical` is a complete two-part name, and
-`central-retinal-equivalents/knudtson/artery` is an **error** rather than a default, because the
+A **biomarker** may override its family where the family's default would mislead: the central
+retinal equivalents and their ratios, under `calibre`, **require** a region — there is no
+field-of-view-wide CRAE — and take no statistic.
+
+So `landmarks/CDR-vertical` is a complete two-part name, and `calibre/CRE-knudtson/artery` is an
+**error** rather than a default, because the
 region is part of what that number means and a reader who did not know there was a choice would
 otherwise never learn there was one.
 
 **This also removes most of the parsing problem.** A name's shape alone cannot say whether the
-fourth token of `vessel-calibre/mean-width/artery/B` is a region or a statistic — but the family
+fourth token of `calibre/width/artery/B` is a region or a statistic — but the family
 record can, because it says which parts that family has. Where a family has **both** optional parts,
 their two vocabularies must still be **provably disjoint**, and `check()` enforces it rather than
 assuming it: a region named `mean` would make every such name ambiguous the day it was added, and
@@ -189,8 +193,13 @@ microns and the family is coherent.
 - **A scale is always available, so nothing has to be refused.** Where a dataset publishes microns
   per pixel, that figure is used. Where it does not, one is **inferred from the optic disc on the
   assumption that a disc is 1800 µm across** — which is what `fetch-um-resolution` already does and
-  what the synthetic shapes are already drawn to. A `None` scale is therefore a bug in the fetch
-  rather than a state a biomarker has to cope with.
+  what the synthetic shapes are already drawn to.
+
+  **That proved too strong.** The inference refuses a camera whose discs disagree by more than 10%
+  or that yields fewer than 16 discs, and several groups are refused — among them MSHF's portable
+  cameras, REYIA's `magreb` and RIGA's Magrabia. So a `None` scale is a real state: the adapter
+  contract (`add-biomarker` §2) hands it to an implementation, which returns `None` for whatever
+  needs a scale rather than assuming one.
 
   The price is the one that assumption always carries, and it is recorded on every page that quotes
   an inferred scale: **a length derived from an inferred scale cannot then be used to say anything
@@ -245,9 +254,11 @@ is a reason to name them now and not later.
 
 A name that no paper asks for and no implementation computes is clutter, and goes.
 
-**Fact, and the exception that proves the rule:** five biomarker pages have no canonical name at all
+**Fact, and the exception that proves the rule:** five biomarker pages had no canonical name at all
 — `cup-to-disc-ratio`, `disc-fovea-distance`, `temporal-angle`, `vascular-curvature-index`,
-`vessel-tracing`. Four should get one. The fifth, the vascular curvature index, should never: its
+`vessel-tracing`. Four should get one. *Three now have: `landmarks/CDR-vertical` and `CDR-area`,
+`landmarks/disc-fovea-distance` and `topology/temporal-angle`; `vessel-tracing.md` stays a
+reference page rather than a biomarker.* The fifth, the vascular curvature index, should never: its
 paper declines to give a formula, so it cannot be defined under 2.3.1 either, and the page must say
 that rather than leaving the absence to be guessed at.
 
@@ -275,7 +286,7 @@ the pages:
 - **Where the region vocabulary is written down.** Zones B and C are **well defined in the
   literature** — the ARIC convention behind Hubbard's and Knudtson's equivalents — and this
   repository already encodes one of them (`ZONE_B_RADII = (2.0, 3.0)`, in disc radii) and records
-  what each implementation does in `docs/biomarkers/central-retinal-equivalents.md` §5. What is
+  what each implementation does in `docs/biomarkers/calibre.md`. What is
   missing is a **single page that states the vocabulary**, so that the `roi` part of a name points
   at a definition rather than at a convention everybody is assumed to know. See 2.4.1.
 
@@ -285,14 +296,15 @@ the pages:
 `vessel-tracing.md` — which is also not a biomarker and is catalogued there for the same reason,
 that several biomarkers cannot be read without it. It carries:
 
-- **Each standard zone**, with its inner and outer bound and the paper that fixed them. Zone A, B
-  and C come from the ARIC convention behind [Hubbard 1999](docs/papers/hubbard-1999.md) and
-  [Knudtson 2003](docs/papers/knudtson-2003.md); the bounds must be **checked against those papers
-  when the page is written** rather than copied from this plan.
+- **Each standard zone**, with its inner and outer bound and the paper that fixed them. The bounds
+  must be **checked against those papers when the page is written** rather than copied from this
+  plan — and checking changed the answer: zone B is the ARIC annulus behind
+  [Hubbard 1999](docs/papers/hubbard-1999.md) and [Knudtson 2003](docs/papers/knudtson-2003.md),
+  zone C is Cheung et al. 2010's Extended zone rather than an ARIC zone, and zone A is reserved
+  until its bounds are read out of the ARIC papers (`regions-of-interest.md`).
 - **The units, unambiguously, in both forms.** The classical convention is stated in disc
   *diameters* from the disc margin and this repository's code in disc *radii* from the disc centre.
-  `docs/biomarkers/central-retinal-equivalents.md` §5 already calls that "a factor-of-two trap when
-  reading code", and it is the single most likely way for two implementations to look like they
+  `docs/biomarkers/regions-of-interest.md` §3 calls that "the factor-of-two trap", and it is the single most likely way for two implementations to look like they
   disagree about vessels while agreeing about everything except arithmetic.
 - **`fov`**, the default: the whole field of view, which is a region like any other and needs
   saying so.
@@ -342,10 +354,13 @@ The two axes did their work: AutoMorphalyzer's zone-B tortuosity columns are now
 AutoMorph group's width and tortuosity aggregations are named apart, OCULAR's third tortuosity has
 a name, and the perimeter left with PVBM's deprecated class. **What is left is mostly not a
 missing axis but a region nobody has defined** — 25 of the 67 — which is 2.4's remaining work.
+*Zone C has since been defined (Cheung 2010's Extended zone, `regions-of-interest.md` §4), so the
+zone-C columns among those 25 now have a region to name; the whole-image equivalents still do
+not.*
 
 ### 3.2 Conversion rules
 
-**Open.** Mapping an implementation's column onto a canonical name is **a claim that has to be
+**Decided, and implemented as below.** Mapping an implementation's column onto a canonical name is **a claim that has to be
 testable**, and this repository has already been wrong about several:
 
 - `squared_curvature_tortuosity` was mapped to Hart τ3 until a shape showed it off by five orders of
@@ -379,7 +394,10 @@ So the rules a mapping must satisfy:
 3. **A withdrawn mapping is a finding, not an omission**, and is recorded as such with its date.
 4. **The evidence stores the implementation's own names**, and the mapping is applied in the
    analysis. *Fact:* this is why the three withdrawals above cost a notebook re-run and **no
-   re-measurement** — confirmed in practice, not merely argued.
+   re-measurement** — confirmed in practice, not merely argued. **The one exception** is a
+   catalogued name inside a declaration the benchmark fingerprints: PVBM declares its `units` keyed
+   by catalogued name, so the vocabulary rebuild of 2026-10-06 changed its fingerprint and left all
+   nine of its stored results reading as stale, though no value changed.
 
 ---
 
@@ -540,8 +558,7 @@ Two mechanisms keep that true rather than merely intended:
   `pyproject.toml`, so the private code never enters the public dependency graph and a clone of this
   repository without access to that remote is a repository that cannot **re-run** one benchmark
   column — though it can read every number that column produced, per 5.6.
-- **What the adapter declares is a digest, not the constants.** See 5.5, which is the part of this
-  that is not yet solved.
+- **What the adapter declares is a digest, not the constants.** See 5.5, which settles how.
 
 ### 5.5 The fingerprint is the commit id
 
@@ -606,8 +623,6 @@ it is the same rule that makes this repository refuse to let a model mark its ow
   literature and we document them** (2.4.1) — a reference page, `regions-of-interest.md`, stating
   each zone with its bounds and its paper, both unit conventions, `fov`, and the non-standard
   regions implementations use.
-
-**None remain open.** What is left is the work in chapter 7.
 - ~~**6.2 Is a defining paper mandatory?**~~ **Decided 2026-09-30: no, but the alternative is
   heavier, not lighter** (2.3).
 - ~~**6.3 Do we keep names nothing implements?**~~ **Decided 2026-09-30: yes, where a paper names
@@ -624,6 +639,8 @@ it is the same rule that makes this repository refuse to let a model mark its ow
   column says what access a reader needs to re-run it, and the atlas never calls it independently
   verified.
 
+**None remain open.** What is left is the work in chapter 7.
+
 ## 7. Order of work
 
 **Decided.** Once chapter 6 is settled, **the documentation changes before any code does.** The
@@ -633,7 +650,9 @@ adapter and a benchmark run already built on top of them.
 
 ### 7.1 First, the documentation
 
-1. **Redefine the families.** `docs/biomarkers/` currently has fifteen pages, and the chapter 2
+1. ✅ **Done 2026-10-06** — five family pages, `calibre`, `tortuosity`, `density`, `topology` and
+   `landmarks`, beside two reference pages. **Redefine the families.** `docs/biomarkers/` had fifteen
+   pages, and the chapter 2
    naming makes `family` the first part of every name — so the pages *are* the families, and the
    split between them has to be right before anything maps onto it. Five pages have no canonical
    name at all today; one, the vascular curvature index, should never get one and needs the page to
@@ -644,7 +663,8 @@ adapter and a benchmark run already built on top of them.
    the withdrawals of 3.2 would have been caught before they cost a benchmark run.
 3. **Fix the units on every page** to microns per 2.2, and mark which biomarkers a dataset without a
    scale cannot support at all.
-4. **Write `docs/biomarkers/regions-of-interest.md`** per 2.4.1 — each zone with its bounds checked
+4. ✅ **Done 2026-10-06, but for the `junction-counts` pair below**, which is still open. **Write
+   `docs/biomarkers/regions-of-interest.md`** per 2.4.1 — each zone with its bounds checked
    against the ARIC papers, both unit conventions stated so the factor-of-two trap cannot be walked
    into, `fov`, and the non-standard regions implementations use. Record which families require a
    region rather than defaulting. **Record which families have a `vessel-`
@@ -707,4 +727,4 @@ which is a weakness in this document: nobody can re-run them. Step 10 is where t
 
 ---
 
-**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing, regions — every open question closed:** 2026-09-30. **Chapter 7.2 carried out but for step 11:** 2026-09-30.
+**Written:** 2026-09-25. **Reworked into chapters:** 2026-09-28. **Chapter 5 settled:** 2026-09-29. **Naming, units and the order of work:** 2026-09-29. **Family overrides, scale, tracing, regions — every open question closed:** 2026-09-30. **Chapter 7.2 carried out:** 2026-09-30. **Steps 7.1.1 and 7.1.4 done, and the plan checked against the code:** 2026-10-20.

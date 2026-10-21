@@ -38,7 +38,7 @@ a redistribution — see section 5.
 | | |
 | --- | --- |
 | Resolution (pixels) | **3900×3072**, uncompressed TIFF — the Optos device's highest setting. The paper's own analysis downsamples by a factor of two, to 1950×1536 |
-| Microns per pixel | Unknown — not published, and unusually hard to state for a 200° field, where the projection means a micron-per-pixel figure varies across the image |
+| Microns per pixel | Unknown — not published, and unusually hard to state for a 200° field, where the projection means a micron-per-pixel figure varies across the image. An inference from the optic disc was attempted on REYIA's re-annotated copy and refused: too few discs were found for a median ([evidence](../../results/um_resolution/av-wide.json)) |
 | Camera | **Optos 200Tx** ultra-wide-field device |
 | Field of view | **200°** — the widest in this catalogue by a factor of four |
 | Centring | Whole-retina, not centred on disc or macula |

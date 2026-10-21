@@ -34,6 +34,26 @@ library cannot read it. Third-party Kaggle re-uploads exist — for example
 re-upload's licence field is the uploader's. The figshare release is the citable copy and the only
 one carrying the quality spreadsheet.
 
+### 2.1 How to fetch
+
+```bash
+uv run python -m datasets.fives                          # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset fives
+uv run python -m datasets.fetch_um_resolution --dataset fives
+```
+
+- **Downloads:** the one RAR5 archive from figshare, about 1.8 GB. No account, no form. It needs
+  `bsdtar`; the Python standard library cannot read RAR.
+- **Builds:** all 800 photographs with their vessel masks and field-of-view masks, in `crop/`.
+  Every photograph is already square and cropped to its field, so each keeps its 2048² frame.
+- **Keys and labels:** the key is the split, the published number and the disease letter —
+  `train_137_g`. The letter is spelled out in `disease`.
+- **Quality:** the spreadsheet holds three good-or-bad components and no overall grade, so
+  `quality` is derived from them (`quality_source` is `derived`). The components are kept verbatim
+  as `illumination_contrast`, `blur` and `low_contrast`.
+- **The microns-per-pixel scale:** none is published, so the two follow-on commands above are
+  required; they give the one camera its scale (§3).
+
 ## 3. The images
 
 | | |

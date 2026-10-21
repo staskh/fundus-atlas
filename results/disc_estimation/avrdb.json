@@ -1,7 +1,7 @@
 {
-  "builder_version": 6,
+  "builder_version": 7,
   "dataset": "avrdb",
-  "fingerprint": "e9d507d7706d8fc65f2bea1b7e405de25b7a3cd93cf13c5f7898068cd29a35d5",
+  "fingerprint": "0e410f24f7f647bc6f74ad6e8f0a6e534cf0ffa93c7dcdb803f4d733cdde66e9",
   "frame": "crop",
   "grid": 512,
   "model": "segformer-disc-cup",
