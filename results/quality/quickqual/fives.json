@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fives",
-  "fingerprint": "4083fd898a8205ced64cc9cceb875440f80909ca9b450a06decfd37756925e55",
+  "fingerprint": "328ea6e8544a72f52a1627e77d6ab247d90d532d841ae24ea7c3d8d91afd59f2",
   "model": "quickqual",
   "summary": {
     "complete": true,

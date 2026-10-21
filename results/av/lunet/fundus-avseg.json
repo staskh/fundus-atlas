@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "63d4f769af2ef2137a9ed441dd885c5194cf5307610a1ad1012b149bdcd78de4",
+  "fingerprint": "bd25cf3d7682309c72d9da8e347c6baa012ce9111f3c151a91f488e05435fbcf",
   "model": "lunet",
   "summary": {
     "artery_betti": {

@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "straight",
-  "fingerprint": "9407df2cdc174dbd263b910b72e633095cd8c65e2e1795472b86b87780420b89",
+  "fingerprint": "6c265d4d01fcfa2055b4572032a189f847a5aaf6de63b87f4f397b74602be47c",
   "model": "automorph",
   "summary": {
     "complete": true,

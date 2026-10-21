@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "papila",
-  "fingerprint": "72a128931e200b2d97209aefeac8407bf0131c943d1c1381c1d2a92b6ab46d99",
+  "fingerprint": "e764be3478b3a09b0f4b2a23c0b7de53129f88783315c29aae5f7774845830d0",
   "model": "vascx-disc",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "b0c3ffb117b01f6fdf8fbff4582520a5927994c52599ca165c287ae03048b598",
+  "fingerprint": "66cb9cab67b559afbca210e28f9743157281250e8eae1c3b828b2ab7b4e8535a",
   "model": "automorph-artery-vein",
   "summary": {
     "complete": true,

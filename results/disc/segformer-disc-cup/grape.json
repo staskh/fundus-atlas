@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "grape",
-  "fingerprint": "997cbe8bd87eb7530779bd7badb3eae633fe1b26373187301d6194642736a71f",
+  "fingerprint": "44d5b0eb5f20a6da16c7453317bc3598685552ab9e9a0471a2199f6157b1fbfb",
   "model": "segformer-disc-cup",
   "summary": {
     "complete": true,

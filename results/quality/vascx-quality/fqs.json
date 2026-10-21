@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "fqs",
-  "fingerprint": "2e389507c08717979ea0a083e8bd1568f8c3e2d7417bd189647f806f2c21f7c0",
+  "fingerprint": "d7bb9d4cbc5af17b0ab259f2ec47c725561880b55e70f3ae03e8cdf4e9e9138d",
   "model": "vascx-quality",
   "summary": {
     "complete": true,

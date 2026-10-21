@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spokes-disc-centred",
-  "fingerprint": "cb3fef35ecb9ba14453c303dbbabcd04f2b52cec329cd8d8a14f4365f3771450",
+  "fingerprint": "dbceb0e5f1eca0f5a1c301adaed856802339edfb0e7a8dc9ecef7d57c790d482",
   "model": "automorphclass",
   "summary": {
     "complete": true,

@@ -141,8 +141,9 @@ emits no class probabilities, and none are invented for it.
 <!-- generated: fingerprint -->
 A stored result is kept only while everything it depends on is unchanged. This benchmark fingerprints:
 
-- the facts each model declares that bear on its numbers: slug, purpose, grid, network_grid, ensemble, emits_probabilities, threshold, gate_threshold, backbone
+- the facts each model declares that bear on its numbers: slug, purpose, grid, network_grid, ensemble, emits_probabilities, threshold, gate_threshold, backbone, upstream
 - the sha256 of the weights actually loaded
+- the upstream code they run in — its pinned commit and the content of every patch applied
 - the store's slug and builder version
 - this benchmark's name, `VERSION` (3) and size floor (512 pixels)
 

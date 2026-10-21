@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fundus-avseg",
-  "fingerprint": "dda66e030eb24f7919d812c3efe211d92a95f450d3f1468767cf99be2bfb2213",
+  "fingerprint": "4a2f6c51ed32283c5871fedcee573233b4320dc2669c942d14ff2b5948bc7aed",
   "model": "ocularnet",
   "summary": {
     "artery_betti": {

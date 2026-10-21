@@ -589,8 +589,8 @@ could change a score:
   prose beside them. Hashing a whole declaration means rewording a sentence throws away hours of
   measurement; the benchmark names the keys that bear on the numbers. The mirror hazard is a
   behaviour hiding inside a sentence, so any constant a model acts on is declared as a number;
-- the sha256 of the weights actually loaded. *Patches are not in it yet*: none has been written,
-  and the first one must enter the fingerprint by content when it is;
+- the sha256 of the weights actually loaded, and the upstream code they run in — its pinned commit
+  and every patch applied, by content, as the adapter declares them under `upstream`;
 - the store's `builder_version`;
 - the metric set, the resampling path, and the benchmark's own version.
 
@@ -624,8 +624,7 @@ or one it excluded, never both and never neither.
 expensive part and are not what gets kept: the scores are.
 
 The trap this design has to avoid is a stale score outliving the thing that produced it. That is
-what the fingerprint is for, and why a patch, once one exists, must enter it by content rather than
-by name.
+what the fingerprint is for, and why it covers a patch by content rather than by name.
 
 ## 12. Notebooks and the two written documents
 

@@ -38,7 +38,7 @@ class Pvbm:
     needs = ("artery", "vein", "disc")   # what it cannot run without
     invariant = ("rotation",)        # the invariances it claims; see section 5
 
-    def declare(self) -> dict        # static facts; no disk, no network
+    def declare(self) -> dict        # static facts, `upstream` among them; no disk, no network
     def identity(self) -> str        # what pins the code that will run
     def measure(self, artery, vein, fov, disc, um_per_px) -> dict[str, float | None]
 ```

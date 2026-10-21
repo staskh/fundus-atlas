@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "papila",
-  "fingerprint": "6059cc8212e44e095ff9241f75af9ebbb50ca7303914d8cc5105f74cc32e7476",
+  "fingerprint": "33ee21b86c6bee865e118972435439767ea8b6418ba62d39332ee25ed595ca4f",
   "model": "lunetv2-odc",
   "summary": {
     "complete": true,

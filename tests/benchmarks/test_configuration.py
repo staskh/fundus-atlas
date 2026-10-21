@@ -61,11 +61,11 @@ def test_only_the_flags_a_benchmark_honours_are_listed(
 
 
 @pytest.mark.parametrize("benchmark", BENCHMARKS, ids=lambda module: module.NAME)
-def test_the_fingerprint_claims_nothing_the_run_does_not_hash(benchmark, tmp_path: Path) -> None:
-    """The run hashes the declared facts, the weights, the store and the benchmark — not patches."""
+def test_the_fingerprint_says_it_covers_the_upstream_code(benchmark, tmp_path: Path) -> None:
+    """The run hashes the upstream's commit and patches, and the page says so."""
     said = " ".join(benchmark.config(root=tmp_path)["fingerprint"])
 
-    assert "patch" not in said
+    assert "upstream" in said and "patch" in said
     assert f"`VERSION` ({benchmark.VERSION})" in said
     assert "builder version" in said
 

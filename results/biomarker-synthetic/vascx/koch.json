@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "koch",
-  "fingerprint": "9f3dbb4e53f0a2e9f65942747670c717c55cb0d2cc01799c45593e4a0f108f7d",
+  "fingerprint": "f96e9d7981c08a6086ceedcf23581b7914cd1c027160355956fbaff2dd13210d",
   "model": "vascx",
   "summary": {
     "complete": true,

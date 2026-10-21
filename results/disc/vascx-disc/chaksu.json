@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "chaksu",
-  "fingerprint": "18c9187eb0fcd44ba5c904b4a1a3cd4b16428a2fcb21c0188b98dea7e7364643",
+  "fingerprint": "17fb118e3a260706e7e78ab805c22994836294932cd2b06f6e78d48db64daae7",
   "model": "vascx-disc",
   "summary": {
     "complete": true,

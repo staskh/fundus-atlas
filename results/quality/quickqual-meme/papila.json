@@ -1,7 +1,7 @@
 {
   "benchmark": "quality",
   "dataset": "papila",
-  "fingerprint": "d253dc36d5656571d98e797bfb0c2cbdb5479ecb839e63a4b002ab2f049c770d",
+  "fingerprint": "bc28036d1de6d0b758a75cc5b1ab4b4dfaa308bfe4959ae7528b54099301ba79",
   "model": "quickqual-meme",
   "summary": {
     "complete": true,

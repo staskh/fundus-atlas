@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "bifurcation",
-  "fingerprint": "02e1f57b5385ec2b6e0e53d6aaa8d1c9dc8781c6743a5e1fd512fbb881e59f4e",
+  "fingerprint": "3d08f3bcec23a302a422c1f1e76e7cf410a68da31f6dccda40d8c382a731378c",
   "model": "automorph",
   "summary": {
     "complete": true,

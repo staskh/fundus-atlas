@@ -86,8 +86,9 @@ ROTATIONS = (0.0, 30.0, 60.0, 90.0)
 #: result still describes anything. `recursion` is here because PVBM's geometry walks a vessel tree
 #: with one Python frame per skeleton pixel: at one limit it raises on the densest shapes and at
 #: another it measures them, and those are not the same measurement. An implementation that
-#: declares no such number simply has none.
-FINGERPRINTED = ("slug", "needs", "keys", "units", "recursion")
+#: declares no such number simply has none. `upstream` is the code itself: its pinned commit and
+#: the content of every patch applied to it.
+FINGERPRINTED = ("slug", "needs", "keys", "units", "recursion", "upstream")
 
 
 def implementations(slugs: list[str]) -> tuple[list, dict[str, str]]:
@@ -444,12 +445,13 @@ def config() -> dict[str, object]:
             ],
         },
         # What a stored result is invalidated by — and nothing else. This benchmark loads no
-        # weights, applies no patches and reads no dataset store, so none of those appear.
+        # weights and reads no dataset store, so neither appears.
         "fingerprint": [
             "this benchmark's name and `VERSION`",
             "a sha256 of the masks this shape is drawn as, so a redrawing re-measures it",
             f"the facts each implementation declares that bear on its numbers: {', '.join(FINGERPRINTED)}",
-            "the pinned commit of the code that will run, as the adapter reports it",
+            "the pinned commit of the code that will run, as the adapter reports it, and the "
+            "content of every patch applied to it, as its declared `upstream` records them",
             f"the rendering: a {SIDE}px grid at {UM_PER_PX:g} µm per pixel, drawn at "
             f"{', '.join(f'{angle:g}°' for angle in ROTATIONS)}",
         ],

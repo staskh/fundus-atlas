@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "05200d96b3af40832c0d48c54e3a7b36924d48a691396eb988a45378e8997c3c",
+  "fingerprint": "0159064a9eef99c27cd591e14bdf7d1bacddcd188ac9aabde3ac43f60d118ba7",
   "model": "lunet",
   "summary": {
     "complete": true,

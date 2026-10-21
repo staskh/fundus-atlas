@@ -214,8 +214,9 @@ carry six times AVRDB's figure before any model is asked anything.
 <!-- generated: fingerprint -->
 A stored result is kept only while everything it depends on is unchanged. This benchmark fingerprints:
 
-- the facts each model declares that bear on its numbers: slug, purpose, grid, network_grid, structures, channels, emits_probabilities, resampling, threshold, ensemble
+- the facts each model declares that bear on its numbers: slug, purpose, grid, network_grid, structures, channels, emits_probabilities, resampling, threshold, ensemble, upstream
 - the sha256 of the weights actually loaded
+- the upstream code they run in — its pinned commit and the content of every patch applied
 - the store's slug and builder version
 - this benchmark's name, `VERSION` (2) and size floor (512 pixels)
 - the first three alone also name the masks kept under `.atlas_runs/av/<model>/<dataset>/`, so `--rescore` measures them afresh without running a model, and a mask its model no longer agrees with is drawn again

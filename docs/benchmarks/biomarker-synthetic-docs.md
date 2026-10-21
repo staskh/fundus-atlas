@@ -119,8 +119,8 @@ A stored result is kept only while everything it depends on is unchanged. This b
 
 - this benchmark's name and `VERSION`
 - a sha256 of the masks this shape is drawn as, so a redrawing re-measures it
-- the facts each implementation declares that bear on its numbers: slug, needs, keys, units, recursion
-- the pinned commit of the code that will run, as the adapter reports it
+- the facts each implementation declares that bear on its numbers: slug, needs, keys, units, recursion, upstream
+- the pinned commit of the code that will run, as the adapter reports it, and the content of every patch applied to it, as its declared `upstream` records them
 - the rendering: a 2048px grid at 5 µm per pixel, drawn at 0°, 30°, 60°, 90°
 
 A fingerprint that differs means the stored result describes something that no longer exists, and it is measured again from nothing. **How much was done is not part of it**, because that does not change what any rendering scored: a complete result is never re-run, and a partial one is finished rather than restarted.

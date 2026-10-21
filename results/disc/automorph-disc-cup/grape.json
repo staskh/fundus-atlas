@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "grape",
-  "fingerprint": "c04eb840174cdfb6e5d7f26380e6cc21d2870c0be035c2a44be2ce54f66d8e9d",
+  "fingerprint": "f2db88631e551c51827ccd7c1cc6efa40737d6358b9e99ffa6deb7284171a8b0",
   "model": "automorph-disc-cup",
   "summary": {
     "complete": true,

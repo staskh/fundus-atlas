@@ -36,9 +36,10 @@ class Bands:
     grid = 512
     structures = ("artery", "vein")
 
-    def __init__(self, shift: int = 0, fails: bool = False) -> None:
+    def __init__(self, shift: int = 0, fails: bool = False, upstream: dict | None = None) -> None:
         self.shift = shift
         self.fails = fails
+        self.upstream = upstream or {"commit": "a", "patches": {}}
         self.asked = 0
         self.released = 0
 
@@ -54,6 +55,7 @@ class Bands:
             "threshold": 0.5,
             "channels": ["background", "artery", "vein"],
             "ensemble": 1,
+            "upstream": self.upstream,
         }
 
     def identity(self) -> str:
@@ -224,6 +226,22 @@ def test_a_second_run_measures_nothing_it_has_already_measured(tmp_path: Path) -
         )
 
     assert again.asked == 0, "the stored scores describe the same model on the same store"
+
+
+def test_changed_upstream_code_draws_everything_again(tmp_path: Path) -> None:
+    """The same weights run by different code draw different masks, so nothing kept stands."""
+    root = a_store(tmp_path)
+    moved = Bands(upstream={"commit": "b", "patches": {}})
+    for adapter in (Bands(), moved):
+        av.run(
+            [adapter],
+            ["hrf"],
+            results=tmp_path / "results",
+            root=root,
+            record=tmp_path / "runs",
+        )
+
+    assert moved.asked == 2
 
 
 def test_a_rescore_measures_the_kept_masks_without_asking_the_model(tmp_path: Path) -> None:

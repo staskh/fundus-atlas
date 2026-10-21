@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "arc",
-  "fingerprint": "4b3aaa57a38779f14481d20e3076029fb8c2993c5e73177fed840340cc723e83",
+  "fingerprint": "72372845e91221c28d6aca60cda57f1139cb0d2bf52653df7bd4b7d4d5bf574f",
   "model": "pvbm",
   "summary": {
     "complete": true,

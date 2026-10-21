@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "papila",
-  "fingerprint": "778a88f30e1ef75f5e1c3c2cd727d40e225fc908c68178c84d22f3a598fa851b",
+  "fingerprint": "af89b10fa9ef79f670d0214ea5b8469d765a138b6ab0f88d870d4a25af43a94a",
   "model": "segformer-disc-cup",
   "summary": {
     "complete": true,

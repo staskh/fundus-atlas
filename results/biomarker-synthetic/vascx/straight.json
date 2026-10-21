@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "straight",
-  "fingerprint": "b9ab8c3687c89697f48796af8a6eb2ffa10b8ef5e90f3c6a8dc07b2c2912d22f",
+  "fingerprint": "d7f7ba2e8efad9215cde2450e2f41d2c48a0f5e6ea54150ca90e4e79fc1bc55f",
   "model": "vascx",
   "summary": {
     "complete": true,

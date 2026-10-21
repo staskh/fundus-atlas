@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "chaksu",
-  "fingerprint": "d8bc8f2fc253a030cf280e717041ee12a2bfdb68f206cb9d13763e95cca83330",
+  "fingerprint": "00a7f13b7d2e4a32e421a13bc8d5b0b179d1eb4b10a1ccf289bda5b9d3ce68c7",
   "model": "automorph-disc-cup",
   "summary": {
     "complete": true,

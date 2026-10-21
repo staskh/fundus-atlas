@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "straight",
-  "fingerprint": "19347ab2d082ea0f2be2444e960950849860640c58a12ecf04d8ab186e7544db",
+  "fingerprint": "ec41165a3cf6b3d68da3b0f9a45802c989b6b7c27eb223b120e59c248fc5a0c3",
   "model": "ocular",
   "summary": {
     "complete": true,

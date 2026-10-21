@@ -60,8 +60,10 @@ around it.
   out jargon on first use; do not assume familiarity with segmentation tooling or Python.
 - **4.2 Number every heading**, as this file does.
 - **4.3 Build a map, not a leaderboard.** The reader should be able to look up a dataset, model,
-  project or paper and understand its trade-offs. Do not crown a winner or rank entries into a
-  single ordering.
+  project or paper and understand its trade-offs. Never publish a bare ranking — a column sorted by
+  score, or one entry crowned for everything. A benchmark's results page may recommend what to use,
+  but only **for a named question**, with the runner-up and the margin wherever it is close, the
+  caveats that would change the answer, and the cost; `report-benchmark` §5 sets out how.
 - **4.4 Separate claim from observation.** An author's own claims and this repo's measurements are
   different kinds of statement and must be labelled as such.
 

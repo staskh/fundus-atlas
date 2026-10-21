@@ -1,7 +1,7 @@
 {
   "benchmark": "disc",
   "dataset": "chaksu",
-  "fingerprint": "28961840dac59e03a29f46394277ed5cc3a63f828696642104dffaadb9ff57ba",
+  "fingerprint": "45ff5ee6a74e2754f27c1cde338e515e2af1b705dd86af76ba258f1e736ced7a",
   "model": "segformer-disc-cup",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "av-wide",
-  "fingerprint": "3b60723bf42f228d190d23a880fa0cc993775b4757131e1653c71f72be301827",
+  "fingerprint": "d83fcd0c04df232fecd21f38907b54e1f4ea5f68c7f506d78b54137a0fe08f89",
   "model": "bf-net",
   "summary": {
     "artery_betti": {

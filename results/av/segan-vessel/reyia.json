@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "reyia",
-  "fingerprint": "ce973293b3c8db40e3f56d31adef02e9c24ac572b3a4cc61d16d8a12561ba941",
+  "fingerprint": "25b5501b1cd9bdad61319699648c869adff26f8b76270d4db5affe82b1086f51",
   "model": "segan-vessel",
   "summary": {
     "complete": true,

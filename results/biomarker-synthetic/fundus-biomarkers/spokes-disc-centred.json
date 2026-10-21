@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spokes-disc-centred",
-  "fingerprint": "3405bce7ffc9fedaae46e2cb7869a20c75facc3fe836dd4c84cae7e65d43130b",
+  "fingerprint": "cb6e1662b9ffb37e405dde66a54ec1afb3b1ec6c91c68adc170ae8d38e97f197",
   "model": "fundus-biomarkers",
   "summary": {
     "complete": true,

@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "koch",
-  "fingerprint": "6d40fbf822ce1c3375cf903f58cd80e9f247de107d0c5d0638e52fa7fa299edb",
+  "fingerprint": "82127fd293c25a029e30bb67d8a64e5616db6a4fbd153cd226cf7d6719605962",
   "model": "fundus-biomarkers",
   "summary": {
     "complete": true,

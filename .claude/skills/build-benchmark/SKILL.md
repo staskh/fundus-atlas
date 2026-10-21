@@ -140,7 +140,9 @@ could change a score and nothing that cannot:
   away hours of measurement; equally, a number the model acts on must be declared as a number of its
   own, or changing it would silently keep a stale score. The benchmark names these keys explicitly
   rather than hashing whatever the adapter happens to return;
-- the sha256 of the weights actually loaded, and the patches applied, by content;
+- the sha256 of the weights actually loaded;
+- the code they run in: the adapter's declared `upstream`, which names the pinned commit and the
+  content of every patch applied, so a moved commit or a new patch measures again;
 - the store's `builder_version`;
 - the benchmark's name, its `VERSION`, and the metric-affecting constants such as the floor.
 
@@ -212,7 +214,7 @@ A result carries **two** fingerprints, and they are deliberately different:
 
 | Fingerprint | Covers | Where |
 | --- | --- | --- |
-| **drawing** | the model's declared facts, the sha256 of the weights actually loaded, and the store's slug and builder version | `.atlas_runs/<benchmark>/<model>/<dataset>/fingerprint.txt`, and `drawing` in `run.json` |
+| **drawing** | the model's declared facts, its upstream's commit and patches, the sha256 of the weights actually loaded, and the store's slug and builder version | `.atlas_runs/<benchmark>/<model>/<dataset>/fingerprint.txt`, and `drawing` in `run.json` |
 | **result** | the drawing fingerprint **plus** the benchmark's own name, version and size floor | `fingerprint` in `results/<benchmark>/<model>/<dataset>.json` |
 
 The split is what makes a re-measurement cheap and a stale mask impossible:

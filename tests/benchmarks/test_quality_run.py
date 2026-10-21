@@ -23,12 +23,19 @@ class Brightness:
     purpose = "quality"
     grid = 512
 
-    def __init__(self, weights: str = "one") -> None:
+    def __init__(self, weights: str = "one", upstream: dict | None = None) -> None:
         self.weights = weights
+        self.upstream = upstream or {"commit": "a", "patches": {}}
         self.scored: list[str] = []
 
     def declare(self) -> dict[str, object]:
-        return {"slug": self.slug, "purpose": self.purpose, "grid": self.grid, "network_grid": 512}
+        return {
+            "slug": self.slug,
+            "purpose": self.purpose,
+            "grid": self.grid,
+            "network_grid": 512,
+            "upstream": self.upstream,
+        }
 
     def identity(self) -> str:
         return self.weights
@@ -135,6 +142,22 @@ def test_changed_weights_throw_away_what_was_measured(tmp_path: Path) -> None:
     quality.run([Brightness()], ["fives"], results=tmp_path / "results", root=store)
 
     adapter = Brightness(weights="retrained")
+    quality.run([adapter], ["fives"], results=tmp_path / "results", root=store)
+
+    assert adapter.scored == ["a", "b", "c"]
+
+
+@pytest.mark.parametrize(
+    "upstream",
+    [{"commit": "b", "patches": {}}, {"commit": "a", "patches": {"001-fix.patch": "c0ffee"}}],
+    ids=["moved commit", "new patch"],
+)
+def test_changed_upstream_code_throws_away_what_was_measured(tmp_path: Path, upstream) -> None:
+    """The same weights run by different code are a different measurement."""
+    store = a_store(tmp_path)
+    quality.run([Brightness()], ["fives"], results=tmp_path / "results", root=store)
+
+    adapter = Brightness(upstream=upstream)
     quality.run([adapter], ["fives"], results=tmp_path / "results", root=store)
 
     assert adapter.scored == ["a", "b", "c"]

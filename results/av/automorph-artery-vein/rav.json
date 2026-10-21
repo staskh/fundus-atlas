@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "rav",
-  "fingerprint": "c11ae91d960cb137de54cf2366ac8c67c885057496172fd1a30a551b143f8386",
+  "fingerprint": "48de542e78e717c508a0d5302878bfdf54f520480ac57a204dfd0911d3f0265c",
   "model": "automorph-artery-vein",
   "summary": {
     "artery_betti": {

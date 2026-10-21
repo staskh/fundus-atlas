@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "ac2f9723d863101c08f5a14953f018b4a74d1e16900b7f147da03fd4eaabb466",
+  "fingerprint": "0ac3cb0c258c3506488456bf36fb240afbe184ae36e0fbc62459d41dc3251dc3",
   "model": "segan-vessel",
   "summary": {
     "complete": true,

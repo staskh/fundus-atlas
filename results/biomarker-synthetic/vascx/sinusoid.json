@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "sinusoid",
-  "fingerprint": "52e5153465dbafff495b2f56ccb88e4c70171434fe234120a1894bb7a5c0a6ce",
+  "fingerprint": "13a23ce03c7d1383551b74669ccb4e12afd9596605ebe89749b4e6b24db47063",
   "model": "vascx",
   "summary": {
     "complete": true,
