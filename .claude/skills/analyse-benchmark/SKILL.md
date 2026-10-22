@@ -50,8 +50,14 @@ Three practical consequences:
   result is presented as a diagnostic and never written into `results/`.
 - It **may draw on the photographs themselves**, from `.atlas_data/`, which is the point of section
   2.5 below.
-- It is **committed with its outputs cleared**. Rendered figures are megabytes of base64 that change
-  on every run and say nothing in a diff; anyone wanting the pictures runs the notebook.
+- It is **committed with every output in it** — tables, printed numbers and plots — executed top to
+  bottom in a clean kernel (section 8), so that a reader on GitHub sees the analysis without running
+  anything. A notebook committed with its outputs cleared, or with outputs from an earlier run of
+  its cells, is stale.
+- **A Plotly figure is committed with a PNG snapshot beside it.** GitHub does not render Plotly,
+  so a cell that shows one also shows the same figure as a static image (`fig.show("png")`, or
+  `display(Image(fig.to_image("png")))`), and the reader on GitHub sees the picture rather than an
+  empty cell. Matplotlib figures render as they are.
 
 ## 3. The model is the primary index
 

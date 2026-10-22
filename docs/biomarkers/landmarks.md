@@ -11,13 +11,23 @@ most widely used structural measure in glaucoma screening. The distance between 
 fovea is not a disease marker at all: it is a **per-eye ruler**, used to place measurement regions
 and to normalise lengths on photographs whose scale is unknown.
 
+**Centring** describes the photograph rather than the eye: whether it was aimed at the optic disc
+or at the macula. It is catalogued because which other biomarkers a photograph can support — a
+zone around the disc, a region around the fovea — depends on it.
+
 ## 2. The canonical names
 
 | Name | What it is | Statistic |
 | --- | --- | --- |
 | `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | none |
+| `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | none |
 | `landmarks/CDR-area` | the cup's area over the disc's | none |
 | `landmarks/disc-fovea-distance` | the straight-line distance between the disc centre and the fovea | none |
+| `landmarks/centring` | what the photograph is centred on: `disc`, `macula` or `unknown` | none |
+
+**`landmarks/centring` is the one name in the vocabulary whose answer is a category rather than a
+number.** Its unit is `category`, its record lists the three answers it may take, and nothing
+converts or averages it.
 
 **This family has no `structure` part.** An optic disc is not an artery or a vein, so the name stops
 after the biomarker — `landmarks/CDR-vertical` is a complete name. That is the family override
@@ -27,16 +37,21 @@ described in `PLAN-BIOMARKER.md` §2.1.1.
 
 - **Cup-to-disc ratio:** a clinical measurement that predates automated analysis, so there is **no
   defining paper** and the entry carries a detailed description instead. Divide a measure of the cup
-  by the same measure of the disc — the vertical diameter for the vertical ratio, the areas for the
-  area ratio. The two are **not interchangeable**: a cup that is wide but shallow gives a large area
-  ratio and a modest vertical one.
+  by the same measure of the disc — the vertical diameter for the vertical ratio, the horizontal
+  diameter for the horizontal one, the areas for the area ratio. They are **not interchangeable**:
+  a cup that is wide but shallow gives a large area ratio and a modest vertical one, and the disc is
+  a vertical oval, so its horizontal diameter is the shorter.
 - **Disc–fovea distance:** [Vargas 2026](../papers/vargas-2026.md). The straight-line distance
   between the centre of the segmented optic disc and the detected fovea.
+- **Centring** has **no defining paper**. `disc` where the optic disc sits close to the centre of
+  the frame, `macula` where it sits off to one side, and `unknown` where no plausible disc was
+  found. How close counts as centred is the implementation's choice, and is recorded on its
+  project page where it can be.
 
 ## 4. Inputs required
 
-Disc and cup segmentations for the ratios; disc and fovea for the distance. No vessel mask is used
-by anything on this page.
+Disc and cup segmentations for the ratios; disc and fovea for the distance; the disc's position in
+the frame for the centring. No vessel mask is used by anything on this page.
 
 ## 5. Measurement region
 
@@ -45,7 +60,7 @@ part does not apply and a name carrying one is an error.
 
 ## 6. Units and scale dependence
 
-The two ratios are dimensionless and **scale-invariant** — they are the most robust numbers in this
+The three ratios are dimensionless and **scale-invariant** — they are the most robust numbers in this
 catalogue for that reason, needing neither a scale nor a field of view.
 
 The disc–fovea distance is a **length, in microns**. It is also the one biomarker whose relationship
@@ -54,16 +69,20 @@ is inferred by assuming the disc is 1800 µm across — so a disc–fovea distan
 scale is anchored to an assumption about the disc. It is reported, and the assumption is recorded
 beside it.
 
+The centring is a **category**, with no unit and no scale; it depends only on where the disc sits in
+the frame.
+
 ## 7. Implementations
 
 | Project | What it computes | Source | Lineage |
 | --- | --- | --- | --- |
 | [VascX](../projects/vascx.md) | disc–fovea distance, in two variants — to the retina's centre and to the fovea | `vascx/fundus/features/` | Original |
+| [fundus-biomarkers](../projects/fundus-biomarkers.md) | the three cup-to-disc ratios, from disc and cup masks, and the centring, from the disc circle | private repository | Original |
 | Others | **none** | — | — |
 
-No biomarker adapter in this repository computes a cup-to-disc ratio yet, although several
-catalogued **models** segment the cup — see [MODELS.md](../MODELS.md). The gap is in the biomarker
-layer rather than in the segmentation.
+fundus-biomarkers is the only biomarker adapter here that computes a cup-to-disc ratio, and only
+when it is handed disc and cup masks. The synthetic benchmark hands it none, so no ratio of its has
+been measured; several catalogued **models** segment the cup — see [MODELS.md](../MODELS.md).
 
 ## 8. Sensitivity and failure modes
 
@@ -78,10 +97,10 @@ layer rather than in the segmentation.
 
 ## 9. Known defects
 
-None recorded as of 2026-09-30 — an absence of findings rather than a clean bill of health. Nothing
-in this family has been through the synthetic benchmark, because the shapes settle no value for
-either ratio.
+None recorded as of 2026-10-22 — an absence of findings rather than a clean bill of health. Nothing
+in this family has been through the synthetic benchmark, because the shapes settle no value for any
+ratio or for the centring.
 
 ---
 
-**Links and definitions last checked:** 2026-09-30.
+**Links and definitions last checked:** 2026-10-22.

@@ -22,6 +22,7 @@ while one branches far more finely, and the dimension separates them.
 | --- | --- | --- |
 | `density/area/{artery,vein,vessels}` | total vessel area | none |
 | `density/skeleton-length/{artery,vein,vessels}` | total centreline length | none |
+| `density/skeleton-length-rooted/{artery,vein}` | centreline length on the vessels that reach the optic disc | none |
 | `density/over-fov/{artery,vein,vessels}` | vessel area as a fraction of the field of view | none |
 | `density/over-image/{artery,vein,vessels}` | the same over the whole frame, lit or not | none |
 | `density/sparsity/{artery,vein,vessels}` | distance from retina to the nearest vessel | `mean`, `max` |
@@ -56,10 +57,16 @@ columns map to `multifractal-*` and not to `box-counting`.
 - **Fractal dimension:** [Stosic 2006](../papers/stosic-2006.md) for the multifractal treatment of
   retinal vessels. The plain box count is older and has no single retinal origin.
 - **Sparsity:** [Vargas 2026](../papers/vargas-2026.md).
+- **Rooted skeleton length** has **no defining paper**. It is the skeleton length counted only over
+  the parts of one vessel class's traced tree that can be followed, vessel by vessel, back to the
+  optic disc: a piece of vessel that never connects to the disc is left out. It is measured per
+  class, because rooting is a property of one class's tree, and it needs the disc. Its gap from
+  `skeleton-length` is the share of the network a tracer could not attach to the disc.
 
 ## 4. Inputs required
 
-A vessel or artery/vein mask for area and the densities. A centreline for skeleton length. A field
+A vessel or artery/vein mask for area and the densities. A centreline for skeleton length, and for
+the rooted skeleton length a traced tree per class and the optic disc it is rooted at. A field
 of view mask for `over-fov` and for sparsity, which needs to know which retina to measure distance
 from.
 
@@ -73,7 +80,7 @@ region, and is kept as a separate biomarker for exactly that reason.
 | Biomarker | Unit | Scale-invariant? |
 | --- | --- | --- |
 | `area` | **µm²** | no |
-| `skeleton-length` | **µm** | no |
+| `skeleton-length`, `skeleton-length-rooted` | **µm** | no |
 | `over-fov`, `over-image` | dimensionless fraction | **yes** |
 | `sparsity` | **µm** | no |
 | all four dimensions | dimensionless | yes in principle |
@@ -97,6 +104,7 @@ rotated.
 | [AutoMorphClass](../projects/automorphclass.md) | AutoMorph's set | `src/pytorch_automorph/` | Reimplemented |
 | [PVBM](../projects/pvbm.md) | area, skeleton length, the three multifractal dimensions and a singularity length | `PVBM/GeometryAnalysis.py`, `FractalAnalysis.py` | Original |
 | [VascX](../projects/vascx.md) | density and sparsity over a disc-centred circle | `vascx/fundus/features/` | Original |
+| [fundus-biomarkers](../projects/fundus-biomarkers.md) | every name on this page, over the field of view and zones B and C, the rooted skeleton length among them | private repository | Original |
 
 ## 8. Sensitivity and failure modes
 
@@ -116,10 +124,12 @@ rotated.
 - **PVBM's skeleton length excludes vessels that do not reach the optic disc.** *Our finding,
   2026-09-26.* Its current class walks each tree from the disc, so a segment lying away from it is
   not measured at all and the length reads zero. Correct for a disc-anchored measurement, and
-  **not** what the catalogued name means.
+  **not** what the catalogued name means. That disc-anchored measurement now has a name of its own,
+  `density/skeleton-length-rooted`; moving PVBM's column onto it is a mapping claim, and waits for a
+  shape that settles the rooted length.
 - **The AutoMorph family's box-counting dimension is strongly rotation-dependent.** *Our finding,
   2026-09-24.* Up to 80% spread across four angles of a shape that did not change.
 
 ---
 
-**Links and definitions last checked:** 2026-09-30.
+**Links and definitions last checked:** 2026-10-22.

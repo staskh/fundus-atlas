@@ -172,7 +172,10 @@ the authority on it:
   measurement is then repeatable against the exact pictures it was taken on.
 - `notebooks/` — one analysis notebook per benchmark, `notebooks/<benchmark>.ipynb`, holding every
   subject that benchmark measured, and one results page compiled from it. A notebook per model or
-  per implementation would destroy the comparison the benchmark exists to make.
+  per implementation would destroy the comparison the benchmark exists to make. **Every notebook,
+  `notebooks/wip/` included, is committed to git with all its outputs — data and plots — from a
+  clean top-to-bottom run**, so it can be read on GitHub without running it. Plotly figures do not
+  render on GitHub, so a notebook that uses Plotly also shows each such figure as a PNG snapshot.
 
 Tests are in `tests/`, mirroring `src/`, and run against synthetic fixtures rather than downloads.
 Three directories are git-ignored caches: `.atlas_data/` for dataset stores, `.atlas_code/` for

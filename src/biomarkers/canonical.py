@@ -67,6 +67,8 @@ class Biomarker:
     :param statistics: which poolings apply; empty where the quantity is one number per image.
     :param whole_vessel: whether a ``vessel-`` form exists — the same quantity over whole
         root-to-tip vessels rather than over segments between intersection points.
+    :param values: the categories a categorical biomarker answers with, whose unit is then
+        ``category``; empty for a number.
     """
 
     means: str
@@ -76,6 +78,7 @@ class Biomarker:
     statistics: tuple[str, ...] = ()
     whole_vessel: bool = False
     paper: str = ""
+    values: tuple[str, ...] = ()
 
 
 _POOLED = ("mean", "median", "std")
@@ -198,6 +201,13 @@ NAMES: dict[str, Biomarker] = {
     "density/skeleton-length": Biomarker(
         "total centreline length", "µm", paper="martinez-perez-2000"
     ),
+    # Per class, because rooting is a property of one class's traced tree: whether a piece of it
+    # can be followed back to the disc. It needs the disc, and a union of the classes has no tree.
+    "density/skeleton-length-rooted": Biomarker(
+        "centreline length on the vessels that reach the optic disc",
+        "µm",
+        structures=("artery", "vein"),
+    ),
     "density/over-fov": Biomarker("vessel area as a fraction of the field of view", "1"),
     "density/over-image": Biomarker(
         "the same over the whole frame, lit or not — it names its own denominator", "1"
@@ -236,9 +246,16 @@ NAMES: dict[str, Biomarker] = {
     ),
     # -- landmarks ----------------------------------------------------------------------------
     "landmarks/CDR-vertical": Biomarker("the cup's vertical diameter over the disc's", "1"),
+    "landmarks/CDR-horizontal": Biomarker("the cup's horizontal diameter over the disc's", "1"),
     "landmarks/CDR-area": Biomarker("the cup's area over the disc's", "1"),
     "landmarks/disc-fovea-distance": Biomarker(
         "the straight-line distance from the disc centre to the fovea", "µm", paper="vargas-2026"
+    ),
+    # The one answer that is not a number: what the photograph was aimed at, read from where the
+    # disc sits in the frame. It describes the photograph rather than the eye, and is catalogued
+    # because which biomarkers a photograph can support depends on it.
+    "landmarks/centring": Biomarker(
+        "what the photograph is centred on", "category", values=("disc", "macula", "unknown")
     ),
 }
 
@@ -312,8 +329,16 @@ def unit(name: str) -> str:
 
 #: How many powers of length each unit carries. A value measured on a pixel grid becomes the value
 #: its canonical name declares by multiplying by `um_per_px` this many times — negative powers
-#: dividing, and a dimensionless biomarker untouched.
-_LENGTH_POWER = {"1": 0, "degrees": 0, "µm": 1, "µm²": 2, "1/µm": -1, "1/µm²": -2}
+#: dividing, and a dimensionless biomarker or a category untouched.
+_LENGTH_POWER = {
+    "1": 0,
+    "degrees": 0,
+    "category": 0,
+    "µm": 1,
+    "µm²": 2,
+    "1/µm": -1,
+    "1/µm²": -2,
+}
 
 
 def length_power(name: str) -> int:
@@ -325,6 +350,11 @@ def length_power(name: str) -> int:
     truth and another way by an implementation's adapter would compare two different quantities.
     """
     return _LENGTH_POWER[unit(name)]
+
+
+def values(name: str) -> tuple[str, ...]:
+    """The categories a categorical biomarker answers with; empty for a number."""
+    return entry(check(name)).values
 
 
 def from_pixels(name: str, value: float, um_per_px: float) -> float:

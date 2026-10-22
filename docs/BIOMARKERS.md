@@ -21,11 +21,11 @@ whether the number survives a change of camera.
 | --- | --- | --- | --- | --- |
 | [calibre](biomarkers/calibre.md) | how wide the vessels are, and everything built from widths | 6 | `artery`, `vein`, `vessels` | 1, µm |
 | [tortuosity](biomarkers/tortuosity.md) | the shape of a vessel's path | 11 | `artery`, `vein`, `vessels` | 1, 1/µm, 1/µm² |
-| [density](biomarkers/density.md) | how much vasculature there is, and how it is spread | 9 | `artery`, `vein`, `vessels` | 1, µm, µm² |
+| [density](biomarkers/density.md) | how much vasculature there is, and how it is spread | 10 | `artery`, `vein`, `vessels` | 1, µm, µm² |
 | [topology](biomarkers/topology.md) | where the network branches and how it connects | 5 | `artery`, `vein`, `vessels` | 1, degrees |
-| [landmarks](biomarkers/landmarks.md) | the optic nerve head and the fovea | 3 | — | 1, µm |
+| [landmarks](biomarkers/landmarks.md) | the optic nerve head and the fovea | 5 | — | 1, category, µm |
 
-**828 canonical names** in all, once each biomarker is expanded over the structures it applies to, the regions it admits and the statistics it can be pooled by.
+**836 canonical names** in all, once each biomarker is expanded over the structures it applies to, the regions it admits and the statistics it can be pooled by.
 <!-- /generated -->
 
 Each family page says which competing definitions share its name, what the formula is, what it

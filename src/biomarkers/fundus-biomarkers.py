@@ -21,7 +21,8 @@ class FundusBiomarkers:
     by dots, so it is stored and measured but claims nothing.
 
     **One answer is a category, not a number**: the photograph's centring — disc, macula or
-    unknown. It is answered as the library says it, with no conversion.
+    unknown. It is answered as the library says it, with no conversion, and only if the
+    vocabulary's record lists it.
     """
 
     slug = "fundus-biomarkers"
@@ -39,9 +40,12 @@ class FundusBiomarkers:
             "slug": self.slug,
             "needs": list(self.needs),
             "invariant": list(self.invariant),
-            "keys": list(names),
-            # The evidence is keyed by the answered name; each is its own catalogued name, or claims
-            # none when it carries no slash.
+            # The columns its evidence carries, which are the answered names: fingerprinted, so a
+            # name the vocabulary comes to accept reads as a different result rather than as an
+            # old column under a new heading.
+            "keys": list(names.values()),
+            # Each answered name is its own catalogued name, or claims none when it carries no
+            # slash.
             "names": {
                 answered: answered if "/" in answered else None for answered in names.values()
             },
@@ -92,7 +96,10 @@ class FundusBiomarkers:
             if value is None or structure in missing or (structure == "both" and missing):
                 continue
             if isinstance(value, str):
-                answers[answered] = value
+                if value in _categories(answered):
+                    answers[answered] = value
+                else:
+                    self.trouble[answered] = f"answered {value!r}, which its record does not list"
                 continue
             answers[answered] = float(value) / um_per_px ** _length_power(answered)
         return answers
@@ -126,6 +133,11 @@ def _checks(name: str) -> bool:
     except LookupError:
         return False
     return True
+
+
+def _categories(answered: str) -> tuple[str, ...]:
+    """The categories a catalogued name may answer with; none for a name the catalogue lacks."""
+    return canonical.values(answered) if "/" in answered else ()
 
 
 def _length_power(answered: str) -> int:
