@@ -101,6 +101,7 @@ over root-to-tip paths rather than over segments between intersection points.
 | --- | --- | --- | :-: | :-: |
 | `density/area/{artery,vein,vessels}` | total vessel area | µm² | — | — |
 | `density/skeleton-length/{artery,vein,vessels}` | total centreline length | µm | — | — |
+| `density/skeleton-length-rooted/{artery,vein}` | centreline length on the vessels that reach the optic disc | µm | — | — |
 | `density/over-fov/{artery,vein,vessels}` | vessel area as a fraction of the field of view | 1 | — | — |
 | `density/over-image/{artery,vein,vessels}` | the same over the whole frame, lit or not — it names its own denominator | 1 | — | — |
 | `density/sparsity/{artery,vein,vessels}` | distance from retina to the nearest vessel | µm | `mean`, `max` | — |
@@ -124,8 +125,10 @@ over root-to-tip paths rather than over segments between intersection points.
 | Canonical name | What it measures | Unit | Statistics | Whole-vessel form |
 | --- | --- | --- | :-: | :-: |
 | `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | — | — |
+| `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | 1 | — | — |
 | `landmarks/CDR-area` | the cup's area over the disc's | 1 | — | — |
 | `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — | — |
+| `landmarks/centring` | what the photograph is centred on | category: `disc`, `macula`, `unknown` | — | — |
 <!-- /generated -->
 
 ## 3. What each project computes
@@ -176,6 +179,7 @@ and withdrawn the mapping each time.
 | `density/over-image/{artery,vein,vessels}` | ✅ | | | |
 | `density/area/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels squared** |
 | `density/skeleton-length/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels**, and its rooted walk excludes vessels that do not reach the disc |
+| `density/skeleton-length-rooted/{artery,vein}` | | | | Only the centreline that can be followed back to the optic disc; needs the disc. Computed by [fundus-biomarkers](projects/fundus-biomarkers.md) |
 | `density/sparsity/{artery,vein,vessels}` | | | ⚠️ | VascX only, and **not comparable**: its `mean_sparsity` is normalised by the optic-disc-to-fovea distance, so it is a dimensionless ratio rather than the distance in microns this name means |
 | `density/box-counting/{artery,vein,vessels}` | ✅ | | | |
 | `density/multifractal-d0/{artery,vein}` | | ✅ | | PVBM's `capacity_dimension`. Its three dimensions are of the **multifractal** analysis, not a plain box count |
@@ -196,8 +200,10 @@ and withdrawn the mapping each time.
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
 | --- | :-: | :-: | :-: | --- |
-| `landmarks/CDR-vertical` | | | | Computed from disc and cup masks; no biomarker adapter here computes it yet |
-| `landmarks/CDR-area` | | | | |
+| `landmarks/CDR-vertical` | | | | Computed from disc and cup masks. [fundus-biomarkers](projects/fundus-biomarkers.md) computes it when handed them; the synthetic shapes carry none |
+| `landmarks/CDR-horizontal` | | | | The same along the horizontal. fundus-biomarkers, as above |
+| `landmarks/CDR-area` | | | | fundus-biomarkers, as above |
+| `landmarks/centring` | | | | **A category, not a number**: `disc`, `macula` or `unknown`, from where the disc sits in the frame. It describes the photograph rather than the eye. fundus-biomarkers computes it |
 | `landmarks/disc-fovea-distance` | | | ⚠️ | VascX returns pixels, and reports two variants — to the retina's centre and to the fovea |
 
 ## 4. What each project computes that has no canonical name

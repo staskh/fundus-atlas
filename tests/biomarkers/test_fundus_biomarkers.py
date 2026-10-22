@@ -49,7 +49,16 @@ def test_a_missing_class_is_none_and_never_borrowed(adapter, shape) -> None:
 
 def test_the_photograph_s_centring_is_answered_as_the_library_says_it(adapter, shape) -> None:
     found = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, UM_PER_PX)
-    assert found["landmarks.centring"] in {"disc", "macula", "unknown"}
+    assert found["landmarks/centring"] in canonical.values("landmarks/centring")
+
+
+def test_every_name_it_answers_is_catalogued(adapter) -> None:
+    assert all("/" in key for key in adapter.keys())
+
+
+def test_it_declares_the_columns_its_evidence_carries(adapter) -> None:
+    """The benchmark fingerprints `keys`, so a renamed column must read as a different result."""
+    assert adapter.declare()["keys"] == list(adapter.keys())
 
 
 def test_without_a_scale_nothing_is_guessed(adapter, shape) -> None:

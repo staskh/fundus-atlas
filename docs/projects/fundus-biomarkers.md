@@ -52,20 +52,18 @@ no `vessels` structure.
 | `calibre/AVR-ratio` | [calibre](../biomarkers/calibre.md) | `fov`, `B`, `C` | Reimplemented |
 | `tortuosity/hart-tau1` … `hart-tau7` and their `vessel-` forms | [Hart 1999](../papers/hart-1999.md) | `fov`, `B`, `C` | Reimplemented; curvature by angle regression, its scale in microns |
 | `tortuosity/grisan-density`, `inflection-count`, `arc-chord-times-inflections`, `spline-curvature` | [tortuosity](../biomarkers/tortuosity.md) | `fov`, `B`, `C` | Reimplemented |
-| `density/*` (area, skeleton length, coverage, sparsity, box-counting, multifractal d0–d2) | [density](../biomarkers/density.md) | `fov`, `B`, `C` | Reimplemented; box sizes in microns |
+| `density/*` (area, skeleton length and its rooted part, coverage, sparsity, box-counting, multifractal d0–d2) | [density](../biomarkers/density.md) | `fov`, `B`, `C` | Reimplemented; box sizes in microns |
 | `topology/junctions`, `endpoints`, `components`, `branching-angle` | [topology](../biomarkers/topology.md) | `fov`, `B`, `C` | Reimplemented; branching angle between the two daughters |
 
 **Zone C** — Cheung et al. 2010's Extended zone, 2–5 disc radii from the disc centre
 ([regions of interest](../biomarkers/regions-of-interest.md) §4) — is reported wherever zone B is.
 
-`landmarks`: the cup-to-disc ratios are computed only from disc and cup **masks**, which the
-synthetic benchmark does not hand it, so there they are empty; `landmarks/CDR-horizontal` is a
-ratio this catalogue does not name yet. The library also answers the photograph's **centring** —
-`disc`, `macula` or `unknown` — from the disc circle; it is a category rather than a measurement,
-stored under the library's own name `landmarks.centring`.
+`landmarks`: the three cup-to-disc ratios, vertical, horizontal and area, are computed only from
+disc and cup **masks**, which the synthetic benchmark does not hand it, so there they are empty. The
+library also answers the photograph's **centring** — `disc`, `macula` or `unknown` — from the disc
+circle: [`landmarks/centring`](../biomarkers/landmarks.md), the vocabulary's one categorical name.
 
-Uncatalogued: `density/skeleton-length-rooted`, the skeleton length of the part of the traced tree
-that reaches the disc, stored under the library's own spelling.
+Every name it answers is catalogued.
 
 Not implemented: `topology/temporal-angle` and `landmarks/disc-fovea-distance`, which need a fovea
 the library is not given.

@@ -45,6 +45,7 @@ def catalogue() -> dict[str, object]:
                         "statistics": list(canonical.NAMES[stem].statistics),
                         "whole_vessel": canonical.NAMES[stem].whole_vessel,
                         "paper": canonical.NAMES[stem].paper,
+                        "values": list(canonical.NAMES[stem].values),
                     }
                     for stem in stems
                 ],
@@ -92,8 +93,12 @@ def _units_tables(record) -> Iterable[str]:
         yield "| --- | --- | --- | :-: | :-: |"
         for entry in family["biomarkers"]:
             statistics = ", ".join(f"`{one}`" for one in entry["statistics"]) or "—"
+            # A category's unit is its list of answers, which is what a reader needs to know.
+            unit = entry["unit"]
+            if entry["values"]:
+                unit = f"{unit}: " + ", ".join(f"`{one}`" for one in entry["values"])
             yield (
-                f"| `{entry['name']}` | {entry['means']} | {entry['unit']} | {statistics} | "
+                f"| `{entry['name']}` | {entry['means']} | {unit} | {statistics} | "
                 f"{'yes' if entry['whole_vessel'] else '—'} |"
             )
         yield ""

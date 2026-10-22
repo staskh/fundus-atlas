@@ -181,7 +181,7 @@ here is drawn to pin a zone-B measurement except the equivalents, which are defi
 ring and nowhere else.
 
 <!-- generated: biomarkers -->
-34 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **30 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
+37 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **30 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
 
 **[calibre](../biomarkers/calibre.md)**
 
@@ -216,6 +216,7 @@ ring and nowhere else.
 | --- | --- | --- | --- |
 | `density/area/<structure>` | total vessel area | µm² | yes |
 | `density/skeleton-length/<structure>` | total centreline length | µm | yes |
+| `density/skeleton-length-rooted/<structure>` | centreline length on the vessels that reach the optic disc | µm | — |
 | `density/over-fov/<structure>` | vessel area as a fraction of the field of view | 1 | yes |
 | `density/over-image/<structure>` | the same over the whole frame, lit or not — it names its own denominator | 1 | yes |
 | `density/sparsity/<structure>` | distance from retina to the nearest vessel | µm | yes |
@@ -239,8 +240,10 @@ ring and nowhere else.
 | Canonical name | What it measures | Units | Ground truth here |
 | --- | --- | --- | --- |
 | `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | — |
+| `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | 1 | — |
 | `landmarks/CDR-area` | the cup's area over the disc's | 1 | — |
 | `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — |
+| `landmarks/centring` | what the photograph is centred on | category | — |
 <!-- /generated -->
 
 **A biomarker without a ground truth is a gap in the images, not a verdict on an implementation.**
