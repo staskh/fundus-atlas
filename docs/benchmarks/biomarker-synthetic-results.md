@@ -69,7 +69,7 @@ difference **across a boundary** is two independent readings of the same definit
 | | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx | fundus-biomarkers |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Biomarkers produced | 30 | 18 | 18 | 54 | 18 | 20 | 633 |
-| …matching a canonical name | 20 | 10 | 15 | 23 | 15 | 6 | 625 |
+| …matching a canonical name | 20 | 10 | 15 | 23 | 15 | 6 | 633 |
 | Comparable measurements | 312 | 304 | 372 | 388 | 372 | **80** | 2,884 |
 | Median disagreement | 3.7% | 3.0% | 8.2% | 6.1% | 5.5% | **0.0%** | **0.0%** |
 | Within 25% of the geometry | 90% | **95%** | 80% | 92% | 91% | 90% | **98%** |
@@ -556,7 +556,7 @@ that misbehaved.
 
 *Added 2026-10-21, measured at its pinned commit `571bc81`.* Pheno's reference implementation
 answers under the catalogue's own names, which is why its column is so much longer than the rest:
-633 quantities, 625 of them catalogued, over the field of view and zones B and C. It is published
+633 quantities, every one of them catalogued, over the field of view and zones B and C. It is published
 here like every other implementation, and **none of it is independently verified**: the
 implementation and the atlas share an owner (`PLAN-BIOMARKER.md` §5.6).
 
@@ -583,9 +583,10 @@ box-counting and multifractal dimensions (all between 10% and 17%), five connect
 tortuosities just over the line. The worst single case is `calibre/width/artery/B/std` on `disjoint`, which reads 0 at one angle
 and 0.66 µm at another.
 
-**Two of its answers are not measurements in this benchmark's sense.** The photograph's centring —
-`disc`, `macula` or `unknown` — is a category and is stored as the library said it, outside every
-numeric comparison. The cup-to-disc ratios are empty here, because they need disc and cup masks the
+**Two of its answers are not measurements in this benchmark's sense.** The photograph's centring,
+[`landmarks/centring`](../biomarkers/landmarks.md), is the vocabulary's one categorical biomarker:
+`disc`, `macula` or `unknown`, stored as the library said it and kept outside every numeric
+comparison. The cup-to-disc ratios are empty here, because they need disc and cup masks the
 shapes do not carry.
 
 It takes 4.0 seconds per image, on the CPU.
