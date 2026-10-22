@@ -56,6 +56,11 @@ and then fusing that binary result into the multi-class decision — hence "bina
   stretched. **Both** of the repository's dataset classes carry the same expression, so the weights
   were trained through it; it is recorded in section 10 because it means the input is not
   standardised in the usual sense.
+- **How this atlas resizes it:** *our observation, 2026-10-22.* The store's full-resolution crop
+  is read straight at 720² — one resize, with Lanczos, the atlas's single rule for photographs —
+  and the adapter only standardises it. BF-Net resizes with PIL's default filter, which at its pinned
+  Pillow 7.2 is bicubic for a colour image, so the one resize here uses a sharper filter than the
+  upstream's own. Until 2026-10-22 the crop was read at 1024² and resized again to 720².
 
 ## 5. Architecture
 

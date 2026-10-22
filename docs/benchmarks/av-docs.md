@@ -51,9 +51,9 @@ fingerprint no longer matches its model is drawn again rather than read.
 | [vascx-artery-vein](../models/vascx-artery-vein.md) | `d0cde1c7` | 1024² | 1024² | background, artery, vein, unclassified | artery, vein | one checkpoint holding several folds, with test-time flips | yes |
 | [ocularnet](../models/ocularnet.md) | `34b1ecc3` | 1024² | 1024² | background, artery, vein, crossing | artery, vein | one model, averaged over four flips of the photograph | yes |
 | [lunet](../models/lunet.md) | `0b0f383e` | 1472² | 1472² | vein, artery, vessels | artery, vein | 1 | yes |
-| [automorph-artery-vein](../models/automorph-artery-vein.md) | `9a953e5e` | 1024² | 720² | background, artery, vein, crossing | artery, vein | 8 | yes |
-| [bf-net](../models/bf-net.md) | `f7de674e` | 1024² | 720² | background, artery, vein, crossing | artery, vein | one seed, trained on DRIVE_AV | yes |
-| [segan-vessel](../models/segan-vessel.md) | `9a953e5e` | 1024² | 912² | vessel | vessels | 10 | yes |
+| [automorph-artery-vein](../models/automorph-artery-vein.md) | `9a953e5e` | 720² | 720² | background, artery, vein, crossing | artery, vein | 8 | yes |
+| [bf-net](../models/bf-net.md) | `f7de674e` | 720² | 720² | background, artery, vein, crossing | artery, vein | one seed, trained on DRIVE_AV | yes |
+| [segan-vessel](../models/segan-vessel.md) | `9a953e5e` | 912² | 912² | vessel | vessels | 10 | yes |
 | [ocularnet-nano](../models/ocularnet-nano.md) | — | — | — | — | — | — | **no** — its five checkpoints answer HTTP 401 and the anonymous review account that served them now holds one repository — the weights cannot be obtained at all |
 <!-- /generated -->
 
@@ -74,10 +74,11 @@ model cannot be asked to reproduce an ambiguity of projection. The two fusion mo
 *uncertainty* in their own evaluation code; scored against [HRF](../datasets/hrf.md) it is the
 crossings exactly, matching this repository's own crossing layer pixel for pixel.
 
-**Two grids, because an adapter reads one and a network wants another.** The photographs are read
-from the crop at the grid the adapter declares, and where the network's own grid is smaller — BF-Net
-and AutoMorph's artery/vein model both run at 720 and read at 1024 — the adapter resizes down to it
-rather than up, so nothing is invented. The probabilities come back to the crop frame either way.
+**One resize, straight to the network's grid.** Every model here reads the crop at the grid its
+network runs at — 720 for BF-Net and AutoMorph's artery/vein model, 912 for SeGAN — so a photograph
+is resized once, with the store's Lanczos rule, rather than to an intermediate size first. Those
+three upstreams resize with PIL's bicubic default instead, which each model page records. The
+probabilities come back to the crop frame either way.
 
 **The vessel map is derived, identically for every artery/vein model**, as the union of its own
 artery and vein masks — not whatever vessel channel a model may also publish. LUNet publishes one;

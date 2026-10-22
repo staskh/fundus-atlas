@@ -19,7 +19,7 @@ def photograph(side: int) -> np.ndarray:
 
 
 def test_a_photograph_arrives_at_the_grid_the_seeds_were_trained_on() -> None:
-    prepared = fusion.prepare(photograph(1024))
+    prepared = fusion.prepare(photograph(fusion.GRID))
 
     assert prepared.shape == (3, fusion.GRID, fusion.GRID)
     assert prepared.dtype.is_floating_point
@@ -27,7 +27,7 @@ def test_a_photograph_arrives_at_the_grid_the_seeds_were_trained_on() -> None:
 
 def test_a_photograph_is_scaled_by_the_statistics_of_its_own_lit_pixels() -> None:
     """The upstream's own expression, which centres on the mean of every pixel with red in it."""
-    prepared = fusion.prepare(photograph(1024)).numpy()
+    prepared = fusion.prepare(photograph(fusion.GRID)).numpy()
 
     assert prepared.min() < 0, "the blacked-out surround sits below the mean of the lit pixels"
     assert prepared.std() > 0, "a scaled photograph still has contrast in it"
@@ -35,7 +35,7 @@ def test_a_photograph_is_scaled_by_the_statistics_of_its_own_lit_pixels() -> Non
 
 def test_an_unlit_photograph_is_handed_over_rather_than_dividing_by_nothing() -> None:
     """A photograph with no red in it has no statistics; the upstream's expression yields zeros."""
-    prepared = fusion.prepare(np.zeros((1024, 1024, 3), dtype=np.uint8)).numpy()
+    prepared = fusion.prepare(np.zeros((fusion.GRID, fusion.GRID, 3), dtype=np.uint8)).numpy()
 
     assert np.all(np.isfinite(prepared))
 
