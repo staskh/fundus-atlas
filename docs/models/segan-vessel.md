@@ -146,7 +146,10 @@ union.
 That is this repository's choice, made to keep the thin vessels the higher threshold drops, and it
 means every score recorded here is a score of the model at 0.2 rather than of the model as its
 authors run it. The adapter declares both numbers, so the difference is in the benchmark's
-fingerprint rather than only in prose.
+fingerprint rather than only in prose. *Our finding, 2026-10-23:* what the choice costs was measured on 20
+photographs from each pooled dataset — overlap moves by about a hundredth between 0.2 and 0.5,
+while 0.2 leaves about a quarter more topological features unmatched than 0.3 to 0.5. The figures
+are in the [A/V results](../benchmarks/av-results.md) §1.1; the benchmark keeps 0.2.
 
 **Four of the benchmark's datasets are in-sample for it, and one is not.** `ALL-SIX` includes HRF,
 LES-AV and DRIVE — whose photographs are [RITE](../datasets/rite.md)'s — so its scores there are

@@ -106,6 +106,26 @@ def test_disjoint_segments_have_no_junctions_and_count_themselves() -> None:
     assert shape.theory["topology/components/vessels"] == 8.0, "four lines per class"
 
 
+@pytest.mark.parametrize("name", sorted(set(library.SHAPES) - {"disjoint"}))
+def test_a_shape_leaving_the_disc_is_rooted_along_its_whole_length(name: str) -> None:
+    """Every vessel here leaves the disc's margin, or branches from one that does."""
+    theory = library.build(name).theory
+
+    for structure in ("artery", "vein"):
+        assert theory[f"density/skeleton-length-rooted/{structure}"] == pytest.approx(
+            theory[f"density/skeleton-length/{structure}"]
+        )
+
+
+def test_vessels_that_never_reach_the_disc_have_no_rooted_length() -> None:
+    """`disjoint` is the one shape not on the disc, which is what it exists to show."""
+    theory = library.build("disjoint").theory
+
+    assert theory["density/skeleton-length/artery"] > 0
+    assert theory["density/skeleton-length-rooted/artery"] == 0.0
+    assert theory["density/skeleton-length-rooted/vein"] == 0.0
+
+
 def test_every_shape_draws_an_artery_and_a_vein() -> None:
     """A segmentation of a real eye has both, so a shape that tests against one is unrepresentative.
 

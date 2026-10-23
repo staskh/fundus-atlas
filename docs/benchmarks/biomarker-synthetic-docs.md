@@ -62,15 +62,15 @@ the pixel grid differs.
 <!-- generated: material -->
 | Shape | What its geometry settles | Available |
 | --- | --- | --- |
-| `straight` | 247 quantities with a known value | yes |
-| `arc` | 199 quantities with a known value | yes |
-| `sinusoid` | 243 quantities with a known value | yes |
-| `bifurcation` | 58 quantities with a known value | yes |
-| `deep-bifurcation` | 58 quantities with a known value | yes |
-| `disjoint` | 52 quantities with a known value | yes |
-| `koch` | 72 quantities with a known value | yes |
-| `spokes-macula-centred` | 56 quantities with a known value | yes |
-| `spokes-disc-centred` | 56 quantities with a known value | yes |
+| `straight` | 249 quantities with a known value | yes |
+| `arc` | 201 quantities with a known value | yes |
+| `sinusoid` | 245 quantities with a known value | yes |
+| `bifurcation` | 60 quantities with a known value | yes |
+| `deep-bifurcation` | 60 quantities with a known value | yes |
+| `disjoint` | 54 quantities with a known value | yes |
+| `koch` | 74 quantities with a known value | yes |
+| `spokes-macula-centred` | 58 quantities with a known value | yes |
+| `spokes-disc-centred` | 58 quantities with a known value | yes |
 <!-- /generated -->
 
 ## 4. How to run it
@@ -181,7 +181,7 @@ here is drawn to pin a zone-B measurement except the equivalents, which are defi
 ring and nowhere else.
 
 <!-- generated: biomarkers -->
-37 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **30 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
+37 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **31 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
 
 **[calibre](../biomarkers/calibre.md)**
 
@@ -216,7 +216,7 @@ ring and nowhere else.
 | --- | --- | --- | --- |
 | `density/area/<structure>` | total vessel area | µm² | yes |
 | `density/skeleton-length/<structure>` | total centreline length | µm | yes |
-| `density/skeleton-length-rooted/<structure>` | centreline length on the vessels that reach the optic disc | µm | — |
+| `density/skeleton-length-rooted/<structure>` | centreline length on the vessels that reach the optic disc | µm | yes |
 | `density/over-fov/<structure>` | vessel area as a fraction of the field of view | 1 | yes |
 | `density/over-image/<structure>` | the same over the whole frame, lit or not — it names its own denominator | 1 | yes |
 | `density/sparsity/<structure>` | distance from retina to the nearest vessel | µm | yes |

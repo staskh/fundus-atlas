@@ -70,13 +70,13 @@ difference **across a boundary** is two independent readings of the same definit
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Biomarkers produced | 30 | 18 | 18 | 54 | 18 | 20 | 633 |
 | …matching a canonical name | 20 | 10 | 15 | 23 | 15 | 6 | 633 |
-| Comparable measurements | 312 | 304 | 372 | 388 | 372 | **80** | 2,884 |
-| Median disagreement | 3.7% | 3.0% | 8.2% | 6.1% | 5.5% | **0.0%** | **0.0%** |
-| Within 25% of the geometry | 90% | **95%** | 80% | 92% | 91% | 90% | **98%** |
+| Comparable measurements | 312 | 304 | 372 | 388 | 372 | **80** | 2,956 |
+| Median disagreement | 2.8% | 2.5% | 8.2% | 6.1% | 5.5% | **0.0%** | **0.0%** |
+| Within 25% of the geometry | 92% | 97% | 80% | 92% | 91% | 90% | **98%** |
 | Quantities that move when the image turns | 9 / 30 | 8 / 18 | 16 / 18 | 19 / 40 | 11 / 18 | **4 / 20** | 116 / 629 |
-| Biomarkers disagreeing with the geometry | 7 / 20 | 5 / 10 | 9 / 15 | **3 / 17** | 4 / 15 | 2 / 6 | 11 / 185 |
+| Biomarkers disagreeing with the geometry | 5 / 20 | 3 / 10 | 9 / 15 | **3 / 17** | 4 / 15 | 2 / 6 | 11 / 187 |
 | Exceptions | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| Seconds per image | **17.5** | 2.2 | 0.9 | 3.9 | **0.5** | 2.8 | 4.0 |
+| Seconds per image | **17.4** | 2.2 | 0.9 | 3.9 | **0.5** | 2.8 | 4.0 |
 
 **Every figure here is taken against a noise floor of 1% of the biomarker's own size**, meaning the
 largest value the shapes require of it anywhere in the store. A difference smaller than that counts
@@ -93,12 +93,12 @@ the floor and so were graded more kindly than the rest.
 
 **Read this table down a column, not across a row.** The accuracy rows are not a score and the
 columns are not ranked by them, because the columns are not answering the same question: VascX's
-0.0% median is over **80** measurements of six biomarkers, and PVBM's 3.7% is over **312** of
+0.0% median is over **80** measurements of six biomarkers, and PVBM's 2.8% is over **312** of
 twenty. Measuring less, more carefully, is a defensible engineering choice and it is not the
 same achievement as measuring more. Section 7 says what can actually be concluded.
 
 Two figures stand out on their own terms. **PVBM takes about thirty-five times longer per image
-than AutoMorphClass** — 17.5 seconds against 0.5 — which over a study of fifty thousand photographs
+than AutoMorphClass** — 17.4 seconds against 0.5 — which over a study of fifty thousand photographs
 is about ten days of compute against seven hours. **Nothing raises any more**, which took giving
 PVBM the recursion limit its own fork sets, and cost it the appearance of being the steadiest thing
 here (section 3).
@@ -151,6 +151,10 @@ taken at another limit is not mistaken for this one.
 | Comparable measurements | 256 | **312** |
 | Quantities that move when the image turns | 3 / 30 | **9 / 30** |
 | Biomarkers disagreeing with the geometry | 5 / 20 | **7 / 20** |
+
+*The right-hand column is as it stood after the recursion fix. Since 2026-10-23 PVBM disagrees on
+5 of 20: its length is now read as the rooted length it measures (section 9), which the shapes
+settle and it matches.*
 
 The previous version of this page called PVBM "the steadiest implementation here" on the strength
 of 3 of 30. That was 3 of 30 **over the shapes it could still measure**, and the two it could not
@@ -283,9 +287,10 @@ and without this section none of them would be checked at all.
 
 ## 5. Disagreement with the geometry
 
-1,828 measurements have a theoretical value to be judged against, over 41 canonical biomarkers.
-Twenty-one of the forty-one are out by more than 25% somewhere. The worst case each implementation
-produced, over all shapes and all angles:
+4,784 measurements have a theoretical value to be judged against, over 194 canonical biomarkers,
+fundus-biomarkers' among them; 28 of the 194 are out by more than 25% somewhere. The worst case
+each of the first six implementations produced, over all shapes and all angles — fundus-biomarkers'
+own are in section 10:
 
 | Biomarker | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -294,7 +299,6 @@ produced, over all shapes and all angles:
 | `calibre/CRE-hubbard/vein/B` | 37.4% | — | — | — | — | — |
 | `calibre/AVR-hubbard/both/B` | 32.2% | — | — | — | — | — |
 | `tortuosity/hart-tau1/vein/…` | 31.2% | **8.7%** | 542.2% | 13.4% | 7.4% | 43.4% |
-| `density/skeleton-length/vein` | 100.0% | 100.0% | — | — | — | — |
 | `calibre/width/vein/length-weighted` | — | — | 56.5% | 18.6% | 22.3% | **1.1%** |
 | `tortuosity/grisan-density/vein/…` | — | — | 8,406,156% | 8,241,992% | **90,265%** | — |
 
@@ -414,7 +418,7 @@ measurements with a column of 312 as though they answered the same question. Wha
   Hart τ1 over every shape and angle, against 13.7% for AutoMorphalyzer, 31% for the median PVBM
   and OCULAR both report, and 43% for VascX. AutoMorphClass is also the fastest thing here at half
   a second an image. *This page previously gave AutoMorphClass the highest share of measurements
-  within tolerance, at 98%; it now reads 91%, level with AutoMorphalyzer, and OCULAR leads at 95%.
+  within tolerance, at 98%; it now reads 91%, level with AutoMorphalyzer, and OCULAR leads at 97%.
   Nothing about any of them changed. The 98% was the absolute noise floor forgiving small wrong
   answers on the biomarkers whose values are small, and AutoMorphClass has more of those than its
   siblings because it is the one that weights by length.*
@@ -552,6 +556,17 @@ truth to be judged against. What changed is a claim this page was making about i
 normalises by, every mapping of its columns onto a unit-bearing name is suspect — not only the one
 that misbehaved.
 
+**9.7 PVBM's and OCULAR's length is the rooted length, and the shapes now say so.** *2026-10-23.*
+Both walk each vessel tree from the optic disc, so a vessel that never reaches the disc is not
+counted, and on `disjoint` — the one shape not on the disc — they read 0 where
+`density/skeleton-length` is the whole network: 100% wrong, on every angle. The vocabulary now has
+`density/skeleton-length-rooted`, the shapes settle it (the full length on every shape but
+`disjoint`, and nothing there), and both columns agree with it on every shape to within 6%. So the
+mapping moved, and the 100% left section 5. PVBM disagrees on 5 of 20 biomarkers where it disagreed
+on 7, and OCULAR on 3 of 10 where it disagreed on 5. PVBM's values did not change; its stored
+results were re-measured once, because its declared units name the column by its catalogued name
+and that declaration is fingerprinted.
+
 ## 10. fundus-biomarkers, the seventh implementation
 
 *Added 2026-10-21, measured at its pinned commit `571bc81`.* Pheno's reference implementation
@@ -560,8 +575,8 @@ answers under the catalogue's own names, which is why its column is so much long
 here like every other implementation, and **none of it is independently verified**: the
 implementation and the atlas share an owner (`PLAN-BIOMARKER.md` §5.6).
 
-**Where the shapes settle a value, it mostly agrees.** Of 2,884 comparable measurements the median
-disagreement is 0.0% and 98% fall within 25% of the geometry. 11 of its 185 judged biomarkers are
+**Where the shapes settle a value, it mostly agrees.** Of 2,956 comparable measurements the median
+disagreement is 0.0% and 98% fall within 25% of the geometry. 11 of its 187 judged biomarkers are
 out by more than 25% somewhere, and they fall into three groups (notebook section 4):
 
 - **Standard deviations measured against a geometry that requires zero.** `calibre/width/*/std` and

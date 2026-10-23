@@ -143,6 +143,10 @@ what tests them.** A mapping says *we believe this column computes this quantity
 reading the source rather than the documentation, and this repository has been wrong three times
 and withdrawn the mapping each time.
 
+**[fundus-biomarkers](projects/fundus-biomarkers.md) has no column in these tables**, because it
+needs none: it answers under the canonical names themselves. Section 3.6 says what that means and
+what it does not.
+
 ### 3.1 [`calibre`](biomarkers/calibre.md) — how wide the vessels are
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
@@ -178,8 +182,8 @@ and withdrawn the mapping each time.
 | `density/over-fov/{artery,vein,vessels}` | | | ⚠️ | VascX measures over a disc-centred circle, not the field of view |
 | `density/over-image/{artery,vein,vessels}` | ✅ | | | |
 | `density/area/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels squared** |
-| `density/skeleton-length/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels**, and its rooted walk excludes vessels that do not reach the disc |
-| `density/skeleton-length-rooted/{artery,vein}` | | | | Only the centreline that can be followed back to the optic disc; needs the disc. Computed by [fundus-biomarkers](projects/fundus-biomarkers.md) |
+| `density/skeleton-length/{artery,vein,vessels}` | | | | PVBM's and OCULAR's length used to be mapped here; it is the rooted length below (§5) |
+| `density/skeleton-length-rooted/{artery,vein}` | | ✅ | | Only the centreline that can be followed back to the optic disc; needs the disc. PVBM's `length` and OCULAR's, which walk each tree from the disc; PVBM returns **pixels**. Also [fundus-biomarkers](projects/fundus-biomarkers.md) |
 | `density/sparsity/{artery,vein,vessels}` | | | ⚠️ | VascX only, and **not comparable**: its `mean_sparsity` is normalised by the optic-disc-to-fovea distance, so it is a dimensionless ratio rather than the distance in microns this name means |
 | `density/box-counting/{artery,vein,vessels}` | ✅ | | | |
 | `density/multifractal-d0/{artery,vein}` | | ✅ | | PVBM's `capacity_dimension`. Its three dimensions are of the **multifractal** analysis, not a plain box count |
@@ -205,6 +209,41 @@ and withdrawn the mapping each time.
 | `landmarks/CDR-area` | | | | fundus-biomarkers, as above |
 | `landmarks/centring` | | | | **A category, not a number**: `disc`, `macula` or `unknown`, from where the disc sits in the frame. It describes the photograph rather than the eye. fundus-biomarkers computes it |
 | `landmarks/disc-fovea-distance` | | | ⚠️ | VascX returns pixels, and reports two variants — to the retina's centre and to the fovea |
+
+### 3.6 fundus-biomarkers — the canonical implementation
+
+[fundus-biomarkers](projects/fundus-biomarkers.md) is Pheno's reference implementation of this
+catalogue. **It is written against these names**: every one of its 633 answers is spelled as a
+canonical name, `family/biomarker/structure/[roi]/[statistic]`, and every one is in the vocabulary.
+So there is nothing to map. Where the tables above need a column per project, because each
+project's own column has to be matched to a name, this project's column would match every name it
+covers exactly, and it is left out rather than filled with ✅.
+
+**What it covers:**
+
+- every catalogued biomarker of `calibre`, `tortuosity`, `density` and `topology`, on `artery` and
+  `vein` (and `both` for the ratios), over the field of view and zones `B` and `C`, with every
+  statistic each one admits, and the `vessel-` whole-vessel forms of tortuosity — except
+  `density/over-image`, which it answers over the field of view only, the whole frame being its
+  denominator;
+- in `landmarks`, the three cup-to-disc ratios, computed only when it is handed disc and cup masks,
+  and the photograph's `landmarks/centring`;
+- **not** `topology/temporal-angle` or `landmarks/disc-fovea-distance`, which need a fovea it is
+  not given, and no `vessels` structure, since it measures each class separately.
+
+**An exact name is a claim, not a check.** That its answers carry canonical names is the
+implementation's own statement about what it computes, and its owner is also this atlas's owner
+(`PLAN-BIOMARKER.md` §5.6): nothing about it is independently verified. What tests the claim is the
+[synthetic benchmark](benchmarks/biomarker-synthetic-results.md) §10, where its answers are held to
+the geometry like every other project's. There, 98% of its 2,956 comparable measurements fall
+within 25% of the value the shapes require, and 11 of its 187 judged biomarkers do not. Those 11
+are the standard deviations measured on shapes whose geometry requires zero, the junction and
+endpoint counts on `deep-bifurcation`, and spline curvature on `straight`. A reader using one of
+those names from fundus-biomarkers should read that section first.
+
+**Its mapping, and its units.** The adapter answers each name as itself and converts the library's
+microns back to pixels, as every adapter here reports pixels; `canonical.from_pixels` turns them
+into the units of section 2. Its one categorical answer, the centring, is passed through untouched.
 
 ## 4. What each project computes that has no canonical name
 
@@ -250,7 +289,8 @@ convention does not name. See [regions of interest](biomarkers/regions-of-intere
 
 ## 5. Where a mapping has been withdrawn
 
-Five, each found by a measurement disagreeing with something, never by rereading a name:
+Five, each found by a measurement disagreeing with something, never by rereading a name, and one
+moved to the name it always meant:
 
 | Column | Was mapped to | Withdrawn because |
 | --- | --- | --- |
@@ -259,6 +299,7 @@ Five, each found by a measurement disagreeing with something, never by rereading
 | `endpoints` (PVBM, OCULAR) | `topology/endpoints` | their rooted walk excludes the end at the disc |
 | `mean_sparsity` (VascX) | `density/sparsity` | **normalised by the optic-disc-to-fovea distance**, so a dimensionless ratio rather than a distance in microns |
 | `lw_tort_curv` (VascX) | `tortuosity/spline-curvature` | **multiplied by the optic-disc-to-fovea distance**, so dimensionless rather than the 1/µm the name means |
+| `length` (PVBM, OCULAR) | `density/skeleton-length` | **moved, 2026-10-23, to `density/skeleton-length-rooted`**: their walk starts at the disc, so a vessel that never reaches it reads 0. On every synthetic shape it agrees with the rooted ground truth to within 6%, and on `disjoint` it reads 0 where the plain length is the whole network |
 
 **Two of the five are the same defect in one project.** VascX normalises against its disc-to-fovea
 axis in more than one feature, and a canonical name that declares a physical unit cannot hold a
@@ -272,4 +313,4 @@ name — see §4.
 
 ---
 
-**Last checked:** 2026-09-30.
+**Last checked:** 2026-10-23.

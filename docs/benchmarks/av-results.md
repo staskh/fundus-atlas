@@ -136,15 +136,32 @@ follow, and every table above is already written to respect them:
   ocularnet's 0.853 is comparing a prediction with a union.
 - **It is run at a threshold this repository chose.** A pixel becomes vessel at **0.2** here, where
   AutoMorph's own pipeline writes its binary masks at **0.5**. The lower figure keeps thin vessels
-  the higher one drops. Every score recorded for it is therefore a score of the model at 0.2, and
-  **no sweep measured what that is worth per dataset** — section 7.
+  the higher one drops. Every score recorded for it is therefore a score of the model at 0.2; what
+  that choice costs is measured below.
 
 **The topology column is where that choice shows.** The vessel reference is third of six on overlap
 and **sixth of six on unmatched features**, on every dataset, by a margin — 172 against LUNet's 57
 pooled. A low threshold keeps thin, uncertain fragments, and a fragment that answers nothing in the
-reader's tracing is exactly what this metric counts. That is consistent with the threshold being
-the cause and does not prove it: the sweep that would settle it was not run. Read as a statement
-about the model as its authors ship it, at 0.5, none of these topology figures applies.
+reader's tracing is exactly what this metric counts.
+
+*Measured 2026-10-23, as a diagnostic in section 10 of the notebook:* the same probabilities scored
+at four thresholds on 20 photographs from each pooled dataset. **The threshold barely moves overlap
+and moves topology a lot.**
+
+| Threshold | Vessels Dice | Vessels clDice | Vessels Betti, median |
+| --- | --- | --- | --- |
+| **0.2**, this atlas's | 0.800 | 0.845 | 205.5 |
+| 0.3 | **0.808** | **0.847** | 165 |
+| 0.4 | 0.805 | 0.841 | **153.5** |
+| 0.5, AutoMorph's | 0.793 | 0.831 | 166.5 |
+
+So **0.2 costs about a quarter more unmatched features than any of the other three, for no gain in
+overlap**. The datasets do not agree on overlap: AVRDB and FIVES, whose annotations are drawn wider
+than the models trace (section 4.1), score best at 0.2, and HRF and REYIA at 0.5. And even at its
+best, 153.5, the reference sits with VascX and BF-Net rather than with LUNet and OCULARNet, so the
+threshold explains part of its last place on topology and not all of it. The benchmark keeps 0.2:
+a threshold picked from this table would be picked on the photographs it is then scored on. The
+sample weighs every dataset alike, which is why its 0.2 figure, 205.5, is not the full run's 172.
 
 ## 2. Where overlap and connectedness disagree
 
@@ -519,9 +536,9 @@ OCULARNet next; a study of Optos images should measure its own before trusting e
   mBRSET and TREND-AV, 75 in all, and **on those it still leads**: artery Dice 0.774 against VascX's
   0.715 and LUNet's 0.653, vessels 0.826 against LUNet's 0.817. VascX's artery/vein model is
   in-sample on HRF and held out of the other four; LUNet is still `unknown`.
-- **The vessel reference runs at a threshold we chose**, 0.2 rather than its own 0.5, and how much
-  that is worth per dataset was not measured — while its topology figures are the worst of the six,
-  which is what that choice would be expected to cost (section 1.1).
+- **The vessel reference runs at a threshold we chose**, 0.2 rather than its own 0.5. On a sample
+  it costs about a quarter more unmatched topological features than 0.3 to 0.5 and changes overlap
+  by about a hundredth (section 1.1).
 - **No dataset here keeps its annotators apart**, so there is no reader-against-reader band. 0.853
   may be at the ceiling or well below it.
 - **The seconds measure this machine**, Apple MPS for five models and CPU TensorFlow for LUNet, and
@@ -539,10 +556,10 @@ OCULARNet next; a study of Optos images should measure its own before trusting e
   every model but LUNet, which is `unknown` on both.
 - **A threshold this repository chose.** Every artery/vein model is thresholded at its own
   upstream's 0.5; the vessel reference at 0.2, which is ours. Its masks are therefore thicker than
-  its authors would draw them, its Dice and clDice both move with that choice, and **no sweep was
-  run to say by how much on each dataset**. Where its HRF score shows the over-prediction signature
-  — 0.744 Dice against 0.820 clDice, its largest gap — that is an observation, not a measurement of
-  the threshold's effect.
+  its authors would draw them. A sweep on 20 photographs per dataset (section 1.1) found its Dice
+  and clDice move by about a hundredth across 0.2 to 0.5, and its topology by about a quarter; on
+  HRF alone its Dice rises from 0.743 at 0.2 to 0.800 at 0.5. That is a sample, not the full run:
+  the figures in every other table are the model at 0.2.
 - **The Betti matching error is a count and not a rate.** It grows with the size of the frame and
   the density of the annotation as well as with the mistake, so it compares models *within* a
   dataset and says nothing across them: HRF's figures are the largest for every model, and HRF is
