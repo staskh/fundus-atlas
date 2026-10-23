@@ -28,7 +28,10 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
     # Arc-weighted mean of the same ratios — which the vocabulary now names, so this is no
     # longer an aggregation it cannot express.
     ("length_weighted_tortuosity", "tortuosity/hart-tau1/{side}/length-weighted"),
-    ("length", "density/skeleton-length/{side}"),
+    # *Our finding, 2026-10-23:* the rooted length, not the plain one. The walk starts at the optic
+    # disc, so a vessel that never reaches it is not counted: on `disjoint` it reads 0, and on every
+    # shape it agrees with the rooted ground truth to within 6%.
+    ("length", "density/skeleton-length-rooted/{side}"),
     # *Our finding, carried over from PVBM:* not the angle between a bifurcation's daughters. It is
     # the median of every pairwise angle at every particular point, the trunk included, and OCULAR
     # inherits the function that computes it.

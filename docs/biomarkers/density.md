@@ -102,7 +102,7 @@ rotated.
 | [AutoMorph](../projects/automorph.md) | `over-image` density, box-counting dimension | retipy's `retina.py` | Reuses [retipy](../projects/retipy.md) |
 | [AutoMorphalyzer](../projects/automorphalyzer.md) | the same, **per zone** | `automorph/measure/` | Rewritten from retipy |
 | [AutoMorphClass](../projects/automorphclass.md) | AutoMorph's set | `src/pytorch_automorph/` | Reimplemented |
-| [PVBM](../projects/pvbm.md) | area, skeleton length, the three multifractal dimensions and a singularity length | `PVBM/GeometryAnalysis.py`, `FractalAnalysis.py` | Original |
+| [PVBM](../projects/pvbm.md) | area, the rooted skeleton length, the three multifractal dimensions and a singularity length | `PVBM/GeometryAnalysis.py`, `FractalAnalysis.py` | Original |
 | [VascX](../projects/vascx.md) | density and sparsity over a disc-centred circle | `vascx/fundus/features/` | Original |
 | [fundus-biomarkers](../projects/fundus-biomarkers.md) | every name on this page, over the field of view and zones B and C, the rooted skeleton length among them | private repository | Original |
 
@@ -124,9 +124,9 @@ rotated.
 - **PVBM's skeleton length excludes vessels that do not reach the optic disc.** *Our finding,
   2026-09-26.* Its current class walks each tree from the disc, so a segment lying away from it is
   not measured at all and the length reads zero. Correct for a disc-anchored measurement, and
-  **not** what the catalogued name means. That disc-anchored measurement now has a name of its own,
-  `density/skeleton-length-rooted`; moving PVBM's column onto it is a mapping claim, and waits for a
-  shape that settles the rooted length.
+  **not** what `density/skeleton-length` means. *Resolved 2026-10-23:* the shapes now settle
+  `density/skeleton-length-rooted`, PVBM's and OCULAR's `length` agrees with it on every shape to
+  within 6%, and both are mapped there.
 - **The AutoMorph family's box-counting dimension is strongly rotation-dependent.** *Our finding,
   2026-09-24.* Up to 80% spread across four angles of a shape that did not change.
 

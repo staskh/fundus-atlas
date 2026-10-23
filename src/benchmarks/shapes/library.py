@@ -385,6 +385,42 @@ def _needs_the_vessels_inside_the_field(side: int, parts: list[np.ndarray]) -> N
             )
 
 
+def _rooted_length(
+    curves: list[np.ndarray], lengths: list[float], disc: tuple[float, float, float]
+) -> float:
+    """How much of one class's centreline can be followed back to the optic disc.
+
+    A curve is rooted when it touches the disc, or meets — end to curve — one that is rooted:
+    a daughter starts where its parent ends, and a vessel starts on the disc's margin. Nothing here
+    is rasterised, so a join is a coincidence of continuous coordinates, and the tolerance is a
+    fraction of a pixel.
+    """
+    reach = 0.5
+    x, y, radius = disc
+    rooted = [
+        bool(np.hypot(curve[:, 0] - x, curve[:, 1] - y).min() <= radius + reach)
+        for curve in curves
+    ]
+
+    def meets(one: np.ndarray, other: np.ndarray) -> bool:
+        ends = one[[0, -1]]
+        gaps = np.hypot(ends[:, None, 0] - other[None, :, 0], ends[:, None, 1] - other[None, :, 1])
+        return bool(gaps.min() <= reach)
+
+    grew = True
+    while grew:
+        grew = False
+        for index, curve in enumerate(curves):
+            if rooted[index]:
+                continue
+            if any(
+                rooted[other] and (meets(curve, curves[other]) or meets(curves[other], curve))
+                for other in range(len(curves))
+            ):
+                rooted[index] = grew = True
+    return float(sum(length for length, kept in zip(lengths, rooted, strict=True) if kept))
+
+
 def _compose(
     name: str,
     side: int,
@@ -448,7 +484,18 @@ def _compose(
         # statistic at all. The two lengths are totals over the class, and have none.
         theory.update(_named(_pooled("calibre/width", width), structure))
         theory.update(
-            _named({"density/skeleton-length": length, "density/area": area}, structure)
+            _named(
+                {
+                    "density/skeleton-length": length,
+                    "density/skeleton-length-rooted": _rooted_length(
+                        [points for points, _ in parts],
+                        [value["density/skeleton-length"] for value in values],
+                        _disc(side, um_per_px, at=at),
+                    ),
+                    "density/area": area,
+                },
+                structure,
+            )
         )
         # A quantity every part agrees on is the shape's; one they disagree about is an aggregation
         # question the shape cannot answer, and is left out rather than guessed at.

@@ -120,3 +120,12 @@ def test_it_says_where_its_catalogue_page_is() -> None:
     assert (
         Path(__file__).resolve().parents[2] / "docs" / "projects" / f"{declared['page']}.md"
     ).exists()
+
+
+@pytest.mark.parametrize("slug", ["pvbm", "ocular"])
+def test_the_walk_from_the_disc_measures_the_rooted_length(slug: str) -> None:
+    """Both walk each tree from the optic disc, so a vessel that never reaches it is not counted."""
+    names = catalogue.load(slug).declare()["names"]
+
+    assert names["length_artery"] == "density/skeleton-length-rooted/artery"
+    assert names["length_vein"] == "density/skeleton-length-rooted/vein"

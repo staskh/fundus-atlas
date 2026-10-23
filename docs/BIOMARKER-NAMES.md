@@ -182,8 +182,8 @@ what it does not.
 | `density/over-fov/{artery,vein,vessels}` | | | ⚠️ | VascX measures over a disc-centred circle, not the field of view |
 | `density/over-image/{artery,vein,vessels}` | ✅ | | | |
 | `density/area/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels squared** |
-| `density/skeleton-length/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels**, and its rooted walk excludes vessels that do not reach the disc |
-| `density/skeleton-length-rooted/{artery,vein}` | | | | Only the centreline that can be followed back to the optic disc; needs the disc. Computed by [fundus-biomarkers](projects/fundus-biomarkers.md) |
+| `density/skeleton-length/{artery,vein,vessels}` | | | | PVBM's and OCULAR's length used to be mapped here; it is the rooted length below (§5) |
+| `density/skeleton-length-rooted/{artery,vein}` | | ✅ | | Only the centreline that can be followed back to the optic disc; needs the disc. PVBM's `length` and OCULAR's, which walk each tree from the disc; PVBM returns **pixels**. Also [fundus-biomarkers](projects/fundus-biomarkers.md) |
 | `density/sparsity/{artery,vein,vessels}` | | | ⚠️ | VascX only, and **not comparable**: its `mean_sparsity` is normalised by the optic-disc-to-fovea distance, so it is a dimensionless ratio rather than the distance in microns this name means |
 | `density/box-counting/{artery,vein,vessels}` | ✅ | | | |
 | `density/multifractal-d0/{artery,vein}` | | ✅ | | PVBM's `capacity_dimension`. Its three dimensions are of the **multifractal** analysis, not a plain box count |
@@ -235,8 +235,8 @@ covers exactly, and it is left out rather than filled with ✅.
 implementation's own statement about what it computes, and its owner is also this atlas's owner
 (`PLAN-BIOMARKER.md` §5.6): nothing about it is independently verified. What tests the claim is the
 [synthetic benchmark](benchmarks/biomarker-synthetic-results.md) §10, where its answers are held to
-the geometry like every other project's. There, 98% of its 2,884 comparable measurements fall
-within 25% of the value the shapes require, and 11 of its 185 judged biomarkers do not. Those 11
+the geometry like every other project's. There, 98% of its 2,956 comparable measurements fall
+within 25% of the value the shapes require, and 11 of its 187 judged biomarkers do not. Those 11
 are the standard deviations measured on shapes whose geometry requires zero, the junction and
 endpoint counts on `deep-bifurcation`, and spline curvature on `straight`. A reader using one of
 those names from fundus-biomarkers should read that section first.
@@ -289,7 +289,8 @@ convention does not name. See [regions of interest](biomarkers/regions-of-intere
 
 ## 5. Where a mapping has been withdrawn
 
-Five, each found by a measurement disagreeing with something, never by rereading a name:
+Five, each found by a measurement disagreeing with something, never by rereading a name, and one
+moved to the name it always meant:
 
 | Column | Was mapped to | Withdrawn because |
 | --- | --- | --- |
@@ -298,6 +299,7 @@ Five, each found by a measurement disagreeing with something, never by rereading
 | `endpoints` (PVBM, OCULAR) | `topology/endpoints` | their rooted walk excludes the end at the disc |
 | `mean_sparsity` (VascX) | `density/sparsity` | **normalised by the optic-disc-to-fovea distance**, so a dimensionless ratio rather than a distance in microns |
 | `lw_tort_curv` (VascX) | `tortuosity/spline-curvature` | **multiplied by the optic-disc-to-fovea distance**, so dimensionless rather than the 1/µm the name means |
+| `length` (PVBM, OCULAR) | `density/skeleton-length` | **moved, 2026-10-23, to `density/skeleton-length-rooted`**: their walk starts at the disc, so a vessel that never reaches it reads 0. On every synthetic shape it agrees with the rooted ground truth to within 6%, and on `disjoint` it reads 0 where the plain length is the whole network |
 
 **Two of the five are the same defect in one project.** VascX normalises against its disc-to-fovea
 axis in more than one feature, and a canonical name that declares a physical unit cannot hold a
@@ -311,4 +313,4 @@ name — see §4.
 
 ---
 
-**Last checked:** 2026-09-30.
+**Last checked:** 2026-10-23.

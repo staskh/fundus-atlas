@@ -33,7 +33,10 @@ from upstreams import pvbm as upstream
 #: in the catalogue, not a reason to throw a measurement away.
 PER_CLASS: dict[str, str | None] = {
     "area": "density/area/{side}",
-    "length": "density/skeleton-length/{side}",
+    # *Our finding, 2026-10-23:* the rooted length, not the plain one. The walk starts at the optic
+    # disc, so a vessel that never reaches it is not counted: on `disjoint` it reads 0, and on every
+    # shape it agrees with the rooted ground truth to within 6%.
+    "length": "density/skeleton-length-rooted/{side}",
     "median_tortuosity": "tortuosity/hart-tau1/{side}/median",
     # `GeometryAnalysis` returns this beside the median and PVBM's docstring calls it the
     # "tortuosity index". Its definition is not stated and it is not one of Hart's seven, so it
@@ -254,7 +257,7 @@ class Pvbm:
             "recursion": self.RECURSION_LIMIT,
             "units": {
                 "density/area/artery": "px²",
-                "density/skeleton-length/artery": "px",
+                "density/skeleton-length-rooted/artery": "px",
                 "calibre/CRE-knudtson/artery/B": "px",
                 "calibre/CRE-hubbard/artery/B": "µm",
                 "median_branching_angle_artery": "degrees",
