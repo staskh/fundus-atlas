@@ -143,6 +143,10 @@ what tests them.** A mapping says *we believe this column computes this quantity
 reading the source rather than the documentation, and this repository has been wrong three times
 and withdrawn the mapping each time.
 
+**[fundus-biomarkers](projects/fundus-biomarkers.md) has no column in these tables**, because it
+needs none: it answers under the canonical names themselves. Section 3.6 says what that means and
+what it does not.
+
 ### 3.1 [`calibre`](biomarkers/calibre.md) — how wide the vessels are
 
 | Canonical name | AutoMorph | PVBM | VascX | Note |
@@ -205,6 +209,41 @@ and withdrawn the mapping each time.
 | `landmarks/CDR-area` | | | | fundus-biomarkers, as above |
 | `landmarks/centring` | | | | **A category, not a number**: `disc`, `macula` or `unknown`, from where the disc sits in the frame. It describes the photograph rather than the eye. fundus-biomarkers computes it |
 | `landmarks/disc-fovea-distance` | | | ⚠️ | VascX returns pixels, and reports two variants — to the retina's centre and to the fovea |
+
+### 3.6 fundus-biomarkers — the canonical implementation
+
+[fundus-biomarkers](projects/fundus-biomarkers.md) is Pheno's reference implementation of this
+catalogue. **It is written against these names**: every one of its 633 answers is spelled as a
+canonical name, `family/biomarker/structure/[roi]/[statistic]`, and every one is in the vocabulary.
+So there is nothing to map. Where the tables above need a column per project, because each
+project's own column has to be matched to a name, this project's column would match every name it
+covers exactly, and it is left out rather than filled with ✅.
+
+**What it covers:**
+
+- every catalogued biomarker of `calibre`, `tortuosity`, `density` and `topology`, on `artery` and
+  `vein` (and `both` for the ratios), over the field of view and zones `B` and `C`, with every
+  statistic each one admits, and the `vessel-` whole-vessel forms of tortuosity — except
+  `density/over-image`, which it answers over the field of view only, the whole frame being its
+  denominator;
+- in `landmarks`, the three cup-to-disc ratios, computed only when it is handed disc and cup masks,
+  and the photograph's `landmarks/centring`;
+- **not** `topology/temporal-angle` or `landmarks/disc-fovea-distance`, which need a fovea it is
+  not given, and no `vessels` structure, since it measures each class separately.
+
+**An exact name is a claim, not a check.** That its answers carry canonical names is the
+implementation's own statement about what it computes, and its owner is also this atlas's owner
+(`PLAN-BIOMARKER.md` §5.6): nothing about it is independently verified. What tests the claim is the
+[synthetic benchmark](benchmarks/biomarker-synthetic-results.md) §10, where its answers are held to
+the geometry like every other project's. There, 98% of its 2,884 comparable measurements fall
+within 25% of the value the shapes require, and 11 of its 185 judged biomarkers do not. Those 11
+are the standard deviations measured on shapes whose geometry requires zero, the junction and
+endpoint counts on `deep-bifurcation`, and spline curvature on `straight`. A reader using one of
+those names from fundus-biomarkers should read that section first.
+
+**Its mapping, and its units.** The adapter answers each name as itself and converts the library's
+microns back to pixels, as every adapter here reports pixels; `canonical.from_pixels` turns them
+into the units of section 2. Its one categorical answer, the centring, is passed through untouched.
 
 ## 4. What each project computes that has no canonical name
 
