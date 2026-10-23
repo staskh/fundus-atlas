@@ -35,9 +35,9 @@ def test_every_adapter_declares_what_the_run_has_to_record(slug: str) -> None:
     assert declared["purpose"] in ("quality", "vessels", "artery/vein", "disc/cup", "other"), (
         "one of the five purpose classes the document-model skill fixes, and never a new one"
     )
-    assert declared["grid"] in (512, 1024, 1472), (
-        "the store grid the adapter reads — a size the artery/vein stores build because LUNet "
-        "works at 1472, since the grid belongs to the model rather than to the dataset"
+    assert isinstance(declared["grid"], int) and declared["grid"] > 0, (
+        "the grid the adapter reads the store at — any size, since the store resizes its crop to "
+        "it when read, and the grid belongs to the model rather than to the dataset"
     )
     assert declared["network_grid"] > 0, "the grid the network itself sees"
     assert isinstance(declared["upstream"], dict)

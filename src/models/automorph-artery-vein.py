@@ -11,9 +11,9 @@ from .utils import fusion
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The grid the store is read at. The networks see 720 — the photograph read at 1024 is resized
-#: down to it, as the upstream resizes its own input, and nothing is upsampled.
-GRID = 1024
+#: The grid the store is read at, which is the grid the networks see: the crop is resized once,
+#: straight to it, where the upstream resizes its own input.
+GRID = fusion.GRID
 
 #: The four channels it emits, established by measurement rather than read from a document.
 CHANNELS = fusion.CLASSES

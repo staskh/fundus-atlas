@@ -64,6 +64,11 @@ about whether a given vessel exists.
   photograph cropped to its field of view is the lit circle. It divides by the deviation, where the
   artery/vein stage of the same repository multiplies by it; the two preparations are not
   interchangeable and this atlas reproduces each as its own weights were trained through it.
+- **How this atlas resizes it:** *our observation, 2026-10-22.* The store's full-resolution crop
+  is read straight at 912² — one resize, with Lanczos, the atlas's single rule for photographs —
+  and the adapter only standardises it. AutoMorph resizes with PIL's default filter, which at its pinned
+  Pillow 10.3 is bicubic for a colour image, so the one resize here uses a sharper filter than the
+  upstream's own. Until 2026-10-22 the crop was read at 1024² and resized again to 912².
 
 ## 5. Architecture
 

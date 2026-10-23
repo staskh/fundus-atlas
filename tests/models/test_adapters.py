@@ -28,6 +28,26 @@ def test_every_model_declares_the_code_it_runs(slug: str) -> None:
     assert upstream["commit"]
 
 
+#: The models whose upstream resizes once, to a grid of its own: issue #44.
+ONE_RESIZE = ["segan-vessel", "automorph-artery-vein", "bf-net"]
+
+
+@pytest.mark.parametrize("slug", ONE_RESIZE)
+def test_the_store_is_read_at_the_grid_the_network_sees(slug: str) -> None:
+    """Reading at one grid and resizing to another throws detail away twice, for nothing."""
+    declared = catalogue.load(slug, device="cpu").declare()
+
+    assert declared["grid"] == declared["network_grid"]
+
+
+@pytest.mark.parametrize("slug", ONE_RESIZE)
+def test_a_photograph_at_another_grid_is_refused_rather_than_resized_again(slug: str) -> None:
+    adapter = catalogue.load(slug, device="cpu")
+
+    with pytest.raises(ValueError, match="grid"):
+        adapter.prepare(photograph(adapter.grid + 8))
+
+
 def photograph(size: int) -> np.ndarray:
     """A square with a lit disc in it, dark outside, as a store's photographs are."""
     pixels = np.zeros((size, size, 3), dtype=np.uint8)

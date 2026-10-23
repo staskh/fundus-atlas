@@ -3,7 +3,6 @@
 
 import numpy as np
 import torch
-from PIL import Image
 
 from upstreams import automorph
 from upstreams.utils import weights
@@ -11,13 +10,13 @@ from upstreams.utils import weights
 from .utils.device import forget, pick
 from .utils.outlines import Outlines
 
-#: The grid the store is read at. The network sees 912 — the photograph read at 1024 is resized
-#: down to it, as the upstream resizes its own input, and nothing is upsampled.
-GRID = 1024
-
 #: The grid the network was trained at: `Define_image_size` in `M2_Vessel_seg/utils.py` returns
 #: (912, 912) for every dataset, there being one uniform size and no other branch.
 NETWORK_GRID = 912
+
+#: The grid the store is read at, which is the network's: the crop is resized once, straight to
+#: it, where the upstream resizes its own input.
+GRID = NETWORK_GRID
 
 #: Which pixels the upstream standardises by: those whose red channel is over this, which on a
 #: photograph cropped to its field of view is the lit circle. `--pre_threshold=40.0` in
@@ -87,14 +86,18 @@ class SeganVessel:
         return weights.digest(automorph.vessel_weights())
 
     def prepare(self, pixels: np.ndarray) -> torch.Tensor:
-        """The upstream's own preparation: resize to its grid, then standardise by the lit pixels.
+        """The upstream's own preparation, on a photograph the store has already read at its grid:
+        standardise by the lit pixels.
 
         Unlike the artery/vein stage, which multiplies by the deviation where it means to divide,
-        this one divides — so the two are not the same preparation and do not share a helper.
+        this one divides — so the two are not the same preparation and do not share a helper. A
+        photograph at any other size is refused rather than resized a second time.
         """
-        resized = np.asarray(
-            Image.fromarray(pixels).resize((NETWORK_GRID, NETWORK_GRID))
-        ).astype(np.float32)
+        if pixels.shape[:2] != (NETWORK_GRID, NETWORK_GRID):
+            raise ValueError(
+                f"a photograph of {pixels.shape[:2]} is not at the {NETWORK_GRID} grid"
+            )
+        resized = pixels.astype(np.float32)
         lit = resized[resized[..., 0] > LIT]
         if not lit.size:
             return torch.zeros((INPUT_CHANNELS, NETWORK_GRID, NETWORK_GRID), dtype=torch.float32)

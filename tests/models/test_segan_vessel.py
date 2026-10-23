@@ -62,7 +62,7 @@ def test_a_photograph_is_standardised_by_the_pixels_its_upstream_calls_lit() -> 
 
     prepared = adapter.prepare(varied).numpy()
 
-    assert prepared.shape == (3, 912, 912), "the store's 1024 is resized down to the network's grid"
+    assert prepared.shape == (3, 912, 912), "read straight at the network's grid, and not resized"
     assert prepared.min() < 0 < prepared.max(), "standardisation puts the surround below the mean"
     lit = prepared[:, prepared[0] > prepared[0].min()]
     assert abs(float(lit.mean())) < 1.0, "the lit pixels are centred on zero"

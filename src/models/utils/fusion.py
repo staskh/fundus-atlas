@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from PIL import Image
 
 from .outlines import Outlines
 
@@ -44,7 +43,12 @@ class Seed:
 
 
 def prepare(pixels: np.ndarray) -> torch.Tensor:
-    """The upstream's own preparation: resize to its grid, then scale by the photograph's own pixels.
+    """The upstream's own preparation, on a photograph the store has already read at its grid:
+    scale by the photograph's own pixels.
+
+    The upstream resizes its input to this grid itself; here the store reads the crop straight at
+    it, so the photograph is resized once rather than twice, and one arriving at any other size is
+    refused rather than resized again.
 
     Their expression is ``(image - mean) / 1.0 * std``, whose precedence multiplies by the standard
     deviation rather than dividing by it. It is reproduced rather than corrected because both of
@@ -52,11 +56,13 @@ def prepare(pixels: np.ndarray) -> torch.Tensor:
     would hand the networks something they have never seen. The statistics are over the pixels with
     any red in them, which on a photograph cropped to the field of view is the lit circle.
     """
-    resized = np.array(Image.fromarray(pixels).resize((GRID, GRID)))
-    lit = resized[resized[..., 0] > 0]
+    if pixels.shape[:2] != (GRID, GRID):
+        raise ValueError(f"a photograph of {pixels.shape[:2]} is not at the {GRID} grid")
+    image = pixels.astype(np.float64)
+    lit = image[image[..., 0] > 0]
     if not lit.size:
         return torch.zeros((INPUT_CHANNELS, GRID, GRID), dtype=torch.float32)
-    scaled = (resized - np.mean(lit, axis=0)) * np.std(lit, axis=0)
+    scaled = (image - np.mean(lit, axis=0)) * np.std(lit, axis=0)
     return torch.from_numpy(scaled.transpose(2, 0, 1).copy()).float()
 
 
