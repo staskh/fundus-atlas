@@ -107,14 +107,18 @@ class SeganVessel:
         return torch.from_numpy(standardised.transpose(2, 0, 1).copy()).float()
 
     def outline(self, images: torch.Tensor, sides: list[int]) -> list[Outlines]:
+        return self.interpret(self.probabilities(images), sides)
+
+    def probabilities(self, images: torch.Tensor) -> np.ndarray:
+        """The ensemble's vessel probability, one map per photograph at the network's grid: every
+        seed's sigmoid, averaged. What `outline` thresholds, and what a threshold sweep reads."""
         batch = images.to(self.device, dtype=torch.float32)
         averaged = None
         with torch.no_grad():
             for network in self._loaded():
                 found = torch.sigmoid(network(batch)).cpu()
                 averaged = found if averaged is None else averaged + found
-        probabilities = (averaged / len(self._loaded())).numpy()[:, 0]
-        return self.interpret(probabilities, sides)
+        return (averaged / len(self._loaded())).numpy()[:, 0]
 
     @staticmethod
     def interpret(

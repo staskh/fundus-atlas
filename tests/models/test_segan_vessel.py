@@ -1,8 +1,11 @@
 # ABOUTME: Tests for the SEGAN vessel ensemble AutoMorph ships: the standardisation its upstream
 # ABOUTME: bakes in, and the threshold this atlas runs it at, which is not the one upstream ships.
 
+import math
+
 import numpy as np
 import pytest
+import torch
 
 from models.utils import catalogue
 
@@ -76,3 +79,37 @@ def test_a_photograph_with_nothing_lit_in_it_is_not_a_division_by_zero() -> None
 
     assert prepared.shape == (3, 912, 912)
     assert np.isfinite(prepared.numpy()).all()
+
+
+class Constant(torch.nn.Module):
+    """A stand-in network answering one logit everywhere, so the ensemble's arithmetic is visible."""
+
+    def __init__(self, logit: float) -> None:
+        super().__init__()
+        self.logit = logit
+
+    def forward(self, images: torch.Tensor) -> torch.Tensor:
+        return torch.full((images.shape[0], 1, *images.shape[2:]), self.logit)
+
+
+def test_the_probabilities_are_the_seeds_sigmoids_averaged() -> None:
+    """What a threshold sweep reads, and what `outline` thresholds: one map per photograph."""
+    adapter = catalogue.load(SLUG, device="cpu")
+    adapter._seeds = [Constant(0.0), Constant(math.log(3.0))]
+    images = torch.zeros((2, 3, 16, 16))
+
+    found = adapter.probabilities(images)
+
+    assert found.shape == (2, 16, 16)
+    assert np.allclose(found, (0.5 + 0.75) / 2)
+
+
+def test_an_outline_is_the_probabilities_read_at_the_threshold() -> None:
+    adapter = catalogue.load(SLUG, device="cpu")
+    adapter._seeds = [Constant(0.0), Constant(math.log(3.0))]
+    images = torch.zeros((1, 3, 16, 16))
+
+    outlined = adapter.outline(images, [32])[0]
+    expected = adapter.interpret(adapter.probabilities(images), [32])[0]
+
+    assert np.array_equal(outlined.masks["vessels"], expected.masks["vessels"])
