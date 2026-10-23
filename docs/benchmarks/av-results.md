@@ -26,6 +26,11 @@ identical and only the seconds moved. On the first three, scores moved by a few 
 most and no ordering of models changed; the seconds moved more, and section 1 says why that is not
 the models. Three statements this page made in September did not match its own tables, and are corrected where they stand.*
 
+*SeGAN, AutoMorph's artery/vein model and BF-Net were measured again on 2026-10-22 and 23, on every
+dataset, after their photographs began to be resized once, straight to the grid each network sees,
+rather than to 1024 first. No score moved by more than seven thousandths, and no ordering of
+models changed.*
+
 ## Contents
 
 1. [Summary](#1-summary) · [1.1 The vessel reference](#11-the-vessel-reference)
@@ -52,10 +57,10 @@ other, which is why both are carried.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [ocularnet](../models/ocularnet.md) | 1,602 | 1.000 | **0.829** | **0.853** | **0.853** | **0.884** | 93 | 5.7 | in-sample |
 | [lunet](../models/lunet.md) | 1,602 | 1.000 | 0.778 | 0.804 | 0.838 | 0.864 | **57** | 27.9 | unknown |
-| [segan-vessel](../models/segan-vessel.md) | 1,602 | 1.000 | — | — | 0.832 | 0.862 | **170** | 2.1 | mixed |
+| [segan-vessel](../models/segan-vessel.md) | 1,602 | 1.000 | — | — | 0.832 | 0.861 | **172** | 2.1 | mixed |
 | [vascx-artery-vein](../models/vascx-artery-vein.md) | 1,602 | 1.000 | 0.752 | 0.789 | 0.803 | 0.828 | 151 | 11.4 | mixed |
-| [automorph-artery-vein](../models/automorph-artery-vein.md) | 1,602 | 1.000 | 0.707 | 0.774 | 0.747 | 0.756 | 104 | 4.0 | mixed |
-| [bf-net](../models/bf-net.md) | 1,602 | 1.000 | 0.492 | 0.600 | 0.616 | 0.626 | 164 | **0.7** | out-of-sample |
+| [automorph-artery-vein](../models/automorph-artery-vein.md) | 1,602 | 1.000 | 0.707 | 0.773 | 0.746 | 0.755 | 105 | 10.9 | mixed |
+| [bf-net](../models/bf-net.md) | 1,602 | 1.000 | 0.495 | 0.602 | 0.617 | 0.628 | 165 | **0.5** | out-of-sample |
 
 ***The Betti matching error is not normalised, and is not suitable for comparison between
 datasets — only between models on the same dataset.*** Measured on the readers' own tracings, the
@@ -88,9 +93,10 @@ a model's failure.
 
 **The seconds are photograph-weighted here.** The index page [BENCHMARKS.md](../BENCHMARKS.md)
 averages the five per-dataset figures instead, which lets HRF's 45 photographs weigh as much as
-REYIA's 559. The two agree to within a second for every model; VascX differs most, at 11.4 seconds
-here against 11.9 there. Measured on Apple MPS, except LUNet, which runs on the CPU through TensorFlow because its
-checkpoint is a Keras 2.11 file.
+REYIA's 559. The two agree to within two seconds for every model but AutoMorph's, whose latest
+re-measurement took about 12 seconds a photograph on FIVES and REYIA against 4 on the others —
+10.9 here, 7.3 there. Measured on Apple MPS, except LUNet, which runs on the CPU through TensorFlow
+because its checkpoint is a Keras 2.11 file.
 
 **The seconds rose when the rebuilt datasets were measured again, and the models did not change.**
 On the three datasets re-measured on 2026-10-14, the same weights on the same machine took 10% to
@@ -99,7 +105,9 @@ from 0.44 to 1.07 — while the pairs left alone kept their September figures. T
 every timing here carries, made concrete: these seconds measure how busy the machine was as well as
 the model, and the column is good to within a factor of two, not to its decimal. HRF makes the
 point the other way: re-measured on 2026-10-21 after its store was rebuilt, VascX took 9.4 seconds
-a photograph where in September it took 54.3, with the same weights and the same scores.
+a photograph where in September it took 54.3, with the same weights and the same scores. And on
+2026-10-23 AutoMorph's model took three times its usual time on FIVES and REYIA, measured while
+another job held most of the machine's memory.
 
 **A mean hides a tail.** The share of photographs a model loses outright separates models that look
 close in the table:
@@ -110,8 +118,8 @@ close in the table:
 | segan-vessel | 1.2% | — | — |
 | lunet | 1.3% | 10.0% | 5.5% |
 | vascx-artery-vein | 1.3% | 5.0% | 1.2% |
-| automorph-artery-vein | 8.1% | 11.3% | 2.6% |
-| bf-net | 19.5% | 42.8% | 17.4% |
+| automorph-artery-vein | 8.1% | 11.1% | 2.5% |
+| bf-net | 19.3% | 42.0% | 17.0% |
 
 ### 1.1 The vessel reference
 
@@ -132,7 +140,7 @@ follow, and every table above is already written to respect them:
   **no sweep measured what that is worth per dataset** — section 7.
 
 **The topology column is where that choice shows.** The vessel reference is third of six on overlap
-and **sixth of six on unmatched features**, on every dataset, by a margin — 170 against LUNet's 57
+and **sixth of six on unmatched features**, on every dataset, by a margin — 172 against LUNet's 57
 pooled. A low threshold keeps thin, uncertain fragments, and a fragment that answers nothing in the
 reader's tracing is exactly what this metric counts. That is consistent with the threshold being
 the cause and does not prove it: the sweep that would settle it was not run. Read as a statement
@@ -148,10 +156,10 @@ network. The same vessel thickened to one side scores the same 0.50 Dice and 0.0
 | --- | --- | --- | --- |
 | lunet | +0.030 | **30.1%** | 1.1% |
 | ocularnet | +0.030 | 23.5% | **0.2%** |
-| segan-vessel | +0.025 | 26.0% | 0.9% |
+| segan-vessel | +0.025 | 25.2% | 1.0% |
 | vascx-artery-vein | +0.024 | 22.8% | 1.4% |
-| bf-net | +0.011 | 9.9% | 4.9% |
-| automorph-artery-vein | +0.007 | 9.5% | 3.2% |
+| bf-net | +0.011 | 9.7% | 4.7% |
+| automorph-artery-vein | +0.007 | 9.4% | 3.1% |
 
 **Every model sits above the diagonal on average**, and the four strongest sit well above it: on a
 quarter to a third of photographs they trace a network the annotator would recognise at a width the
@@ -160,7 +168,7 @@ does not.
 
 **The two weakest models are the two least often above it**, which is not a virtue. BF-Net and
 AutoMorph's artery/vein model have the smallest median gaps because they lose *both* — they are
-below the diagonal sixteen to twenty-five times as often as OCULARNet, covering vessel area while losing the
+below the diagonal fifteen to twenty-four times as often as OCULARNet, covering vessel area while losing the
 network, which is the worse trade: a broken network cannot be repaired by rescaling.
 
 **OCULARNet almost never loses the network** — 0.2%, under a quarter of the next model's rate.
@@ -181,24 +189,24 @@ invents is a hole nobody asked for.
 | --- | --- | --- | --- | --- | --- |
 | lunet | **57** | **67** | **73** | **108** | 1,641 |
 | ocularnet | 93 | 104 | 118 | 185 | 1,716 |
-| automorph-artery-vein | 104 | 124 | 138 | 245 | 1,896 |
+| automorph-artery-vein | 105 | 127 | 141 | 248 | 1,916 |
 | vascx-artery-vein | 151 | 168 | 191 | 284 | 1,821 |
-| bf-net | 164 | 167 | 195 | 252 | 1,753 |
-| segan-vessel | 170 | 185 | 212 | 302 | 1,759 |
+| bf-net | 165 | 169 | 195 | 253 | 1,752 |
+| segan-vessel | 172 | 187 | 215 | 310 | 1,801 |
 
 **The mean is the column the index quotes**, because a mean over photographs pools exactly and a
 median does not: a median of five per-dataset medians is not the median of the photographs. The two
-orderings agree except that VascX and BF-Net change places, 168 against 167 on the mean, which is no
-difference; the mean is the higher of the two everywhere, which is the tail showing.
+orderings agree, though VascX and BF-Net are 168 against 169 on the mean, which is no difference;
+the mean is the higher of the two everywhere, which is the tail showing.
 The rest of this page uses medians.
 
 **LUNet's lead is not a hundredth or two.** Its median photograph leaves 57 features unmatched where
-OCULARNet's leaves 93 and the vessel reference's 170, and its 95th percentile — 108 — is below every
+OCULARNet's leaves 93 and the vessel reference's 172, and its 95th percentile — 108 — is below every
 other model's *median but two*. It is also the model that most often traces the right network at the
 wrong width (section 2), which is the same fact from the other side: it keeps the network and
 misses on calibre.
 
-**Every model has the same worst case.** The maximum is between 1,641 and 1,896 for all six, on the
+**Every model has the same worst case.** The maximum is between 1,641 and 1,916 for all six, on the
 photographs of section 5 — where a sparse or absent annotation leaves hundreds of the *reader's*
 features unmatched no matter what the model drew. That is the tail a mean would hide, and the reason
 the median leads this table.
@@ -213,17 +221,17 @@ Five models answer this; the vessel reference does not. Where `vessels` is high 
 | ocularnet | 0.853 | 0.829 | 0.853 | 0.012 |
 | lunet | 0.838 | 0.778 | 0.804 | 0.047 |
 | vascx-artery-vein | 0.803 | 0.752 | 0.789 | 0.033 |
-| automorph-artery-vein | 0.747 | 0.707 | 0.774 | **0.006** |
-| bf-net | 0.616 | 0.492 | 0.600 | 0.070 |
+| automorph-artery-vein | 0.746 | 0.707 | 0.773 | **0.005** |
+| bf-net | 0.617 | 0.495 | 0.602 | 0.068 |
 
-**Read the last column with the first.** AutoMorph's 0.006 is the smallest cost of naming here and
+**Read the last column with the first.** AutoMorph's 0.005 is the smallest cost of naming here and
 does not make it the best namer: it pays little because its vessel score is already low, so there
 is little left to lose. OCULARNet pays 0.012 from 0.853, which is the number that matters.
 
 **LUNet finds the vessels nearly as well as OCULARNet and names them less well** — 0.838 against
 0.853 on vessels, but 0.051 behind on arteries. What it loses is the label, not the vessel.
 
-**Every model is better at veins than at arteries**, by 0.024 (OCULARNet) to 0.108 (BF-Net). Veins
+**Every model is better at veins than at arteries**, by 0.024 (OCULARNet) to 0.107 (BF-Net). Veins
 are wider and darker; the arteriole is where the disagreement lives, and the arteriole is what a
 calibre biomarker is usually after.
 
@@ -234,8 +242,8 @@ photograph, arteries against veins:
 | --- | --- | --- |
 | lunet | **28** | **28** |
 | ocularnet | 43 | 47 |
-| automorph-artery-vein | 51 | 60 |
-| bf-net | 72 | 92 |
+| automorph-artery-vein | 52 | 63 |
+| bf-net | 72 | 93.5 |
 | vascx-artery-vein | 73 | 81 |
 
 Each class is a sparser network than the two together, so the counts are smaller than the vessel
@@ -251,9 +259,9 @@ annotate the classes — 48 per model.
 | --- | --- | --- | --- |
 | vascx-artery-vein | **2.9%** | **2.7%** | 68.5% |
 | ocularnet | 5.3% | 4.0% | **80.8%** |
-| automorph-artery-vein | 5.8% | 4.6% | 68.5% |
+| automorph-artery-vein | 5.7% | 4.6% | 68.6% |
 | lunet | 6.5% | 9.6% | 73.6% |
-| bf-net | 11.5% | 7.0% | 55.6% |
+| bf-net | 11.5% | 7.1% | 55.7% |
 
 **Most of the disagreement is missing, not swapping.** OCULARNet finds 81% of the expert's artery
 pixels and calls 5% of them vein; the remaining ~14% it does not mark as vessel at all. The
@@ -275,22 +283,22 @@ both, so either answer is right: 4.4% of HRF's vessel pixels, 2.1% of AVRDB's, 2
 | Model | avrdb | fives | fundus-avseg | hrf | reyia |
 | --- | --- | --- | --- | --- | --- |
 | ocularnet | **0.726** | 0.848 | **0.904** | 0.797 | 0.879 |
-| segan-vessel | 0.720 | **0.855** | 0.886 | 0.744 | 0.816 |
+| segan-vessel | 0.719 | **0.855** | 0.887 | 0.746 | 0.817 |
 | lunet | 0.571 | 0.830 | 0.866 | 0.790 | **0.897** |
 | vascx-artery-vein | 0.587 | 0.801 | 0.858 | 0.777 | 0.837 |
-| automorph-artery-vein | 0.578 | 0.717 | 0.866 | **0.801** | 0.793 |
-| bf-net | 0.559 | 0.615 | 0.768 | 0.660 | 0.597 |
+| automorph-artery-vein | 0.577 | 0.715 | 0.866 | **0.802** | 0.793 |
+| bf-net | 0.558 | 0.615 | 0.769 | 0.661 | 0.600 |
 
 **Vessels clDice**
 
 | Model | avrdb | fives | fundus-avseg | hrf | reyia |
 | --- | --- | --- | --- | --- | --- |
 | ocularnet | **0.808** | **0.889** | **0.933** | 0.798 | **0.887** |
-| segan-vessel | 0.776 | 0.864 | 0.915 | **0.820** | 0.868 |
+| segan-vessel | 0.775 | 0.863 | 0.915 | **0.821** | 0.867 |
 | lunet | 0.673 | 0.873 | 0.917 | 0.809 | 0.881 |
 | vascx-artery-vein | 0.673 | 0.842 | 0.884 | 0.750 | 0.833 |
-| automorph-artery-vein | 0.664 | 0.728 | 0.896 | 0.777 | 0.784 |
-| bf-net | 0.617 | 0.627 | 0.767 | 0.641 | 0.600 |
+| automorph-artery-vein | 0.662 | 0.726 | 0.896 | 0.779 | 0.785 |
+| bf-net | 0.616 | 0.627 | 0.769 | 0.641 | 0.604 |
 
 **Vessels Betti matching error**, median per photograph — **read down a column, never across
 one**: 3,269-pixel HRF has more features to leave unmatched than 1,062-pixel AVRDB whatever a model
@@ -300,16 +308,16 @@ does.
 | --- | --- | --- | --- | --- | --- |
 | lunet | 62 | **57** | **82** | **142** | **50** |
 | ocularnet | **60** | 87 | 142 | 249 | 99 |
-| automorph-artery-vein | 111 | 93 | 188 | 404 | 111 |
+| automorph-artery-vein | 112.5 | 95 | 194 | 435 | 113 |
 | vascx-artery-vein | 180 | 134 | 247 | 342 | 166 |
-| bf-net | 150 | 160 | 202 | 260 | 156 |
-| segan-vessel | 206 | 162 | 212 | 305 | 164 |
+| bf-net | 151 | 162 | 198 | 261 | 159 |
+| segan-vessel | 201 | 164 | 209 | 316 | 166 |
 
 **LUNet leads four of five**, OCULARNet the fifth, and the ordering barely moves between datasets —
 which the Dice tables above cannot say of themselves. **AutoMorph's model is the extreme case of the
-two metrics disagreeing**: on HRF it has the *best* Dice of any model, 0.801, and the *worst*
-topology, 404 — it covers the vessel area better than anything else there while leaving four hundred
-features of one map or the other with nothing to answer them.
+two metrics disagreeing**: on HRF it has the *best* Dice of any model, 0.802, and the *worst*
+topology, 435 — it covers the vessel area better than anything else there while leaving over four
+hundred features of one map or the other with nothing to answer them.
 
 **Artery Dice**, on the four datasets that publish the classes:
 
@@ -317,9 +325,9 @@ features of one map or the other with nothing to answer them.
 | --- | --- | --- | --- | --- |
 | ocularnet | **0.670** | **0.876** | 0.750 | **0.855** |
 | vascx-artery-vein | 0.491 | 0.817 | 0.718 | 0.790 |
-| automorph-artery-vein | 0.469 | 0.824 | **0.761** | 0.724 |
+| automorph-artery-vein | 0.469 | 0.824 | **0.762** | 0.725 |
 | lunet | 0.441 | 0.805 | 0.686 | 0.841 |
-| bf-net | 0.413 | 0.661 | 0.556 | 0.471 |
+| bf-net | 0.412 | 0.663 | 0.557 | 0.475 |
 
 **No model leads everywhere.** OCULARNet leads two of five on vessels Dice, four of five on vessels
 clDice and three of four on arteries; on vessels Dice the vessel reference leads FIVES, LUNet leads
@@ -327,12 +335,12 @@ REYIA, and AutoMorph leads HRF — where its mark is `in-sample-unclear-split`, 
 discount that lead rather than to read it. *This page said in September that OCULARNet led four of
 five on vessels; its own table showed two, and the four was the clDice count.*
 
-**HRF compresses everything.** Five of six models land between 0.744 and 0.801 on 3,269-pixel
-frames — a range of 0.057 where FIVES spreads 0.24. Whatever separates these models, HRF's 45
+**HRF compresses everything.** Five of six models land between 0.746 and 0.802 on 3,269-pixel
+frames — a range of 0.056 where FIVES spreads 0.24. Whatever separates these models, HRF's 45
 photographs do not separate it.
 
 **The vessel reference's own two datasets do not flatter it.** HRF is in-sample for it and it scores
-0.744 there, its second-worst; it leads only on FIVES, which is the one dataset here it did not
+0.746 there, its second-worst; it leads only on FIVES, which is the one dataset here it did not
 train on. That is the opposite of the pattern contamination usually produces, and this page has no
 explanation for it.
 
@@ -409,15 +417,15 @@ everywhere else on this page:
 | ocularnet | rav | 206 | **0.800** | **0.827** | **0.844** | **0.877** | 116 | out-of-sample |
 | vascx-artery-vein | rav | 206 | 0.783 | 0.814 | 0.841 | 0.862 | 190.5 | in-sample-unclear-split |
 | lunet | rav | 206 | 0.751 | 0.779 | 0.837 | 0.873 | **56.5** | unknown |
-| automorph-artery-vein | rav | 206 | 0.736 | 0.783 | 0.813 | 0.830 | 122.5 | out-of-sample |
-| segan-vessel | rav | 206 | — | — | 0.786 | 0.843 | 189 | out-of-sample |
-| bf-net | rav | 206 | 0.557 | 0.655 | 0.707 | 0.727 | 153 | out-of-sample |
+| automorph-artery-vein | rav | 206 | 0.736 | 0.782 | 0.812 | 0.829 | 123 | out-of-sample |
+| segan-vessel | rav | 206 | — | — | 0.787 | 0.842 | 196 | out-of-sample |
+| bf-net | rav | 206 | 0.560 | 0.656 | 0.709 | 0.729 | 157 | out-of-sample |
 | lunet | av-wide | 26 | **0.685** | **0.707** | **0.748** | 0.729 | **996.5** | unknown |
 | ocularnet | av-wide | 26 | 0.663 | 0.697 | 0.707 | 0.713 | 1,144.5 | out-of-sample |
-| segan-vessel | av-wide | 26 | — | — | 0.690 | **0.758** | 1,138 | out-of-sample |
+| segan-vessel | av-wide | 26 | — | — | 0.691 | **0.759** | 1,102 | out-of-sample |
 | vascx-artery-vein | av-wide | 26 | 0.552 | 0.587 | 0.603 | 0.590 | 1,175 | out-of-sample |
-| automorph-artery-vein | av-wide | 26 | 0.474 | 0.579 | 0.560 | 0.572 | 1,343.5 | out-of-sample |
-| bf-net | av-wide | 26 | 0.192 | 0.340 | 0.345 | 0.342 | 1,080 | out-of-sample |
+| automorph-artery-vein | av-wide | 26 | 0.475 | 0.582 | 0.563 | 0.578 | 1,328.5 | out-of-sample |
+| bf-net | av-wide | 26 | 0.196 | 0.346 | 0.351 | 0.349 | 1,072 | out-of-sample |
 
 Every model segmented every photograph of both; nothing was set aside.
 
@@ -434,7 +442,7 @@ LUNet keeps the network intact here as everywhere, 56.5 unmatched features again
 vessels over OCULARNet — but its mark is `unknown`, so nobody has established it did not see
 ultra-wide-field photographs in training, and **26 photographs are too few** for this page, which
 computes no interval, to call a 0.04 margin more than a direction. The vessel reference has the
-best clDice there, 0.758.
+best clDice there, 0.759.
 
 **AV-WIDE's Betti counts run in the thousands**, ten times REYIA's at a similar frame size (crops of
 1,217–1,631 pixels against REYIA's 1,411–2,196). A 200° field holds far more vessel, and so more
@@ -452,15 +460,15 @@ their **masks** (Dice between one model's vessels and another's, on the section 
 
 - **OCULARNet and VascX rank photographs most alike** (0.912), with LUNet close to both (0.851,
   0.819). The four artery/vein models form one cluster: they find the same photographs hard.
-- **The vessel reference is outside that cluster** — 0.318 with LUNet, 0.591 with OCULARNet, its
-  highest 0.620 with VascX. It is not a weaker or stronger version of the same behaviour; it fails
+- **The vessel reference is outside that cluster** — 0.325 with LUNet, 0.598 with OCULARNet, its
+  highest 0.627 with VascX. It is not a weaker or stronger version of the same behaviour; it fails
   on *different photographs*. That is what makes it useful as a reference rather than as a rival.
 - **The masks agree more than the scores do.** Every pair of the strong models draws vessels within
   0.77–0.88 Dice of each other — higher than any of them scores against the annotator. Models
   drawing the same vessels and all disagreeing with the reference is the pattern behind sections 4.1
   and 4.2.
 - **Nine of the ten photographs every model found hardest are FIVES**, and most are its sparsely
-  annotated glaucoma images: `test_122_g` at 0.029 mean Dice, `test_123_g` at 0.062, `train_316_g`
+  annotated glaucoma images: `test_122_g` at 0.029 mean Dice, `test_123_g` at 0.063, `train_316_g`
   at 0.083 — the same photographs whose annotations cover under 2% of the frame.
 
 ## 6. Which model to use
@@ -469,7 +477,7 @@ their **masks** (Dice between one model's vessels and another's, on the section 
 
 **For naming arteries and veins, use [OCULARNet](../models/ocularnet.md).** It leads every pooled
 overlap column — artery 0.829, vein 0.853, vessels 0.853, vessels clDice 0.884 — loses the network
-on 0.2% of photographs against 0.9% for the next model, has the narrowest spread of the six, and
+on 0.2% of photographs against 1.0% for the next model, has the narrowest spread of the six, and
 costs 5.7 seconds a photograph on Apple MPS. It also leads every overlap column on RAV, which it
 did not train on (section 4.3).
 
@@ -491,12 +499,12 @@ hidden the whole of this.
 surprising: a model built for one job, scored on that job, does not beat artery/vein models' derived
 unions here. **The exception is FIVES**, the only dataset neither contaminated for the reference nor
 carrying a derived annotation, where [segan-vessel](../models/segan-vessel.md) leads 0.855 to 0.848
-— seven thousandths, which is not a gap — while OCULARNet leads clDice there by 0.025. Read
+— seven thousandths, which is not a gap — while OCULARNet leads clDice there by 0.026. Read
 together: the vessel model covers marginally more area, OCULARNet traces a better-connected network.
 And the vessel model is cheap, at 2.1 seconds a photograph.
 
 **If cost dominates, weigh VascX rather than BF-Net.** BF-Net is the only model under a second —
-0.7 seconds, eight times quicker than OCULARNet — but at 0.616 vessels Dice with a fifth of its vessel
+0.5 seconds, about twelve times quicker than OCULARNet — but at 0.617 vessels Dice with a fifth of its vessel
 maps under 0.5, it is not cheap so much as wrong quickly.
 
 **For ultra-wide-field photographs, this benchmark cannot recommend a model.** The best of them
@@ -561,5 +569,5 @@ OCULARNet next; a study of Optos images should measure its own before trusting e
 
 ---
 
-**Compiled from `notebooks/av.ipynb` on:** 2026-10-14 · **Measured by**
+**Compiled from `notebooks/av.ipynb` on:** 2026-10-23 · **Measured by**
 `python -m benchmarks --benchmark av`, and the topology by `--rescore` from the masks it kept

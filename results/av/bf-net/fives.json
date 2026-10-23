@@ -1,7 +1,7 @@
 {
   "benchmark": "av",
   "dataset": "fives",
-  "fingerprint": "f1db3f7b53d2a1d4e2ac810d31a126b8a886d5a11b33de1fea883fb9726923cc",
+  "fingerprint": "a096a74970c03edc1fae623e1bfc34a053af699c32a90a64029e217c0d48c248",
   "model": "bf-net",
   "summary": {
     "complete": true,
@@ -12,7 +12,7 @@
     "failed": 0,
     "photographs": 798,
     "processed": 798,
-    "seconds_per_photograph": 0.5605443976854572,
+    "seconds_per_photograph": 0.4522947947540843,
     "segmentations": 798,
     "structures": [
       "artery",
@@ -21,22 +21,22 @@
     "timed_photographs": 797,
     "total": 798,
     "vessels_betti": {
-      "mean": 159.09147869674186,
-      "median": 160.0,
+      "mean": 160.0576441102757,
+      "median": 162.0,
       "n": 798,
-      "spread": 48.28072050518895
+      "spread": 48.64506698338697
     },
     "vessels_cldice": {
-      "mean": 0.6266862218045113,
-      "median": 0.6911495000000001,
+      "mean": 0.626650096491228,
+      "median": 0.691237,
       "n": 798,
-      "spread": 0.21775123447298975
+      "spread": 0.21786658768006478
     },
     "vessels_dice": {
-      "mean": 0.615130209273183,
-      "median": 0.681772,
+      "mean": 0.6147881303258145,
+      "median": 0.682149,
       "n": 798,
-      "spread": 0.21450859331234182
+      "spread": 0.21486165918233183
     }
   }
 }
