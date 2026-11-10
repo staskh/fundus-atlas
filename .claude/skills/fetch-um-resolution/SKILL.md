@@ -250,13 +250,15 @@ glaucoma clinic usually will not, because glaucoma changes the cup, not the disc
 
 ## 9. What the method is worth
 
-Two datasets state a field angle, which gives a scale without any assumption about disc size, so
+Three datasets state a field angle, which gives a scale without any assumption about disc size, so
 they are the only places this method can be checked at all:
 
 | Dataset | From its stated field angle | From the median optic disc | They differ by |
 | --- | --- | --- | --- |
 | [PAPILA](../../../docs/datasets/papila.md), 30° | 3.777 | 3.799 | **0.6%** |
 | [HRF](../../../docs/datasets/hrf.md), 45° | 4.130 | 4.740 | **15%** |
+| [G1020](../../../docs/datasets/g1020.md), 45°, 3004×2423 | 4.522 | 3.915 | **13%** |
+| [G1020](../../../docs/datasets/g1020.md), 45°, 1944 tall | 6.454 | 5.664 | **12%** |
 
 Read the second row the other way: under HRF's stated field its median disc is **1,568 µm**, not the
 1,800 µm this method assumes; under the disc figure its field spans **52°**, not the stated 45°.
@@ -264,7 +266,11 @@ Nothing here can say which of the two is wrong, and both derivations are this re
 than an author's — the 300 µm per degree constant is a posterior-pole approximation, and a camera's
 quoted angle is not always the angle subtended at the retina.
 
-**So a `disc_anchored` figure is good to somewhere between a hundredth and a seventh**, on the two
+G1020 misses **the other way**: under its stated 45° its median disc is about **2,080 µm**, and under
+the disc figure its field spans about **39°**. Two 45° datasets erring in opposite directions is
+what a method good to a seventh looks like; neither row is a bias that one correction would fix.
+
+**So a `disc_anchored` figure is good to somewhere between a hundredth and a seventh**, on the three
 datasets where it could be checked at all. Quote it as an order of magnitude for a camera, never as
 a calibration, and never report a disc size in millimetres from it — that number was assumed.
 

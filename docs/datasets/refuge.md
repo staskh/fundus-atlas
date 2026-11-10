@@ -47,6 +47,47 @@ Two editions, and the second contains the first.
 the files arrive by, so work built from the Kaggle copy inherits them exactly as if it had come from
 the organisers. Read the agreement at download time.
 
+### 2.3 How to fetch
+
+```bash
+uv run python -m datasets.refuge --archive ~/dataset/glaucoma-datasets.zip
+uv run python -m datasets.fetch_disc_estimation --dataset refuge   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset refuge     # and the scale
+```
+
+**Where this atlas's copy comes from: the third-party Kaggle bundle
+<https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets>, not the challenge's own distribution at
+<https://refuge.grand-challenge.org/>, nor IEEE DataPort or the REFUGE2 Kaggle mirror in 2.2**,
+none of which was used. Everything this atlas measures on REFUGE — the store, the disc estimates,
+the inferred scales — is measured on that copy. `build.json` records the bundle's URL beside the path
+of the archive built.
+
+**This builds the 2018 edition only — REFUGE's 1,200, not REFUGE2's 2,000** — because the bundle,
+which also carries [ORIGA](origa.md) and [G1020](g1020.md), holds the first edition alone. The fetcher never downloads: the bundle
+needs an account, so it must be obtained by hand and handed over with `--archive`. The challenge
+terms still apply (above).
+
+- **Reads:** the bundle as downloaded, about 6 GB, **where it lies** — it is not unpacked.
+- **Builds:** all 1,200 photographs — `train`, `val` and `test`, 400 each, keyed `train_g0001`,
+  `val_v0001`, `test_t0001` — each with its field-of-view mask and the consensus disc and cup
+  contours, in `crop/`. A split whose `index.json` is missing stops the build.
+- **The masks read are the challenge's own**, `gts/*.bmp` in the organisers' encoding: 255 outside
+  the disc, 128 the rim, 0 the cup, so the disc is 0 and 128 together. The bundle's `Masks/*.png`
+  re-encodes the same pixels as 0, 1 and 2 and is not read.
+- **Subsets are the cameras:** `visucam500` for `train` (2124×2056) and `cr2` for `val` and `test`
+  (1634×1634). The split column keeps the bundle's three split names.
+- **Labels:** `disease` is `glaucoma` or `normal` from each split's `index.json` — 40 and 360 in
+  `train`, the same in `val` — and **empty for all 400 of `test`**, whose index in this bundle gives
+  sizes only.
+- **Extra columns:** `fovea_x` and `fovea_y`, the fovea from `index.json`, in the **published
+  photograph's** pixels — subtract `crop_x0` and `crop_y0` to reach the crop. Empty for `test`.
+- **Not built:** everything in the bundle that is not REFUGE — including a `models` folder of
+  somebody's weights — and the uploader's `Images_Cropped`, `Masks_Cropped`, `Images_Square`,
+  `Masks_Square` and `train/illustrations`.
+- **Kept at their frame:** the 800 Canon photographs are square and already cropped to the field, so
+  the store keeps them as they are (`fetch-dataset` skill, section 9.1).
+- **Scale:** none is published, so `fetch_um_resolution` is a required follow-on (section 3).
+
 ## 3. The images
 
 Three subcollections, by camera. The split is the domain shift, not an accident of collection.
@@ -56,7 +97,7 @@ Three subcollections, by camera. The split is the domain shift, not an accident 
 | | |
 | --- | --- |
 | Resolution (pixels) | 2124×2056, JPEG |
-| Microns per pixel | Unknown — not published |
+| Microns per pixel | Not published. **Inferred: 5.872 µm/px** — the median of 400 optic discs estimated one per photograph ([evidence](../../results/um_resolution/refuge.json)). The disc model that measured them **trained on REFUGE** (section 6), so these discs are in-sample for it — likely more accurate than elsewhere, not less. Good to roughly a tenth (§9 of the `fetch-um-resolution` skill); a camera scale, not a per-eye calibration |
 | Camera | Zeiss Visucam 500 |
 | Field of view | Not stated by the authors |
 | Centring | Posterior pole — both macula and disc visible |
@@ -67,7 +108,7 @@ Three subcollections, by camera. The split is the domain shift, not an accident 
 | | |
 | --- | --- |
 | Resolution (pixels) | 1634×1634, JPEG |
-| Microns per pixel | Unknown |
+| Microns per pixel | Not published. **Inferred: 7.747 µm/px** — the median of 800 optic discs estimated one per photograph, validation and test together ([evidence](../../results/um_resolution/refuge.json)); in-sample for the disc model, as above. Good to roughly a tenth; a camera scale, not a per-eye calibration |
 | Camera | Canon CR-2 |
 | Field of view | Not stated |
 | Centring | Posterior pole |
@@ -118,6 +159,9 @@ Three subcollections, by camera. The split is the domain shift, not an accident 
 - **Editions are routinely confused.** Some mirrors labelled `refuge2` contain REFUGE's 1,200 rather
   than the full 2,000; check the count before assuming which edition you have.
 - Kaggle's mirror carries no data dictionary and an `Unknown` licence field.
+- **The glaucoma-datasets bundle carries no test labels.** *Our finding, 2026-11-10:* its
+  `test/index.json` lists the 400 test photographs with their sizes and nothing else, though the
+  test masks are present. A test-set glaucoma score cannot be computed from that copy.
 
 ## 8. Notes
 
@@ -126,4 +170,4 @@ Three subcollections, by camera. The split is the domain shift, not an accident 
 
 ---
 
-**Links, licence and access last checked:** 2026-09-11
+**Links, licence and access last checked:** 2026-11-10
