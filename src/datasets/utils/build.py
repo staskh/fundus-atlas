@@ -319,7 +319,14 @@ def obtain(store: Path, sources: list, args) -> tuple[dict[str, Path], list[dict
         else:
             where = archives.extract(Path(given), raw_dir / "archive")
         layers = {source.layer: where for source in sources} or {"local": where}
-        return layers, [{"layer": "local", "path": str(given)}]
+        # A manual source still names its route. Several datasets arrive through a third party's
+        # copy rather than the authors', and build.json is the one place that says which was built.
+        declared = [
+            {"layer": source.layer, "url": source.url, "path": str(given)}
+            for source in sources
+            if getattr(source, "url", "")
+        ]
+        return layers, declared or [{"layer": "local", "path": str(given)}]
 
     layers, provenance = {}, []
     for source in sources:

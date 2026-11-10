@@ -622,6 +622,26 @@ def test_an_archive_handed_over_is_not_unpacked_when_it_is_read_in_place(tmp_pat
     assert layers["only"] == archive, "the archive itself, not a directory of its contents"
 
 
+def test_an_archive_handed_over_by_hand_still_records_where_it_was_obtained(tmp_path) -> None:
+    """A manual source is still a declared route. The Kaggle bundle carrying ORIGA, G1020 and
+    REFUGE is not the authors' distribution, and `build.json` must say which copy was built."""
+    archive = tmp_path / "given.zip"
+    with zipfile.ZipFile(archive, "w") as held:
+        held.writestr("inside/a.txt", b"x")
+    url = "https://www.kaggle.com/datasets/someone/bundle"
+    sources = [archives.Source(layer="only", url=url, extract_it=False, manual=True)]
+
+    _, provenance = build.obtain(tmp_path / "store", sources, _asked(archive=str(archive)))
+
+    assert provenance == [{"layer": "only", "url": url, "path": str(archive)}]
+
+
+def test_a_tree_handed_over_with_no_declared_route_records_only_its_path(tmp_path) -> None:
+    _, provenance = build.obtain(tmp_path / "store", [], _asked(raw=str(tmp_path)))
+
+    assert provenance == [{"layer": "local", "path": str(tmp_path)}]
+
+
 def _asked(**overrides):
     """The parsed command line a build reads, with only what these tests set."""
     return cli.parse(

@@ -15,11 +15,13 @@ rather than joining two — and a rebuilt store recovers the figure without meas
 A published figure is never overwritten; a field-angle figure, which is also this repository's and
 the weaker of the two, is.
 
-**What it is worth:** two datasets state a field angle, which gives an independent scale. On
+**What it is worth:** three datasets state a field angle, which gives an independent scale. On
 [PAPILA](../../docs/datasets/papila.md) the two derivations agree to **0.6%**; on
 [HRF](../../docs/datasets/hrf.md) they differ by **15%** — under HRF's stated 45° its median disc
 would be 1,568 µm rather than the 1,800 µm assumed here, and under the disc figure its field would
-span 52°. Treat a figure from this directory as a camera scale good to somewhere between a
+span 52°; on [G1020](../../docs/datasets/g1020.md) they differ by **12–13%** the other way — under
+its stated 45° its median disc would be about 2,080 µm, and under the disc figure its field would
+span about 39°. Treat a figure from this directory as a camera scale good to somewhere between a
 hundredth and a seventh, never as a calibration.
 
 Nothing here is a photograph.

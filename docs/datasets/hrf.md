@@ -168,7 +168,8 @@ figure to read automated disc results against, rather than assuming one.
   rather than the stated 45°. Nothing here settles which is wrong — both are this repository's
   derivations, the 300 µm-per-degree constant is an approximation, and a camera's quoted angle need
   not be the angle subtended at the retina. It is the widest disagreement between the two methods in
-  this catalogue, against 0.6% on [PAPILA](papila.md).
+  this catalogue, against 0.6% on [PAPILA](papila.md) and 12–13% on [G1020](g1020.md) — where
+  the error runs the other way, its discs reading larger than 1.8 mm under its own stated 45°.
 - **About a quarter of the arteriovenous crossings are not marked as crossings, and each unmarked
   one is a gap in whichever vessel the annotator did not paint through.** *Our finding, 2026-10-04.*
   HRF-AV uses three colours and nothing else — red artery, blue vein, and **green for a crossing**,

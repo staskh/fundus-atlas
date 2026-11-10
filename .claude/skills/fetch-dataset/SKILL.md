@@ -639,6 +639,7 @@ In the stores as built, the photographs that keep their frame:
 | Dataset | Kept at their frame | Where they are |
 | --- | --- | --- |
 | [FIVES](../../../docs/datasets/fives.md) | 800 of 800 | every photograph, 2048² |
+| [REFUGE](../../../docs/datasets/refuge.md) | 800 of 1,200 | all of `cr2`, 1634²; none of `visucam500` |
 | [GRAPE](../../../docs/datasets/grape.md) | 629 of 631 | all three frame sizes |
 | [REYIA](../../../docs/datasets/reyia.md) | 501 of 563 | all of `enrich`, `fives`, `grape`, `mbrset`, `messidor` and `papila`; 55 of 69 in `magreb`; none of `trend` |
 | [FQS](../../../docs/datasets/fqs.md) | 134 of 2,245 | some of the 1942² photographs; none of the off-square ones |

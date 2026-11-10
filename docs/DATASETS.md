@@ -34,9 +34,10 @@ as one camera. The evidence is committed under
 manifest, where `resolution_source` says `disc_anchored` so that nobody mistakes it for an author's
 measurement.
 
-**What that inference is worth is measurable on two datasets.** [PAPILA](datasets/papila.md) and
-[HRF](datasets/hrf.md) state a field angle, which gives a scale without assuming any disc size. On
-PAPILA the two derivations agree to **0.6%**; on HRF they differ by **15%**. Read every inferred
+**What that inference is worth is measurable on three datasets.** [PAPILA](datasets/papila.md),
+[HRF](datasets/hrf.md) and [G1020](datasets/g1020.md) state a field angle, which gives a scale
+without assuming any disc size. On PAPILA the two derivations agree to **0.6%**; on HRF they differ
+by **15%**, and on G1020 by **12–13%** in the opposite direction. Read every inferred
 figure in this catalogue as a camera scale good to somewhere between a hundredth and a seventh — and
 none of them as a per-eye calibration.
 
@@ -91,7 +92,7 @@ labelled.
 | [FQS](datasets/fqs.md) | 2,246 | ~1942×1942 originals, plus a 1024×1024 copy | 2025 | ✅ **continuous 0–100 ×6 doctors** + three-class ×3 graders | — | — | — | — | — | ten cross-validation folds | **CC BY 4.0** | ✅ |
 | [Fundus-AVSeg](datasets/fundus-avseg.md) | 100 | 2656×1992 (21), 1280×1280 (79) | 2025 | ✅ high / low | ✅ derived from A/V | ✅ | — | — | ✅ four classes | eye side | **CC BY 4.0** | ✅ |
 | [FunPiQ](datasets/funpiq.md) ← EyeQ, BRSET, mBRSET | 300 | mixed, by source | 2026 | ✅ **pixel-level** degraded-region masks | — | — | — | — | — | — | annotations per Zenodo record; **images inherit PhysioNet terms** | ⛔ |
-| [G1020](datasets/g1020.md) | 1,020 | mixed — **41 sizes**, 1944×2108 to 2426×3007 | 2020 | — | — | — | ✅ | ✅ (791 of 1,020) | ✅ glaucoma 296 / normal 724 | vertical CDR, ISNT rim widths, disc box | research only, no standard grant | 🟡 |
+| [G1020](datasets/g1020.md) | 1,020 | mixed — **41 sizes**, 2067–3008 wide × 1944–2426 tall | 2020 | — | — | — | ✅ | ✅ (791 of 1,020) | ✅ glaucoma 296 / normal 724 | vertical CDR, ISNT rim widths, disc box | research only, no standard grant | 🟡 |
 | [GAMMA](datasets/gamma.md) +OCT | 300 pairs, ~100 labelled | mixed | 2023 | — | — | — | ✅ | ✅ | ✅ normal / early / progressive glaucoma | fovea, paired OCT volume | challenge terms, research use | 🟡 |
 | [GAVE](datasets/gave.md) | 50 | 1536×1024 | 2025 | — | ✅ | ✅ | — | — | — | — | **CC BY 4.0** | ❓ |
 | [GRAPE](datasets/grape.md) | 631 | full frames; **contours on an ROI crop** | 2023 | — | — | — | ✅ | ✅ | ✅ glaucoma, **longitudinal** | visual fields, OCT, IOP, visit dates | **CC BY 4.0** | ✅ |
@@ -105,7 +106,7 @@ labelled.
 | [mBRSET](datasets/mbrset.md) | 5,164 | mixed, handheld | 2024 | ✅ | — | — | — | — | ✅ DR | demographics | PhysioNet credentialed licence + DUA | ⛔ |
 | [MESSIDOR](datasets/messidor.md) | 1,200 | 1440×960, 2240×1488, 2304×1536 | 2014 | — | — | — | — | — | ✅ DR 0–3 and macular-oedema risk 0–2 | — | research and educational use, ADCIS agreement | 🟡 |
 | [MSHF](datasets/mshf.md) +UWF | 1,302 | mixed by device | 2023 | ✅ **×3 readers**, illumination / clarity / contrast / overall | — | — | — | — | ✅ DR, glaucoma, healthy | camera class per image | **CC BY 4.0** | ✅ |
-| [ORIGA](datasets/origa.md) | 650 | 2048 tall, 2426–2616 wide | 2010 | — | — | — | ✅ | ✅ | ✅ glaucoma 168 / normal 482 | **published expert CDR**, eye side | research use, request-based | 🟡 |
+| [ORIGA](datasets/origa.md) | 650 | mixed — **159 sizes** as bundled, 2213–2764 wide × 2044–2048 tall | 2010 | — | — | — | ✅ | ✅ | ✅ glaucoma 168 / normal 482 | **published expert CDR**, eye side | research use, request-based | 🟡 |
 | [ORVS](datasets/orvs.md) | 49 | 1444×1444 | 2021 | — | ✅ one reader | ✅ via OCULAR, model-drawn and hand-corrected | — | — | — | 30° Zeiss Visucam 200, Calgary | **not stated** | ✅ |
 | [PAPILA](datasets/papila.md) | 488 | 2576×1934 | 2022 | — | — | — | ✅ ×2 experts | ✅ ×2 experts | ✅ healthy / suspect / glaucoma | full clinical record per eye | GPL-3.0 or later | ✅ |
 | [RAV](datasets/rav.md) | 206 | 1024×1024 (**authors' crop and resize**) | 2025 | ✅ mixed by design | ✅ derived from A/V and unclassified vessels | ✅ | — | — | — | Rotterdam Study population cohort | **CC BY-NC 4.0 per the README; CC0 per the record — contradictory** | ✅ |
@@ -282,7 +283,7 @@ that in both directions; each detail page repeats its own half of the link.
 | **[WIDE](datasets/wide.md) → [REYIA](datasets/reyia.md)** | REYIA's **AV-WIDE** is 26 of WIDE's 30 photographs, **resized from 3900×3072** — tabulated at 829×1531, letterboxed squares of 1217 to 1631 pixels in REYIA's archive. Every "AV-WIDE" result in the literature is measured on a rendition, and WIDE's own licence prohibits redistribution. |
 | **[TREND](datasets/trend.md) → [REYIA](datasets/reyia.md)** | REYIA's **TREND-AV** is 48 of TREND's photographs — 41 of its 72 young eyes and 7 of its 10 older comparison set — held at 2560×2560 against TREND's 2560×1920. OCULARNet's near out-of-distribution "TREND-AV" results are on TREND's eyes |
 | **REYIA's subsets, counted six times** | ENRICH, FIVES-AV, GRAPE, MAGREBHIA, MESSIDOR-AV and PAPILA are six of the fourteen training datasets [OCULARNet](models/ocularnet.md) lists — and all six are served from REYIA's single link-shared Kaggle URL. Four of them are REYIA's renditions of FIVES, GRAPE, MESSIDOR and PAPILA photographs, not those datasets' own releases. Three of its five out-of-distribution tests — mBRSET, TREND-AV and AV-WIDE — are further subsets of the same archive. A count of datasets is not a count of independent evidence. |
-| **[G1020](datasets/g1020.md), [ORIGA](datasets/origa.md), REFUGE** | Distributed together in one third-party Kaggle bundle, <https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets>. That is packaging, not shared photographs — the three are separate collections, and the bundle's licence field is the uploader's, not any depositor's. |
+| **[G1020](datasets/g1020.md), [ORIGA](datasets/origa.md), REFUGE** | Distributed together in one third-party Kaggle bundle, <https://www.kaggle.com/datasets/arnavjain1/glaucoma-datasets>. That is packaging, not shared photographs — the three are separate collections, and the bundle's licence field is the uploader's, not any depositor's. **This atlas builds all three from that bundle, not from their official locations**, so every store, disc estimate and inferred scale for them describes the uploader's copy — for ORIGA, a cropped one. |
 
 ## 3. Not colour fundus photography
 

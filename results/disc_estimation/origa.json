@@ -1,0 +1,11 @@
+{
+  "builder_version": 7,
+  "dataset": "origa",
+  "fingerprint": "2c8dd403f25393fe6aaf4124007218f88229ebb21e296571e594f344d38a666a",
+  "frame": "crop",
+  "grid": 512,
+  "model": "segformer-disc-cup",
+  "n_cup": 649,
+  "n_disc": 649,
+  "n_images": 650
+}
