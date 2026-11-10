@@ -46,50 +46,80 @@ rotated by 45°.
 ## 2. The shapes, and what each one settles
 
 A shape earns its place only if its value can be **written down plainly**. If the derivation needs
-a paragraph of hedging, the shape is not a test, it is another opinion.
+a paragraph of hedging, the shape is not a test, it is another opinion — and where one quantity on
+an otherwise plain shape does rest on a reading, that value is marked `convention` rather than the
+shape being dropped (section 2.2).
 
-| Family | What is known |
+**Each shape is a retina stated in microns** (`shapes/scene.py`): a 45° camera whose frame spans
+12,960 µm, a disc 1,800 µm across, and each class a network of centreline paths — nodes, segments of
+constant width, and the angle at each fork — whose curvature and corners are carried exactly. The
+model and the derivations follow `evaluation/synthetic` in fundus-biomarkers, brought into the open
+because a ground truth is a reading of the catalogue's definitions (`PLAN-BIOMARKER.md` §5.3); no
+tracing or measuring code of that library comes with them.
+
+| Shape | What is known |
 | --- | --- |
-| `straight` — a segment of width `w`, length `L` per class | τ1 exactly 1; curvature 0; calibre exactly `w`; skeleton length `L` |
-| `arc` — concentric circular arcs, radius `r`, subtending `θ` | curvature exactly `1/r`; τ1 = `θ / (2 sin(θ/2))` in closed form, and equal for both classes because `r` cancels |
-| `sinusoid` — amplitude `a`, wavelength `λ` | arc length, total curvature and `∫κ² ds` by integration |
-| `bifurcation` — a symmetric Y of angle `φ` per class | branching angle exactly `φ`; one junction and three endpoints per class |
-| `disjoint` — `n` parallel segments per class, alternating | junction count 0; `2n` components; and a neighbour of the other class for every vessel |
-| `artery-vein-pair` — one vessel per class, widths `wa`, `wv` | AVR exactly `wa / wv`; Knudtson passes a lone vessel through; Hubbard has nothing to pair it with and must decline |
-| `spokes-macula-centred` — 6 vessels per class from the disc | the central retinal equivalents: every spoke crosses the annulus at 2–3 disc radii, and all the widths of a class are equal so every pairing order agrees |
-| `spokes-disc-centred` — the same, disc in the middle of the frame | the same values exactly. A disc-anchored measurement that differs between the two framings is reading the framing rather than the eye |
+| `straight` — one vessel per class from the disc | τ1 exactly 1; curvature 0; calibre exactly `w`; one vessel crossing zone B |
+| `arc` — one angle, two radii | curvature exactly `1/r`; τ1 = `θ / (2 sin(θ/2))`, equal for both classes because `r` cancels |
+| `clothoid` — curvature linear in arc length | `∫κ ds = κL/2`, `∫κ² ds = κ²L/3` |
+| `sinusoid` — amplitude `a`, wavelength `λ` | arc length and the curvature integrals by summation; three inflections; Grisan's density |
+| `bifurcation` — a fork per class, Murray daughters | branching angle exactly `φ`; one junction, three ends; two widths, so mean, median and length-weighted mean differ |
+| `tree` — two generations of forks | three junctions and five ends per class; whole vessels sharing their trunk |
+| `deep-bifurcation` — three generations, a stub per junction | seven four-way junctions, sixteen ends; the branching angle a `convention` |
+| `spur` — a 500 µm side branch | counted by the definition, dropped by a minimal leaf length |
+| `crossing` — an artery over an artery | two vessels, not a junction; every count resting on that a `convention` |
+| `disjoint` — parallel orphans | no rooted length, no whole vessels, nothing in either zone |
+| `koch` — two generations, half width | box-counting and multifractal dimensions `log 4 / log 3` (`asymptotic`); τ1 = `(4/3)²` |
+| `spokes-macula-centred` — 6 vessels per class to 3.4 disc radii | the central retinal equivalents in zone B; every width of a class equal, so every pairing order agrees |
+| `spokes-disc-centred` — the same, disc in the middle, to 5.4 radii | the same zone-B values exactly, zone C as well, and the centring `disc`. A disc-anchored measurement that differs between the two framings is reading the framing rather than the eye |
 
 Each shape is rendered as an **artery mask and a vein mask** — the two an adapter is handed — with
 an explicit **field of view** and an explicit **disc centre and radius**, because the
 implementations need them and because a measurement over an unstated region is not reproducible.
+**Pixel `i`'s centre is at `i`**, the convention of an array index and of every disc estimate in
+`results/disc_estimation/`, so the disc handed over sits exactly on the disc the masks were drawn
+around.
 
-**Every shape draws both classes.** A segmentation of a real eye has arteries and veins in it, so a
-shape offering one would test a case no implementation ever meets — and it means every family pins
-the ratio of the two calibres, which is the one arteriovenous quantity needing neither a disc nor a
-ring. Where the two classes trace the same curve, only their widths tell them apart, and every
-shape-only quantity must come back the same for both.
+**Every shape draws both classes.** A segmentation of a real eye has arteries and veins in it, so
+a shape offering one would test a case no implementation ever meets — and it means every shape
+pins the ratio of the two calibres, the one arteriovenous quantity needing neither a disc nor a
+zone.
 
-**A ratio of the two classes needs both.** The arteriovenous ratio is in scope, so shapes carrying
-arteries and veins of known width are too: a pair of straight vessels of widths `wa` and `wv` has
-an AVR of exactly `wa / wv` under any variant that is a ratio of calibres, which is what separates
-an implementation that computes the ratio from one that computes two equivalents and divides them
-at a different stage.
+### 2.1 Every value, over every region it is defined in
 
-### 2.1 Everything is stated in microns
+The ground truth is derived **per region** — the field of view, zone B (2–3 disc radii) and zone C
+(2–5) — by clipping each centreline in continuous coordinates, and **per structure**: `artery`,
+`vein`, `vessels` where the vocabulary defines a biomarker over both classes as one, and `both` for
+the ratios. Nothing is derived that the vocabulary does not name, and a name derived for an artery
+or a vein that the vocabulary rejects is an error rather than a column.
+
+The cup-to-disc ratios are not derived: an adapter is handed the disc as a circle and no cup.
+
+### 2.2 How a value is known, and when there is none
+
+Every value carries one of four kinds, in `ground_truth_kind.csv` beside `ground_truth.csv`:
+`exact`, `numerical` (sparsity, on a 20 µm grid), `asymptotic` (a fractal dimension, which no finite
+raster reaches) and `convention` (rests on a reading the geometry alone does not settle). The
+analysis may weigh them differently; it must not pool them silently.
+
+**No value is a value.** Where the geometry offers nothing to measure — no junction to take an
+angle at, no vessel in zone C, no whole vessel when nothing reaches the disc — the truth is *none*: a
+kind with an empty cell. That is not zero and it is not "not settled", and an implementation that
+returns a number there is wrong. Where the shape settles nothing at all — a Koch curve's squared
+curvature, infinite at its corners — both cells are empty.
+
+### 2.3 Everything is stated in microns
 
 A vessel is 80 µm across and a vein 120 µm; an optic disc is 1800 µm **across**, so the radius
-every zone is counted in is 900 µm. Those become pixels through the scale the shape is drawn at, so
-the same shape at 5 µm/px and at 10 µm/px is one retina photographed twice rather than two retinas.
+every zone is counted in is 900 µm. The frame always spans the same field, so the side decides the
+scale — 6.33 µm per pixel at 2048 — and the same shape on two grids is one retina photographed twice
+rather than two retinas.
 
-Two consequences are worth stating because they are easy to get backwards:
-
-- **Knudtson's equivalent moves with the resolution** and Hubbard's does not. Knudtson computed on
-  pixel widths comes out in pixels, so halving the microns per pixel doubles it; Hubbard computed
-  on micron widths comes out in microns and does not move, because the eye did not change.
-- **A frame can be too small to hold the ring.** Three disc radii is 2700 µm, so a field of view
-  under about 5.5 mm across cannot carry a shape testing the equivalents however many pixels it
-  has. The generator refuses rather than drawing a truncated annulus, because every width measured
-  in a clipped ring is measured on a fragment.
+- **Knudtson's equivalent is scale-free** and Hubbard's is not. Knudtson computed on pixel widths
+  comes out in pixels and converts like any length; Hubbard's additive constants were fitted in
+  microns and only mean anything on micron widths.
+- **A vessel that leaves the field is refused**, not clipped: every width, length and count
+  measured on a truncated vessel is measured on a fragment.
 
 ## 3. A rasterised shape is not the shape
 
@@ -120,6 +150,8 @@ Every shape is generated again at each angle **in continuous coordinates and ras
 Rotating the rendered mask instead would resample it — and resampling a one-pixel-wide structure
 destroys it, as this repository measured when a 1,024-pixel rescaling of HRF's tracing turned 19
 connected components into 309. A rotated bitmap measures the resampler.
+
+**Seven angles, every 15° of a quarter turn**, which holds every orientation of the pixel lattice.
 
 **Rotation turns the whole scene about the frame centre, disc included.** Turning about the disc
 was the first idea and building it showed it to be wrong: the disc sits near the top of the frame,
@@ -157,12 +189,16 @@ evidence: a difference is an analysis, and the analysis belongs in the notebook.
 
 ## 7. Where the code goes
 
-- `src/benchmarks/biomarker_synthetic.py` — the run.
-- `src/benchmarks/shapes/library.py` — one function per shape, returning masks, field of view,
-  disc, and the theoretical values it defines. Pure geometry, no implementation, no scoring.
+- `src/benchmarks/biomarker_synthetic.py` — the run. It measures the **stored** renderings, read
+  back by `store.load`, never a fresh drawing: the store is what the fingerprint's digest describes.
+- `src/benchmarks/shapes/scene.py` — the retina in microns: paths, networks, the camera and the disc.
+- `src/benchmarks/shapes/library.py` — one function per shape, returning a scene; `build` draws one
+  and attaches its truth. Pure geometry, no implementation, no scoring.
+- `src/benchmarks/shapes/truth.py` — every value a scene settles, by canonical name, with its kind.
+- `src/benchmarks/shapes/render.py` — a scene drawn on a frame of any side at any angle.
 - `src/benchmarks/shapes/store.py` and `__main__.py` — writing that to `data/synthetic/av/` and
   reading it back, and the `python -m benchmarks.shapes` command that does it.
-- `src/biomarkers/<slug>.py` — one adapter per implementation, per `add-biomarker`.
-- `src/biomarkers/naming.py` — the table joining their names to catalogued biomarkers.
+- `src/biomarkers/<slug>.py` — one adapter per implementation, per `add-biomarker`, each holding the
+  table joining its names to catalogued biomarkers.
 - `tests/benchmarks/shapes/` — the theory, tested against itself: a shape whose derivation is wrong
   makes every result wrong and nothing else would catch it.

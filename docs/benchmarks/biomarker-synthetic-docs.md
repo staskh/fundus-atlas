@@ -45,7 +45,7 @@ name rather than dropped.
 | [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 54 | yes |
 | [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 18 | yes |
 | [vascx](../projects/vascx.md) | `d0cde1c`, `e5823fe`, `ff47bfb`, `ec1ca00` | 20 | yes |
-| [fundus-biomarkers](../projects/fundus-biomarkers.md) | `571bc81` | 633 | yes |
+| [fundus-biomarkers](../projects/fundus-biomarkers.md) | `348da1b` | 633 | yes |
 <!-- /generated -->
 
 Three of them share a lineage and one does not: AutoMorph, AutoMorphalyzer and AutoMorphClass all
@@ -60,17 +60,21 @@ and each is drawn at four angles — 0°, 30°, 60° and 90° — where the geom
 the pixel grid differs.
 
 <!-- generated: material -->
-| Shape | What its geometry settles | Available |
-| --- | --- | --- |
-| `straight` | 249 quantities with a known value | yes |
-| `arc` | 201 quantities with a known value | yes |
-| `sinusoid` | 245 quantities with a known value | yes |
-| `bifurcation` | 60 quantities with a known value | yes |
-| `deep-bifurcation` | 60 quantities with a known value | yes |
-| `disjoint` | 54 quantities with a known value | yes |
-| `koch` | 74 quantities with a known value | yes |
-| `spokes-macula-centred` | 58 quantities with a known value | yes |
-| `spokes-disc-centred` | 58 quantities with a known value | yes |
+| Shape | What its geometry settles | What it settles has no value | Available |
+| --- | --- | --- | --- |
+| `straight` | 907 quantities with a known value | 18 an implementation should decline | yes |
+| `arc` | 907 quantities with a known value | 18 an implementation should decline | yes |
+| `clothoid` | 907 quantities with a known value | 18 an implementation should decline | yes |
+| `sinusoid` | 907 quantities with a known value | 18 an implementation should decline | yes |
+| `bifurcation` | 799 quantities with a known value | 6 an implementation should decline | yes |
+| `tree` | 745 quantities with a known value | 0 an implementation should decline | yes |
+| `deep-bifurcation` | 745 quantities with a known value | 0 an implementation should decline | yes |
+| `spur` | 833 quantities with a known value | 12 an implementation should decline | yes |
+| `crossing` | 907 quantities with a known value | 18 an implementation should decline | yes |
+| `disjoint` | 230 quantities with a known value | 695 an implementation should decline | yes |
+| `koch` | 547 quantities with a known value | 18 an implementation should decline | yes |
+| `spokes-macula-centred` | 907 quantities with a known value | 18 an implementation should decline | yes |
+| `spokes-disc-centred` | 907 quantities with a known value | 18 an implementation should decline | yes |
 <!-- /generated -->
 
 ## 4. How to run it
@@ -86,7 +90,7 @@ python -m benchmarks --benchmark biomarker-synthetic --docs
 | --- | --- |
 | `--model` | one implementation, or several separated by commas |
 | `--dataset` | one shape, or several separated by commas |
-| `--max-samples` | draw only the first N of the four angles, for a development run |
+| `--max-samples` | measure only the first N of the angles, for a development run |
 | `--force` | discard what is stored and measure it all again |
 | `--docs` | refresh this page from the declarations, measuring nothing |
 <!-- /generated -->
@@ -121,7 +125,7 @@ A stored result is kept only while everything it depends on is unchanged. This b
 - a sha256 of the masks this shape is drawn as, so a redrawing re-measures it
 - the facts each implementation declares that bear on its numbers: slug, needs, keys, units, recursion, upstream
 - the pinned commit of the code that will run, as the adapter reports it, and the content of every patch applied to it, as its declared `upstream` records them
-- the rendering: a 2048px grid at 5 µm per pixel, drawn at 0°, 30°, 60°, 90°
+- the rendering: a 2048px grid at 6.32812 µm per pixel, drawn at 0°, 15°, 30°, 45°, 60°, 75°, 90°
 
 A fingerprint that differs means the stored result describes something that no longer exists, and it is measured again from nothing. **How much was done is not part of it**, because that does not change what any rendering scored: a complete result is never re-run, and a partial one is finished rather than restarted.
 <!-- /generated -->
@@ -181,7 +185,7 @@ here is drawn to pin a zone-B measurement except the equivalents, which are defi
 ring and nowhere else.
 
 <!-- generated: biomarkers -->
-37 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **31 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
+37 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **32 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
 
 **[calibre](../biomarkers/calibre.md)**
 
@@ -243,7 +247,7 @@ ring and nowhere else.
 | `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | 1 | — |
 | `landmarks/CDR-area` | the cup's area over the disc's | 1 | — |
 | `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — |
-| `landmarks/centring` | what the photograph is centred on | category | — |
+| `landmarks/centring` | what the photograph is centred on | category | yes |
 <!-- /generated -->
 
 **A biomarker without a ground truth is a gap in the images, not a verdict on an implementation.**

@@ -57,17 +57,17 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 [How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/biomarker-synthetic.ipynb) · [Every score](../results/biomarker-synthetic/)
 
-Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so **turns with the image** is the largest spread one quantity showed across the four, and anything above zero there is the implementation or the pixel grid rather than the eye. How far each measurement is from what the geometry requires is on the results page, which reads the drawn store's ground truth.
+Every shape is drawn at 0°, 15°, 30°, 45°, 60°, 75° and 90°, where the geometry is identical — so **turns with the image** is the largest spread one quantity showed across the 7, and anything above zero there is the implementation or the pixel grid rather than the eye. How far each measurement is from what the geometry requires is on the results page, which reads the drawn store's ground truth.
 
 | Implementation | Renderings | Columns | Values returned | Turns with the image |
 | --- | --- | --- | --- | --- |
-| [automorph](projects/automorph.md) | 36 | 18 | 648 | 100.0% |
-| [automorphalyzer](projects/automorphalyzer.md) | 36 | 54 | 1344 | 100.0% |
-| [automorphclass](projects/automorphclass.md) | 36 | 18 | 648 | 100.0% |
-| [fundus-biomarkers](projects/fundus-biomarkers.md) | 36 | 633 | 16792 | 100.0% |
-| [ocular](projects/ocularnet.md) | 36 | 18 | 568 | 100.0% |
-| [pvbm](projects/pvbm.md) | 36 | 30 | 976 | 100.0% |
-| [vascx](projects/vascx.md) | 36 | 20 | 424 | 98.6% |
+| [automorph](projects/automorph.md) | 91 | 18 | 1638 | 100.0% |
+| [automorphalyzer](projects/automorphalyzer.md) | 91 | 54 | 3120 | 100.0% |
+| [automorphclass](projects/automorphclass.md) | 91 | 18 | 1638 | 100.0% |
+| [fundus-biomarkers](projects/fundus-biomarkers.md) | 91 | 633 | 51494 | 100.0% |
+| [ocular](projects/ocularnet.md) | 91 | 18 | 1469 | 100.0% |
+| [pvbm](projects/pvbm.md) | 91 | 30 | 2517 | 100.0% |
+| [vascx](projects/vascx.md) | 91 | 20 | 1007 | 99.6% |
 
 
 ## Disc and cup
@@ -123,4 +123,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-10-23
+**Generated:** 2026-11-10

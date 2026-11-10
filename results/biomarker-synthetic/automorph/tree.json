@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "tree",
+  "fingerprint": "a3f8c5f461502a294e6bac4a07383f23ac5ab0a9f2d3caba7a146098124be469",
+  "model": "automorph",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 1.6624285714285716,
+    "seconds_per_rendering": 1.6624285714285716,
+    "side": 2048,
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
+  }
+}

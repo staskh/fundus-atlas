@@ -49,7 +49,7 @@ class Pvbm:
 | --- | --- |
 | `artery`, `vein` | the two classes, as boolean arrays in one frame — **or `None` for either one**. There is no third vessel mask: an implementation that measures the vessels as one class takes the union of whichever classes it was given, which is how the artery/vein benchmark derives that map for every model. A separately drawn vessel mask would let two adapters measure two different things and call both "vessels" |
 | `fov` | the field of view, as a boolean mask: the region the photograph actually shows |
-| `disc` | the optic disc as `(x, y, radius)` in pixels — the form every catalogued implementation asks for, rather than a mask |
+| `disc` | the optic disc as `(x, y, radius)` in pixels — the form every catalogued implementation asks for, rather than a mask. **Pixel `i`'s centre is at `i`**, the convention an array index and a centroid of mask pixels share, and the one `results/disc_estimation/` and the synthetic store both use; an adapter drawing the disc as a mask samples it at `np.arange(side)`, never at `+ 0.5` |
 | `um_per_px` | microns per pixel, or `None` where the caller has no scale. An implementation that needs one and is given `None` returns `None` for the measurements that depend on it, rather than assuming a number |
 
 It returns **one dictionary, keyed by catalogued name** — `biomarker/variant/structure` — for every

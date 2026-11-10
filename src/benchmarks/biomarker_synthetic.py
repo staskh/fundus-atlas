@@ -11,7 +11,7 @@ from pathlib import Path
 from biomarkers.utils import catalogue
 
 from . import report, runs
-from .shapes import library, store
+from .shapes import library, render, store
 
 #: What this benchmark is called in a heading, where its slug does not read as English.
 TITLE = "Biomarkers against arithmetic"
@@ -24,7 +24,7 @@ NAME = "biomarker-synthetic"
 AGREES = 0.02
 
 #: The benchmark's own version. Changing what is measured, or how, changes this.
-VERSION = 3
+VERSION = 4
 
 #: The written pages this benchmark produces, and the notebook behind each, as `(label, stem)`.
 #: **One per implementation**, because each is a different piece of somebody else's code: what is
@@ -69,17 +69,16 @@ WHY_NOT: dict[str, str] = {}
 #: The grid every shape is drawn at. One number here rather than several: the convergence study
 #: that reads four resolutions belongs in the analysis, where a reader can see the trend, and a run
 #: that swept them would quadruple every table for a question the notebook answers better.
-SIDE = 2048
+SIDE = library.SIDE
 
-#: Microns per pixel. A synthetic shape has no camera, so this is a stated convention — but it has
-#: to be stated, because Hubbard's equivalents carry constants fitted in microns.
-UM_PER_PX = 5.0
+#: Microns per pixel. The frame spans a 45° field of view whatever its side, so the scale follows
+#: from the grid — 12,960 µm across 2048 pixels — rather than being chosen beside it.
+UM_PER_PX = render.um_per_px(SIDE)
 
 #: The angles every shape is drawn at, each generated afresh in continuous coordinates rather than
-#: by turning a picture. Ninety degrees is included deliberately: it is where a vessel lands back on
-#: the pixel lattice, so a measurement that is unusually good or bad there is telling us about the
-#: grid rather than about the retina.
-ROTATIONS = (0.0, 30.0, 60.0, 90.0)
+#: by turning a picture: every 15° of a quarter turn, so the lattice is met square, on its
+#: diagonal, and at every step between.
+ROTATIONS = store.ROTATIONS
 
 #: What an implementation declares that could change its numbers.
 #: The declared facts that change what an implementation returns, and so decide whether a stored
@@ -122,21 +121,30 @@ def _ground_truth() -> dict[str, list[str]]:
     return settled
 
 
+def _undefined() -> dict[str, list[str]]:
+    """Which catalogued biomarkers each shape's geometry leaves **without** a value, read from the
+    drawn store: no piece to pool, no junction to measure an angle at. Empty where no store is
+    drawn, for the same reason `_ground_truth` is."""
+    try:
+        empty = store.undefined(store.STORE)
+    except (FileNotFoundError, OSError):
+        return {}
+    found: dict[str, list[str]] = {}
+    for key, names in empty.items():
+        found.setdefault(key.rsplit("-", 2)[0], sorted(names))
+    return found
+
+
 def configuration(adapters: list, shapes: list[str]) -> dict[str, object]:
     """What this run is about to do, without doing any of it."""
     described = []
     for name in shapes:
-        built = library.build(name, side=SIDE, um_per_px=UM_PER_PX)
         described.append(
             {
                 "slug": name,
                 "total": len(ROTATIONS),
                 "excluded": {},
-                "classes": [
-                    part
-                    for part, mask in (("artery", built.artery), ("vein", built.vein))
-                    if mask is not None
-                ],
+                "classes": list(library.scene(name).classes()),
                 "settles": sorted(_ground_truth().get(name, ())),
             }
         )
@@ -224,10 +232,14 @@ def _pair(
 
 
 def _measure(adapter, shape: str, angles: list[float]) -> list[dict[str, object]]:
-    """One row per angle: what the implementation returned, beside what geometry requires."""
+    """One row per angle: what the implementation returned for the stored rendering.
+
+    **The store's pictures, read back, rather than a fresh drawing**: the store is what the digest
+    in the fingerprint describes, and what a reader can open, so it is what was measured.
+    """
     rows = []
     for angle in angles:
-        built = library.build(shape, side=SIDE, rotation=angle, um_per_px=UM_PER_PX)
+        built = store.load(store.STORE, store.key_of(shape, SIDE, angle))
         started = time.perf_counter()
         try:
             answered = adapter.measure(
@@ -258,8 +270,8 @@ def _row(
         # What was measured, named once, and spelt the way the drawn store spells it — so that a
         # row of evidence and the rendering it came from can be joined without a translation, and
         # so that the ground truth the analysis reads keys against it directly.
-        "key": store.key_of(built.name, built.side, angle),
-        "shape": built.name,
+        "key": store.key_of(_family(built), built.side, angle),
+        "shape": _family(built),
         "rotation": f"{angle:.1f}",
         "side": built.side,
         "um_per_px": built.um_per_px,
@@ -280,6 +292,11 @@ def _row(
     for key in adapter.keys():
         row[f"said_{key}"] = _said(answered.get(key))
     return row
+
+
+def _family(built) -> str:
+    """The shape a rendering is of: a stored one names its family, a freshly built one its name."""
+    return getattr(built, "family", None) or built.name
 
 
 def _said(value: object) -> str:
@@ -392,9 +409,9 @@ def config() -> dict[str, object]:
 
     adapters, missing = implementations(list(IMPLEMENTATIONS))
     declared = {adapter.slug: adapter.declare() for adapter in adapters}
-    # Built once, at the benchmark's own grid, and used for both the shape table and the
-    # vocabulary below: a smaller grid cannot hold the ring the equivalents are measured over.
+    # Read once from the drawn store and used for both the shape table and the vocabulary below.
     settles = _ground_truth()
+    undefined = _undefined()
     # Which *biomarkers* the shapes pin a value for, as `family/biomarker`. A settled name carries
     # a structure and often a statistic too, and which of those a shape happens to settle is a
     # property of the shape rather than of the vocabulary — so the page groups by the biomarker,
@@ -430,14 +447,17 @@ def config() -> dict[str, object]:
         },
         "material": {
             "label": "shape",
-            "fields": ["What its geometry settles"],
+            "fields": ["What its geometry settles", "What it settles has no value"],
             "declared": [
                 {
                     "slug": name,
                     "facts": {
                         "What its geometry settles": (
                             f"{len(settles.get(name, ()))} quantities with a known value"
-                        )
+                        ),
+                        "What it settles has no value": (
+                            f"{len(undefined.get(name, ()))} an implementation should decline"
+                        ),
                     },
                     "available": True,
                 }
@@ -466,7 +486,7 @@ def config() -> dict[str, object]:
             "flags": {
                 "--model": "one implementation, or several separated by commas",
                 "--dataset": "one shape, or several separated by commas",
-                "--max-samples": "draw only the first N of the four angles, for a development run",
+                "--max-samples": "measure only the first N of the angles, for a development run",
                 "--force": "discard what is stored and measure it all again",
                 "--docs": "refresh this page from the declarations, measuring nothing",
             },
@@ -507,8 +527,9 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
     """
     summarised = _pooled(records, results)
     yield (
-        "Every shape is drawn at 0°, 30°, 60° and 90°, where the geometry is identical — so "
-        "**turns with the image** is the largest spread one quantity showed across the four, and "
+        f"Every shape is drawn at {_angles(ROTATIONS)}, where the geometry is identical — so "
+        f"**turns with the image** is the largest spread one quantity showed across the "
+        f"{len(ROTATIONS)}, and "
         "anything above zero there is the implementation or the pixel grid rather than the eye. "
         "How far each measurement is from what the geometry requires is on the results page, "
         "which reads the drawn store's ground truth."
@@ -529,6 +550,12 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
             f"{found['answered']} | {found['spread']} |"
         )
     yield ""
+
+
+def _angles(rotations) -> str:
+    """The angles in words: `0°, 15° and 30°`."""
+    named = [f"{angle:g}°" for angle in rotations]
+    return named[0] if len(named) == 1 else f"{', '.join(named[:-1])} and {named[-1]}"
 
 
 def _pooled(records: list[dict[str, object]], results: Path) -> dict[str, dict[str, object]]:

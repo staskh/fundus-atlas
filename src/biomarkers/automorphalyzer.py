@@ -206,7 +206,8 @@ class Automorphalyzer:
     @staticmethod
     def _disc_mask(side: int, x: float, y: float, radius: float) -> np.ndarray:
         """The disc as a filled circle. Its tracer wants a mask, not a centre and a radius."""
-        grid = np.arange(side, dtype=np.float64) + 0.5
+        # Pixel i's centre is at i — the convention the disc is handed over in.
+        grid = np.arange(side, dtype=np.float64)
         px, py = np.meshgrid(grid, grid)
         return (px - x) ** 2 + (py - y) ** 2 <= radius * radius
 

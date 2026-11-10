@@ -5,7 +5,7 @@ from .utils import source
 
 #: The commit a result here is attributable to. The library's constants live in its code, so this
 #: one id fingerprints all of them (`PLAN-BIOMARKER.md` §5.5).
-COMMIT = "571bc8114241d6bacd08af3153476cc7f5733ee5"
+COMMIT = "348da1b892b9ed1cd6fd0558867c426b0e808995"
 
 #: **Cloned, never installed** (`PLAN-BIOMARKER.md` §5.4): the private code never enters this
 #: repository's dependency graph, and a clone of the atlas without access to the remote can read

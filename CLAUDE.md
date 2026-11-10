@@ -167,7 +167,8 @@ the authority on it:
   per-photograph disc and cup estimates under `results/disc_estimation/`.
 - `data/synthetic/av/` — the synthetic artery/vein store, drawn by `python -m benchmarks.shapes`:
   a binary mask per class, a field of view, a `manifest.csv` saying how each rendering was framed,
-  and a `ground_truth.csv` of the values its geometry requires. Unlike a dataset store it is
+  a `ground_truth.csv` of the values its geometry requires, and a `ground_truth_kind.csv` saying how
+  each is known — or that the geometry gives it none. Unlike a dataset store it is
   **committed**, because these are our own shapes rather than anybody else's photographs, and a
   measurement is then repeatable against the exact pictures it was taken on.
 - `notebooks/` — one analysis notebook per benchmark, `notebooks/<benchmark>.ipynb`, holding every

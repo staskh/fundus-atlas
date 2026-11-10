@@ -1,19 +1,19 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "disjoint",
-  "fingerprint": "06058750a29bb7b13f615662dcc1298b40c6b6b3516c8e53ac4c52411a325ac6",
+  "fingerprint": "fff4cfcf39c8e7c61c555a30d7d12ccaa7d081106fbafa632f23f55b278b0a01",
   "model": "fundus-biomarkers",
   "summary": {
     "complete": true,
     "excluded": {},
     "failed": 0,
-    "processed": 4,
-    "renderings": 4,
-    "seconds_per_photograph": 3.858,
-    "seconds_per_rendering": 3.858,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 7.127428571428572,
+    "seconds_per_rendering": 7.127428571428572,
     "side": 2048,
-    "timed_photographs": 4,
-    "total": 4,
-    "um_per_px": 5.0
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
   }
 }

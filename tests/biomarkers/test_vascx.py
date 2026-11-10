@@ -8,7 +8,9 @@ from benchmarks.shapes import library
 from biomarkers import canonical
 from biomarkers.utils import catalogue
 
-SIDE = 1024
+#: The store's own grid. At 1024 pixels an 80 µm artery is six pixels wide, coarse enough that VascX's
+#: equivalent sits six per cent under the geometry for reasons of resolution alone.
+SIDE = 2048
 
 
 def an_adapter():
@@ -17,7 +19,7 @@ def an_adapter():
 
 @pytest.fixture(scope="module")
 def shape():
-    return library.build("spokes-macula-centred", side=SIDE, um_per_px=10.0)
+    return library.build("spokes-macula-centred", side=SIDE)
 
 
 def test_it_declares_the_configuration_it_ran() -> None:
@@ -65,11 +67,11 @@ def test_the_fovea_follows_the_framing() -> None:
     macula = adapter._fovea(SIDE, SIDE * 0.70, SIDE * 0.5)
     centred = adapter._fovea(SIDE, SIDE / 2, SIDE / 2)
 
-    assert macula == pytest.approx((SIDE / 2, SIDE / 2)), (
-        "a macula-centred frame centres the macula"
-    )
-    assert centred[0] < SIDE / 2, "a disc-centred frame puts the macula to one side of the disc"
-    assert centred[1] == pytest.approx(SIDE / 2)
+    # Pixel i's centre is at i, so the frame's centre is half a pixel short of side / 2.
+    middle = (SIDE - 1) / 2
+    assert macula == pytest.approx((middle, middle)), "a macula-centred frame centres the macula"
+    assert centred[0] < middle, "a disc-centred frame puts the macula to one side of the disc"
+    assert centred[1] == pytest.approx(middle)
 
 
 def test_it_converts_its_millimetres_back_to_the_pixels_every_adapter_reports(shape) -> None:

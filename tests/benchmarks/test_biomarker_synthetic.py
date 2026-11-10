@@ -57,7 +57,7 @@ def test_a_rendering_that_answered_in_part_is_measured_rather_than_failed() -> N
     the whole rendering failed would have discarded four sound area measurements per shape.
     """
     adapter = PartlyAnswering()
-    built = benchmark.library.build("straight", side=2048, rotation=0.0, um_per_px=5.0)
+    built = benchmark.store.load(benchmark.store.STORE, "straight-2048-000")
 
     row = benchmark._row(
         adapter,
@@ -87,7 +87,7 @@ class Categorising:
 def test_a_category_is_recorded_as_it_was_said() -> None:
     """Every column an implementation computes is stored, and a category has no number to round."""
     adapter = Categorising()
-    built = benchmark.library.build("straight", side=2048, rotation=0.0, um_per_px=5.0)
+    built = benchmark.store.load(benchmark.store.STORE, "straight-2048-000")
 
     row = benchmark._row(
         adapter, built, 0.0, adapter.measure(None, None, None, None, None), 0.1, ""

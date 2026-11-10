@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "tree",
+  "fingerprint": "7846cce2fb1cb31db458821d935f0d9473d5bdbbc802bb2c412dcb6417f7f533",
+  "model": "vascx",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 5.048571428571428,
+    "seconds_per_rendering": 5.048571428571428,
+    "side": 2048,
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
+  }
+}
