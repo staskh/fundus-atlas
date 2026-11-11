@@ -77,6 +77,36 @@ def signal_to_noise(pairs: np.ndarray) -> float | None:
     return math.inf if noise == 0 else signal / noise
 
 
+def iqr_over_mape(pairs: np.ndarray) -> tuple[float | None, float | None, float | None]:
+    """fundus-biomarkers' target metric, defined as its `evaluation/reliability.py` defines it.
+
+    Returns `(iqr_pct, mape_pct, ratio)`:
+
+    - `iqr_pct` — the expert-map values' interquartile range over their median, × 100: how much eyes
+      differ, robust to a few outlying photographs;
+    - `mape_pct` — the mean of |model − expert| / |expert|, × 100, leaving out photographs whose
+      expert value is 0. Unlike `signal_to_noise`, a constant offset counts as error here;
+    - `ratio` — the first over the second; above 1, eyes differ more than the map moves the value.
+
+    Each is `None` where it is undefined, as upstream leaves it NaN: a median of 0, a MAPE of 0 or
+    with no non-zero expert value. Upstream also drops a biomarker on fewer than ten images; here
+    the floor is `FEWEST`, the same as every other statistic, and `n` is reported beside it.
+    """
+    if len(pairs) < FEWEST:
+        return None, None, None
+    expert, model = pairs[:, 0], pairs[:, 1]
+    q1, median, q3 = np.percentile(expert, [25, 50, 75])
+    iqr = float((q3 - q1) / abs(median) * 100) if median else None
+    nonzero = expert != 0
+    mape = (
+        float(np.mean(np.abs(model[nonzero] - expert[nonzero]) / np.abs(expert[nonzero])) * 100)
+        if nonzero.any()
+        else None
+    )
+    ratio = iqr / mape if iqr is not None and mape else None
+    return iqr, mape, ratio
+
+
 def summary(expert: Sequence[float | None], model: Sequence[float | None]) -> dict[str, object]:
     """Everything reported about one biomarker under one model, on the photographs given.
 
@@ -108,4 +138,6 @@ def summary(expert: Sequence[float | None], model: Sequence[float | None]) -> di
         "icc_consistency": icc_consistency(pairs),
         "snr": signal_to_noise(pairs),
     }
+    iqr, mape, ratio = iqr_over_mape(pairs)
+    found |= {"iqr_pct": iqr, "mape_pct": mape, "iqr_mape": ratio}
     return found

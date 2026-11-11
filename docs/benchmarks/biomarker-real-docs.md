@@ -68,6 +68,18 @@ Every catalogued biomarker, for every pair of (segmentation model, dataset), get
   number, once any constant offset is set aside. An SNR of 3 means eyes differ three times as much
   as the segmentation error. An SNR below 1 means the model's error is larger than the difference
   the biomarker exists to detect.
+- **IQR/MAPE, as fundus-biomarkers defines it.** The same question asked the way the
+  [fundus-biomarkers](../projects/fundus-biomarkers.md) project's own benchmark asks it, so the
+  numbers here can be read beside that project's. The **signal** is the interquartile range of the
+  expert-map values (the spread of the middle half of eyes) divided by their median, in percent. The
+  **noise** is the mean absolute percentage error (MAPE): on each photograph, the model-map value's
+  distance from the expert-map value as a percentage of the expert-map value, averaged over
+  photographs whose expert value is not zero. Above 1, eyes differ more than the map moves the
+  value. It differs from the SNR in two ways. **A constant offset counts as error here**, where the
+  SNR sets it aside. And the interquartile range is barely moved by a few outlying photographs,
+  where a standard deviation is pulled up by them. With no offset and roughly bell-shaped values,
+  IQR/MAPE comes out at about 1.7 times the SNR, so an IQR/MAPE of 1 corresponds to an SNR of about
+  0.6.
 
 Beside those are the **bias** (the mean of model minus expert, in the biomarker's own unit and as a
 fraction of the expert mean) and the number of photographs both maps produced a value for. Coverage
@@ -239,7 +251,10 @@ all of them:
 | `sd_difference` | the standard deviation of model minus expert — the noise |
 | `icc_agreement` | ICC(A,1): two-way, absolute agreement, one measurement |
 | `icc_consistency` | ICC(C,1): two-way, consistency, one measurement — forgives a constant offset |
-| `snr` | signal over noise: `expert_sd / sd_difference` |
+| `snr` | signal over noise: `expert_sd / sd_difference`; a constant offset is not noise |
+| `iqr_pct` | the interquartile range of the expert-map values over their median, in percent — the signal as fundus-biomarkers measures it |
+| `mape_pct` | the mean of |model − expert| / |expert|, in percent, leaving out expert values of 0 — the noise as fundus-biomarkers measures it, a constant offset included |
+| `iqr_mape` | `iqr_pct / mape_pct`, fundus-biomarkers' target metric: above 1, eyes differ more than the map moves the value. Roughly 1.7 × `snr` where there is no bias |
 <!-- /generated -->
 
 **Pooled means pooled on the photographs**, not averaged over datasets. Pooling widens the signal:

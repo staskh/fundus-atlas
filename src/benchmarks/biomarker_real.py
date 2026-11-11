@@ -77,12 +77,13 @@ WORKERS = max(1, (os.cpu_count() or 2) - 1)
 #: The biomarkers the index quotes, from the reference implementation: the five a reader of a
 #: vascular-epidemiology paper is most likely to meet, each with its own way of failing — widths
 #: fail on a vessel edge, the ratio on the classification, fractal dimension on the smallest
-#: vessels, tortuosity on a broken centreline.
+#: vessels, tortuosity on a broken centreline. The fractal dimension is the arteries': the
+#: reference measures each class and not their union.
 PANEL = (
     ("CRAE", "calibre/CRE-knudtson/artery/B"),
     ("CRVE", "calibre/CRE-knudtson/vein/B"),
     ("AVR", "calibre/AVR-knudtson/both/B"),
-    ("Fractal dimension", "density/box-counting/vessels"),
+    ("Artery fractal dimension", "density/box-counting/artery"),
     ("Artery tortuosity", "tortuosity/hart-tau1/artery/median"),
 )
 
@@ -469,7 +470,13 @@ AGREEMENT_COLUMNS = {
     "sd_difference": "the standard deviation of model minus expert — the noise",
     "icc_agreement": "ICC(A,1): two-way, absolute agreement, one measurement",
     "icc_consistency": "ICC(C,1): two-way, consistency, one measurement — forgives a constant offset",
-    "snr": "signal over noise: `expert_sd / sd_difference`",
+    "snr": "signal over noise: `expert_sd / sd_difference`; a constant offset is not noise",
+    "iqr_pct": "the interquartile range of the expert-map values over their median, in percent — "
+    "the signal as fundus-biomarkers measures it",
+    "mape_pct": "the mean of |model − expert| / |expert|, in percent, leaving out expert values of "
+    "0 — the noise as fundus-biomarkers measures it, a constant offset included",
+    "iqr_mape": "`iqr_pct / mape_pct`, fundus-biomarkers' target metric: above 1, eyes differ more "
+    "than the map moves the value. Roughly 1.7 × `snr` where there is no bias",
 }
 
 

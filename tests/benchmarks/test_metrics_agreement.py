@@ -80,3 +80,36 @@ def test_no_spread_between_photographs_has_no_signal_to_speak_of() -> None:
     found = agreement.summary([3.0, 3.0, 3.0], [3.0, 3.1, 2.9])
 
     assert found["snr"] is None
+
+
+def test_iqr_over_mape_is_fundus_biomarkers_definition_by_arithmetic() -> None:
+    """Expert 10, 20, 30, 40, 50: quartiles 20 and 40, median 30, so IQR is 66.67 %. The model reads
+    every value 10 % high, so MAPE is 10 % — an offset this metric counts and SNR does not."""
+    expert = [10.0, 20.0, 30.0, 40.0, 50.0]
+    model = [value * 1.1 for value in expert]
+
+    found = agreement.summary(expert, model)
+
+    assert found["iqr_pct"] == pytest.approx(200 / 3)
+    assert found["mape_pct"] == pytest.approx(10.0)
+    assert found["iqr_mape"] == pytest.approx(20 / 3)
+
+
+def test_iqr_over_mape_leaves_out_an_expert_zero_and_is_undefined_without_error() -> None:
+    iqr, mape, ratio = agreement.iqr_over_mape(np.array([[0.0, 5.0], [1.0, 2.0], [2.0, 2.0], [4.0, 4.0]]))
+    assert mape == pytest.approx(100 / 3)  # (1/1 + 0 + 0) / 3, the expert 0 left out
+    assert ratio == pytest.approx(iqr / mape)
+
+    same = np.array([[1.0, 1.0], [2.0, 2.0], [3.0, 3.0]])
+    assert agreement.iqr_over_mape(same)[2] is None  # upstream leaves it NaN, not infinite
+
+
+def test_iqr_over_mape_tracks_snr_where_there_is_no_bias() -> None:
+    """For normal values and an unbiased, small, constant-SD error, IQR/MAPE ≈ 1.35 / 0.80 × SNR."""
+    rng = np.random.default_rng(0)
+    expert = rng.normal(100, 10, 20000)
+    model = expert + rng.normal(0, 5, expert.size)
+
+    found = agreement.summary(list(expert), list(model))
+
+    assert found["iqr_mape"] / found["snr"] == pytest.approx(1.349 / 0.798, rel=0.05)
