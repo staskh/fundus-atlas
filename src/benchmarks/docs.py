@@ -211,6 +211,21 @@ def _biomarkers(config) -> Iterable[str]:
         )
 
 
+def _segmenters(config) -> Iterable[str]:
+    """The segmentation models whose kept masks a biomarker benchmark reads."""
+    for slug in config["segmenters"]:
+        yield f"- [{slug}](../models/{slug}.md)"
+
+
+def _agreement_columns(config) -> Iterable[str]:
+    yield f"`{config['agreement']}` hold one row per segmentation model and column:"
+    yield ""
+    yield "| Column | Meaning |"
+    yield "| --- | --- |"
+    for column, meaning in config["agreement_columns"].items():
+        yield f"| `{column}` | {meaning} |"
+
+
 #: Every block a page may mark, and what fills it. A marker naming anything else is an error.
 BLOCKS = {
     "asks": _asks,
@@ -224,6 +239,8 @@ BLOCKS = {
     "fingerprint": _fingerprint,
     "counts": _counts,
     "biomarkers": _biomarkers,
+    "segmenters": _segmenters,
+    "agreement_columns": _agreement_columns,
 }
 
 

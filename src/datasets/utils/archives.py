@@ -246,7 +246,20 @@ class GitSource:
     manual: bool = False
 
     def obtain(self, into: Path, verify: bool = True) -> tuple[Path, dict[str, str]]:
-        """Clone at the pinned commit, fetching only the subtrees asked for."""
+        """Clone at the pinned commit, fetching only the subtrees asked for.
+
+        Held under a lock beside the clone, because a benchmark measuring in several processes has
+        each of them obtain the same upstream at once, and two `git sparse-checkout set` calls on
+        one tree collide on git's own index lock and fail.
+        """
+        import fcntl
+
+        into.mkdir(parents=True, exist_ok=True)
+        with open(into / f".{self.layer}.lock", "w") as held:
+            fcntl.flock(held, fcntl.LOCK_EX)
+            return self._obtain(into, verify)
+
+    def _obtain(self, into: Path, verify: bool) -> tuple[Path, dict[str, str]]:
         tree = into / self.layer
         if not (tree / ".git").exists():
             into.mkdir(parents=True, exist_ok=True)
