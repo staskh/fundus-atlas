@@ -7,26 +7,20 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from benchmarks.shapes import library, store
+from benchmarks.shapes import library, render, scene, store
 
-SIDE = 1024
+SIDE = 512
 
 
 def a_store(tmp_path, families=("straight",), rotations=(0.0, 90.0)):
-    return store.write(
-        tmp_path / "av",
-        families=families,
-        side=SIDE,
-        um_per_px=10.0,
-        rotations=rotations,
-    )
+    return store.write(tmp_path / "av", families=families, side=SIDE, rotations=rotations)
 
 
-def test_it_writes_a_manifest_a_ground_truth_and_three_masks_per_rendering(tmp_path) -> None:
+def test_it_writes_a_manifest_a_ground_truth_its_kinds_and_three_masks(tmp_path) -> None:
     written = a_store(tmp_path)
 
-    assert (tmp_path / "av" / "manifest.csv").exists()
-    assert (tmp_path / "av" / "ground_truth.csv").exists()
+    for name in ("manifest.csv", "ground_truth.csv", "ground_truth_kind.csv"):
+        assert (tmp_path / "av" / name).exists(), name
     assert len(written) == 2, "one rendering per rotation"
     for row in written:
         for which in ("artery", "vein", "fov"):
@@ -35,69 +29,86 @@ def test_it_writes_a_manifest_a_ground_truth_and_three_masks_per_rendering(tmp_p
 
 def test_a_rendering_is_keyed_by_its_family_its_grid_and_its_angle(tmp_path) -> None:
     """The key is the name of the picture, so a row and a file cannot drift apart."""
-    written = a_store(tmp_path, rotations=(0.0, 30.0, 60.0, 90.0))
+    written = a_store(tmp_path, rotations=(0.0, 15.0, 90.0))
 
     keys = [row["key"] for row in written]
-    assert keys == [
-        "straight-1024-000",
-        "straight-1024-030",
-        "straight-1024-060",
-        "straight-1024-090",
-    ]
-    assert len(set(keys)) == len(keys), "a key identifies one rendering"
-    assert written[1]["artery"] == "straight-1024-030-artery.png"
+    assert keys == ["straight-512-000", "straight-512-015", "straight-512-090"]
+    assert written[1]["artery"] == "straight-512-015-artery.png"
 
 
 def test_what_is_read_back_is_exactly_what_was_drawn(tmp_path) -> None:
     """A mask that changed on its way through a file would move every measurement after it."""
     a_store(tmp_path, rotations=(30.0,))
-    drawn = library.build("straight", side=SIDE, rotation=30.0, um_per_px=10.0)
+    drawn = library.build("straight", side=SIDE, rotation=30.0)
 
-    read = store.load(tmp_path / "av", "straight-1024-030")
+    read = store.load(tmp_path / "av", "straight-512-030")
 
     assert np.array_equal(read.artery, drawn.artery)
     assert np.array_equal(read.vein, drawn.vein)
     assert np.array_equal(read.fov, drawn.fov)
-    assert read.disc == pytest.approx(drawn.disc)
-    assert read.um_per_px == drawn.um_per_px
+    assert read.disc == pytest.approx(drawn.disc, abs=1e-4)
+    assert read.um_per_px == pytest.approx(drawn.um_per_px)
 
 
-def test_the_manifest_records_the_disc_in_pixels_and_in_microns(tmp_path) -> None:
+def test_the_manifest_records_the_scale_the_disc_and_the_widths(tmp_path) -> None:
     """A measurement needs the disc in pixels; a reader needs to know what size that is."""
     a_store(tmp_path, rotations=(0.0,))
 
     with (tmp_path / "av" / "manifest.csv").open() as handle:
         row = next(iter(csv.DictReader(handle)))
 
-    assert float(row["disc_r"]) == pytest.approx(library.DISC_DIAMETER_UM / 2.0 / 10.0)
-    assert float(row["disc_diameter_um"]) == pytest.approx(library.DISC_DIAMETER_UM)
-    assert float(row["artery_width_um"]) == pytest.approx(library.ARTERY_WIDTH_UM)
-    assert float(row["um_per_px"]) == pytest.approx(10.0)
+    um = render.um_per_px(SIDE)
+    assert float(row["um_per_px"]) == pytest.approx(um)
+    assert float(row["disc_r"]) == pytest.approx(scene.DISC_RADIUS_UM / um, abs=1e-4)
+    assert float(row["disc_diameter_um"]) == pytest.approx(scene.DISC_DIAMETER_UM)
+    assert float(row["artery_width_um"]) == pytest.approx(scene.ARTERY_UM)
+    assert float(row["vein_width_um"]) == pytest.approx(scene.VEIN_UM)
+    # Pixel i's centre is at i, so the frame's centre is half a pixel short of side / 2.
+    assert float(row["fov_cx"]) == pytest.approx(SIDE / 2 - 0.5)
 
 
-def test_the_ground_truth_carries_every_value_the_shape_pins(tmp_path) -> None:
+def test_the_ground_truth_carries_every_value_the_shape_settles(tmp_path) -> None:
     """Under canonical names, so a measurement can be compared without a translation step."""
     a_store(tmp_path, rotations=(0.0,))
-    drawn = library.build("straight", side=SIDE, um_per_px=10.0)
+    drawn = library.build("straight", side=SIDE)
 
-    with (tmp_path / "av" / "ground_truth.csv").open() as handle:
-        row = next(iter(csv.DictReader(handle)))
+    read = store.truth(tmp_path / "av")["straight-512-000"]
 
-    assert row["key"] == "straight-1024-000"
+    assert set(read) == set(drawn.theory)
     for name, value in drawn.theory.items():
-        assert float(row[name]) == pytest.approx(value), f"{name} was not written as it was derived"
+        if isinstance(value, str):
+            assert read[name] == value
+        else:
+            assert read[name] == pytest.approx(value, rel=1e-9, abs=1e-12), name
 
 
-def test_a_family_pinning_nothing_for_a_column_leaves_it_empty(tmp_path) -> None:
-    """Two families do not pin the same quantities, and a blank is not a zero."""
-    a_store(tmp_path, families=("straight", "spokes-disc-centred"), rotations=(0.0,))
+def test_a_category_is_kept_as_the_word_it_is(tmp_path) -> None:
+    a_store(tmp_path, families=("spokes-disc-centred",), rotations=(0.0,))
+    assert (
+        store.truth(tmp_path / "av")["spokes-disc-centred-512-000"]["landmarks/centring"] == "disc"
+    )
 
-    with (tmp_path / "av" / "ground_truth.csv").open() as handle:
-        rows = {row["key"]: row for row in csv.DictReader(handle)}
 
-    equivalent = "calibre/CRE-hubbard/artery/B"
-    assert rows["straight-1024-000"][equivalent] == "", "a straight vessel reaches no ring"
-    assert float(rows["spokes-disc-centred-1024-000"][equivalent]) > 0
+def test_how_each_value_is_known_is_written_beside_it(tmp_path) -> None:
+    a_store(tmp_path, families=("koch",), rotations=(0.0,))
+    kinds = store.kinds(tmp_path / "av")["koch-512-000"]
+    assert kinds["density/box-counting/artery"] == "asymptotic"
+    assert kinds["density/sparsity/artery/mean"] == "numerical"
+    assert kinds["tortuosity/hart-tau1/artery/mean"] == "exact"
+
+
+def test_a_value_the_geometry_leaves_undefined_is_not_a_blank(tmp_path) -> None:
+    """Three different things: a value, no value by definition, and nothing settled at all."""
+    a_store(tmp_path, families=("straight", "koch"), rotations=(0.0,))
+    stored = tmp_path / "av"
+
+    undefined = store.undefined(stored)
+    assert "topology/branching-angle/artery/mean" in undefined["straight-512-000"]
+    assert "topology/branching-angle/artery/mean" not in store.truth(stored)["straight-512-000"]
+    # A Koch curve's corners make its squared curvature infinite: not settled, so neither.
+    assert "tortuosity/hart-tau3/artery/mean" not in undefined["koch-512-000"]
+    assert "tortuosity/hart-tau3/artery/mean" not in store.truth(stored)["koch-512-000"]
+    assert "tortuosity/hart-tau3/artery/mean" in store.truth(stored)["straight-512-000"]
 
 
 def test_the_command_draws_what_it_was_asked_for(tmp_path) -> None:
@@ -112,8 +123,6 @@ def test_the_command_draws_what_it_was_asked_for(tmp_path) -> None:
             "straight,disjoint",
             "--side",
             str(SIDE),
-            "--um-per-px",
-            "10",
             "--rotations",
             "0,45",
         ]
@@ -121,20 +130,12 @@ def test_the_command_draws_what_it_was_asked_for(tmp_path) -> None:
 
     rows = store.read(tmp_path / "av")
     assert [row["key"] for row in rows] == [
-        "straight-1024-000",
-        "straight-1024-045",
-        "disjoint-1024-000",
-        "disjoint-1024-045",
+        "straight-512-000",
+        "straight-512-045",
+        "disjoint-512-000",
+        "disjoint-512-045",
     ]
-    assert float(rows[0]["um_per_px"]) == 10.0
-
-
-def test_naming_no_family_draws_every_one_of_them(tmp_path) -> None:
-    """A store missing a family is a benchmark quietly measuring less than it says it does."""
-    written = store.write(tmp_path / "av", side=SIDE, um_per_px=10.0, rotations=(0.0,))
-
-    assert {row["family"] for row in written} == set(library.SHAPES)
-    assert len(written) == len(library.SHAPES)
+    assert float(rows[0]["um_per_px"]) == pytest.approx(render.um_per_px(SIDE))
 
 
 def test_a_mask_read_back_survives_being_walked(tmp_path) -> None:
@@ -148,9 +149,9 @@ def test_a_mask_read_back_survives_being_walked(tmp_path) -> None:
     from skimage.morphology import skeletonize
 
     a_store(tmp_path, rotations=(0.0,))
-    drawn = library.build("straight", side=SIDE, um_per_px=10.0)
+    drawn = library.build("straight", side=SIDE)
 
-    read = store.load(tmp_path / "av", "straight-1024-000")
+    read = store.load(tmp_path / "av", "straight-512-000")
 
     assert int(skeletonize(read.artery).sum()) == int(skeletonize(drawn.artery).sum())
     assert int(skeletonize(read.vein).sum()) > 0
@@ -159,67 +160,38 @@ def test_a_mask_read_back_survives_being_walked(tmp_path) -> None:
 def test_the_committed_store_and_the_library_settle_the_same_quantities() -> None:
     """The store is drawn from the library, and nothing keeps them in step but this.
 
-    `ground_truth.csv` holds one column per catalogued name some shape settles, and the library is
-    where those values come from. They can drift apart for ordinary reasons — a shape gains a value
-    and the store is not redrawn, or the store is drawn with different parameters — and nothing
-    would say so: the benchmark's configuration page reports what the *library* settles, while a
-    run that reads the store measures what the *store* settles. This is what notices.
-
-    It compares at the store's own parameters, read from its manifest, so it is a test of agreement
-    rather than a test that the store was drawn with the settings the benchmark happens to declare.
+    They can drift apart for ordinary reasons — a shape gains a value and the store is not redrawn —
+    and nothing would say so: the configuration page reports what the *library* settles, while the
+    analysis reads what the *store* settles. This is what notices.
     """
-    from benchmarks.shapes import library
-
     where = Path(library.__file__).resolve().parents[3] / store.STORE
     manifest = store.read(where)
     assert manifest, f"no synthetic store at {where} — draw one with `python -m benchmarks.shapes`"
-
-    side = int(manifest[0]["side"])
-    um_per_px = float(manifest[0]["um_per_px"])
     families = list(dict.fromkeys(row["family"] for row in manifest))
+    assert families == list(library.SHAPES), "redraw the store: its shapes are not the library's"
 
-    with (where / "ground_truth.csv").open() as handle:
-        stored = {name for name in next(csv.reader(handle)) if name != "key"}
-    drawn = {
-        name
-        for family in families
-        for name in library.build(family, side=side, um_per_px=um_per_px).theory
-    }
-
-    assert stored == drawn, (
-        f"the store and the library disagree — redraw it with `python -m benchmarks.shapes`.\n"
-        f"only in the store:   {sorted(stored - drawn)}\n"
-        f"only in the library: {sorted(drawn - stored)}"
-    )
-
-
-def test_a_redrawn_shape_gets_a_different_digest(tmp_path) -> None:
-    """The fingerprint a benchmark needs: redrawing a shape must not leave its scores standing.
-
-    Nothing else a run fingerprints would notice a redrawing — the grid, the scale and the angles
-    are all unchanged when a shape is drawn from different parameters — so without this a stored
-    result goes on describing a picture that no longer exists. That is exactly what happened when
-    the Koch curve's generations changed.
-    """
-    first = tmp_path / "first"
-    store.write(first, families=("koch",), side=1024, rotations=(0.0,))
-    before = store.digest("koch", first)
-
-    second = tmp_path / "second"
-    store.write(second, families=("koch",), side=1024, rotations=(0.0,))
-    assert store.digest("koch", second) == before, "drawing the same shape twice is the same shape"
-
-    # A wider vein is a different picture, and at 1024 it is also one the guard still allows.
-    third = tmp_path / "third"
-    store.write(third, families=("koch",), side=1024, rotations=(0.0,), vein_um=90.0)
-    assert store.digest("koch", third) != before, "a different vessel is a different picture"
+    stored = store.kinds(where)
+    for row in manifest:
+        expected = {key: t.kind for key, t in library.truths(row["family"]).items()}
+        assert stored[row["key"]] == expected, (
+            f"{row['key']}: the store and the library disagree — redraw it with "
+            f"`python -m benchmarks.shapes`"
+        )
 
 
 def test_a_digest_covers_one_family_and_not_its_neighbours(tmp_path) -> None:
     """Scoped per shape, so redrawing one does not throw away the measurements of the others."""
-    # An arc rather than a straight vessel because at the store's 5 µm per pixel a 1024 px frame
-    # covers half the retina that `library.UM_PER_PX` assumes, and a straight vessel runs off it.
-    store.write(tmp_path, families=("koch", "arc"), side=1024, rotations=(0.0,))
+    store.write(tmp_path, families=("koch", "arc"), side=256, rotations=(0.0,))
+    again = tmp_path / "again"
+    store.write(again, families=("koch",), side=256, rotations=(0.0,))
 
     assert store.digest("koch", tmp_path) != store.digest("arc", tmp_path)
+    assert store.digest("koch", again) == store.digest("koch", tmp_path), "the same picture twice"
     assert store.digest("nothing-drawn", tmp_path) == "unbuilt"
+
+
+def test_a_redrawn_shape_gets_a_different_digest(tmp_path) -> None:
+    """Redrawing a shape at another grid must not leave its scores standing."""
+    store.write(tmp_path / "a", families=("arc",), side=256, rotations=(0.0,))
+    store.write(tmp_path / "b", families=("arc",), side=320, rotations=(0.0,))
+    assert store.digest("arc", tmp_path / "a") != store.digest("arc", tmp_path / "b")

@@ -1,19 +1,19 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "koch",
-  "fingerprint": "5ccc98131c83cfe3b445bd19a1a9a6c4fe184b517234d19c8ea50a64fbcea362",
+  "fingerprint": "ad91efc4331d74e312f8571f1dce516686b53faf945a4510d4c7a1317f4feae5",
   "model": "ocular",
   "summary": {
     "complete": true,
     "excluded": {},
     "failed": 0,
-    "processed": 4,
-    "renderings": 4,
-    "seconds_per_photograph": 2.09325,
-    "seconds_per_rendering": 2.09325,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 4.5445714285714285,
+    "seconds_per_rendering": 4.5445714285714285,
     "side": 2048,
-    "timed_photographs": 4,
-    "total": 4,
-    "um_per_px": 5.0
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
   }
 }

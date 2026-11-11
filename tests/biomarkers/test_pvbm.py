@@ -153,7 +153,7 @@ def test_it_measures_equivalents_at_the_grid_the_benchmark_runs_on() -> None:
     than as our own defect. The size is the test.
     """
     adapter = an_adapter()
-    shape = library.build("spokes-macula-centred", side=2048, um_per_px=5.0)
+    shape = library.build("spokes-macula-centred", side=2048)
 
     answers = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, 5.0)
 

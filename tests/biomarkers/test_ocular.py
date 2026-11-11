@@ -19,7 +19,7 @@ def an_adapter():
 
 @pytest.fixture(scope="module")
 def shape():
-    return library.build("spokes-macula-centred", side=SIDE, um_per_px=10.0)
+    return library.build("spokes-macula-centred", side=SIDE)
 
 
 def test_it_declares_what_pins_it_and_which_traversal_it_ran() -> None:

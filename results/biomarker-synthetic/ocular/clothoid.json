@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "clothoid",
+  "fingerprint": "9abcb0c8bd9d3645dd25f077b874ed0f1b7235146b005d0dba7a4f6176c5f63b",
+  "model": "ocular",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 4.529,
+    "seconds_per_rendering": 4.529,
+    "side": 2048,
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
+  }
+}

@@ -16,7 +16,7 @@ FAMILY = ("automorph", "automorphalyzer", "automorphclass")
 
 @pytest.fixture(scope="module")
 def shape():
-    return library.build("spokes-macula-centred", side=SIDE, um_per_px=10.0)
+    return library.build("spokes-macula-centred", side=SIDE)
 
 
 @pytest.mark.parametrize("slug", FAMILY)

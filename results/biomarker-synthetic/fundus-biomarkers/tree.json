@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "tree",
+  "fingerprint": "5654ab66eb53b5354be398d0b5d453efeaef62003f4bd1ab148c4213757566ed",
+  "model": "fundus-biomarkers",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 8.513571428571428,
+    "seconds_per_rendering": 8.513571428571428,
+    "side": 2048,
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
+  }
+}

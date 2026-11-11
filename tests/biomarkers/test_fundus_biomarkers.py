@@ -8,7 +8,6 @@ from biomarkers import canonical
 from biomarkers.utils import catalogue
 
 SIDE = 1024
-UM_PER_PX = 10.0
 
 
 @pytest.fixture(scope="module")
@@ -18,7 +17,7 @@ def adapter():
 
 @pytest.fixture(scope="module")
 def shape():
-    return library.build("spokes-disc-centred", side=SIDE, um_per_px=UM_PER_PX)
+    return library.build("spokes-disc-centred", side=SIDE)
 
 
 def test_every_name_it_answers_under_is_catalogued_or_plainly_its_own(adapter) -> None:
@@ -32,23 +31,23 @@ def test_every_name_it_answers_under_is_catalogued_or_plainly_its_own(adapter) -
 
 
 def test_it_reports_pixels_that_convert_back_to_the_shape_s_microns(adapter, shape) -> None:
-    found = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, UM_PER_PX)
+    found = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
     expected = shape.theory["calibre/CRE-knudtson/artery/B"]
     measured = canonical.from_pixels(
-        "calibre/CRE-knudtson/artery/B", found["calibre/CRE-knudtson/artery/B"], UM_PER_PX
+        "calibre/CRE-knudtson/artery/B", found["calibre/CRE-knudtson/artery/B"], shape.um_per_px
     )
     assert measured == pytest.approx(expected, rel=0.03)
 
 
 def test_a_missing_class_is_none_and_never_borrowed(adapter, shape) -> None:
-    found = adapter.measure(shape.artery, None, shape.fov, shape.disc, UM_PER_PX)
+    found = adapter.measure(shape.artery, None, shape.fov, shape.disc, shape.um_per_px)
     assert found["density/area/vein"] is None
     assert found["calibre/AVR-knudtson/both/B"] is None
     assert found["density/area/artery"] is not None
 
 
 def test_the_photograph_s_centring_is_answered_as_the_library_says_it(adapter, shape) -> None:
-    found = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, UM_PER_PX)
+    found = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
     assert found["landmarks/centring"] in canonical.values("landmarks/centring")
 
 

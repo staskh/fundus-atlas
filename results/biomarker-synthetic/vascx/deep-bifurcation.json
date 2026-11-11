@@ -1,19 +1,19 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "deep-bifurcation",
-  "fingerprint": "d505c490a0c2279309970a37da71a25b49da4c2f473ede57de852dde8d2eacb1",
+  "fingerprint": "f7a33b5e6d4eff98e1e66c1a8b77ee263228a475f0e6d46c567b9c79c57dd5d9",
   "model": "vascx",
   "summary": {
     "complete": true,
     "excluded": {},
     "failed": 0,
-    "processed": 4,
-    "renderings": 4,
-    "seconds_per_photograph": 2.7715,
-    "seconds_per_rendering": 2.7715,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 5.589571428571429,
+    "seconds_per_rendering": 5.589571428571429,
     "side": 2048,
-    "timed_photographs": 4,
-    "total": 4,
-    "um_per_px": 5.0
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
   }
 }

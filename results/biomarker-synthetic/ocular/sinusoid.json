@@ -1,19 +1,19 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "sinusoid",
-  "fingerprint": "711a2db0631871e5312a7d26da84ae93b0c586fb5f16f1e3a076f3f10bc20a29",
+  "fingerprint": "57e49ce988927db5c4e39e80fe65ea8db596c192dd5c06c82b9d01402b598f91",
   "model": "ocular",
   "summary": {
     "complete": true,
     "excluded": {},
     "failed": 0,
-    "processed": 4,
-    "renderings": 4,
-    "seconds_per_photograph": 2.07625,
-    "seconds_per_rendering": 2.07625,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 4.516857142857143,
+    "seconds_per_rendering": 4.516857142857143,
     "side": 2048,
-    "timed_photographs": 4,
-    "total": 4,
-    "um_per_px": 5.0
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
   }
 }

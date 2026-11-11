@@ -17,7 +17,7 @@ re-derive the measurements from the masks.
 
 - **Repository:** `git@github.com:PhenoAI/fundus-biomarkers.git` — **private**; access on request.
 - **Version described here:** the commit pinned in `src/upstreams/fundus_biomarkers.py`.
-- **Most recent commit:** 2026-10
+- **Most recent commit:** 2026-11-03 (`348da1b`)
 - **Language and how it runs:** Python library; a `Retina` record's `biomarkers` is one dictionary.
 - **Training code included:** Not applicable — no model is trained or shipped.
 
@@ -74,7 +74,7 @@ Private — the repository carries one notebook per development stage under `not
 
 ## 8. Known defects
 
-None recorded as of 2026-10-05.
+None recorded as of 2026-11-10.
 
 ## 9. Notes
 
@@ -87,4 +87,4 @@ None recorded as of 2026-10-05.
 
 ---
 
-**Links and license last checked:** 2026-10-05
+**Links and license last checked:** 2026-11-10

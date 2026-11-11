@@ -1,0 +1,19 @@
+{
+  "benchmark": "biomarker-synthetic",
+  "dataset": "clothoid",
+  "fingerprint": "4733e11db0fe83d68fe9906570055bf2e5ec5ee97edeaa0e3badb1ea5e809e80",
+  "model": "automorphclass",
+  "summary": {
+    "complete": true,
+    "excluded": {},
+    "failed": 0,
+    "processed": 7,
+    "renderings": 7,
+    "seconds_per_photograph": 1.2188571428571429,
+    "seconds_per_rendering": 1.2188571428571429,
+    "side": 2048,
+    "timed_photographs": 7,
+    "total": 7,
+    "um_per_px": 6.328125
+  }
+}

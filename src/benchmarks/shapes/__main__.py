@@ -5,7 +5,7 @@ import argparse
 from argparse import Namespace
 from pathlib import Path
 
-from . import library, store
+from . import library, render, store
 
 
 def parse(argv: list[str] | None = None) -> Namespace:
@@ -23,26 +23,16 @@ def parse(argv: list[str] | None = None) -> Namespace:
         "--family",
         help="one family, or several separated by commas; all of them by default",
     )
-    parser.add_argument("--side", type=int, default=2048, help="the square grid, in pixels")
     parser.add_argument(
-        "--um-per-px", type=float, default=5.0, help="microns per pixel the shapes are drawn at"
+        "--side",
+        type=int,
+        default=library.SIDE,
+        help="the square grid, in pixels; the frame spans a fixed 45° field, so this sets the scale",
     )
     parser.add_argument(
         "--rotations",
         default=",".join(f"{angle:g}" for angle in store.ROTATIONS),
         help="the angles each family is drawn at, in degrees, separated by commas",
-    )
-    parser.add_argument(
-        "--artery-um",
-        type=float,
-        default=library.ARTERY_WIDTH_UM,
-        help="how wide an artery is, in microns",
-    )
-    parser.add_argument(
-        "--vein-um",
-        type=float,
-        default=library.VEIN_WIDTH_UM,
-        help="how wide a vein is, in microns",
     )
     return parser.parse_args(argv)
 
@@ -57,15 +47,12 @@ def main(argv: list[str] | None = None) -> None:
         Path(asked.into),
         families=families,
         side=asked.side,
-        um_per_px=asked.um_per_px,
         rotations=rotations,
-        artery_um=asked.artery_um,
-        vein_um=asked.vein_um,
     )
     drawn = sorted({str(row["family"]) for row in written})
     print(
         f"{len(written)} renderings of {len(drawn)} families at {asked.side}px, "
-        f"{asked.um_per_px:g} µm/px, into {asked.into}"
+        f"{render.um_per_px(asked.side):.4g} µm/px, into {asked.into}"
     )
     for family in drawn:
         print(f"  {family}")

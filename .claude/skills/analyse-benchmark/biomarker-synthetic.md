@@ -43,6 +43,7 @@ this reason, and never re-sort it alphabetically:
 | `pvbm`, `ocular` | OCULAR imports PVBM's measuring code, so a difference between these two is something OCULAR did on purpose |
 | `automorph`, `automorphalyzer`, `automorphclass` | the two descendants both fork AutoMorph's measuring stage; reading them side by side is what shows what each changed |
 | `vascx` | shares no code with any of the above — it reimplements every biomarker, so a disagreement across this boundary is two independent readings of the same definition |
+| `fundus-biomarkers` | Pheno's reference implementation, written against this catalogue's definitions and sharing no code with the rest; its owner is the atlas's owner, so its column is measured like the others and verified by nobody independent |
 
 A gap between groups therefore means something a reader can use: **within** a group, a difference is
 an edit; **across** one, it is two programs that never shared a line.
@@ -136,8 +137,23 @@ the worst case it produced anywhere.
 **Then one subsection per shape**, the same table for that shape alone — worst over its rotations.
 The main table says *whether* a biomarker is trustworthy; the per-shape tables say *where* it
 stopped being so, which is what turns a number into something to investigate. A biomarker wrong on
-one shape and right on seven is a different finding from one wrong on all eight, and the main
-table cannot tell them apart.
+one shape and right on twelve is a different finding from one wrong on all thirteen, and the main
+table cannot tell them apart. Number these beneath the main table's own subsection (4.1.1, 4.1.2,
+…) so they cannot collide with the fixed subsections after it.
+
+**Then three subsections the ground truth's own structure requires** (`build-benchmark`'s
+`biomarker-synthetic.md` §2.2):
+
+- **By how the value is known** — the faults counted separately against `exact`, `numerical`,
+  `asymptotic` and `convention` values, read from `ground_truth_kind.csv`. A fault against an exact
+  value is a fault; one against a convention is a question about the definition, and pooling them
+  would make the second look like the first.
+- **Where the geometry gives no value** — every number an implementation returned for a biomarker
+  the shape settles as having none (`store.undefined`), per canonical name and implementation, as
+  a fraction of the renderings it was asked about. Declining there is the right answer, and a
+  number is invented.
+- **The categorical answers** — the photograph's centring, a word rather than a number, compared
+  with the framing it was drawn in. It never enters a numeric table.
 
 Only canonical names appear, because only they have a ground truth to disagree with. A quantity an
 implementation computes under a name the catalogue does not know is measured, stored, and absent

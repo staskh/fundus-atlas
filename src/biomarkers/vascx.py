@@ -259,19 +259,22 @@ class Vascx:
 
     def _fovea(self, side: int, x: float, y: float) -> tuple[float, float]:
         """The fovea this fixture implies. See `FOVEA` for why it is a convention."""
-        centre = side / 2.0
+        # Pixel i's centre is at i, so the frame's centre is half a pixel short of side / 2.
+        centre = (side - 1) / 2.0
         if abs(x - centre) < self.CENTRED_WITHIN and abs(y - centre) < self.CENTRED_WITHIN:
             # A disc-centred framing: put the macula where a macula-centred framing would have had
-            # the disc relative to it, so the separation is the one the other shapes use.
-            from benchmarks.shapes import library
+            # the disc relative to it, so the separation is the one the other shapes use. The
+            # synthetic frame spans the field of view, which is what turns microns into pixels.
+            from benchmarks.shapes import scene
 
-            offset = (library.DISC_AT[0] - 0.5) * side
+            offset = scene.MACULA_CENTRED_DISC[0] / scene.FOV_DIAMETER_UM * side
             return (centre - offset, centre)
         return (centre, centre)
 
     @staticmethod
     def _disc_mask(side: int, x: float, y: float, radius: float) -> np.ndarray:
-        grid = np.arange(side, dtype=np.float64) + 0.5
+        # Pixel i's centre is at i — the convention the disc is handed over in.
+        grid = np.arange(side, dtype=np.float64)
         px, py = np.meshgrid(grid, grid)
         return (px - x) ** 2 + (py - y) ** 2 <= radius * radius
 
