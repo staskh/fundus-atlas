@@ -9,6 +9,8 @@ import os
 import sys
 import time
 from collections.abc import Iterable
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -66,6 +68,12 @@ WHY_NOT: dict[str, str] = {}
 
 #: The artery/vein benchmark whose kept masks are this one's input.
 SOURCE = "av"
+
+#: How many maps each worker measures before the whole pool is replaced by fresh processes. Some implementations
+#: keep memory they never release, and fifteen workers each growing to five gigabytes ran a
+#: 62-gigabyte machine out of memory part-way through VascX. Reloading an adapter costs seconds; a
+#: map costs half a minute or more.
+RECYCLE = 20
 
 #: The facts an implementation declares that change what it returns — as the synthetic benchmark.
 FINGERPRINTED = biomarker_synthetic.FINGERPRINTED
@@ -370,15 +378,36 @@ def _pair(
         # processes each spawning a thread per core is slower than either alone.
         for variable in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
             os.environ[variable] = "1"
-        with context.Pool(min(workers, len(items)), initializer=_start, initargs=(adapter.slug,)) as pool:
-            since = 0
-            for row in pool.imap_unordered(_measure, items):
-                fresh.append(row)
-                since += 1
-                if since >= runs.CHECKPOINT:
+        # An executor rather than multiprocessing.Pool: a worker the kernel kills for memory leaves a
+        # Pool waiting forever on a result that will never come, where an executor raises.
+        #
+        # Workers are recycled by giving each batch of RECYCLE maps per worker a fresh executor, so
+        # memory an implementation never gives back (VascX holds several gigabytes) cannot
+        # accumulate until the machine runs out. Not with `max_tasks_per_child`: on Python 3.12 an
+        # executor retiring its workers that way deadlocked with none left (CPython gh-115634).
+        size = min(workers, len(items))
+        batch = size * RECYCLE
+        since = 0
+        for start in range(0, len(items), batch):
+            with ProcessPoolExecutor(
+                size, mp_context=context, initializer=_start, initargs=(adapter.slug,)
+            ) as pool:
+                try:
+                    chunk = items[start : start + batch]
+                    for future in as_completed([pool.submit(_measure, item) for item in chunk]):
+                        fresh.append(future.result())
+                        since += 1
+                        if since >= runs.CHECKPOINT:
+                            record_so_far(fresh)
+                            since = 0
+                            print(f"  {adapter.slug} × {slug}: {len(fresh)} of {len(items)}", flush=True)
+                except BrokenProcessPool as broken:
                     record_so_far(fresh)
-                    since = 0
-                    print(f"  {adapter.slug} × {slug}: {len(fresh)} of {len(items)}", flush=True)
+                    raise RuntimeError(
+                        f"{adapter.slug} × {slug}: a worker died, most likely killed for running "
+                        f"the machine out of memory. {len(fresh)} maps are written; run again with "
+                        "fewer --workers and it finishes the rest."
+                    ) from broken
     written = record_so_far(fresh)
     write_agreement(adapter, slug, written["evidence"], results)
     return {
