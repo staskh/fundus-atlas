@@ -51,6 +51,25 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 | [segan-vessel](models/segan-vessel.md) | rav | 206 | — | — | 0.787 | 0.842 | 213 | out-of-sample |
 | [vascx-artery-vein](models/vascx-artery-vein.md) | rav | 206 | 0.783 | 0.814 | 0.841 | 0.862 | 205 | in-sample-unclear-split |
 
+## Biomarkers on real segmentations
+
+**If a study replaced manual vessel tracing with a segmentation model, would its biomarkers still tell one eye from another?** Every biomarker is computed twice on each photograph an expert annotated — once on the expert's artery/vein map and once on a model's — with the same program, the same optic disc and the same scale, so any difference is the map's. The intraclass correlation says whether the two numbers agree; the signal-to-noise ratio says whether the difference between eyes outweighs the error the model introduces.
+
+[How it is run](benchmarks/biomarker-real-docs.md) · [What came out](benchmarks/biomarker-real-results.md) · [The analysis](../notebooks/biomarker-real.ipynb) · [Every score](../results/biomarker-real/)
+
+ICC(A,1) — absolute agreement between the biomarker measured on the model's map and on the expert's — as fundus-biomarkers computes it, **pooled over the photographs of avrdb, fundus-avseg, hrf, rav, reyia**. 1 is perfect; below 0.75 a study could not swap one map for the other. The signal-to-noise ratio, every other implementation and the per-dataset figures are on the results page.
+
+| Model | CRAE | CRVE | AVR | Artery fractal dimension | Artery tortuosity | Contamination |
+| --- | --- | --- | --- | --- | --- | --- |
+| [vascx-artery-vein](models/vascx-artery-vein.md) | 0.49 | 0.63 | 0.55 | 0.38 | 0.81 | mixed: in-sample-unclear-split, out-of-sample |
+| [ocularnet](models/ocularnet.md) | 0.83 | 0.87 | 0.73 | 0.80 | 0.88 | mixed: in-sample, in-sample-unclear-split, out-of-sample |
+| [lunet](models/lunet.md) | 0.35 | 0.46 | 0.33 | 0.41 | 0.83 | unknown |
+| [automorph-artery-vein](models/automorph-artery-vein.md) | 0.41 | 0.56 | 0.42 | 0.31 | 0.80 | mixed: in-sample-unclear-split, out-of-sample |
+| [bf-net](models/bf-net.md) | 0.28 | 0.33 | 0.21 | 0.10 | 0.63 | out-of-sample |
+
+**Where to start:** by the median ICC over these five, ocularnet (0.83), then vascx-artery-vein (0.55). That ranks five biomarkers from one implementation, pooled: which biomarkers survive which map, and why, is on the results page.
+
+
 ## Biomarkers against arithmetic
 
 **Does a biomarker implementation compute the quantity it is said to compute?** Every other benchmark here compares software with a human judgement; this one compares it with a number derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of exactly 1/r, and an implementation that disagrees is wrong rather than different. It selects nothing: which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence.
@@ -123,4 +142,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-11-10
+**Generated:** 2026-11-12

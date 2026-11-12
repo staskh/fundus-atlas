@@ -1,0 +1,91 @@
+model,column,name,unit,contamination,n,expert_only,model_only,expert_mean,expert_sd,model_mean,bias,relative_bias,sd_difference,icc_agreement,icc_consistency,snr
+vascx-artery-vein,average_width_artery,calibre/width/artery/length-weighted,µm,out-of-sample,99,0,0,114.622,11.755,72.9313,-41.6911,-0.363726,12.0501,0.0109457,0.125438,0.975514
+vascx-artery-vein,average_width_vein,calibre/width/vein/length-weighted,µm,out-of-sample,99,0,0,113.768,14.5054,74.3633,-39.4042,-0.346357,14.894,0.0137512,0.10023,0.973911
+vascx-artery-vein,average_width_vessels,calibre/width/vessels/length-weighted,µm,out-of-sample,99,0,0,112.736,12.4291,72.8036,-39.9326,-0.354213,12.5685,0.011013,0.10987,0.988904
+vascx-artery-vein,distance_tortuosity_artery,tortuosity/hart-tau1/artery/length-weighted,1,out-of-sample,99,0,0,1.10306,0.0190237,1.0938,-0.00925414,-0.00838955,0.0189467,0.39353,0.443558,1.00406
+vascx-artery-vein,distance_tortuosity_vein,tortuosity/hart-tau1/vein/length-weighted,1,out-of-sample,99,0,0,1.11005,0.0222225,1.10007,-0.00998333,-0.00899359,0.0235707,0.19986,0.226047,0.942803
+vascx-artery-vein,distance_tortuosity_vessels,tortuosity/hart-tau1/vessels/length-weighted,1,out-of-sample,99,0,0,1.09681,0.012312,1.09853,0.00171939,0.00156763,0.0153659,0.455351,0.45595,0.801254
+vascx-artery-vein,fractal_dimension_artery,density/box-counting/artery,1,out-of-sample,99,0,0,1.36993,0.0567485,1.28681,-0.083122,-0.0606759,0.0474384,0.339196,0.675756,1.19626
+vascx-artery-vein,fractal_dimension_vein,density/box-counting/vein,1,out-of-sample,99,0,0,1.41609,0.0507946,1.34977,-0.0663183,-0.046832,0.0395385,0.373582,0.69402,1.28469
+vascx-artery-vein,fractal_dimension_vessels,density/box-counting/vessels,1,out-of-sample,99,0,0,1.52469,0.0473086,1.45397,-0.0707193,-0.0463828,0.0320915,0.390904,0.789557,1.47418
+vascx-artery-vein,squared_curvature_tortuosity_artery,,as returned,out-of-sample,99,0,0,3.16533,0.885146,2.95071,-0.21462,-0.0678034,0.763139,0.522863,0.539476,1.15988
+vascx-artery-vein,squared_curvature_tortuosity_vein,,as returned,out-of-sample,99,0,0,2.73901,0.619908,2.51845,-0.220561,-0.0805257,0.471407,0.579294,0.624692,1.31502
+vascx-artery-vein,squared_curvature_tortuosity_vessels,,as returned,out-of-sample,99,0,0,2.28768,0.533959,2.6302,0.342516,0.149722,0.40667,0.545589,0.671078,1.313
+vascx-artery-vein,tortuosity_density_artery,tortuosity/grisan-density/artery/length-weighted,1/µm,out-of-sample,99,0,0,0.00071302,2.71996e-05,0.000725707,1.26877e-05,0.0177943,3.16063e-05,0.394483,0.428534,0.860576
+vascx-artery-vein,tortuosity_density_vein,tortuosity/grisan-density/vein/length-weighted,1/µm,out-of-sample,99,0,0,0.000713544,2.43591e-05,0.000718271,4.72684e-06,0.00662445,2.82698e-05,0.360864,0.364956,0.861664
+vascx-artery-vein,tortuosity_density_vessels,tortuosity/grisan-density/vessels/length-weighted,1/µm,out-of-sample,99,0,0,0.00071315,1.74025e-05,0.000719114,5.96461e-06,0.00836376,1.93268e-05,0.438494,0.458703,0.900437
+vascx-artery-vein,vessel_density_artery,density/over-image/artery,1,out-of-sample,99,0,0,0.0519175,0.0146743,0.0229508,-0.0289667,-0.557937,0.0107113,0.122377,0.536568,1.36999
+vascx-artery-vein,vessel_density_vein,density/over-image/vein,1,out-of-sample,99,0,0,0.0659455,0.013573,0.0323378,-0.0336077,-0.509629,0.0106009,0.0784876,0.484629,1.28036
+vascx-artery-vein,vessel_density_vessels,density/over-image/vessels,1,out-of-sample,99,0,0,0.115255,0.0247153,0.0552886,-0.059966,-0.520292,0.0174,0.0995619,0.58724,1.42042
+ocularnet,average_width_artery,calibre/width/artery/length-weighted,µm,in-sample-unclear-split,99,0,0,114.622,11.755,100.116,-14.506,-0.126555,10.9155,0.164683,0.352055,1.07691
+ocularnet,average_width_vein,calibre/width/vein/length-weighted,µm,in-sample-unclear-split,99,0,0,113.768,14.5054,103.625,-10.1428,-0.0891537,12.8594,0.326232,0.438368,1.12801
+ocularnet,average_width_vessels,calibre/width/vessels/length-weighted,µm,in-sample-unclear-split,99,0,0,112.736,12.4291,101.025,-11.7114,-0.103883,10.9358,0.264515,0.434544,1.13655
+ocularnet,distance_tortuosity_artery,tortuosity/hart-tau1/artery/length-weighted,1,in-sample-unclear-split,99,0,0,1.10306,0.0190237,1.09411,-0.00894485,-0.00810916,0.0131291,0.676119,0.752195,1.44897
+ocularnet,distance_tortuosity_vein,tortuosity/hart-tau1/vein/length-weighted,1,in-sample-unclear-split,99,0,0,1.11005,0.0222225,1.09979,-0.0102646,-0.00924701,0.0242894,0.394722,0.432466,0.914906
+ocularnet,distance_tortuosity_vessels,tortuosity/hart-tau1/vessels/length-weighted,1,in-sample-unclear-split,99,0,0,1.09681,0.012312,1.08985,-0.00696404,-0.00634934,0.0106436,0.568713,0.651548,1.15675
+ocularnet,fractal_dimension_artery,density/box-counting/artery,1,in-sample-unclear-split,99,0,0,1.36993,0.0567485,1.32223,-0.0477004,-0.0348195,0.0432976,0.568917,0.744128,1.31066
+ocularnet,fractal_dimension_vein,density/box-counting/vein,1,in-sample-unclear-split,99,0,0,1.41609,0.0507946,1.38639,-0.0296968,-0.020971,0.0370172,0.663262,0.762889,1.37219
+ocularnet,fractal_dimension_vessels,density/box-counting/vessels,1,in-sample-unclear-split,99,0,0,1.52469,0.0473086,1.48798,-0.0367088,-0.0240763,0.0262539,0.69032,0.867806,1.80196
+ocularnet,squared_curvature_tortuosity_artery,,as returned,in-sample-unclear-split,99,0,0,3.16533,0.885146,3.68289,0.517557,0.163508,0.775403,0.633931,0.713117,1.14153
+ocularnet,squared_curvature_tortuosity_vein,,as returned,in-sample-unclear-split,99,0,0,2.73901,0.619908,2.85467,0.115661,0.0422273,0.38834,0.793791,0.805902,1.5963
+ocularnet,squared_curvature_tortuosity_vessels,,as returned,in-sample-unclear-split,99,0,0,2.28768,0.533959,2.50947,0.221785,0.0969475,0.323075,0.778346,0.836892,1.65274
+ocularnet,tortuosity_density_artery,tortuosity/grisan-density/artery/length-weighted,1/µm,in-sample-unclear-split,99,0,0,0.00071302,2.71996e-05,0.000725701,1.26818e-05,0.0177861,3.28269e-05,0.354789,0.385143,0.828578
+ocularnet,tortuosity_density_vein,tortuosity/grisan-density/vein/length-weighted,1/µm,in-sample-unclear-split,99,0,0,0.000713544,2.43591e-05,0.000712893,-6.51034e-07,-0.000912395,2.51634e-05,0.45354,0.451193,0.968039
+ocularnet,tortuosity_density_vessels,tortuosity/grisan-density/vessels/length-weighted,1/µm,in-sample-unclear-split,99,0,0,0.00071315,1.74025e-05,0.000715699,2.54964e-06,0.00357518,1.82296e-05,0.482742,0.485094,0.954632
+ocularnet,vessel_density_artery,density/over-image/artery,1,in-sample-unclear-split,99,0,0,0.0519175,0.0146743,0.0374653,-0.0144522,-0.278369,0.00721565,0.513575,0.840782,2.03368
+ocularnet,vessel_density_vein,density/over-image/vein,1,in-sample-unclear-split,99,0,0,0.0659455,0.013573,0.0509502,-0.0149953,-0.227389,0.00812448,0.406643,0.750811,1.67063
+ocularnet,vessel_density_vessels,density/over-image/vessels,1,in-sample-unclear-split,99,0,0,0.115255,0.0247153,0.0868514,-0.0284031,-0.246438,0.012644,0.443544,0.827922,1.95471
+lunet,average_width_artery,calibre/width/artery/length-weighted,µm,unknown,99,0,0,114.622,11.755,68.0202,-46.6022,-0.406571,11.8847,0.0312618,0.345605,0.989086
+lunet,average_width_vein,calibre/width/vein/length-weighted,µm,unknown,99,0,0,113.768,14.5054,67.7487,-46.0188,-0.404499,13.3491,0.0590955,0.447081,1.08662
+lunet,average_width_vessels,calibre/width/vessels/length-weighted,µm,unknown,99,0,0,112.736,12.4291,67.5176,-45.2186,-0.401101,10.9982,0.0476942,0.472625,1.1301
+lunet,distance_tortuosity_artery,tortuosity/hart-tau1/artery/length-weighted,1,unknown,99,0,0,1.10306,0.0190237,1.0969,-0.00615283,-0.00557799,0.0216459,0.455277,0.472263,0.878857
+lunet,distance_tortuosity_vein,tortuosity/hart-tau1/vein/length-weighted,1,unknown,99,0,0,1.11005,0.0222225,1.10017,-0.00987525,-0.00889622,0.0222374,0.238384,0.270904,0.999331
+lunet,distance_tortuosity_vessels,tortuosity/hart-tau1/vessels/length-weighted,1,unknown,99,0,0,1.09681,0.012312,1.09323,-0.00358788,-0.00327118,0.0139942,0.45307,0.466516,0.879792
+lunet,fractal_dimension_artery,density/box-counting/artery,1,unknown,99,0,0,1.36993,0.0567485,1.30222,-0.0677174,-0.0494311,0.0538502,0.429149,0.65905,1.05382
+lunet,fractal_dimension_vein,density/box-counting/vein,1,unknown,99,0,0,1.41609,0.0507946,1.34015,-0.0759365,-0.053624,0.0532534,0.343003,0.612156,0.953828
+lunet,fractal_dimension_vessels,density/box-counting/vessels,1,unknown,99,0,0,1.52469,0.0473086,1.45405,-0.0706427,-0.0463326,0.042539,0.41056,0.723019,1.11212
+lunet,squared_curvature_tortuosity_artery,,as returned,unknown,99,0,0,3.16533,0.885146,3.56085,0.395516,0.124953,0.908354,0.457974,0.499145,0.974451
+lunet,squared_curvature_tortuosity_vein,,as returned,unknown,99,0,0,2.73901,0.619908,2.96657,0.227558,0.0830802,0.564583,0.54168,0.57662,1.09799
+lunet,squared_curvature_tortuosity_vessels,,as returned,unknown,99,0,0,2.28768,0.533959,2.77159,0.483902,0.211525,0.384415,0.56328,0.768548,1.38902
+lunet,tortuosity_density_artery,tortuosity/grisan-density/artery/length-weighted,1/µm,unknown,99,0,0,0.00071302,2.71996e-05,0.000713055,3.52431e-08,4.9428e-05,3.23596e-05,0.470728,0.4682,0.840544
+lunet,tortuosity_density_vein,tortuosity/grisan-density/vein/length-weighted,1/µm,unknown,99,0,0,0.000713544,2.43591e-05,0.00071667,3.12571e-06,0.00438054,3.29888e-05,0.186656,0.186486,0.738405
+lunet,tortuosity_density_vessels,tortuosity/grisan-density/vessels/length-weighted,1/µm,unknown,99,0,0,0.00071315,1.74025e-05,0.000712241,-9.09151e-07,-0.00127484,2.17684e-05,0.380034,0.378059,0.79944
+lunet,vessel_density_artery,density/over-image/artery,1,unknown,99,0,0,0.0519175,0.0146743,0.0250063,-0.0269112,-0.518345,0.00946215,0.192835,0.684438,1.55085
+lunet,vessel_density_vein,density/over-image/vein,1,unknown,99,0,0,0.0659455,0.013573,0.0284132,-0.0375323,-0.569142,0.0115516,0.0507882,0.381878,1.17498
+lunet,vessel_density_vessels,density/over-image/vessels,1,unknown,99,0,0,0.115255,0.0247153,0.0521649,-0.0630897,-0.547394,0.0160084,0.106006,0.662056,1.5439
+automorph-artery-vein,average_width_artery,calibre/width/artery/length-weighted,µm,out-of-sample,99,0,0,114.622,11.755,75.4029,-39.2195,-0.342163,15.1748,-0.00974068,-0.0798975,0.774638
+automorph-artery-vein,average_width_vein,calibre/width/vein/length-weighted,µm,out-of-sample,99,0,0,113.768,14.5054,79.5847,-34.1828,-0.300462,16.7644,0.0264174,0.122555,0.865254
+automorph-artery-vein,average_width_vessels,calibre/width/vessels/length-weighted,µm,out-of-sample,99,0,0,112.736,12.4291,77.6187,-35.1176,-0.311502,13.9854,0.0187978,0.122621,0.888716
+automorph-artery-vein,distance_tortuosity_artery,tortuosity/hart-tau1/artery/length-weighted,1,out-of-sample,99,0,0,1.10306,0.0190237,1.09819,-0.00486232,-0.00440805,0.0362287,0.299072,0.300727,0.525099
+automorph-artery-vein,distance_tortuosity_vein,tortuosity/hart-tau1/vein/length-weighted,1,out-of-sample,99,0,0,1.11005,0.0222225,1.10053,-0.00951747,-0.00857391,0.0221709,0.250747,0.282101,1.00233
+automorph-artery-vein,distance_tortuosity_vessels,tortuosity/hart-tau1/vessels/length-weighted,1,out-of-sample,99,0,0,1.09681,0.012312,1.0922,-0.00461808,-0.00421045,0.0110633,0.520416,0.558159,1.11287
+automorph-artery-vein,fractal_dimension_artery,density/box-counting/artery,1,out-of-sample,99,0,0,1.36993,0.0567485,1.25241,-0.117527,-0.0857904,0.104867,0.16369,0.305361,0.54115
+automorph-artery-vein,fractal_dimension_vein,density/box-counting/vein,1,out-of-sample,99,0,0,1.41609,0.0507946,1.33794,-0.078147,-0.055185,0.0484595,0.34234,0.651445,1.04819
+automorph-artery-vein,fractal_dimension_vessels,density/box-counting/vessels,1,out-of-sample,99,0,0,1.52469,0.0473086,1.43132,-0.0933706,-0.0612391,0.054304,0.303559,0.632361,0.871181
+automorph-artery-vein,squared_curvature_tortuosity_artery,,as returned,out-of-sample,99,0,0,3.16533,0.885146,3.94205,0.776722,0.245384,0.995883,0.327808,0.43801,0.888805
+automorph-artery-vein,squared_curvature_tortuosity_vein,,as returned,out-of-sample,99,0,0,2.73901,0.619908,2.9788,0.239785,0.0875443,0.472189,0.616864,0.66766,1.31284
+automorph-artery-vein,squared_curvature_tortuosity_vessels,,as returned,out-of-sample,99,0,0,2.28768,0.533959,2.7589,0.471214,0.205979,0.361596,0.580009,0.787788,1.47667
+automorph-artery-vein,tortuosity_density_artery,tortuosity/grisan-density/artery/length-weighted,1/µm,out-of-sample,99,0,0,0.00071302,2.71996e-05,0.000711291,-1.72898e-06,-0.00242488,4.61472e-05,0.307151,0.305295,0.58941
+automorph-artery-vein,tortuosity_density_vein,tortuosity/grisan-density/vein/length-weighted,1/µm,out-of-sample,99,0,0,0.000713544,2.43591e-05,0.000717328,3.78396e-06,0.00530305,3.09491e-05,0.252137,0.25305,0.787069
+automorph-artery-vein,tortuosity_density_vessels,tortuosity/grisan-density/vessels/length-weighted,1/µm,out-of-sample,99,0,0,0.00071315,1.74025e-05,0.000712398,-7.5145e-07,-0.00105371,2.3574e-05,0.299768,0.297855,0.738208
+automorph-artery-vein,vessel_density_artery,density/over-image/artery,1,out-of-sample,99,0,0,0.0519175,0.0146743,0.0211796,-0.0307379,-0.592053,0.0100033,0.147858,0.644135,1.46694
+automorph-artery-vein,vessel_density_vein,density/over-image/vein,1,out-of-sample,99,0,0,0.0659455,0.013573,0.0332886,-0.0326569,-0.495211,0.0107818,0.106503,0.547827,1.25888
+automorph-artery-vein,vessel_density_vessels,density/over-image/vessels,1,out-of-sample,99,0,0,0.115255,0.0247153,0.0535505,-0.0617041,-0.535372,0.0166289,0.124509,0.67731,1.48629
+bf-net,average_width_artery,calibre/width/artery/length-weighted,µm,out-of-sample,99,0,0,114.622,11.755,81.8765,-32.7459,-0.285685,17.2686,-0.0374397,-0.198311,0.680716
+bf-net,average_width_vein,calibre/width/vein/length-weighted,µm,out-of-sample,99,0,0,113.768,14.5054,91.1237,-22.6439,-0.199036,20.2564,-0.0636934,-0.15487,0.716093
+bf-net,average_width_vessels,calibre/width/vessels/length-weighted,µm,out-of-sample,99,0,0,112.736,12.4291,87.1937,-25.5425,-0.226569,17.1826,-0.0588388,-0.216254,0.723351
+bf-net,distance_tortuosity_artery,tortuosity/hart-tau1/artery/length-weighted,1,out-of-sample,99,0,0,1.10306,0.0190237,1.08166,-0.0213943,-0.0193955,0.111109,0.0249863,0.0256431,0.171216
+bf-net,distance_tortuosity_vein,tortuosity/hart-tau1/vein/length-weighted,1,out-of-sample,99,0,0,1.11005,0.0222225,1.09711,-0.0129417,-0.0116587,0.0239146,0.166744,0.204262,0.929246
+bf-net,distance_tortuosity_vessels,tortuosity/hart-tau1/vessels/length-weighted,1,out-of-sample,99,0,0,1.09681,0.012312,1.09093,-0.00588313,-0.00536384,0.013472,0.386249,0.426271,0.913896
+bf-net,fractal_dimension_artery,density/box-counting/artery,1,out-of-sample,99,0,0,1.36993,0.0567485,1.23282,-0.137113,-0.100087,0.138074,0.0985052,0.177576,0.411
+bf-net,fractal_dimension_vein,density/box-counting/vein,1,out-of-sample,99,0,0,1.41609,0.0507946,1.34244,-0.0736488,-0.0520086,0.0666691,0.249188,0.423153,0.761891
+bf-net,fractal_dimension_vessels,density/box-counting/vessels,1,out-of-sample,99,0,0,1.52469,0.0473086,1.42069,-0.103995,-0.0682074,0.0652726,0.232718,0.516942,0.724786
+bf-net,squared_curvature_tortuosity_artery,,as returned,out-of-sample,99,0,0,3.16533,0.885146,3.15918,-0.00615121,-0.00194331,1.14227,0.178183,0.176706,0.7749
+bf-net,squared_curvature_tortuosity_vein,,as returned,out-of-sample,99,0,0,2.73901,0.619908,2.82052,0.0815053,0.0297572,0.661385,0.590615,0.591841,0.937287
+bf-net,squared_curvature_tortuosity_vessels,,as returned,out-of-sample,99,0,0,2.28768,0.533959,2.6305,0.342813,0.149852,0.684127,0.464822,0.518734,0.780497
+bf-net,tortuosity_density_artery,tortuosity/grisan-density/artery/length-weighted,1/µm,out-of-sample,99,0,0,0.00071302,2.71996e-05,0.000726461,1.34415e-05,0.0188515,7.89793e-05,0.139407,0.141664,0.344389
+bf-net,tortuosity_density_vein,tortuosity/grisan-density/vein/length-weighted,1/µm,out-of-sample,99,0,0,0.000713544,2.43591e-05,0.000714065,5.2068e-07,0.00072971,5.03941e-05,0.0522989,0.0518033,0.483372
+bf-net,tortuosity_density_vessels,tortuosity/grisan-density/vessels/length-weighted,1/µm,out-of-sample,99,0,0,0.00071315,1.74025e-05,0.000714302,1.15174e-06,0.00161501,4.21768e-05,0.12312,0.122109,0.412609
+bf-net,vessel_density_artery,density/over-image/artery,1,out-of-sample,99,0,0,0.0519175,0.0146743,0.0206462,-0.0312713,-0.602327,0.0107131,0.147819,0.622593,1.36976
+bf-net,vessel_density_vein,density/over-image/vein,1,out-of-sample,99,0,0,0.0659455,0.013573,0.0391557,-0.0267898,-0.406241,0.0117881,0.158468,0.536818,1.15141
+bf-net,vessel_density_vessels,density/over-image/vessels,1,out-of-sample,99,0,0,0.115255,0.0247153,0.0574364,-0.0578182,-0.501656,0.0178707,0.145171,0.660529,1.38301

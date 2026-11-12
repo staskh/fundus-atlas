@@ -1,0 +1,27 @@
+{
+  "benchmark": "biomarker-real",
+  "dataset": "fundus-avseg",
+  "fingerprint": "f9bf4513d540b9d017f42a1d7e42ecadb55048a5f8ca3a21a94f9811b8380974",
+  "model": "vascx",
+  "summary": {
+    "complete": true,
+    "device": "cpu, one core per worker",
+    "excluded": {},
+    "failed": 0,
+    "maps": 600,
+    "not_measured": {},
+    "processed": 100,
+    "seconds_per_map": 7.610316666666666,
+    "seconds_per_photograph": 45.661899999999996,
+    "sources": [
+      "expert",
+      "vascx-artery-vein",
+      "ocularnet",
+      "lunet",
+      "automorph-artery-vein",
+      "bf-net"
+    ],
+    "timed_photographs": 100,
+    "total": 100
+  }
+}

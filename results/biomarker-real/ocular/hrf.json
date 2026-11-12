@@ -1,0 +1,27 @@
+{
+  "benchmark": "biomarker-real",
+  "dataset": "hrf",
+  "fingerprint": "9d5461d5777f331c44d024c151134436ed84f3a28f4400aab1f15a059664edc4",
+  "model": "ocular",
+  "summary": {
+    "complete": true,
+    "device": "cpu, one core per worker",
+    "excluded": {},
+    "failed": 0,
+    "maps": 270,
+    "not_measured": {},
+    "processed": 45,
+    "seconds_per_map": 31.266333333333332,
+    "seconds_per_photograph": 187.59799999999998,
+    "sources": [
+      "expert",
+      "vascx-artery-vein",
+      "ocularnet",
+      "lunet",
+      "automorph-artery-vein",
+      "bf-net"
+    ],
+    "timed_photographs": 45,
+    "total": 45
+  }
+}
