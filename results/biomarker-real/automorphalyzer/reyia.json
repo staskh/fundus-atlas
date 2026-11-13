@@ -1,0 +1,30 @@
+{
+  "benchmark": "biomarker-real",
+  "dataset": "reyia",
+  "fingerprint": "983d9409aea5060c075f3f168ab4b3460ccdc2cdcec5b69e36d0589aedf2c1f7",
+  "model": "automorphalyzer",
+  "summary": {
+    "complete": true,
+    "device": "cpu, one core per worker",
+    "excluded": {
+      "no artery and vein annotation": 4,
+      "no optic disc estimate": 5
+    },
+    "failed": 11,
+    "maps": 3324,
+    "not_measured": {},
+    "processed": 554,
+    "seconds_per_map": 22.44632972322503,
+    "seconds_per_photograph": 134.67797833935018,
+    "sources": [
+      "expert",
+      "vascx-artery-vein",
+      "ocularnet",
+      "lunet",
+      "automorph-artery-vein",
+      "bf-net"
+    ],
+    "timed_photographs": 554,
+    "total": 554
+  }
+}

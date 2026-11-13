@@ -19,6 +19,11 @@ catalogue can: **do two of these agree, measured on the same images, on the same
    measurement. This is the benchmark the atlas exists for — a Dice of 0.9 says nothing about
    whether the tortuosity derived from that mask is usable.
 
+   *Built 2026-11-11 as `biomarker-real`* (`build-benchmark/biomarker-real.md`): seven
+   implementations on the expert's map and on five models' kept masks, over HRF, Fundus-AVSeg,
+   AVRDB, REYIA and RAV, with one disc per photograph, reported as ICC(A,1), ICC(C,1) and a
+   signal-to-noise ratio.
+
    Two secondary comparisons sit beside it:
    - **against a value the dataset itself published** — [ORIGA](docs/datasets/origa.md)'s `ExpCDR`,
      [Chákṣu](docs/datasets/chaksu.md)'s per-expert cup-to-disc ratios. A human-recorded target,

@@ -1,0 +1,151 @@
+model,column,name,unit,contamination,n,expert_only,model_only,expert_mean,expert_sd,model_mean,bias,relative_bias,sd_difference,icc_agreement,icc_consistency,snr,iqr_pct,mape_pct,iqr_mape
+vascx-artery-vein,area_artery,density/area/artery,µm²,in-sample-unclear-split,37,0,8,7.13346e+06,1.60163e+06,5.94197e+06,-1.19148e+06,-0.167027,1.073e+06,0.459379,0.652113,1.49266,39.1782,17.003,2.30419
+vascx-artery-vein,area_vein,density/area/vein,µm²,in-sample-unclear-split,29,0,16,7.96614e+06,1.45481e+06,6.90603e+06,-1.06011e+06,-0.133077,1.13674e+06,0.344345,0.490796,1.27981,31.6319,13.5362,2.33684
+vascx-artery-vein,avr_hubbard,calibre/AVR-hubbard/both/B,1,in-sample-unclear-split,22,0,23,0.595832,0.463196,0.573118,-0.0227149,-0.038123,0.521796,-0.0301387,-0.0287881,0.887697,71.0877,236.642,0.300402
+vascx-artery-vein,avr_knudtson,calibre/AVR-knudtson/both/B,1,in-sample-unclear-split,26,0,19,1.79234,3.45001,0.664389,-1.12795,-0.629318,3.38447,0.0395993,0.0423529,1.01937,143.12,114.943,1.24515
+vascx-artery-vein,capacity_dimension_artery,density/multifractal-d0/artery,1,in-sample-unclear-split,45,0,0,1.51111,0.037715,1.4592,-0.0519127,-0.0343539,0.0332395,0.20068,0.461748,1.13464,2.80408,3.47546,0.806822
+vascx-artery-vein,capacity_dimension_vein,density/multifractal-d0/vein,1,in-sample-unclear-split,45,0,0,1.48054,0.0162603,1.42209,-0.0584511,-0.0394795,0.0155853,0.0442955,0.410806,1.04331,1.43878,3.94043,0.365132
+vascx-artery-vein,correlation_dimension_artery,density/multifractal-d2/artery,1,in-sample-unclear-split,45,0,0,1.43774,0.0257894,1.39466,-0.0430813,-0.0299645,0.029894,0.141133,0.334202,0.862696,2.44668,3.13864,0.779535
+vascx-artery-vein,correlation_dimension_vein,density/multifractal-d2/vein,1,in-sample-unclear-split,45,0,0,1.41036,0.0166098,1.35498,-0.055376,-0.0392638,0.0186725,0.0246956,0.19837,0.889535,1.49296,3.91553,0.381292
+vascx-artery-vein,crae_hubbard,calibre/CRE-hubbard/artery/B,µm,in-sample-unclear-split,29,0,16,139.495,220.577,163.364,23.8693,0.171113,242.43,-0.0608207,-0.0592237,0.909861,66.8802,432.836,0.154517
+vascx-artery-vein,crae_knudtson,calibre/CRE-knudtson/artery/B,µm,in-sample-unclear-split,34,0,11,107.94,185.018,140.641,32.7012,0.302958,196.846,-0.0404028,-0.0403265,0.939912,108.218,475.599,0.227541
+vascx-artery-vein,crve_hubbard,calibre/CRE-hubbard/vein/B,µm,in-sample-unclear-split,29,0,16,196.161,99.0099,280.111,83.9501,0.427966,98.5744,0.0535686,0.0873423,1.00442,47.2019,867.679,0.0544002
+vascx-artery-vein,crve_knudtson,calibre/CRE-knudtson/vein/B,µm,in-sample-unclear-split,29,0,16,114.519,105.922,211.244,96.7249,0.844615,102.301,0.100614,0.172197,1.03539,131.642,887.626,0.148309
+vascx-artery-vein,endpoints_artery,,as returned,in-sample-unclear-split,37,0,8,107.054,41.7026,18.5946,-88.4595,-0.826306,41.5108,0.00506578,0.0273089,1.00462,58.2524,79.9201,0.728883
+vascx-artery-vein,endpoints_vein,,as returned,in-sample-unclear-split,29,0,16,102.207,54.1178,19.2069,-83,-0.812078,53.5944,0.00739476,0.0244478,1.00977,106.897,75.4853,1.41612
+vascx-artery-vein,entropy_dimension_artery,density/multifractal-d1/artery,1,in-sample-unclear-split,45,0,0,1.46452,0.0316976,1.415,-0.0495204,-0.0338135,0.0311599,0.169954,0.417705,1.01726,2.41513,3.45799,0.698421
+vascx-artery-vein,entropy_dimension_vein,density/multifractal-d1/vein,1,in-sample-unclear-split,45,0,0,1.43476,0.0154358,1.37621,-0.0585424,-0.0408031,0.0164332,0.0293399,0.292368,0.939303,1.3488,4.07216,0.331224
+vascx-artery-vein,intersections_artery,topology/junctions/artery,1,in-sample-unclear-split,37,0,8,120.054,52.3567,14.2432,-105.811,-0.88136,52.0181,0.00562675,0.028106,1.00651,65.2174,85.9673,0.75863
+vascx-artery-vein,intersections_vein,topology/junctions/vein,1,in-sample-unclear-split,29,0,16,109.448,60.1988,13.1034,-96.3448,-0.880277,59.6665,0.00620389,0.0218173,1.00892,107.071,83.3311,1.28488
+vascx-artery-vein,length_artery,density/skeleton-length-rooted/artery,µm,in-sample-unclear-split,37,0,8,153044,45107,39614.4,-113430,-0.741157,44595.1,0.0107295,0.0746922,1.01148,44.0426,71.6077,0.615054
+vascx-artery-vein,length_vein,density/skeleton-length-rooted/vein,µm,in-sample-unclear-split,29,0,16,128313,59275.4,35393.9,-92918.7,-0.724159,57994.4,0.014972,0.0509574,1.02209,104.05,65.7433,1.58267
+vascx-artery-vein,median_branching_angle_artery,,as returned,in-sample-unclear-split,37,0,7,83.0444,5.11017,88.0014,4.95703,0.0596913,8.10358,0.0126603,0.0169809,0.630606,7.5929,9.11352,0.833147
+vascx-artery-vein,median_branching_angle_vein,,as returned,in-sample-unclear-split,29,0,16,80.6678,3.58112,86.683,6.01513,0.0745666,5.96052,0.0921812,0.167673,0.600807,2.46142,8.36522,0.294245
+vascx-artery-vein,median_tortuosity_artery,tortuosity/hart-tau1/artery/median,1,in-sample-unclear-split,37,0,8,1.09067,0.00971476,1.08513,-0.00553892,-0.00507846,0.00993183,0.24338,0.292295,0.978143,0.783158,0.730941,1.07144
+vascx-artery-vein,median_tortuosity_vein,tortuosity/hart-tau1/vein/median,1,in-sample-unclear-split,29,0,16,1.08872,0.00468418,1.08369,-0.00503138,-0.00462138,0.00527682,0.162562,0.266811,0.88769,0.537916,0.510958,1.05276
+vascx-artery-vein,singularity_length_artery,,as returned,in-sample-unclear-split,45,0,0,0.706832,0.100945,0.711928,0.0050966,0.00721049,0.0985306,0.164038,0.161349,1.0245,12.0245,12.1276,0.991493
+vascx-artery-vein,singularity_length_vein,,as returned,in-sample-unclear-split,45,0,0,0.638001,0.109538,0.682603,0.0446023,0.0699095,0.101999,0.337235,0.37297,1.07392,31.5241,14.4688,2.17877
+vascx-artery-vein,start_points_artery,,as returned,in-sample-unclear-split,37,0,8,4.27027,2.56741,7.27027,3,0.702532,3.59784,-0.0310417,-0.0528823,0.713598,100,176.219,0.567474
+vascx-artery-vein,start_points_vein,,as returned,in-sample-unclear-split,29,0,16,4.82759,2.13924,8.17241,3.34483,0.692857,2.89428,-0.0155723,-0.0365742,0.739128,40,141.163,0.28336
+vascx-artery-vein,tortuosity_index_artery,,as returned,in-sample-unclear-split,37,0,8,1.10654,0.0163378,1.09874,-0.00780459,-0.00705313,0.0135251,0.592686,0.655209,1.20796,1.5776,1.04097,1.5155
+vascx-artery-vein,tortuosity_index_vein,,as returned,in-sample-unclear-split,29,0,16,1.10344,0.0109351,1.09391,-0.00952586,-0.0086329,0.0115743,0.273695,0.382369,0.944772,0.738205,1.0988,0.671827
+ocularnet,area_artery,density/area/artery,µm²,in-sample-unclear-split,35,2,7,7.08359e+06,1.62635e+06,6.769e+06,-314590,-0.0444111,1.07014e+06,0.683728,0.695761,1.51975,38.108,12.0928,3.15129
+ocularnet,area_vein,density/area/vein,µm²,in-sample-unclear-split,23,6,15,8.09498e+06,1.41576e+06,7.88935e+06,-205630,-0.0254021,1.04455e+06,0.591151,0.590006,1.35539,31.5414,9.85254,3.20134
+ocularnet,avr_hubbard,calibre/AVR-hubbard/both/B,1,in-sample-unclear-split,16,6,19,0.554581,0.482026,0.59649,0.0419092,0.0755691,0.52827,0.351545,0.338473,0.91246,35.1508,226.351,0.155293
+ocularnet,avr_knudtson,calibre/AVR-knudtson/both/B,1,in-sample-unclear-split,20,6,15,1.39811,3.19384,0.899182,-0.498927,-0.356858,3.20525,0.0381583,0.0372116,0.99644,79.7468,158.693,0.502522
+ocularnet,capacity_dimension_artery,density/multifractal-d0/artery,1,in-sample-unclear-split,45,0,0,1.51111,0.037715,1.45329,-0.0578264,-0.0382675,0.0341958,0.128935,0.362249,1.10291,2.80408,3.87067,0.724442
+ocularnet,capacity_dimension_vein,density/multifractal-d0/vein,1,in-sample-unclear-split,45,0,0,1.48054,0.0162603,1.43057,-0.0499753,-0.0337548,0.0208121,-0.0132376,-0.0966189,0.78129,1.43878,3.36328,0.42779
+ocularnet,correlation_dimension_artery,density/multifractal-d2/artery,1,in-sample-unclear-split,45,0,0,1.43774,0.0257894,1.39307,-0.0446767,-0.0310742,0.0274268,0.101782,0.291521,0.9403,2.44668,3.28414,0.744999
+ocularnet,correlation_dimension_vein,density/multifractal-d2/vein,1,in-sample-unclear-split,45,0,0,1.41036,0.0166098,1.36826,-0.0420998,-0.0298504,0.0211178,0.00893883,0.0427554,0.786531,1.49296,2.97825,0.501288
+ocularnet,crae_hubbard,calibre/CRE-hubbard/artery/B,µm,in-sample-unclear-split,27,2,15,144.852,227.614,116.117,-28.7347,-0.198373,214.82,0.180784,0.177939,1.05956,67.4005,264.725,0.254606
+ocularnet,crae_knudtson,calibre/CRE-knudtson/artery/B,µm,in-sample-unclear-split,32,2,10,110.775,190.245,99.7738,-11.0012,-0.0993112,180.985,0.150959,0.147412,1.05116,105.959,329.726,0.321354
+ocularnet,crve_hubbard,calibre/CRE-hubbard/vein/B,µm,in-sample-unclear-split,23,6,15,210.741,100.872,209.287,-1.45315,-0.00689546,118.547,-0.0784703,-0.074816,0.850898,38.7934,762.15,0.0509
+ocularnet,crve_knudtson,calibre/CRE-knudtson/vein/B,µm,in-sample-unclear-split,23,6,15,133.992,110.177,131.167,-2.82465,-0.0210808,126.973,-0.109861,-0.104645,0.867722,90.358,673.164,0.134229
+ocularnet,endpoints_artery,,as returned,in-sample-unclear-split,35,2,7,108.114,42.5163,46.8286,-61.2857,-0.56686,38.8758,0.0833721,0.239195,1.09364,57.619,54.6849,1.05366
+ocularnet,endpoints_vein,,as returned,in-sample-unclear-split,23,6,15,99.3913,45.5319,63.4348,-35.9565,-0.361767,43.4631,0.100676,0.155188,1.0476,67.8161,40.0437,1.69355
+ocularnet,entropy_dimension_artery,density/multifractal-d1/artery,1,in-sample-unclear-split,45,0,0,1.46452,0.0316976,1.41181,-0.052712,-0.0359927,0.0305713,0.110999,0.330334,1.03684,2.41513,3.69894,0.652925
+ocularnet,entropy_dimension_vein,density/multifractal-d1/vein,1,in-sample-unclear-split,45,0,0,1.43476,0.0154358,1.38844,-0.0463149,-0.0322807,0.0203364,-0.00464366,-0.0293294,0.759024,1.3488,3.21691,0.419283
+ocularnet,intersections_artery,topology/junctions/artery,1,in-sample-unclear-split,35,2,7,116.343,49.8716,43.3429,-73,-0.627456,45.7956,0.0722198,0.214707,1.089,63.913,59.3038,1.07772
+ocularnet,intersections_vein,topology/junctions/vein,1,in-sample-unclear-split,23,6,15,107.043,51.9103,60.6087,-46.4348,-0.433794,49.988,0.0722809,0.124155,1.03845,89.3939,46.8619,1.9076
+ocularnet,length_artery,density/skeleton-length-rooted/artery,µm,in-sample-unclear-split,35,2,7,152603,46311.3,111874,-40728.4,-0.266892,41621.5,0.215419,0.346248,1.11268,45.0249,32.1814,1.3991
+ocularnet,length_vein,density/skeleton-length-rooted/vein,µm,in-sample-unclear-split,23,6,15,126338,55182.6,129015,2677.14,0.0211903,54329.9,0.0950433,0.0914987,1.0157,86.2403,48.8103,1.76685
+ocularnet,median_branching_angle_artery,,as returned,in-sample-unclear-split,35,2,6,82.8449,5.18556,87.0523,4.20739,0.0507863,3.79616,0.430718,0.624678,1.366,8.45951,6.05968,1.39603
+ocularnet,median_branching_angle_vein,,as returned,in-sample-unclear-split,23,6,15,80.6422,3.87593,86.1407,5.49848,0.0681837,4.32732,0.0426079,0.102674,0.895688,2.44492,7.06078,0.346267
+ocularnet,median_tortuosity_artery,tortuosity/hart-tau1/artery/median,1,in-sample-unclear-split,35,2,7,1.08998,0.00912898,1.08349,-0.00648771,-0.00595215,0.00500905,0.632644,0.820206,1.8225,0.79002,0.593129,1.33195
+ocularnet,median_tortuosity_vein,tortuosity/hart-tau1/vein/median,1,in-sample-unclear-split,23,6,15,1.08831,0.00411266,1.08159,-0.00671217,-0.00616754,0.00485415,-0.0628023,-0.204105,0.847248,0.42998,0.632918,0.679361
+ocularnet,singularity_length_artery,,as returned,in-sample-unclear-split,45,0,0,0.706832,0.100945,0.675491,-0.031341,-0.0443401,0.0957222,0.396873,0.41655,1.05456,12.0245,11.3704,1.05752
+ocularnet,singularity_length_vein,,as returned,in-sample-unclear-split,45,0,0,0.638001,0.109538,0.595215,-0.0427852,-0.0670614,0.100616,0.446796,0.483403,1.08867,31.5241,11.4849,2.74483
+ocularnet,start_points_artery,,as returned,in-sample-unclear-split,35,2,7,4.31429,2.63206,4.4,0.0857143,0.0198675,3.60858,-0.224155,-0.216518,0.729389,100,105.144,0.951077
+ocularnet,start_points_vein,,as returned,in-sample-unclear-split,23,6,15,4.86957,1.93777,4.52174,-0.347826,-0.0714286,2.01379,0.285311,0.282517,0.96225,40,44.4013,0.900874
+ocularnet,tortuosity_index_artery,,as returned,in-sample-unclear-split,35,2,7,1.10597,0.0163903,1.09607,-0.00990686,-0.0089576,0.00862309,0.710224,0.84885,1.90074,1.61378,0.950341,1.6981
+ocularnet,tortuosity_index_vein,,as returned,in-sample-unclear-split,23,6,15,1.10136,0.00745051,1.09283,-0.00852739,-0.0077426,0.00683987,0.287001,0.502655,1.08928,0.854429,0.815749,1.04742
+lunet,area_artery,density/area/artery,µm²,unknown,31,6,7,7.02555e+06,1.64122e+06,7.86849e+06,842937,0.119982,1.16058e+06,0.567915,0.662767,1.41413,38.5389,19.7863,1.94775
+lunet,area_vein,density/area/vein,µm²,unknown,25,4,16,8.14552e+06,1.47809e+06,7.62589e+06,-519634,-0.0637939,1.35753e+06,0.307148,0.329098,1.08881,31.7859,12.4231,2.55862
+lunet,avr_hubbard,calibre/AVR-hubbard/both/B,1,unknown,18,4,16,0.589379,0.484242,0.518356,-0.0710234,-0.120505,0.552876,0.130342,0.125893,0.87586,72.2104,116.931,0.617549
+lunet,avr_knudtson,calibre/AVR-knudtson/both/B,1,unknown,20,6,14,1.4471,3.17114,0.823986,-0.623114,-0.430595,3.23881,-0.0052233,-0.00515512,0.979108,97.6435,92.8733,1.05136
+lunet,capacity_dimension_artery,density/multifractal-d0/artery,1,unknown,45,0,0,1.51111,0.037715,1.43955,-0.071562,-0.0473572,0.0381014,0.0216751,0.090759,0.989858,2.80408,4.6814,0.598982
+lunet,capacity_dimension_vein,density/multifractal-d0/vein,1,unknown,45,0,0,1.48054,0.0162603,1.44088,-0.0396653,-0.0267911,0.0185599,0.0731708,0.304482,0.876094,1.43878,2.67221,0.538422
+lunet,correlation_dimension_artery,density/multifractal-d2/artery,1,unknown,45,0,0,1.43774,0.0257894,1.38311,-0.0546369,-0.0380018,0.0286888,0.00769717,0.0344869,0.898937,2.44668,3.77088,0.648835
+lunet,correlation_dimension_vein,density/multifractal-d2/vein,1,unknown,45,0,0,1.41036,0.0166098,1.38067,-0.0296873,-0.0210495,0.0182406,0.0839439,0.249438,0.910599,1.49296,2.15803,0.691815
+lunet,crae_hubbard,calibre/CRE-hubbard/artery/B,µm,unknown,25,4,13,148.561,236.338,111.934,-36.6266,-0.246543,231.698,0.107497,0.106054,1.02003,66.8802,160.8,0.415922
+lunet,crae_knudtson,calibre/CRE-knudtson/artery/B,µm,unknown,28,6,10,120.475,201.451,93.3222,-27.1532,-0.225384,196.717,0.0912791,0.0898949,1.02407,98.8654,146.034,0.677004
+lunet,crve_hubbard,calibre/CRE-hubbard/vein/B,µm,unknown,25,4,16,202.795,102.531,216.545,13.7498,0.0678015,101.493,0.216361,0.212674,1.01023,38.67,527.636,0.0732892
+lunet,crve_knudtson,calibre/CRE-knudtson/vein/B,µm,unknown,25,4,16,124.257,108.954,130.175,5.9182,0.0476287,106.233,0.23458,0.227897,1.02562,119.418,321.482,0.371462
+lunet,endpoints_artery,,as returned,unknown,31,6,7,105.29,42.9156,50.3871,-54.9032,-0.521446,39.1896,0.109315,0.26452,1.09508,57.767,51.6041,1.11943
+lunet,endpoints_vein,,as returned,unknown,25,4,16,106.16,52.5497,51.96,-54.2,-0.51055,49.5807,0.0851012,0.166981,1.05988,88.6364,41.2465,2.14894
+lunet,entropy_dimension_artery,density/multifractal-d1/artery,1,unknown,45,0,0,1.46452,0.0316976,1.40132,-0.0631949,-0.0431506,0.0337532,0.00717479,0.0313814,0.939098,2.41513,4.27257,0.565264
+lunet,entropy_dimension_vein,density/multifractal-d1/vein,1,unknown,45,0,0,1.43476,0.0154358,1.39983,-0.0349284,-0.0243445,0.0173124,0.0762334,0.294086,0.891601,1.3488,2.42894,0.555301
+lunet,intersections_artery,topology/junctions/artery,1,unknown,31,6,7,114.71,50.8797,48.8065,-65.9032,-0.574522,47.4702,0.083015,0.207668,1.07182,62.1739,56.5563,1.09933
+lunet,intersections_vein,topology/junctions/vein,1,unknown,25,4,16,114.16,58.7414,49.04,-65.12,-0.570427,56.0181,0.0647097,0.137868,1.04862,93,47.4626,1.95944
+lunet,length_artery,density/skeleton-length-rooted/artery,µm,unknown,31,6,7,148715,45939,116651,-32063.4,-0.215603,45098.9,0.229828,0.305372,1.01863,44.5628,33.8396,1.31688
+lunet,length_vein,density/skeleton-length-rooted/vein,µm,unknown,25,4,16,132938,57617.2,103109,-29828.7,-0.224382,55334.8,0.155751,0.187463,1.04125,81.4045,34.5424,2.35665
+lunet,median_branching_angle_artery,,as returned,unknown,31,6,6,83.0315,5.50293,86.6219,3.59041,0.0432415,4.62371,0.381516,0.492106,1.19015,10.6073,6.02153,1.76156
+lunet,median_branching_angle_vein,,as returned,unknown,25,4,16,80.773,3.76934,86.1398,5.36676,0.0664425,3.52619,0.23543,0.502212,1.06896,2.51017,6.85549,0.366155
+lunet,median_tortuosity_artery,tortuosity/hart-tau1/artery/median,1,unknown,31,6,7,1.09069,0.0094745,1.08374,-0.00694516,-0.0063677,0.00569762,0.5782,0.770819,1.66289,0.92929,0.637761,1.45711
+lunet,median_tortuosity_vein,tortuosity/hart-tau1/vein/median,1,unknown,25,4,16,1.08896,0.0048549,1.08295,-0.0060108,-0.00551978,0.00541614,-0.00988096,-0.0219136,0.896376,0.542648,0.598808,0.906215
+lunet,singularity_length_artery,,as returned,unknown,45,0,0,0.706832,0.100945,0.603335,-0.103497,-0.146424,0.0946382,0.31685,0.502042,1.06664,12.0245,14.8911,0.807497
+lunet,singularity_length_vein,,as returned,unknown,45,0,0,0.638001,0.109538,0.642682,0.00468171,0.0073381,0.132051,0.178063,0.174983,0.829513,31.5241,16.7618,1.88071
+lunet,start_points_artery,,as returned,unknown,31,6,7,4.35484,2.76343,4,-0.354839,-0.0814815,3.29189,-0.0742273,-0.0725841,0.839466,112.5,98.8274,1.13835
+lunet,start_points_vein,,as returned,unknown,25,4,16,4.92,2.03961,4.92,0,0,2.69258,-0.0937664,-0.0896794,0.757491,40,63.4968,0.629953
+lunet,tortuosity_index_artery,,as returned,unknown,31,6,7,1.10647,0.0169682,1.09547,-0.0110042,-0.0099453,0.00830692,0.677511,0.851186,2.04266,1.61448,1.0377,1.55582
+lunet,tortuosity_index_vein,,as returned,unknown,25,4,16,1.10388,0.0117399,1.0922,-0.01168,-0.0105809,0.00901931,0.33818,0.574011,1.30164,0.810845,1.05176,0.770941
+automorph-artery-vein,area_artery,density/area/artery,µm²,in-sample-unclear-split,33,4,7,7.02203e+06,1.65546e+06,6.48509e+06,-536939,-0.0764649,864873,0.77006,0.819438,1.91411,40.9303,11.0174,3.71507
+automorph-artery-vein,area_vein,density/area/vein,µm²,in-sample-unclear-split,21,8,12,8.01617e+06,1.48146e+06,7.39725e+06,-618925,-0.0772095,841537,0.683609,0.763397,1.76042,34.8451,8.58318,4.0597
+automorph-artery-vein,avr_hubbard,calibre/AVR-hubbard/both/B,1,in-sample-unclear-split,15,7,12,0.603977,0.528884,0.40861,-0.195367,-0.323467,0.747031,-0.296633,-0.297298,0.707981,59.2767,394.909,0.150102
+automorph-artery-vein,avr_knudtson,calibre/AVR-knudtson/both/B,1,in-sample-unclear-split,17,9,10,2.29104,4.19319,1.51039,-0.780651,-0.34074,5.132,-0.0841387,-0.0808933,0.817067,127.121,261.29,0.486512
+automorph-artery-vein,capacity_dimension_artery,density/multifractal-d0/artery,1,in-sample-unclear-split,45,0,0,1.51111,0.037715,1.46447,-0.0466431,-0.0308667,0.0309315,0.287321,0.567276,1.21931,2.80408,3.17594,0.882913
+automorph-artery-vein,capacity_dimension_vein,density/multifractal-d0/vein,1,in-sample-unclear-split,45,0,0,1.48054,0.0162603,1.42953,-0.0510089,-0.0344529,0.0143144,0.0691997,0.504151,1.13594,1.43878,3.43852,0.418429
+automorph-artery-vein,correlation_dimension_artery,density/multifractal-d2/artery,1,in-sample-unclear-split,45,0,0,1.43774,0.0257894,1.39212,-0.0456276,-0.0317355,0.0279216,0.142505,0.377443,0.923635,2.44668,3.30258,0.740838
+automorph-artery-vein,correlation_dimension_vein,density/multifractal-d2/vein,1,in-sample-unclear-split,45,0,0,1.41036,0.0166098,1.36082,-0.0495389,-0.035125,0.0169047,0.0497025,0.333464,0.982555,1.49296,3.50294,0.426202
+automorph-artery-vein,crae_hubbard,calibre/CRE-hubbard/artery/B,µm,in-sample-unclear-split,24,5,13,108.617,107.25,70.6346,-37.9823,-0.349691,130.068,-0.0223517,-0.0233492,0.824567,68.7069,483.939,0.141974
+automorph-artery-vein,crae_knudtson,calibre/CRE-knudtson/artery/B,µm,in-sample-unclear-split,28,6,9,85.1013,97.1598,73.7917,-11.3095,-0.132895,128.311,-0.145533,-0.140893,0.757219,101.99,670.005,0.152222
+automorph-artery-vein,crve_hubbard,calibre/CRE-hubbard/vein/B,µm,in-sample-unclear-split,21,8,11,179.276,87.9035,212.265,32.9885,0.184009,98.3667,0.378959,0.393855,0.893631,45.5072,187.439,0.242784
+automorph-artery-vein,crve_knudtson,calibre/CRE-knudtson/vein/B,µm,in-sample-unclear-split,21,8,11,101.178,85.2525,123.393,22.2154,0.219568,120.875,0.257675,0.255018,0.705292,149.487,341.968,0.437138
+automorph-artery-vein,endpoints_artery,,as returned,in-sample-unclear-split,33,4,7,104.515,41.0694,44.7879,-59.7273,-0.57147,39.4234,0.0608284,0.174554,1.04175,53.3981,57.0453,0.936064
+automorph-artery-vein,endpoints_vein,,as returned,in-sample-unclear-split,21,8,12,97.619,50.6789,57.4762,-40.1429,-0.41122,48.986,0.0948788,0.145465,1.03456,72.619,43.8698,1.65533
+automorph-artery-vein,entropy_dimension_artery,density/multifractal-d1/artery,1,in-sample-unclear-split,45,0,0,1.46452,0.0316976,1.41775,-0.046766,-0.0319327,0.0290907,0.222471,0.504759,1.08961,2.41513,3.30451,0.73086
+automorph-artery-vein,entropy_dimension_vein,density/multifractal-d1/vein,1,in-sample-unclear-split,45,0,0,1.43476,0.0154358,1.38352,-0.0512349,-0.0357098,0.0153631,0.0464357,0.370757,1.00473,1.3488,3.56338,0.378516
+automorph-artery-vein,intersections_artery,topology/junctions/artery,1,in-sample-unclear-split,33,4,7,112.394,48.4374,45.6061,-66.7879,-0.59423,46.6086,0.0582243,0.157467,1.03924,62.963,58.793,1.07093
+automorph-artery-vein,intersections_vein,topology/junctions/vein,1,in-sample-unclear-split,21,8,12,106.048,57.5165,57.9048,-48.1429,-0.453974,54.2193,0.110852,0.178328,1.06081,93.6842,51.4276,1.82167
+automorph-artery-vein,length_artery,density/skeleton-length-rooted/artery,µm,in-sample-unclear-split,33,4,7,148741,44794.9,107740,-41000.7,-0.275651,43236.8,0.155232,0.255637,1.03604,42.4901,33.781,1.25781
+automorph-artery-vein,length_vein,density/skeleton-length-rooted/vein,µm,in-sample-unclear-split,21,8,12,123945,57132.2,115655,-8290.75,-0.0668903,55790.7,0.149834,0.146569,1.02404,89.1539,44.9807,1.98205
+automorph-artery-vein,median_branching_angle_artery,,as returned,in-sample-unclear-split,33,4,7,82.8898,5.34175,87.2882,4.39845,0.0530638,4.72603,0.292877,0.431941,1.13028,9.59686,6.61513,1.45074
+automorph-artery-vein,median_branching_angle_vein,,as returned,in-sample-unclear-split,21,8,12,80.5191,4.0035,84.9606,4.44151,0.0551609,4.61735,0.0445233,0.080456,0.867056,2.22197,5.84518,0.380138
+automorph-artery-vein,median_tortuosity_artery,tortuosity/hart-tau1/artery/median,1,in-sample-unclear-split,33,4,7,1.09031,0.00928899,1.08481,-0.00549818,-0.00504278,0.00653638,0.529748,0.653915,1.42112,0.783158,0.534676,1.46473
+automorph-artery-vein,median_tortuosity_vein,tortuosity/hart-tau1/vein/median,1,in-sample-unclear-split,21,8,12,1.08812,0.00444361,1.08229,-0.00582857,-0.00535657,0.00454067,0.0288001,0.0715845,0.978625,0.530692,0.54119,0.980602
+automorph-artery-vein,singularity_length_artery,,as returned,in-sample-unclear-split,45,0,0,0.706832,0.100945,0.73851,0.0316783,0.0448173,0.0897733,0.462192,0.486472,1.12444,12.0245,10.0124,1.20095
+automorph-artery-vein,singularity_length_vein,,as returned,in-sample-unclear-split,45,0,0,0.638001,0.109538,0.670806,0.0328055,0.0514193,0.098086,0.55005,0.571193,1.11675,31.5241,10.302,3.05999
+automorph-artery-vein,start_points_artery,,as returned,in-sample-unclear-split,33,4,7,4.27273,2.69575,2.84848,-1.42424,-0.333333,3.02107,-0.0522074,-0.0628584,0.892313,133.333,68.0652,1.95891
+automorph-artery-vein,start_points_vein,,as returned,in-sample-unclear-split,21,8,12,4.80952,1.80607,4.04762,-0.761905,-0.158416,2.23394,0.173432,0.183164,0.808471,40,41.8519,0.955752
+automorph-artery-vein,tortuosity_index_artery,,as returned,in-sample-unclear-split,33,4,7,1.10621,0.0167418,1.09841,-0.00779576,-0.00704728,0.00943422,0.738897,0.823834,1.77458,1.5776,0.867453,1.81865
+automorph-artery-vein,tortuosity_index_vein,,as returned,in-sample-unclear-split,21,8,12,1.10165,0.00755238,1.09271,-0.00894667,-0.00812113,0.00694779,0.236519,0.447124,1.08702,0.738205,0.818433,0.901974
+bf-net,area_artery,density/area/artery,µm²,out-of-sample,37,0,8,7.13346e+06,1.60163e+06,6.54646e+06,-586992,-0.0822872,1.21975e+06,0.616983,0.659907,1.31308,39.1782,16.0339,2.44346
+bf-net,area_vein,density/area/vein,µm²,out-of-sample,27,2,15,8.04355e+06,1.47545e+06,9.30525e+06,1.26171e+06,0.156859,1.35044e+06,0.382547,0.532148,1.09258,31.6613,20.7463,1.52612
+bf-net,avr_hubbard,calibre/AVR-hubbard/both/B,1,out-of-sample,21,1,21,0.604851,0.472652,0.63006,0.0252089,0.0416778,0.611999,-0.0470965,-0.0448367,0.772308,80.1574,442.672,0.181076
+bf-net,avr_knudtson,calibre/AVR-knudtson/both/B,1,out-of-sample,25,1,17,1.84013,3.51236,0.805226,-1.0349,-0.562407,3.61292,-0.0286345,-0.0298746,0.972168,161.182,219.319,0.734922
+bf-net,capacity_dimension_artery,density/multifractal-d0/artery,1,out-of-sample,45,0,0,1.51111,0.037715,1.38421,-0.126903,-0.0839798,0.0391209,0.0148439,0.147692,0.964064,2.80408,8.34856,0.335876
+bf-net,capacity_dimension_vein,density/multifractal-d0/vein,1,out-of-sample,45,0,0,1.48054,0.0162603,1.37198,-0.108565,-0.073328,0.0252322,-0.00283533,-0.0583195,0.644424,1.43878,7.32104,0.196526
+bf-net,correlation_dimension_artery,density/multifractal-d2/artery,1,out-of-sample,45,0,0,1.43774,0.0257894,1.31178,-0.12596,-0.0876095,0.0296658,0.00398268,0.07063,0.869332,2.44668,8.73412,0.280129
+bf-net,correlation_dimension_vein,density/multifractal-d2/vein,1,out-of-sample,45,0,0,1.41036,0.0166098,1.31079,-0.0995682,-0.0705978,0.0267975,0.00447745,0.0623438,0.619827,1.49296,7.04836,0.211817
+bf-net,crae_hubbard,calibre/CRE-hubbard/artery/B,µm,out-of-sample,29,0,16,139.495,220.577,154.533,15.0379,0.107803,213.114,0.164434,0.160361,1.03502,66.8802,439.508,0.152171
+bf-net,crae_knudtson,calibre/CRE-knudtson/artery/B,µm,out-of-sample,34,0,11,107.94,185.018,130.575,22.6351,0.209701,179.317,0.137593,0.135991,1.03179,108.218,408.366,0.265003
+bf-net,crve_hubbard,calibre/CRE-hubbard/vein/B,µm,out-of-sample,27,2,15,197.636,100.645,253.763,56.1266,0.28399,135.097,-0.00261965,-0.00297584,0.744984,38.9073,881.17,0.0441541
+bf-net,crve_knudtson,calibre/CRE-knudtson/vein/B,µm,out-of-sample,27,2,15,116.411,108.462,191.801,75.3897,0.647615,143.711,0.0253612,0.0312127,0.754724,137.557,938.412,0.146585
+bf-net,endpoints_artery,,as returned,out-of-sample,37,0,8,107.054,41.7026,22.2973,-84.7568,-0.791719,41.7655,0.00482102,0.0240702,0.998495,58.2524,75.6554,0.76997
+bf-net,endpoints_vein,,as returned,out-of-sample,27,2,15,106.074,54.0932,38.3333,-67.7407,-0.638617,53.2531,0.0254638,0.0631804,1.01578,93.1818,56.3873,1.65253
+bf-net,entropy_dimension_artery,density/multifractal-d1/artery,1,out-of-sample,45,0,0,1.46452,0.0316976,1.33515,-0.129372,-0.0883372,0.0342142,0.00818351,0.11193,0.926444,2.41513,8.79588,0.274575
+bf-net,entropy_dimension_vein,density/multifractal-d1/vein,1,out-of-sample,45,0,0,1.43476,0.0154358,1.32958,-0.105177,-0.0733066,0.025692,0.000789282,0.0138168,0.600801,1.3488,7.32039,0.184252
+bf-net,intersections_artery,topology/junctions/artery,1,out-of-sample,37,0,8,120.054,52.3567,19.027,-101.027,-0.841513,51.5286,0.0108061,0.0499905,1.01607,65.2174,80.8603,0.806544
+bf-net,intersections_vein,topology/junctions/vein,1,out-of-sample,27,2,15,113.778,60.1641,36.8519,-76.9259,-0.676107,58.8224,0.0286384,0.0730559,1.02281,101,61.814,1.63393
+bf-net,length_artery,density/skeleton-length-rooted/artery,µm,out-of-sample,37,0,8,153044,45107,50942.7,-102101,-0.667137,41725.7,0.0479356,0.259512,1.08104,44.0426,64.5705,0.682086
+bf-net,length_vein,density/skeleton-length-rooted/vein,µm,out-of-sample,27,2,15,132485,59263.3,81760.1,-50725.2,-0.382874,56879.7,0.0900319,0.148184,1.04191,88.6457,42.9032,2.06618
+bf-net,median_branching_angle_artery,,as returned,out-of-sample,37,0,8,83.0444,5.11017,92.8771,9.83269,0.118403,8.05989,-0.0386002,-0.100684,0.634025,7.5929,13.7481,0.552288
+bf-net,median_branching_angle_vein,,as returned,out-of-sample,27,2,15,80.769,3.62351,90.7437,9.9747,0.123497,4.49269,0.0701346,0.307682,0.806536,2.44674,12.5171,0.195471
+bf-net,median_tortuosity_artery,tortuosity/hart-tau1/artery/median,1,out-of-sample,37,0,8,1.09067,0.00971476,1.08624,-0.0044273,-0.00405925,0.00854655,0.397254,0.449982,1.13669,0.783158,0.615265,1.27288
+bf-net,median_tortuosity_vein,tortuosity/hart-tau1/vein/median,1,out-of-sample,27,2,15,1.08871,0.00484751,1.08181,-0.00690444,-0.00634186,0.00499629,0.0450295,0.119295,0.970221,0.559204,0.636406,0.878691
+bf-net,singularity_length_artery,,as returned,out-of-sample,45,0,0,0.706832,0.100945,0.738715,0.0318835,0.0451076,0.107927,0.144877,0.152861,0.93531,12.0245,12.5032,0.961713
+bf-net,singularity_length_vein,,as returned,out-of-sample,45,0,0,0.638001,0.109538,0.591993,-0.0460074,-0.0721119,0.126086,0.191468,0.208283,0.868757,31.5241,15.2835,2.06263
+bf-net,start_points_artery,,as returned,out-of-sample,37,0,8,4.27027,2.56741,4.89189,0.621622,0.14557,3.15657,0.0426351,0.0431146,0.813353,100,101.081,0.989305
+bf-net,start_points_vein,,as returned,out-of-sample,27,2,15,4.85185,1.99429,4.51852,-0.333333,-0.0687023,2.82843,-0.158851,-0.154605,0.705089,40,69.3298,0.576952
+bf-net,tortuosity_index_artery,,as returned,out-of-sample,37,0,8,1.10654,0.0163378,1.09922,-0.00731811,-0.00661349,0.0162762,0.373585,0.412052,1.00379,1.5776,1.09829,1.43641
+bf-net,tortuosity_index_vein,,as returned,out-of-sample,27,2,15,1.1037,0.0112971,1.09177,-0.0119356,-0.0108141,0.0142584,-0.11523,-0.20758,0.792309,0.774469,1.25098,0.619088

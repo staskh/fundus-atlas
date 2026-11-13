@@ -344,17 +344,7 @@ def _pair(
     declared = adapter.declare()
     store = _store(slug, root)
     loaded = adapter.identity()
-    #: What drew the masks, and therefore what the kept files are of. It does not include this
-    #: benchmark's version: changing what is measured about a mask does not change the mask, which
-    #: is what lets a new measurement be taken from the segmentations already drawn — and what lets
-    #: the biomarker benchmark say whether the masks it is reading are still the model's.
-    drawing = runs.fingerprint(
-        {
-            "model": {name: declared[name] for name in FINGERPRINTED if name in declared},
-            "weights": loaded,
-            "store": store,
-        }
-    )
+    drawing = drawing_of(declared, loaded, store)
     identity = runs.fingerprint(
         {"drawing": drawing, "benchmark": {"name": NAME, "version": VERSION, "floor": FLOOR}}
     )
@@ -413,6 +403,28 @@ def _pair(
         "summary": summary,
         "measured": len({row["key"] for row in fresh}),
     }
+
+
+def drawing_of(declared: dict[str, object], weights: str, store: dict[str, object]) -> str:
+    """What drew a pair's masks, and therefore what the kept files are of.
+
+    It does not include this benchmark's version: changing what is measured about a mask does not
+    change the mask, which is what lets a new measurement be taken from the segmentations already
+    drawn — and what lets the biomarker benchmark say whether the masks it is reading are still the
+    model's. That benchmark calls this, so the two cannot disagree about what a drawing is.
+    """
+    return runs.fingerprint(
+        {
+            "model": {name: declared[name] for name in FINGERPRINTED if name in declared},
+            "weights": weights,
+            "store": store,
+        }
+    )
+
+
+def drawing(adapter, slug: str, root: Path | None = None) -> str:
+    """The drawing fingerprint a model's masks of one dataset would carry if drawn now."""
+    return drawing_of(adapter.declare(), adapter.identity(), _store(slug, root))
 
 
 def _segment(

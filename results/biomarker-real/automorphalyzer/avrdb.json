@@ -1,0 +1,29 @@
+{
+  "benchmark": "biomarker-real",
+  "dataset": "avrdb",
+  "fingerprint": "f5db1eb66c559cc9dff4793b37a88b8320500c4d20d28c37218d9dae3732cb47",
+  "model": "automorphalyzer",
+  "summary": {
+    "complete": true,
+    "device": "cpu, one core per worker",
+    "excluded": {
+      "no optic disc estimate": 1
+    },
+    "failed": 2,
+    "maps": 594,
+    "not_measured": {},
+    "processed": 99,
+    "seconds_per_map": 6.0888888888888895,
+    "seconds_per_photograph": 36.53333333333334,
+    "sources": [
+      "expert",
+      "vascx-artery-vein",
+      "ocularnet",
+      "lunet",
+      "automorph-artery-vein",
+      "bf-net"
+    ],
+    "timed_photographs": 99,
+    "total": 99
+  }
+}

@@ -7,7 +7,7 @@ from argparse import Namespace
 
 #: The benchmarks that exist, by the name they are known by everywhere else — in `results/`, in
 #: `docs/benchmarks/`, and in the module that implements them.
-BENCHMARKS = ("quality", "disc", "av", "biomarker-synthetic")
+BENCHMARKS = ("quality", "disc", "av", "biomarker-synthetic", "biomarker-real")
 
 
 def parse(argv: list[str] | None = None) -> Namespace:
@@ -35,6 +35,11 @@ def parse(argv: list[str] | None = None) -> Namespace:
     )
     parser.add_argument("--seed", type=int, default=0, help="the seed a random sample uses")
     parser.add_argument("--data-root", help="override the store root")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        help="how many processes measure at once, for a benchmark that measures in parallel",
+    )
     parser.add_argument(
         "--force", action="store_true", help="discard what is stored and measure it all again"
     )

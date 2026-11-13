@@ -91,6 +91,11 @@ notebooks = [
     "nbclient>=0.10",
     "nbformat>=5.10",
     "pandas>=2.0",
+    # Interactive figures with a drop-down. GitHub does not render them, so each is also saved as a
+    # PNG, which is Kaleido's job. Kaleido 0.2.1 carries its own headless browser; 1.x needs a Chrome
+    # installed on the machine, which a clean environment does not have — hence both pins.
+    "plotly>=5.24,<6",
+    "kaleido==0.2.1",
 ]
 
 [build-system]
