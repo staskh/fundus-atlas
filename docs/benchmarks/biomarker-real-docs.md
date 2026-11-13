@@ -134,6 +134,25 @@ run the artery/vein benchmark first.
 `segan-vessel` does not take part: it draws vessels without separating arteries from veins, and
 every implementation here needs both classes.
 
+### 2.3 Each project's own model
+
+The run measures every implementation on every model's map. **The analysis and the results page
+read each project on its own model only** — the one its own pipeline runs — so a project is judged
+as its authors ship it. [PVBM](../projects/pvbm.md) ships no artery/vein model, since its users
+supply the masks, so it is measured but not read. The other four models' maps stay in `results/`
+for anyone who wants the cross-model comparison.
+
+<!-- generated: native -->
+| Project | Its own artery/vein model | Where the pairing comes from |
+| --- | --- | --- |
+| [ocular](../projects/ocularnet.md) | [ocularnet](../models/ocularnet.md) | the model OCULARNet's own repository introduces |
+| [automorph](../projects/automorph.md) | [automorph-artery-vein](../models/automorph-artery-vein.md) | AutoMorph's own `M2_Artery_vein` module |
+| [automorphalyzer](../projects/automorphalyzer.md) | [automorph-artery-vein](../models/automorph-artery-vein.md) | inherited from AutoMorph with its other models |
+| [automorphclass](../projects/automorphclass.md) | [automorph-artery-vein](../models/automorph-artery-vein.md) | AutoMorph's weights, copied into the package |
+| [vascx](../projects/vascx.md) | [vascx-artery-vein](../models/vascx-artery-vein.md) | VascX's own artery/vein ensemble |
+| [fundus-biomarkers](../projects/fundus-biomarkers.md) | [ocularnet](../models/ocularnet.md) | the artery/vein model its command-line pipeline runs, borrowed from OCULARNet |
+<!-- /generated -->
+
 ## 3. The datasets
 
 <!-- generated: material -->

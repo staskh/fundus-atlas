@@ -1,28 +1,45 @@
 # Biomarkers on real segmentations — results
 
-Five segmentation models drew arteries and veins on **996 photographs** that an expert had already
-traced. Seven biomarker programs then measured every biomarker they compute twice per photograph:
-once on the expert's map and once on each model's. That is **6 maps per photograph and 41,832
-measured maps in all**. The program, the optic disc, the field of view and the microns-per-pixel
-scale were the same both times, so any difference between a pair of numbers comes from the vessel
-map alone.
+Experts had already traced the arteries and veins on **996 photographs**. Each biomarker project
+here was run the way its authors ship it: on **its own segmentation model's map** of each
+photograph, and on the expert's map of the same photograph. The program, the optic disc, the field
+of view and the microns-per-pixel scale were the same both times, so any difference between a pair
+of numbers comes from the vessel map alone.
 
 The question is the one a Dice score cannot answer: **if a study replaced manual tracing with this
-model, would the biomarker still tell one eye from another?**
+project's own pipeline, would the biomarker still tell one eye from another?**
 
 Every number comes from `results/biomarker-real/`. The reading of them comes from
 [notebooks/biomarker-real.ipynb](../../notebooks/biomarker-real.ipynb). How the benchmark is
 configured is a separate page: [biomarker-real-docs.md](biomarker-real-docs.md).
 
-**Everything declared took part.** All 7 implementations, all 5 segmentation models and all 5
-datasets were measured, and every one of the 35 implementation × dataset results is complete. The
-implementations are pinned at the commits listed in the configuration page §2.1.
+**What is read here.** Six of the seven implementations, each on its own model (configuration page
+§2.3). That makes three of the five segmentation models and all five datasets. Every one of the 30
+project × dataset results is complete, which is **11,952 maps** (996 photographs × 2 maps × 6
+projects):
 
-**The headline numbers come from one implementation, fundus-biomarkers**, which names every column
-against this catalogue. It refuses to guess a microns-per-pixel scale, so on the **111 photographs
-with no scale** it returns nothing, not even its scale-free numbers. Those are 43 of RAV's 198 and
-all 68 of REYIA's `magreb` subset. Its figures cover the other 885. The other six implementations
-measured all 996 (section 4.2).
+| Project | Its own artery/vein model |
+| --- | --- |
+| [ocular](../projects/ocularnet.md) | [OCULARNet](../models/ocularnet.md) |
+| [AutoMorph](../projects/automorph.md), [AutoMorphalyzer](../projects/automorphalyzer.md), [AutoMorphClass](../projects/automorphclass.md) | [AutoMorph's artery/vein model](../models/automorph-artery-vein.md) |
+| [VascX](../projects/vascx.md) | [VascX's artery/vein ensemble](../models/vascx-artery-vein.md) |
+| [fundus-biomarkers](../projects/fundus-biomarkers.md) | [OCULARNet](../models/ocularnet.md), which its command-line pipeline runs |
+
+**PVBM is not read**: it ships no artery/vein model, and its users supply the masks. **LUNet's and
+BF-Net's maps** belong to no project here. The run measured every program on every model's map,
+41,832 maps in all, and those rows stay in `results/`.
+
+*This page changed on 2026-11-13.* It used to compare all five models under every program, with
+the model as the primary index. It now reads each project on its own model, with the project as
+the primary index and the dataset inside it. The earlier reading is in the repository's history at
+commit `5a9f566`. Every section keeps its heading and answers the same question for the native
+pairs.
+
+**fundus-biomarkers is not publicly available.** It is a proprietary implementation in a private
+repository, catalogued because it names every column it returns against this atlas's vocabulary.
+Its figures are shown beside the public projects', and the recommendation in section 7 says what a
+reader can use without it. It returns nothing on the **111 photographs with no scale** (43 of RAV's
+198 and all 68 of REYIA's `magreb` subset), so its figures cover the other 885.
 
 ## Contents
 
@@ -30,13 +47,14 @@ measured all 996 (section 4.2).
 2. [Dataset by dataset](#2-dataset-by-dataset) ·
    [2.1 AVRDB, and what it does to the pooled figures](#21-avrdb-and-what-it-does-to-the-pooled-figures) ·
    [2.2 REYIA by subset](#22-reyia-by-subset)
-3. [Every catalogued biomarker, by family](#3-every-catalogued-biomarker-by-family)
+3. [Every catalogued biomarker, by family](#3-every-catalogued-biomarker-by-family) ·
+   [3.1 Why the IQRs fall into bands](#31-why-the-iqrs-fall-into-bands)
 4. [Where the programs disagree](#4-where-the-programs-disagree) ·
-   [4.1 One biomarker, seven programs](#41-one-biomarker-seven-programs) ·
+   [4.1 One map, several programs](#41-one-map-several-programs) ·
    [4.2 Coverage](#42-coverage)
 5. [What the failures look like](#5-what-the-failures-look-like)
 6. [What it costs](#6-what-it-costs)
-7. [Which model to use](#7-which-model-to-use)
+7. [Which project to use](#7-which-project-to-use)
 8. [What these numbers do not say](#8-what-these-numbers-do-not-say)
 
 ## 1. Summary
@@ -53,37 +71,40 @@ each with its own way of failing:
 - **Artery tortuosity** is the median arc-to-chord ratio of the arteries. It fails on a broken
   centreline.
 
-The table below pools **all five datasets on the photographs**: up to 885 of them, the photographs
-with a scale (BF-Net's and AutoMorph's maps produced no value on a few, section 4.2). It is an average across datasets that
-differ a great deal, and the detail is in section 2. The figures are from fundus-biomarkers.
+Each project computes some of these and not others. Where a project returns no median artery
+tortuosity, its **length-weighted mean** (*lw*) or its **mean** stands in, marked as such. The
+table pools **all five datasets on the photographs**, so it averages over datasets that differ a
+great deal; the detail is in section 2.
 
-| Model | CRAE | CRVE | AVR | Artery fractal dim. | Artery tortuosity | Contamination |
-| --- | --- | --- | --- | --- | --- | --- |
-| [vascx-artery-vein](../models/vascx-artery-vein.md) | 0.49 · 1.24 | 0.63 · 1.33 | 0.55 · 1.06 | 0.38 · 1.10 | 0.81 · 1.73 | mixed |
-| [ocularnet](../models/ocularnet.md) | **0.83 · 1.94** | **0.87 · 2.14** | **0.73 · 1.47** | **0.80 · 1.71** | **0.88 · 2.17** | mixed, mostly in-sample |
-| [lunet](../models/lunet.md) | 0.35 · 1.08 | 0.46 · 1.15 | 0.33 · 0.65 | 0.41 · 0.92 | 0.83 · 1.86 | unknown |
-| [automorph-artery-vein](../models/automorph-artery-vein.md) | 0.41 · 1.12 | 0.56 · 1.23 | 0.42 · 0.91 | 0.31 · 0.91 | 0.80 · 1.53 | mixed |
-| [bf-net](../models/bf-net.md) | 0.28 · 0.76 | 0.33 · 0.72 | 0.21 · 0.66 | 0.10 · 0.65 | 0.63 · 1.16 | out-of-sample |
+| Project | Its model | CRAE | CRVE | AVR | Artery fractal dim. | Artery tortuosity | Contamination |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ocular | OCULARNet | — | — | — | — | 0.72 · 1.69 | mixed, mostly in-sample |
+| AutoMorph | AutoMorph's | — | — | — | 0.37 · 0.83 | *mean* 0.37 · 0.72 | mixed |
+| AutoMorphalyzer | AutoMorph's | 0.57 · 1.31 | 0.63 · 1.37 | — | 0.57 · 1.26 | *mean* 0.41 · 1.13 | mixed |
+| AutoMorphClass | AutoMorph's | — | — | — | 0.52 · 1.09 | *lw* 0.50 · 0.98 | mixed |
+| VascX | VascX's | 0.56 · 1.34 | 0.63 · 1.38 | — | — | *lw* 0.71 · 1.52 | mixed |
+| fundus-biomarkers | OCULARNet | 0.83 · 1.94 | 0.87 · 2.14 | 0.73 · 1.47 | 0.80 · 1.71 | 0.88 · 2.17 | mixed, mostly in-sample |
 
 Each cell is **ICC(A,1) · SNR**, both explained in section 1.1. An ICC below 0.75 means a study
-could not use the model's number in place of the expert-map number. An SNR below 1 means the
-model's error is larger than the difference between eyes the biomarker is there to detect.
+could not use the pipeline's number in place of the expert-map number. An SNR below 1 means the
+segmentation's error is larger than the difference between eyes the biomarker is there to detect.
+A dash is a biomarker the project does not compute.
 
-**This table is not the answer, and section 2.1 says why.** One dataset, AVRDB, was annotated with
-strokes much wider than the vessels. That pulls every model's pooled calibre and fractal-dimension
-figures down, and it pulls them down least for OCULARNet, which trained on AVRDB. **Without AVRDB,
-VascX's CRAE goes from 0.49 to 0.77 against OCULARNet's 0.81, and LUNet's fractal dimension from
-0.41 to 0.84.**
+**This table is not the answer, and section 2.1 says why.** fundus-biomarkers' lead is mostly
+OCULARNet's, and OCULARNet trained on four of these five datasets, AVRDB among them. AVRDB's
+wide-stroke annotation pulls every other project's calibre down. **Without AVRDB, VascX's CRAE goes
+from 0.56 to 0.74 against fundus-biomarkers' 0.81. On RAV, out of sample for OCULARNet and for
+AutoMorph's model, the three calibre projects' CRAE agrees with the expert at 0.78–0.80.**
 
-**Most models make vessels look slightly thinner.** On the model's map, CRAE is lower than on the
-expert's by 6% (VascX), 7% (LUNet) and 9% (AutoMorph), and by under 1% for OCULARNet and BF-Net.
-That is a **bias**, a constant offset that a study could in principle correct, and it is why
-ICC(A,1) sits a few hundredths below ICC(C,1) for those three. Most of what keeps the calibre ICCs
-low is **scatter** rather than bias, and scatter cannot be corrected afterwards.
+**The AutoMorph projects make vessels look thinner.** On AutoMorph's maps, CRAE is 7.9% lower than
+on the expert's (AutoMorphalyzer), and fractal dimension 5–6% lower in all three. VascX's CRAE is
+4.8% lower. fundus-biomarkers on OCULARNet is within 1% on every panel biomarker. Those offsets are
+a **bias**, correctable in principle. It is why ICC(A,1) sits up to 0.25 below ICC(C,1) for the
+AutoMorph projects' fractal dimension (notebook section 2.1). The rest of the shortfall is
+**scatter**, which cannot be corrected afterwards.
 
-**Tortuosity survives every model's map but BF-Net's.** The median arc-to-chord ratio is the one
-panel biomarker at 0.80 or above, pooled, under four of the five models, and it stays at 0.64 or
-above on every dataset under those four.
+**AutoMorph's own tortuosity is not usable** (section 3). On three of the five datasets it returns
+a perfectly straight 1.0 for most eyes.
 
 ### 1.1 How to read the two statistics
 
@@ -99,302 +120,307 @@ above on every dataset under those four.
 **Read them together.** A high SNR with a low ICC(A,1) is a bias, which is correctable in
 principle. A low SNR is scatter, which nothing downstream can correct.
 
-The **IQR/MAPE** figure that fundus-biomarkers' own benchmark uses is in the notebook beside both.
-Pooled, it puts OCULARNet's CRAE at 3.07 and BF-Net's at 1.09. Read beside the SNR it tells the
-same story, because it counts a constant offset as error where the SNR does not.
+The **IQR/MAPE** figure that fundus-biomarkers' own benchmark uses is in the notebook beside both
+(sections 2.1, 2.2 and 3.2). It is the spread of the middle half of eyes, as a percentage of their
+median, over the mean percentage error. Read beside the SNR it tells the same story, except that it
+counts a constant offset as error where the SNR does not. Above 1 is a low bar: with no offset, an
+IQR/MAPE of 1 is an SNR of about 0.6.
 
 ## 2. Dataset by dataset
 
 Pooling widens the signal. Eyes from five cohorts and many cameras differ more than eyes from one,
 so a pooled ICC flatters, and these per-dataset figures are the primary evidence. Shown below is
-ICC(A,1) from fundus-biomarkers. SNR and IQR/MAPE for the same cells are in notebook section 2.2.
+ICC(A,1), project by project. SNR and IQR/MAPE for the same cells are in notebook section 2.2.
 
-| Model | Dataset | CRAE | CRVE | AVR | Artery FD | Artery tortuosity | Contamination |
+| Project (model) | Dataset | CRAE | CRVE | AVR | Artery FD | Artery tortuosity | Contamination |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| vascx-artery-vein | hrf | 0.53 | 0.31 | 0.66 | 0.38 | 0.75 | in-sample, unclear split |
-| | fundus-avseg | 0.48 | 0.60 | 0.70 | 0.37 | 0.88 | out-of-sample |
-| | avrdb | 0.09 | 0.13 | 0.09 | 0.02 | 0.77 | out-of-sample |
-| | reyia | 0.80 | 0.84 | 0.75 | 0.80 | 0.81 | out-of-sample |
-| | rav | **0.87** | **0.89** | 0.47 | 0.56 | 0.74 | in-sample, unclear split |
-| ocularnet | hrf | 0.61 | 0.39 | 0.68 | 0.35 | 0.79 | in-sample, unclear split |
+| ocular (OCULARNet) | hrf | — | — | — | — | 0.63 | in-sample, unclear split |
+| | fundus-avseg | — | — | — | — | 0.90 | in-sample, unclear split |
+| | avrdb | — | — | — | — | 0.47 | in-sample, unclear split |
+| | reyia | — | — | — | — | 0.72 | mixed |
+| | rav | — | — | — | — | 0.66 | out-of-sample |
+| AutoMorph (AutoMorph's) | hrf | — | — | — | 0.25 | *mean* 0.05 | in-sample, unclear split |
+| | fundus-avseg | — | — | — | 0.47 | *mean* 0.80 | out-of-sample |
+| | avrdb | — | — | — | 0.22 | *mean* 0.00 | out-of-sample |
+| | reyia | — | — | — | 0.36 | *mean* 0.24 | out-of-sample |
+| | rav | — | — | — | 0.46 | *mean* −0.06 | out-of-sample |
+| AutoMorphalyzer (AutoMorph's) | hrf | 0.47 | 0.53 | — | 0.19 | *mean* 0.12 | in-sample, unclear split |
+| | fundus-avseg | 0.32 | 0.48 | — | 0.55 | *mean* 0.84 | out-of-sample |
+| | avrdb | 0.06 | 0.10 | — | 0.20 | *mean* 0.35 | out-of-sample |
+| | reyia | 0.69 | 0.75 | — | 0.40 | *mean* 0.32 | out-of-sample |
+| | rav | 0.80 | 0.83 | — | 0.60 | *mean* 0.62 | out-of-sample |
+| AutoMorphClass (AutoMorph's) | hrf | — | — | — | 0.17 | *lw* 0.23 | in-sample, unclear split |
+| | fundus-avseg | — | — | — | 0.55 | *lw* 0.94 | out-of-sample |
+| | avrdb | — | — | — | 0.16 | *lw* 0.30 | out-of-sample |
+| | reyia | — | — | — | 0.37 | *lw* 0.39 | out-of-sample |
+| | rav | — | — | — | 0.45 | *lw* 0.78 | out-of-sample |
+| VascX (VascX's) | hrf | 0.54 | 0.42 | — | — | *lw* 0.39 | in-sample, unclear split |
+| | fundus-avseg | 0.38 | 0.56 | — | — | *lw* 0.88 | out-of-sample |
+| | avrdb | 0.02 | 0.06 | — | — | *lw* 0.52 | out-of-sample |
+| | reyia | 0.81 | 0.84 | — | — | *lw* 0.70 | out-of-sample |
+| | rav | 0.80 | 0.80 | — | — | *lw* 0.74 | in-sample, unclear split |
+| fundus-biomarkers (OCULARNet) | hrf | 0.61 | 0.39 | 0.68 | 0.35 | 0.79 | in-sample, unclear split |
 | | fundus-avseg | 0.60 | 0.72 | 0.78 | 0.66 | 0.92 | in-sample, unclear split |
 | | avrdb | 0.39 | 0.51 | 0.41 | 0.13 | 0.81 | in-sample, unclear split |
 | | reyia | 0.86 | 0.86 | 0.81 | 0.95 | 0.86 | mixed |
 | | rav | 0.78 | 0.86 | 0.66 | 0.75 | 0.92 | out-of-sample |
-| lunet | hrf | 0.30 | 0.25 | 0.24 | 0.29 | 0.74 | unknown |
-| | fundus-avseg | 0.33 | 0.47 | 0.69 | 0.42 | 0.92 | unknown |
-| | avrdb | 0.07 | 0.09 | 0.13 | 0.04 | 0.74 | unknown |
-| | reyia | 0.82 | 0.86 | 0.31 | 0.91 | 0.82 | unknown |
-| | rav | 0.78 | 0.79 | 0.60 | 0.63 | 0.81 | unknown |
-| automorph-artery-vein | hrf | 0.69 | 0.53 | 0.67 | 0.45 | 0.84 | in-sample, unclear split |
-| | fundus-avseg | 0.30 | 0.34 | 0.74 | 0.45 | 0.90 | out-of-sample |
-| | avrdb | 0.07 | 0.10 | 0.03 | 0.01 | 0.64 | out-of-sample |
-| | reyia | 0.61 | 0.77 | 0.47 | 0.69 | 0.76 | out-of-sample |
-| | rav | 0.77 | 0.80 | 0.46 | 0.25 | 0.83 | out-of-sample |
-| bf-net | hrf | 0.15 | 0.03 | 0.45 | 0.16 | 0.65 | out-of-sample |
-| | fundus-avseg | 0.51 | 0.48 | 0.53 | 0.58 | 0.81 | out-of-sample |
-| | avrdb | 0.09 | 0.19 | 0.03 | 0.01 | 0.62 | out-of-sample |
-| | reyia | 0.18 | 0.21 | 0.15 | 0.12 | 0.57 | out-of-sample |
-| | rav | 0.51 | 0.56 | 0.36 | 0.28 | 0.60 | out-of-sample |
 
-**REYIA and RAV are where a model's map can stand in for the expert's.** On REYIA's 486 scaled
-photographs, VascX, OCULARNet and LUNet all reach CRAE 0.80–0.86 and CRVE 0.84–0.86. On RAV, VascX
-reaches 0.87 and 0.89, the best calibre agreement anywhere in the benchmark, but RAV is in its
-training data with an unclear split.
+**REYIA and RAV are where a project's own pipeline can stand in for the expert's map.** CRAE
+reaches 0.78–0.86 for fundus-biomarkers, 0.80–0.81 for VascX and 0.69–0.80 for AutoMorphalyzer on
+those two, and CRVE 0.75–0.86. VascX's RAV figure is in its model's training data, with an unclear
+split, and covers only 89 of RAV's 198 photographs (section 4.2).
 
-**HRF and Fundus-AVSeg are harder, and not because of the models alone.** HRF's experts drew the
-small vessels as hairlines, as the hard-case figure in section 5 shows. Its CRVE agreement under
-VascX, OCULARNet and LUNet is 0.25 to 0.39, the lowest of any dataset but AVRDB.
+**HRF and Fundus-AVSeg are harder for calibre.** HRF's expert drew the small vessels as hairlines,
+as section 5 shows. Its CRVE agreement is 0.39 to 0.53 across the three projects that compute it,
+and Fundus-AVSeg's CRAE is 0.32 to 0.60, though OCULARNet trained on both.
 
-**The AVR is more fragile than either of its parts.** The worst case is LUNet on REYIA: CRAE 0.82
-and CRVE 0.86, but AVR 0.31. A ratio of two widths moves whenever either moves, and whenever an
-artery is called a vein. That is the artery/vein classification error the
-[artery/vein benchmark](av-results.md) §3.1 found LUNet makes asymmetrically.
+**Fractal dimension survives OCULARNet's map and not AutoMorph's.** fundus-biomarkers reaches
+0.66–0.95 on Fundus-AVSeg, REYIA and RAV. The three AutoMorph projects measure the same
+box-counting dimension on AutoMorph's maps at 0.16–0.60 on every dataset. That is the model, not
+the program, as section 4.1 shows.
+
+**Tortuosity depends on which summary a project returns as much as on the map.** fundus-biomarkers'
+median holds at 0.79–0.92 on every dataset. ocular's median, on the same OCULARNet maps, ranges
+from 0.47 to 0.90. The means and length-weighted means of the AutoMorph projects and VascX swing
+from below 0.4 on HRF to 0.8–0.94 on Fundus-AVSeg.
 
 ### 2.1 AVRDB, and what it does to the pooled figures
 
-**On AVRDB every model fails at once.** CRAE agreement is between 0.07 and 0.39, and fractal
-dimension between 0.01 and 0.13. The [artery/vein results](av-results.md) §4.1 already found that
-AVRDB's vessels are drawn about 1.6 times wider than any model traces them, as strokes of one chosen
-width. The scatter plots in notebook section 2.3 show the consequence: AVRDB's points form a
-separate cloud below the diagonal, with expert-map CRAE values of 175–240 µm where the model's
-maps give about 150. A wide even stroke makes every vessel look like a major one, so calibre and
-fractal dimension measured on it describe the drawing rather than the eye.
+**On AVRDB every calibre project fails but one.** CRAE agreement is 0.02 (VascX) and 0.06
+(AutoMorphalyzer) against 0.39 for fundus-biomarkers. The [artery/vein results](av-results.md)
+§4.1 already found that AVRDB's vessels are drawn about 1.6 times wider than any model traces them,
+as strokes of one chosen width. The scatter plots in notebook section 2.3 show the consequence:
+AVRDB's points form a separate cloud below the diagonal. A wide even stroke makes every vessel look
+like a major one, so calibre measured on it describes the drawing rather than the eye.
 
 Pooled without AVRDB, computed in notebook section 7.4 by the run's own function:
 
-| Model | CRAE | CRVE | AVR | Artery FD | Artery tortuosity |
+| Project | CRAE | CRVE | AVR | Artery FD | Artery tortuosity |
 | --- | --- | --- | --- | --- | --- |
-| vascx-artery-vein | 0.77 *(0.49)* | 0.83 *(0.63)* | 0.65 *(0.55)* | 0.75 *(0.38)* | 0.81 *(0.81)* |
-| ocularnet | 0.81 *(0.83)* | 0.85 *(0.87)* | 0.76 *(0.73)* | 0.91 *(0.80)* | 0.89 *(0.88)* |
-| lunet | 0.68 *(0.35)* | 0.79 *(0.46)* | 0.36 *(0.33)* | 0.84 *(0.41)* | 0.84 *(0.83)* |
-| automorph-artery-vein | 0.62 *(0.41)* | 0.74 *(0.56)* | 0.50 *(0.42)* | 0.64 *(0.31)* | 0.82 *(0.80)* |
-| bf-net | 0.31 *(0.28)* | 0.31 *(0.33)* | 0.24 *(0.21)* | 0.26 *(0.10)* | 0.64 *(0.63)* |
+| ocular | — | — | — | — | 0.74 *(0.72)* |
+| AutoMorph | — | — | — | 0.43 *(0.37)* | *mean* 0.36 *(0.37)* |
+| AutoMorphalyzer | 0.66 *(0.57)* | 0.74 *(0.63)* | — | 0.63 *(0.57)* | *mean* 0.41 *(0.41)* |
+| AutoMorphClass | — | — | — | 0.60 *(0.52)* | *lw* 0.52 *(0.50)* |
+| VascX | 0.74 *(0.56)* | 0.81 *(0.63)* | — | — | *lw* 0.72 *(0.71)* |
+| fundus-biomarkers | 0.81 *(0.83)* | 0.85 *(0.87)* | 0.76 *(0.73)* | 0.91 *(0.80)* | 0.89 *(0.88)* |
 
 *In brackets: the pooled figure with AVRDB, from section 1.*
 
-**OCULARNet is the one model AVRDB barely moves**, and it is also the only one that trained on
-AVRDB. Its 0.39 there against the others' 0.07–0.09 is most plausibly a model reproducing the
-drawing style it was taught, not a model seeing vessels better. Without AVRDB the gap between
-OCULARNet and VascX on calibre shrinks from 0.34 to 0.04. **AVRDB stays in the pooled figures**,
-as it does on the artery/vein page: it is a real annotation by four ophthalmologists, and dropping a
-dataset because models score badly on it is how a benchmark becomes a leaderboard.
+**fundus-biomarkers on OCULARNet is the one pipeline AVRDB barely moves on calibre**, and OCULARNet
+is the only model here that trained on AVRDB. Its 0.39 there, against the others' 0.02–0.06, is
+most plausibly a model reproducing the drawing style it was taught, not a model seeing vessels
+better. Without AVRDB its lead over VascX on CRAE shrinks from 0.27 to 0.07. **AVRDB stays in the
+pooled figures**: it is a real annotation by four ophthalmologists, and dropping a dataset because
+pipelines score badly on it is how a benchmark becomes a leaderboard.
 
 ### 2.2 REYIA by subset
 
 REYIA is a compilation of collections from different cameras and clinics. Notebook section 7.3
-breaks it down. **Two of its eight subsets, mBRSET (27 photographs) and TREND-AV (48), are hard
-for every model.** OCULARNet's AVR there is 0.30 and 0.41 against 0.75–0.95 on its other subsets,
-and LUNet's CRAE on mBRSET falls to 0.11. These are also the two subsets OCULARNet did not train on.
-PAPILA is the third weak subset, for AutoMorph's model and BF-Net above all.
+breaks it down. **Two of its eight subsets, mBRSET (27 photographs) and TREND-AV (48), are the
+hardest for every project.** VascX's CRAE falls from 0.87–0.92 on four of the other subsets to 0.76
+and 0.65 there. fundus-biomarkers' AVR falls from 0.75–0.95 to 0.30 and 0.41. These are also the two
+subsets OCULARNet did not train on. **PAPILA** is the third weak subset for AutoMorphalyzer's
+calibre (0.43–0.45) and VascX's (0.63–0.70), but not for fundus-biomarkers (0.86–0.88).
 
 ## 3. Every catalogued biomarker, by family
 
-The panel is five numbers out of hundreds. fundus-biomarkers returns 629 catalogued columns that
-have at least 20 paired photographs. Notebook section 3 shows the distribution of their pooled
-ICC(A,1), SNR and IQR/MAPE, family by family.
+The panel is five numbers out of hundreds. Notebook section 3 reads every catalogued column each
+project returns, family by family and dataset by dataset. The projects return very different
+numbers of columns: fundus-biomarkers 629, AutoMorphalyzer 23, AutoMorph and AutoMorphClass 15,
+ocular 10 and VascX 6. So the share in each cell below is over a different set in every row.
 
-| Model | Calibre | Tortuosity | Density | Topology |
+| Project | Calibre | Tortuosity | Density | Topology |
 | --- | --- | --- | --- | --- |
-| vascx-artery-vein | 0.48 · 0% | 0.50 · 15% | 0.54 · 5% | 0.40 · 0% |
-| ocularnet | 0.77 · 59% | 0.70 · 40% | 0.81 · 77% | 0.67 · 8% |
-| lunet | 0.35 · 0% | 0.59 · 21% | 0.56 · 5% | 0.51 · 0% |
-| automorph-artery-vein | 0.42 · 0% | 0.55 · 17% | 0.43 · 2% | 0.49 · 0% |
-| bf-net | 0.21 · 0% | 0.28 · 0% | 0.24 · 0% | 0.19 · 0% |
+| ocular | — | 0.61 · 25% | 0.78 · 50% | 0.58 · 0% |
+| AutoMorph | 0.38 · 0% | 0.66 · 50% | 0.34 · 0% | — |
+| AutoMorphalyzer | 0.39 · 0% | 0.63 · 50% | 0.47 · 0% | — |
+| AutoMorphClass | 0.38 · 0% | 0.72 · 50% | 0.44 · 0% | — |
+| VascX | 0.55 · 0% | 0.73 · 50% | — | — |
+| fundus-biomarkers | 0.77 · 59% | 0.70 · 40% | 0.81 · 77% | 0.67 · 8% |
 
 *Each cell: median pooled ICC(A,1) across the family's columns · share of its columns at 0.75 or
-above.* These are pooled with AVRDB (section 2.1).
+above.* These are pooled with AVRDB (section 2.1). Per dataset they are in notebook section 3.
 
-- **No biomarker survives every model.** Not one of the 629 columns reaches ICC(A,1) 0.9 under all
-  five models, and **133 stay below 0.5 under all five**.
-- **The fragile ones are mostly standard deviations and counts**, listed in notebook section 3.1:
-  the spread of tortuosity or branching angle within an eye, the number of separate vessel pieces,
-  the number of vessel endpoints. They measure exactly what a segmentation model changes, which
-  is how many short fragments it draws, so they move with the map rather than with the eye.
-- **Topology does not transfer even where everything else does.** Under OCULARNet, 59% of calibre
-  and 77% of density columns reach 0.75, but only 8% of topology columns.
+- **No catalogued column survives every dataset in any project.** Not one reaches ICC(A,1) 0.9 on
+  all five, under any project's own model (notebook section 3.1).
+- **Those that fail everywhere are mostly spreads and counts.** In fundus-biomarkers, 41 of 629
+  columns stay below 0.5 on every dataset: standard deviations of tortuosity within an eye, the
+  number of separate vessel pieces, the number of vessel endpoints. They measure exactly what a
+  segmentation model changes, which is how many short fragments it draws. In the AutoMorph
+  projects, the length-weighted vessel width stays below 0.5 on every dataset.
+- **AutoMorph's tortuosity has an IQR of zero on three datasets** (notebook section 3.2.7). On the
+  expert's maps it returns exactly 1.0, a perfectly straight vessel, for 78 of Fundus-AVSeg's 100
+  photographs, 90 of AVRDB's 99 and 182 of RAV's 198. On HRF it does so for none, and on REYIA for
+  9 of 554. Its ICC of 0.80 on Fundus-AVSeg therefore rests on the few eyes that are not at 1.0.
+  AutoMorphalyzer and AutoMorphClass, on the same maps, do not do this. AutoMorph's
+  [project page](../projects/automorph.md) §8.1 records a tortuosity defect its successors fixed.
+  Whether this is that defect is not checked here.
+- **Pooled, IQR/MAPE clears 1 for most columns of every project on its own model. Dataset by
+  dataset, AVRDB is where calibre falls below it.** There the median calibre column is at 0.42–0.43
+  for the AutoMorph projects and VascX, against 1.41 for fundus-biomarkers (notebook section 3.2).
 
-**Which summary of a tortuosity is taken matters more than which model.** In fundus-biomarkers,
-under each of the four stronger models, the **median** arc-to-chord ratio of the arteries agrees at
-0.80–0.88, and the **mean** and **length-weighted mean** of the same measurement at 0.37–0.61
-(section 4.1). A median ignores the few short, wiggly fragments a
-model adds or drops; a mean takes them all in.
+### 3.1 Why the IQRs fall into bands
+
+In the IQR-against-MAPE plots of notebook section 3.2, the dots line up in horizontal bands. The
+IQR (the spread of the middle half of eyes, over their median) is computed **from the expert's maps
+alone**. The model does not move it: under one column and one dataset it is the same whichever map
+it is compared with. Across the five models the run measured it differs by only 1–2%, through which
+photographs both maps produced a number for, where the MAPE differs two- to three-fold. A dot's
+height is therefore set by two things:
+
+- **the kind of measure**: a fractal dimension sits between about 1.3 and 1.7 in every eye, so its
+  IQR is a few percent, while a vessel area or length scales with how much vasculature was drawn
+  and spreads by 30–45%;
+- **the dataset**: a cohort, camera mix or annotation style that varies more has a wider IQR. That
+  is also why a pooled IQR is wider than most single datasets' and pooled IQR/MAPE flatters, just as
+  a pooled ICC does.
+
+Only the MAPE, the horizontal position, says anything about the pipeline.
 
 ## 4. Where the programs disagree
 
-### 4.1 One biomarker, seven programs
+### 4.1 One map, several programs
 
-The same biomarker on the same pair of maps, computed by different programs. Where one program is
-robust and another fragile, the difference is in the program's tracing and measuring, not in the
-model. Pooled ICC(A,1), from notebook section 4:
+Two groups of projects ship the same model, so on those maps only the program differs. Pooled and
+per-dataset ICC(A,1), from notebook section 4.1:
 
-| Biomarker | Program | vascx-artery-vein | ocularnet | lunet | automorph-artery-vein | bf-net |
-| --- | --- | --- | --- | --- | --- | --- |
-| CRAE | automorphalyzer | 0.60 | 0.86 | 0.44 | 0.57 | 0.39 |
-| | fundus-biomarkers | 0.49 | 0.83 | 0.35 | 0.41 | 0.28 |
-| | vascx | 0.56 | 0.85 | 0.40 | 0.50 | 0.33 |
-| | pvbm | 0.08 | 0.17 | 0.12 | 0.08 | 0.06 |
-| CRVE | automorphalyzer | 0.71 | 0.88 | 0.57 | 0.63 | 0.43 |
-| | fundus-biomarkers | 0.63 | 0.87 | 0.46 | 0.56 | 0.33 |
-| | vascx | 0.63 | 0.85 | 0.49 | 0.53 | 0.33 |
-| | pvbm | 0.07 | 0.25 | 0.29 | 0.19 | 0.06 |
-| AVR | fundus-biomarkers | 0.55 | 0.73 | 0.33 | 0.42 | 0.21 |
-| | pvbm | 0.02 | 0.13 | 0.11 | 0.10 | −0.02 |
-| Artery FD | automorphalyzer | 0.73 | 0.89 | 0.82 | 0.57 | 0.32 |
-| | automorphclass | 0.72 | 0.88 | 0.82 | 0.52 | 0.31 |
-| | automorph | 0.48 | 0.79 | 0.65 | 0.37 | 0.19 |
-| | fundus-biomarkers | 0.38 | 0.80 | 0.41 | 0.31 | 0.10 |
-| Artery tortuosity, median | fundus-biomarkers | 0.81 | 0.88 | 0.83 | 0.80 | 0.63 |
-| | pvbm | 0.65 | 0.72 | 0.70 | 0.68 | 0.05 |
-| | ocular | 0.65 | 0.72 | 0.70 | 0.68 | 0.05 |
-| Artery tortuosity, length-weighted | vascx | 0.71 | 0.77 | 0.70 | 0.66 | 0.55 |
-| | ocular | 0.61 | 0.81 | 0.69 | 0.72 | 0.14 |
-| | automorphclass | 0.48 | 0.64 | 0.28 | 0.50 | 0.11 |
-| | fundus-biomarkers | 0.39 | 0.58 | 0.37 | 0.41 | 0.28 |
-| Artery tortuosity, mean | automorph | 0.48 | 0.52 | 0.50 | 0.37 | 0.38 |
-| | automorphalyzer | 0.46 | 0.52 | 0.48 | 0.41 | 0.20 |
-| | fundus-biomarkers | 0.45 | 0.61 | 0.42 | 0.47 | 0.36 |
+| Model | Biomarker | Program | hrf | fundus-avseg | avrdb | reyia | rav |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| OCULARNet | Artery tortuosity, median | ocular | 0.63 | 0.90 | 0.47 | 0.72 | 0.66 |
+| | | fundus-biomarkers | 0.79 | 0.92 | 0.81 | 0.86 | 0.92 |
+| AutoMorph's | Artery fractal dimension | AutoMorph | 0.25 | 0.47 | 0.22 | 0.36 | 0.46 |
+| | | AutoMorphalyzer | 0.19 | 0.55 | 0.20 | 0.40 | 0.60 |
+| | | AutoMorphClass | 0.17 | 0.55 | 0.16 | 0.37 | 0.45 |
+| | Artery tortuosity | AutoMorph, mean | 0.05 | 0.80 | 0.00 | 0.24 | −0.06 |
+| | | AutoMorphalyzer, mean | 0.12 | 0.84 | 0.35 | 0.32 | 0.62 |
+| | | AutoMorphClass, length-weighted | 0.23 | 0.94 | 0.30 | 0.39 | 0.78 |
 
-**PVBM's central retinal equivalents do not survive a change of map under any model**: ICC(A,1)
-0.06–0.29. The cause is visible on the expert's maps alone. PVBM's CRAE there has a standard
-deviation of 79 µm on a mean of 124, against fundus-biomarkers' 33 µm on 147. It also produced an
-equivalent for only 590–655 of the 885 photographs, against 884 for fundus-biomarkers. A
-measurement that scattered on the reference cannot agree with itself on a second map. This is a
-finding about PVBM's vessel selection for the equivalents, not about any model, and it matches the
-[synthetic benchmark](biomarker-synthetic-results.md)'s caution about PVBM calibre.
+**On the same OCULARNet maps, the program decides tortuosity.** ocular's median artery tortuosity
+agrees at 0.47 on AVRDB and 0.66 on RAV, where fundus-biomarkers' median agrees at 0.81 and 0.92.
+ocular's measuring code is a fork of PVBM's, so this is a difference in tracing the centreline and
+cutting it into segments, not in the model.
 
-**The three Knudtson implementations that do survive agree closely with each other**:
-AutoMorphalyzer, fundus-biomarkers and VascX are within 0.16 of one another under every model.
-AutoMorphalyzer is slightly the steadiest. VascX's figures were measured at the pinned commit
-`d0cde1c`, which predates an upstream fix to its CRE pairing (section 8).
+**On AutoMorph's maps, fractal dimension is the model's and tortuosity is the program's.** The three
+programs' fractal dimensions are within 0.15 of one another on every dataset, and all are low. Their
+tortuosities are not: AutoMorph's straight-vessel values (section 3) are its own.
 
-**PVBM and OCULAR return identical median tortuosities**, to two decimals under every model.
-OCULAR's adapter reuses PVBM's code at the same commit, so this is one measurement, not two.
-
-**Fractal dimension depends on the program as much as on the model.** Under LUNet, the same
-box-counting fractal dimension of the same maps agrees at 0.82 in AutoMorphalyzer and AutoMorphClass
-but at 0.41 in fundus-biomarkers. fundus-biomarkers' zone-B version is steadier than its
-whole-picture one (0.57 against 0.41 under LUNet), which suggests the disagreement is concentrated
-in the periphery of the photograph, where the smallest vessels are.
+Section 4.2 of the notebook sets every project's own column under each panel biomarker side by
+side. There the model and the program differ together, as they do for a study that adopts a project
+whole.
 
 ### 4.2 Coverage
 
-**Where a model's map produced no panel number and the expert's did**, pooled, from notebook
-section 1.1: none for VascX, OCULARNet or LUNet, except a single CRVE each. AutoMorph's model lost 3
-to 7 per biomarker. **BF-Net lost 12 to 43**, most on artery tortuosity, where its fragmented
-arteries leave nothing to measure.
+**Where the project's own map produced no panel number and the expert's did**, pooled, from
+notebook section 1.1. fundus-biomarkers lost one CRVE. **AutoMorphalyzer lost 64 CRAE and 23
+CRVE**, most of them on REYIA, AVRDB and RAV. VascX lost 18 CRAE and 4 CRVE, ocular 2 tortuosities.
 
-**Maps on which a program returned nothing at all**:
+**Where neither map produced a number.** **VascX returns its equivalents on only part of two
+datasets**, on the expert's map and its own alike: CRAE on 44 of AVRDB's 99 photographs and 89 of
+RAV's 198. Of those 198, 155 have a scale. Its figures on those datasets are over the photographs it
+answered for.
 
-| Implementation | Maps measured | Returned nothing | Why |
-| --- | --- | --- | --- |
-| pvbm, ocular, automorph, automorphclass | 5,976 each | 2 each | AutoMorph's model's maps of two REYIA PAPILA photographs |
-| automorphalyzer | 5,976 | 13 | 11 in REYIA's PAPILA subset and 2 in AVRDB, all BF-Net's or AutoMorph's maps: a division by zero in its own code |
-| vascx | 5,976 | 0 | |
-| fundus-biomarkers | 5,976 | **666** | the 111 photographs with no microns-per-pixel scale × 6 maps, by design (above) |
+**Maps on which a program returned nothing at all**, out of 1,992 per project (the expert's map and
+its own model's, for each of 996 photographs):
+
+| Project | Returned nothing | Why |
+| --- | --- | --- |
+| ocular, VascX | 0 | |
+| AutoMorph, AutoMorphClass | 2 | AutoMorph's model's maps of two REYIA photographs |
+| AutoMorphalyzer | 4 | three in REYIA and one in AVRDB, all on AutoMorph's model's maps |
+| fundus-biomarkers | **222** | the 111 photographs with no microns-per-pixel scale × 2 maps, by design |
 
 ## 5. What the failures look like
 
-Notebook section 5 shows, for each dataset, the photograph where a model's map moved CRAE furthest
-from the expert's: the photograph, the expert's map and the model's map side by side. **Every one
-of the five is BF-Net's**, and they show two distinct failures:
+Notebook section 5 shows, project by project and then dataset by dataset, the photograph where the
+project's own map moved its first panel biomarker furthest from the expert's value: the photograph,
+the expert's map and the model's map side by side. For the three calibre projects, the worst cases
+share two causes:
 
-- **It draws the edge of the field of view as a vein** (AVRDB `im004790`, RAV `rav_640937`). It
-  loses nearly the whole network and outlines the camera's circular mask instead. CRAE falls by
-  81–87%.
-- **It inflates calibre** where it traces the network but thickens it (HRF `01_dr`, +109%; REYIA
-  `trend_30_r`, +88%).
+- **The expert drew wide strokes and the model did not.** On AVRDB the model's CRAE is 41–49% below
+  the expert's (fundus-biomarkers `im004538`, AutoMorphalyzer `im001126`, VascX `im002649`). The
+  same happens on some RAV photographs whose expert strokes are wide, for example fundus-biomarkers
+  `rav_656355`, at −48%.
+- **The expert drew hairlines and the model did not.** On REYIA's TREND-AV subset, dark photographs
+  of diseased eyes, the model's CRAE is 41–52% above the expert's (`trend_30_r`, `trend_31_r`). HRF
+  `01_dr`, whose expert-map CRAE is 73–76 µm, about half a typical eye's, is +46% for
+  fundus-biomarkers and +61% for VascX.
 
-The same figure shows **why HRF is hard for everyone**. Its expert draws the small vessels as
-hairlines and the major ones as narrow strokes, so the expert-map CRAE of `01_dr` is 76 µm, about
-half the population mean of 147.
+For tortuosity, the worst cases move by only 2–3%. Arc-to-chord ratios of real arteries span only
+about 1.07 to 1.13, so a small relative move is a large share of the difference between eyes.
 
 ## 6. What it costs
 
-**Seconds per map for each program**, averaged over every map it measured, on one core of this
-machine, a 16-core x86 Linux server. This measures the machine as much as the program. The
-benchmark ran ten or fifteen processes at once, one per core.
+Two costs, project by project. **The program's seconds per map** is averaged over the expert's and
+its own model's maps, on one core of a 16-core x86 Linux server. **The model's seconds per
+photograph** comes from the [artery/vein benchmark](av-results.md), measured on Apple MPS. Both
+measure the machine as much as the software. Per dataset in notebook section 6:
 
-| Implementation | AVRDB | Fundus-AVSeg | HRF | RAV | REYIA |
-| --- | --- | --- | --- | --- | --- |
-| pvbm | 24.6 | 48.9 | 235.2 | 23.7 | 62.3 |
-| ocular | 3.2 | 6.8 | 31.3 | 3.1 | 8.1 |
-| automorph | 10.7 | 9.4 | 11.6 | 11.3 | 6.3 |
-| automorphalyzer | 6.1 | 15.3 | 82.1 | 6.3 | 22.4 |
-| automorphclass | 0.5 | 1.1 | 6.8 | 0.5 | 1.3 |
-| vascx | 3.7 | 7.6 | 34.2 | 3.1 | 7.7 |
-| fundus-biomarkers | 7.3 | 16.8 | 68.9 | 5.6 | 12.6 |
+| Project | Program, s per map | Its model, s per photograph |
+| --- | --- | --- |
+| ocular | 3.1–28.6 | OCULARNet 2.4–9.0 |
+| AutoMorph | 6.4–12.6 | AutoMorph's 3.9–12.4 |
+| AutoMorphalyzer | 6.4–82.0 | AutoMorph's 3.9–12.4 |
+| AutoMorphClass | 0.5–7.1 | AutoMorph's 3.9–12.4 |
+| VascX | 3.1–35.1 | VascX's 8.9–22.8 |
+| fundus-biomarkers | 5.9–84.6 | OCULARNet 2.4–9.0 |
 
-**Frame size dominates.** HRF's crops are about 3,300 pixels across, and every program but AutoMorph
-takes about ten times as long there as on AVRDB. AutoMorph is flat because it resizes everything to
-912 pixels before measuring. **PVBM is the slowest by a factor of about three**, at nearly four
-minutes for one HRF map.
+**Frame size dominates the program's cost.** The top of every range is HRF, whose crops are about
+3,300 pixels across. AutoMorph is flat because it resizes everything to 912 pixels before
+measuring. AutoMorphClass is the cheapest program by an order of magnitude.
 
-The models' own segmentation time is in the [artery/vein results](av-results.md) §1, measured on
-Apple MPS except LUNet: OCULARNet 5.7 seconds a photograph, AutoMorph 10.9, VascX 11.4, LUNet 27.9
-(on CPU) and BF-Net 0.5.
+## 7. Which project to use
 
-## 7. Which model to use
+**The answer depends on the biomarker, and on whether you can use fundus-biomarkers, which is not
+publicly available.** Every recommendation below is agreement with **one expert's map** per
+photograph. No dataset here has a second reader, so nothing here says where the ceiling is, and no
+biomarker here is validated by agreeing with it.
 
-**The answer depends on the biomarker, and on whether your photographs resemble AVRDB.** Every
-recommendation below is agreement with **one expert's map** per photograph. No dataset here has a
-second reader, so nothing here says where the ceiling is, and no biomarker here is validated by
-agreeing with it.
+**For calibre (CRAE, CRVE), among public projects, VascX and AutoMorphalyzer are close, and VascX
+is slightly ahead on most photographs.**
 
-**For calibre (CRAE, CRVE, AVR), use [OCULARNet](../models/ocularnet.md), with VascX close behind
-on typical photographs.** OCULARNet leads pooled (CRAE 0.83, CRVE 0.87, AVR 0.73, against VascX's
-0.49, 0.63 and 0.55) and costs 5.7 seconds a photograph against VascX's 11.4. **But its lead is
-mostly in-sample and mostly AVRDB.**
+- **Pooled, they tie.** CRAE is 0.56 for VascX against 0.57 for AutoMorphalyzer, and CRVE 0.63 for
+  both.
+- **Without AVRDB, VascX leads.** CRAE is 0.74 against 0.66, and CRVE 0.81 against 0.74.
+- **On RAV they tie again**, at CRAE 0.80 and CRVE 0.80 against 0.83. But RAV is in VascX's
+  training data, and VascX answered for only 89 of its photographs.
+- **On REYIA's held-out mBRSET and TREND-AV photographs** (notebook section 7.5, 75 photographs),
+  VascX is ahead on CRAE (0.71 against 0.58), and AutoMorphalyzer on CRVE (0.73 against 0.67).
+- **Cost.** AutoMorphalyzer's model is the cheaper of the two, at 3.9–12.4 s a photograph against
+  VascX's 8.9–22.8. Its program is slower on large frames: 82 s against 35 s a map on HRF.
+- **Coverage.** VascX's partial coverage on AVRDB and RAV (section 4.2) is the caveat that would
+  change this answer for a study whose photographs resemble them.
 
-- Without AVRDB the margin is 0.04 on CRAE, 0.02 on CRVE and 0.11 on AVR.
-- **On the photographs OCULARNet never saw** (notebook section 7.5), the comparison reverses or
-  ties:
+**fundus-biomarkers on OCULARNet leads calibre where it can be used**: CRAE 0.83, CRVE 0.87, and
+it is the only project here that returns a Knudtson AVR (0.73). But its lead is mostly in-sample
+and mostly AVRDB. Without AVRDB it is 0.81 against VascX's 0.74. On RAV, out of sample for
+OCULARNet, it is 0.78 against 0.80 for VascX and AutoMorphalyzer. On mBRSET and TREND-AV it is 0.69
+on CRAE, between the two public projects, and 0.57 on CRVE, below both. **On photographs unlike its training
+data its lead is not established.**
 
-  | Photographs | Model | CRAE | CRVE | AVR |
-  | --- | --- | --- | --- | --- |
-  | RAV, 155 | VascX | 0.87 | 0.89 | 0.47 |
-  | | OCULARNet | 0.78 | 0.86 | 0.66 |
-  | REYIA mBRSET + TREND-AV, 75 | VascX | 0.69 | 0.72 | 0.54 |
-  | | OCULARNet | 0.69 | 0.57 | 0.40 |
+**For fractal dimension, the model matters more than the program.** On AutoMorph's maps all three
+AutoMorph programs agree at 0.16–0.60 per dataset. AutoMorphalyzer is the strongest of the three,
+pooled (0.57 against 0.52 and 0.37) and on RAV (0.60). fundus-biomarkers on OCULARNet reaches 0.80
+pooled, 0.91 without AVRDB and 0.75 on RAV, out of sample. No public project here measures fractal
+dimension on OCULARNet's map.
 
-  On RAV, VascX is in-sample itself with an unclear split. On mBRSET and TREND-AV both are
-  held out, and VascX is ahead on CRVE and AVR, on 75 photographs.
-
-  A study whose photographs are unlike any training set should not treat OCULARNet's pooled lead as
-  established. On held-out data the two are close, and VascX holds its AVR better.
-
-**For fractal dimension, use OCULARNet, and pick the program as carefully as the model.** It leads
-with or without AVRDB (0.80 pooled, 0.91 without). LUNet is second without AVRDB at 0.84. Under
-AutoMorphalyzer or AutoMorphClass, LUNet's maps agree at 0.82 even with AVRDB included (section
-4.1). LUNet's training data is undocumented (`unknown`), so its figures carry no contamination
-mark either way.
-
-**For tortuosity, any of the four stronger models will do, if you take the median.** Median
-arc-to-chord tortuosity agrees at 0.80–0.88 pooled under VascX, OCULARNet, LUNet and AutoMorph's
-model, and at 0.64–0.92 on every dataset. The margin between the best and the fourth is 0.08, too
-small to choose on. Choose by cost or by what else the study needs. **The mean or length-weighted
-mean of the same measurement is not safe under any model** (section 3).
-
-**Do not use BF-Net for any biomarker.** Its SNR is below 1 on four of the five panel biomarkers:
-its error is larger than the differences between eyes. It is the cheapest model by an order of
-magnitude, at 0.5 seconds, but section 5 shows why that is not a saving.
-
-**For the program**, the question is the synthetic benchmark's, not this one's. But two findings
-here bear on it: **do not use PVBM's central retinal equivalents** (section 4.1), and prefer a
-median to a mean wherever a program offers both.
+**For tortuosity, take a median, and do not take AutoMorph's.** Among public projects, ocular's
+median (0.72 pooled) and VascX's length-weighted mean (0.71) are a tie. VascX is steadier on
+AVRDB (0.52 against 0.47) and RAV (0.74 against 0.66). ocular is steadier on HRF (0.63 against
+0.39). Choose by cost or by what else the study needs. fundus-biomarkers' median reaches 0.88, and
+0.92 on RAV, out of sample. **AutoMorph's own tortuosity should not be used** (section 3);
+AutoMorphalyzer and AutoMorphClass return a corrected one.
 
 **Caveats that would change these answers:**
 
 - **Contamination.** OCULARNet trained on HRF, Fundus-AVSeg, AVRDB and six of REYIA's eight
-  subsets. VascX's model trained on HRF and RAV. LUNet's training data is unknown.
-- **AVRDB's annotation style** decides the pooled ranking on calibre and fractal dimension
-  (section 2.1). Whether a model *should* reproduce a wide-stroke drawing is a question about the
-  reference, not the model.
-- **One reader per photograph.** A model disagreeing with the expert by as much as a second expert
-  would has matched the reference, not failed it.
-- **fundus-biomarkers' panel leaves out the 111 photographs with no scale.** The other programs'
-  scale-free numbers include them, so section 4.1 compares slightly different photographs for
-  dimensionless biomarkers.
+  subsets. VascX's model trained on HRF and RAV. AutoMorph's model trained on HRF.
+- **AVRDB's annotation style** decides much of the pooled calibre ranking (section 2.1). Whether a
+  pipeline *should* reproduce a wide-stroke drawing is a question about the reference, not the
+  pipeline.
+- **One reader per photograph.** A pipeline disagreeing with the expert by as much as a second
+  expert would has matched the reference, not failed it.
+- **Different photographs behind different projects.** fundus-biomarkers leaves out the 111
+  photographs with no scale, and VascX answers for about half of AVRDB and RAV.
 
 ## 8. What these numbers do not say
 
@@ -403,18 +429,21 @@ median to a mean wherever a program offers both.
 - **Nothing about whether a program is right.** Two maps agreeing under one program says the
   program is stable to the change of map. Whether it computes what it claims is the
   [synthetic benchmark](biomarker-synthetic-results.md)'s question.
+- **Nothing about a project on another model's map.** Each project is read on its own model only.
+  How it would fare on a map it does not ship with is in `results/`, not on this page. PVBM, which
+  ships no model, is not read at all.
 - **Nothing about the optic disc.** Both maps of a photograph share one disc estimate from the
-  SegFormer disc model, so a wrong disc moves both numbers alike and is invisible here. The
-  [disc benchmark](disc-results.md) measures that.
+  SegFormer disc model, so a wrong disc moves both numbers alike and is invisible here. A project's
+  own disc model is not what ran. The [disc benchmark](disc-results.md) measures that.
 - **Nothing anchored to the fovea.** No fovea is located for these photographs, so VascX's
   fovea-dependent features come back empty, as they should.
 - **VascX's equivalents carry an upstream defect at the pinned commit.** At `d0cde1c`, VascX's
   Knudtson CRE sorts the vessel widths once instead of before every pairing round. Its authors
-  fixed this on 2026-09-24 (upstream commit `5e76d60`). The fix changes VascX's CRAE, CRVE and AVR
+  fixed this on 2026-09-24 (upstream commit `5e76d60`). The fix changes VascX's CRAE and CRVE
   values. It moves the expert-map and model-map values of a pair together, so its effect on
-  agreement here is expected to be small; its effect on accuracy is the synthetic benchmark's
+  agreement here is expected to be small. Its effect on accuracy is the synthetic benchmark's
   question. The atlas will move VascX to the fixed commit and measure again.
-- **Pooled means pooled on the photographs**: 45 from HRF weigh as 45, and 486 scaled REYIA
-  photographs as 486. REYIA therefore dominates every pooled figure.
+- **Pooled means pooled on the photographs.** 45 from HRF weigh as 45, and REYIA's 554 (486 with a
+  scale) as 554. REYIA therefore dominates every pooled figure.
 - **A length on a photograph with no scale** is left out of its statistic. For fundus-biomarkers,
   that photograph is left out of every statistic.

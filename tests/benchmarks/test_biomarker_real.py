@@ -223,3 +223,45 @@ def test_the_committed_configuration_page_is_current() -> None:
         f"{page} is stale — refresh it with "
         f"`python -m benchmarks --benchmark {biomarker_real.NAME} --docs`"
     )
+
+
+def test_every_project_read_on_its_own_model_is_declared_and_its_model_measured() -> None:
+    assert set(biomarker_real.NATIVE) <= set(biomarker_real.IMPLEMENTATIONS)
+    for slug, (model, why) in biomarker_real.NATIVE.items():
+        assert model in biomarker_real.SEGMENTERS
+        assert why
+        assert biomarker_real.native(slug) == model
+    # PVBM ships no artery/vein model, so it has no pair to be read on.
+    assert biomarker_real.native("pvbm") is None
+
+
+def test_the_panel_takes_the_panels_own_column_before_a_stand_in() -> None:
+    median, mean = "tortuosity/hart-tau1/artery/median", "tortuosity/hart-tau1/artery/mean"
+    crae = dict(biomarker_real.PANEL)["CRAE"]
+    assert dict(biomarker_real.panel_for([mean, median, crae])) == {
+        "CRAE": crae, "Artery tortuosity": median,
+    }
+    assert dict(biomarker_real.panel_for([mean])) == {"Artery tortuosity": mean}
+    assert biomarker_real.panel_for(["calibre/CRE-knudtson/artery/C"]) == []
+
+
+def test_the_index_has_a_row_per_project_on_its_own_model_only(tmp_path: Path) -> None:
+    columns = list(biomarker_real.AGREEMENT_COLUMNS)
+    for slug in ("vascx", "fundus-biomarkers"):
+        folder = tmp_path / biomarker_real.NAME / slug / "agreement"
+        folder.mkdir(parents=True)
+        with open(folder / "pooled.csv", "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=columns)
+            writer.writeheader()
+            for model, icc in ((biomarker_real.native(slug), "0.8"), ("bf-net", "0.1")):
+                writer.writerow({c: "" for c in columns} | {
+                    "model": model, "column": "crae", "name": dict(biomarker_real.PANEL)["CRAE"],
+                    "icc_agreement": icc, "contamination": "out-of-sample",
+                })
+    records = [{"model": slug, "dataset": "hrf", "summary": {"processed": 1, "total": 1, "complete": True}}
+               for slug in ("vascx", "fundus-biomarkers")]
+    text = "\n".join(biomarker_real.index_section(records, tmp_path))
+    rows = [line for line in text.splitlines() if line.startswith("| [")]
+    assert [row.split("](")[0] for row in rows] == ["| [vascx", "| [fundus-biomarkers"]
+    assert all("| 0.80 |" in row for row in rows)
+    assert "0.10" not in text and "bf-net" not in text

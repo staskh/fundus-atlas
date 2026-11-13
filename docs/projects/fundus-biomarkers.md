@@ -3,7 +3,8 @@
 Pheno's reference implementation of this catalogue's canonical biomarkers. A user gives it an
 artery mask, a vein mask, the field of view, the optic disc and the image scale; it gives back every
 biomarker it implements under the catalogue's own names, in microns or dimensionless, with artery
-and vein measured separately. It carries no segmentation model. It exists to turn the definitions
+and vein measured separately. The library itself carries no segmentation model; its
+command-line pipeline runs two borrowed ones to go from a photograph to those masks (§4). It exists to turn the definitions
 in [PLAN-BIOMARKER.md](../../PLAN-BIOMARKER.md) into something executable, against which other
 implementations' answers can be measured (`PLAN-BIOMARKER.md` §5.1).
 
@@ -32,7 +33,16 @@ None yet.
 
 ## 4. Segmentation models used
 
-Not applicable — masks in, numbers out (`PLAN-BIOMARKER.md` §5.7).
+The library is masks in, numbers out (`PLAN-BIOMARKER.md` §5.7). Its command-line pipeline, at the
+pinned commit, runs two models first, both borrowed:
+
+| Model | Segments | Origin |
+| --- | --- | --- |
+| [OCULARNet](../models/ocularnet.md) | Arteries and veins (and crossings, counted as both) | Borrowed from the [OCULARNet](ocularnet.md) project, run on the crop at 1,024 pixels with its logits averaged over four flips (`pipeline/av.py`) |
+| [SegFormer disc and cup](../models/segformer-disc-cup.md) | Optic disc and cup | Borrowed, pinned to a Hugging Face revision (`pipeline/disc.py`) |
+
+The [real-segmentation biomarker benchmark](../benchmarks/biomarker-real-docs.md) §2.3 reads this
+project on OCULARNet's maps for that reason.
 
 ## 5. Models introduced here
 
@@ -87,4 +97,4 @@ None recorded as of 2026-11-10.
 
 ---
 
-**Links and license last checked:** 2026-11-10
+**Links and license last checked:** 2026-11-13

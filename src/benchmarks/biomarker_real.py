@@ -99,6 +99,52 @@ PANEL = (
 #: definitions, whose every column has a catalogued name.
 REFERENCE = "fundus-biomarkers"
 
+#: Where a project has no column for a panel biomarker as the panel defines it, the nearest one it
+#: does have, in order of preference. Only tortuosity needs one: the programs differ in which
+#: summary of the segments they return, and the panel's median is preferred because it resists the
+#: short fragments a model adds or drops.
+PANEL_FALLBACK = {
+    "Artery tortuosity": (
+        "tortuosity/hart-tau1/artery/length-weighted",
+        "tortuosity/hart-tau1/artery/mean",
+    ),
+}
+
+#: Each project's own artery/vein segmentation — the model whose maps its own pipeline measures —
+#: and where that pairing comes from. The run still measures every implementation on every model's
+#: map; the analysis and both pages read each project on its own model only, so a project is judged
+#: as its authors ship it rather than on a map it was never paired with. PVBM is not here: it ships
+#: no artery/vein model, and its users supply the masks.
+NATIVE = {
+    "ocular": ("ocularnet", "the model OCULARNet's own repository introduces"),
+    "automorph": ("automorph-artery-vein", "AutoMorph's own `M2_Artery_vein` module"),
+    "automorphalyzer": ("automorph-artery-vein", "inherited from AutoMorph with its other models"),
+    "automorphclass": ("automorph-artery-vein", "AutoMorph's weights, copied into the package"),
+    "vascx": ("vascx-artery-vein", "VascX's own artery/vein ensemble"),
+    "fundus-biomarkers": (
+        "ocularnet",
+        "the artery/vein model its command-line pipeline runs, borrowed from OCULARNet",
+    ),
+}
+
+
+def native(slug: str) -> str | None:
+    """The segmentation model a project ships with, or None for one that ships none."""
+    return NATIVE[slug][0] if slug in NATIVE else None
+
+
+def panel_for(names: Iterable[str]) -> list[tuple[str, str]]:
+    """The panel as one project can answer it: each label it has a column for, with the catalogued
+    name that column answers to — the panel's own where it has it, else `PANEL_FALLBACK`'s."""
+    present = set(names)
+    found = []
+    for label, name in PANEL:
+        for candidate in (name, *PANEL_FALLBACK.get(label, ())):
+            if candidate in present:
+                found.append((label, candidate))
+                break
+    return found
+
 
 def implementations(slugs: list[str]) -> tuple[list, dict[str, str]]:
     """The adapters that exist, and what was declared without one."""
@@ -697,6 +743,11 @@ def config(root: Path | None = None) -> dict[str, object]:
             ],
         },
         "segmenters": list(SEGMENTERS),
+        "native": [
+            {"project": slug, "page": f"../projects/{declared.get(slug, {}).get('page', slug)}.md",
+             "model": model, "why": why}
+            for slug, (model, why) in NATIVE.items()
+        ],
         "material": {
             "label": "dataset",
             "fields": ["Photographs", "With a scale", "Excluded, and why"],
@@ -786,50 +837,67 @@ def config(root: Path | None = None) -> dict[str, object]:
 
 
 def index_section(records: list[dict[str, object]], results: Path) -> Iterable[str]:
-    """One row per segmentation model: how well five headline biomarkers survive its map."""
-    pooled = results / NAME / REFERENCE / "agreement" / "pooled.csv"
-    datasets = sorted({str(r["dataset"]) for r in records if r["model"] == REFERENCE})
-    if not pooled.exists():
-        yield f"No pooled agreement for {REFERENCE} yet: run `--benchmark {NAME} --model {REFERENCE}`."
+    """One row per project, measured on its own segmentation model: how well the headline
+    biomarkers it computes survive that map."""
+    rows_of: dict[str, list[dict[str, str]]] = {}
+    for slug in NATIVE:
+        pooled = results / NAME / slug / "agreement" / "pooled.csv"
+        if pooled.exists():
+            with open(pooled, newline="") as f:
+                rows_of[slug] = [row for row in csv.DictReader(f) if row["model"] == native(slug)]
+    if not rows_of:
+        yield f"No pooled agreement yet: run `--benchmark {NAME}`."
         yield ""
         return
-    with open(pooled, newline="") as f:
-        rows = list(csv.DictReader(f))
-    by = {(row["model"], row["name"]): row for row in rows if row["name"]}
+    datasets = sorted({str(r["dataset"]) for r in records if r["model"] in rows_of})
     yield (
-        f"ICC(A,1) — absolute agreement between the biomarker measured on the model's map and on "
-        f"the expert's — as {REFERENCE} computes it, **pooled over the photographs of "
-        f"{', '.join(datasets)}**. 1 is perfect; below 0.75 a study could not swap one map for the "
-        f"other. The signal-to-noise ratio, every other implementation and the per-dataset figures "
-        f"are on the results page."
+        "Each project is read on **its own artery/vein model**, as its authors ship it. ICC(A,1) — "
+        "absolute agreement between the biomarker measured on that model's map and on the expert's — "
+        f"**pooled over the photographs of {', '.join(datasets)}**. 1 is perfect; below 0.75 a study "
+        "could not swap one map for the other. A dash is a biomarker the project does not compute; "
+        "a tortuosity in italics is the project's mean or length-weighted mean, where it returns no "
+        "median. PVBM ships no artery/vein model and is not in this table."
     )
     yield ""
-    yield "| Model | " + " | ".join(label for label, _ in PANEL) + " | Contamination |"
-    yield "| --- | " + "--- | " * len(PANEL) + "--- |"
-    marks = {row["model"]: row["contamination"] for row in rows}
-    best: dict[str, float] = {}
-    for model in SEGMENTERS:
+    yield "| Project | Its model | " + " | ".join(label for label, _ in PANEL) + " | Contamination |"
+    yield "| --- | --- | " + "--- | " * len(PANEL) + "--- |"
+    leaders: dict[str, list[tuple[float, str]]] = {label: [] for label, _ in PANEL}
+    for slug, rows in rows_of.items():
+        by = {row["name"]: row for row in rows if row["name"]}
+        chosen = dict(panel_for(by))
         cells = []
         for label, name in PANEL:
-            found = by.get((model, name), {}).get("icc_agreement", "")
-            cells.append(f"{float(found):.2f}" if found else "—")
-        values = [float(c) for c in cells if c != "—"]
-        if values:
-            best[model] = sorted(values)[len(values) // 2]
-        yield f"| [{model}](models/{model}.md) | " + " | ".join(cells) + f" | {marks.get(model, '—')} |"
+            found = chosen.get(label)
+            value = by[found]["icc_agreement"] if found else ""
+            if not value:
+                cells.append("—")
+                continue
+            leaders[label].append((float(value), slug))
+            cells.append(f"{float(value):.2f}" if found == name else f"*{float(value):.2f}*")
+        mark = rows[0]["contamination"] if rows else "—"
+        model = native(slug)
+        page = catalogue.load(slug).declare().get("page", slug)
+        yield (
+            f"| [{slug}](projects/{page}.md) | [{model}](models/{model}.md) | "
+            + " | ".join(cells) + f" | {mark} |"
+        )
     yield ""
-    unfinished = report.unfinished([r for r in records if r["model"] == REFERENCE])
+    unfinished = report.unfinished([r for r in records if r["model"] in rows_of])
     if unfinished:
         yield unfinished
         yield ""
-    if len(best) >= 2:
-        order = sorted(best, key=best.get, reverse=True)
-        first, second = order[0], order[1]
+    said = []
+    for label, found in leaders.items():
+        if len(found) >= 2:
+            (a, first), (b, second) = sorted(found, reverse=True)[:2]
+            said.append(f"{label}, {first} ({a:.2f}) then {second} ({b:.2f})")
+        elif found:
+            said.append(f"{label}, {found[0][1]} alone ({found[0][0]:.2f})")
+    if said:
         yield (
-            f"**Where to start:** by the median ICC over these five, {first} "
-            f"({best[first]:.2f}), then {second} ({best[second]:.2f}). That ranks five biomarkers "
-            "from one implementation, pooled: which biomarkers survive which map, and why, is on the "
-            "results page."
+            "**Where to start:** by pooled ICC(A,1), biomarker by biomarker — " + "; ".join(said)
+            + ". Pooled figures include AVRDB, whose wide-stroke annotation decides much of the "
+            "calibre ranking: the results page reads it dataset by dataset."
         )
         yield ""
 

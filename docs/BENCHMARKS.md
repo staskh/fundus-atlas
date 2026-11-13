@@ -57,17 +57,18 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 [How it is run](benchmarks/biomarker-real-docs.md) · [What came out](benchmarks/biomarker-real-results.md) · [The analysis](../notebooks/biomarker-real.ipynb) · [Every score](../results/biomarker-real/)
 
-ICC(A,1) — absolute agreement between the biomarker measured on the model's map and on the expert's — as fundus-biomarkers computes it, **pooled over the photographs of avrdb, fundus-avseg, hrf, rav, reyia**. 1 is perfect; below 0.75 a study could not swap one map for the other. The signal-to-noise ratio, every other implementation and the per-dataset figures are on the results page.
+Each project is read on **its own artery/vein model**, as its authors ship it. ICC(A,1) — absolute agreement between the biomarker measured on that model's map and on the expert's — **pooled over the photographs of avrdb, fundus-avseg, hrf, rav, reyia**. 1 is perfect; below 0.75 a study could not swap one map for the other. A dash is a biomarker the project does not compute; a tortuosity in italics is the project's mean or length-weighted mean, where it returns no median. PVBM ships no artery/vein model and is not in this table.
 
-| Model | CRAE | CRVE | AVR | Artery fractal dimension | Artery tortuosity | Contamination |
-| --- | --- | --- | --- | --- | --- | --- |
-| [vascx-artery-vein](models/vascx-artery-vein.md) | 0.49 | 0.63 | 0.55 | 0.38 | 0.81 | mixed: in-sample-unclear-split, out-of-sample |
-| [ocularnet](models/ocularnet.md) | 0.83 | 0.87 | 0.73 | 0.80 | 0.88 | mixed: in-sample, in-sample-unclear-split, out-of-sample |
-| [lunet](models/lunet.md) | 0.35 | 0.46 | 0.33 | 0.41 | 0.83 | unknown |
-| [automorph-artery-vein](models/automorph-artery-vein.md) | 0.41 | 0.56 | 0.42 | 0.31 | 0.80 | mixed: in-sample-unclear-split, out-of-sample |
-| [bf-net](models/bf-net.md) | 0.28 | 0.33 | 0.21 | 0.10 | 0.63 | out-of-sample |
+| Project | Its model | CRAE | CRVE | AVR | Artery fractal dimension | Artery tortuosity | Contamination |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [ocular](projects/ocularnet.md) | [ocularnet](models/ocularnet.md) | — | — | — | — | 0.72 | mixed: in-sample, in-sample-unclear-split, out-of-sample |
+| [automorph](projects/automorph.md) | [automorph-artery-vein](models/automorph-artery-vein.md) | — | — | — | 0.37 | *0.37* | mixed: in-sample-unclear-split, out-of-sample |
+| [automorphalyzer](projects/automorphalyzer.md) | [automorph-artery-vein](models/automorph-artery-vein.md) | 0.57 | 0.63 | — | 0.57 | *0.41* | mixed: in-sample-unclear-split, out-of-sample |
+| [automorphclass](projects/automorphclass.md) | [automorph-artery-vein](models/automorph-artery-vein.md) | — | — | — | 0.52 | *0.50* | mixed: in-sample-unclear-split, out-of-sample |
+| [vascx](projects/vascx.md) | [vascx-artery-vein](models/vascx-artery-vein.md) | 0.56 | 0.63 | — | — | *0.71* | mixed: in-sample-unclear-split, out-of-sample |
+| [fundus-biomarkers](projects/fundus-biomarkers.md) | [ocularnet](models/ocularnet.md) | 0.83 | 0.87 | 0.73 | 0.80 | 0.88 | mixed: in-sample, in-sample-unclear-split, out-of-sample |
 
-**Where to start:** by the median ICC over these five, ocularnet (0.83), then vascx-artery-vein (0.55). That ranks five biomarkers from one implementation, pooled: which biomarkers survive which map, and why, is on the results page.
+**Where to start:** by pooled ICC(A,1), biomarker by biomarker — CRAE, fundus-biomarkers (0.83) then automorphalyzer (0.57); CRVE, fundus-biomarkers (0.87) then vascx (0.63); AVR, fundus-biomarkers alone (0.73); Artery fractal dimension, fundus-biomarkers (0.80) then automorphalyzer (0.57); Artery tortuosity, fundus-biomarkers (0.88) then ocular (0.72). Pooled figures include AVRDB, whose wide-stroke annotation decides much of the calibre ranking: the results page reads it dataset by dataset.
 
 
 ## Biomarkers against arithmetic
@@ -142,4 +143,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-11-12
+**Generated:** 2026-11-13

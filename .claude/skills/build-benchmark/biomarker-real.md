@@ -23,6 +23,17 @@ The **segmentation models** are the maps they are run on, declared in `SEGMENTER
 (implementation, dataset) holds every map of every photograph, so the expert's row and each model's
 row for one photograph sit together, and the pairing the statistics need is a join on `key`.
 
+### 1.1 Each project's own model
+
+`NATIVE` pairs each project with the segmentation model its own pipeline runs, and says where the
+pairing comes from; `native(slug)` reads it. The run measures every pair regardless — what a
+project's own model is decides what the notebook, the results page and the index **read**, not what
+is measured. A project that ships no artery/vein model (PVBM) is absent from `NATIVE`. The
+configuration page publishes it as the `native` block; the index has one row per entry.
+
+`panel_for(names)` is the headline panel as one project can answer it: the panel's own catalogued
+name where the project has it, else the first of `PANEL_FALLBACK`'s stand-ins it does have.
+
 ## 2. Hold everything fixed but the map
 
 The two numbers of a pair differ in the map and in nothing else:
