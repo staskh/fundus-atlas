@@ -47,13 +47,17 @@ section repeats.
 | --- | --- |
 | Home | <https://zenodo.org/records/16744782> — DOI [10.5281/zenodo.16744782](https://doi.org/10.5281/zenodo.16744782) |
 | Download | **direct, no registration** — `HRF-Seg+.zip`, about 3.4 MB |
-| Citation | *HRF-Seg+: A Multi-Structure Annotated Fundus Image Dataset with Optic Disc, Cup, Vessels, Alpha and Beta Zones.* Zenodo, 2025. DOI: [10.5281/zenodo.16744782](https://doi.org/10.5281/zenodo.16744782) |
-| Licence | As stated on the Zenodo record — check it there before reuse |
-| Content | 40 of the same 45 photographs, plus a crop of each |
-| Annotations | Supplies optic **disc and cup contours** — HRF itself gives only a disc centre — and alpha and beta zone annotations |
+| Citation | Kako N. *HRF-Seg+: A Multi-Structure Annotated Fundus Image Dataset with Optic Disc, Cup, Vessels, Alpha and Beta Zones.* Zenodo, 2025. DOI: [10.5281/zenodo.16744782](https://doi.org/10.5281/zenodo.16744782) |
+| Licence | **CC BY 4.0**, stated on the Zenodo record and in the archive's own `README.txt` |
+| Content | All 45 of the same photographs, each as a **500×500 crop round the optic nerve head**, at the photograph's own scale |
+| Annotations | Supplies optic **disc and cup masks** — HRF itself gives only a disc centre — on that crop, plus a vessel mask and peripapillary alpha and beta zones. Disc on all 45; cup on 40 |
 
-**One annotator, provenance unstated** for HRF-Seg+: the release ships no inter-observer data and does
-not say who drew the contours.
+**One annotation, no inter-observer data.** The release names a single creator, says the masks were
+"manually created by the authors" and "reviewed by experts", and does not say who drew which.
+
+**The masks are not the size of the photograph.** Each is a 500×500 square round the nerve head,
+published beside the same square cut from the photograph (`Folder_6_Original_Images`). The release
+does not say where in the photograph each square was taken; the fetcher recovers it (section 2.4).
 
 ### 2.4 How to fetch
 
@@ -63,18 +67,38 @@ uv run python -m datasets.fetch_disc_estimation --dataset hrf
 uv run python -m datasets.fetch_um_resolution --dataset hrf
 ```
 
-Two downloads, both unattended: `all.zip` (76 MB) from Erlangen, and the `HRF_AV_GT/` folder of
-`github.com/rubenhx/av-segmentation` at a pinned commit. It builds 45 photographs at 3504×2336 with
-four maps at native resolution — `vessels` (HRF's own hand-drawn gold standard), `artery`, `vein`,
-and the published field-of-view mask, which is why `fov_source` reads `mask` rather than `detected`.
-The disease is taken from the filename: 15 `_dr`, 15 `_g`, 15 `_h`.
+Three downloads, all unattended: `all.zip` (76 MB) from Erlangen, the `HRF_AV_GT/` folder of
+`github.com/rubenhx/av-segmentation` at a pinned commit, and `HRF-Seg+.zip` (3.4 MB) from Zenodo,
+checked against a recorded checksum. It builds 45 photographs at 3504×2336 with four maps at native
+resolution — `vessels` (HRF's own hand-drawn gold standard), `artery`, `vein`, and the published
+field-of-view mask, which is why `fov_source` reads `mask` rather than `detected` — and the optic
+disc and cup as outlines in `crop/contours/<key>.csv`, reader `hrf_seg_plus`. The disease is taken
+from the filename: 15 `_dr`, 15 `_g`, 15 `_h`.
 
 **The artery/vein layer is optional and unlicensed.** Its repository carries no licence file at all,
 so a build without it still produces the vessel dataset HRF published; publicly downloadable is not
 the same as licensed, and redistributing those maps needs the authors' word.
 
-**HRF-Seg+'s disc and cup contours are not built** — a third provenance, on Zenodo, not yet wired
-into this fetcher.
+**How the disc and cup are placed.** HRF-Seg+ draws on a 500×500 crop and does not say where the
+crop came from, so the fetcher finds the published crop in the photograph by template matching, at
+native scale, traces each mask in the crop, and moves the outline by where the crop was found. The
+manifest records the result in three columns of its own:
+
+| Column | Meaning |
+| --- | --- |
+| `roi_x0`, `roi_y0` | Where HRF-Seg+'s crop sits in the photograph, in raw pixels |
+| `roi_match` | How well the crop was found: 1.0 is exact, below 0.9 is refused and the outlines are left out |
+
+Every one of the 45 crops is found at a match of 0.995 or better. The masks are a colour painted on
+white, and a pixel counts as disc or cup when it is nearer the paint than the paper. Five cup masks
+are blank, so those photographs get a disc and a note in place of a cup (section 7). The archive's
+vessel, alpha/beta-zone and merged masks are not built: HRF's own vessel standard is already in
+the store, and the store has no place for peripapillary zones. The original release's disc-centre
+spreadsheet is not fetched either.
+
+The HRF-AV and HRF-Seg+ layers are both optional: a build without either still produces what
+HRF itself published. A store built before HRF-Seg+ was added gains its outlines only with
+`--force`.
 
 The authors publish no microns-per-pixel scale. They state a 45° field, so the store derives one per
 photograph from each frame's own fitted field; the second command then measures a second figure from
@@ -125,7 +149,7 @@ of this dataset should come from.
 | Vessels | One gold standard | Native | From the original release |
 | Artery/vein | One | Native | HRF-AV, section 2.2. Three classes — artery, vein, **crossing** — but the crossing class is applied inconsistently; see section 7 |
 | Optic disc centre | **Two independent experts**, kept separate | Native | Centre and diameter, not a contour |
-| Optic disc and cup contours | One | Native | HRF-Seg+, 40 of 45 images |
+| Optic disc and cup contours | One | Native scale, on a 500×500 crop round the nerve head | HRF-Seg+: disc on all 45 images, cup on 40 |
 | Disease | One label per eye | — | Healthy / glaucoma / diabetic retinopathy, 15 each |
 | Field-of-view mask | — | Native | Supplied per image |
 | Optic disc and field of view, by [OCULAR](../projects/ocularnet.md) | OCULAR's authors | Disc on OCULAR's 1024×1024 crop of the field; field-of-view mask at native | Released where the dataset lacked them, as a Google Drive folder that asks for a Google sign-in (checked 2026-10-12) — not openly downloadable, and no licence stated |
@@ -216,6 +240,23 @@ figure to read automated disc results against, rather than assuming one.
 - The disc **centre** from the original release and the disc **contour** from HRF-Seg+ do not always
   agree; anyone using both should measure the offset rather than assume they coincide.
 
+- **HRF-Seg+ has no cup on five photographs.** *Our finding, 2026-11-19:* the cup masks for
+  `04_dr`, `06_dr`, `09_dr`, `14_dr` and `15_dr` are blank white, although each has a disc mask.
+  All five are diabetic-retinopathy eyes; the release does not say whether the cup was judged
+  absent or simply not drawn. The disc is on all 45, so "40 of 45" applies to the cup only.
+
+- **HRF-Seg+'s disc masks are anti-aliased; its cup masks are not.** *Our finding, 2026-11-19:*
+  39 of the 45 disc masks blend the paint into the white along the edge, up to 526 distinct
+  colours in one file, while no cup mask holds more than two colours. The fetcher assigns a
+  blended pixel to whichever of the two it is nearer, which moves the outline by at most a pixel.
+
+- **HRF-Seg+'s outlines agree with an automated disc to within a tenth of a disc radius.** *Our
+  finding, 2026-11-19:* against the [SegFormer disc-and-cup](../models/segformer-disc-cup.md)
+  estimates in `results/disc_estimation/hrf.csv`, the traced disc centres sit a median 22 px away
+  (78 px at most) on discs of about 190 px radius, and the HRF-Seg+ disc is a median 6% smaller
+  (from 11% smaller to 8% larger). Every cup lies inside its disc. This was a check that the crops
+  were placed correctly, not a measure of who is right.
+
 ## 8. Notes
 
 - One set of 45 photographs annotated by three groups is the clearest example in this catalogue of
@@ -224,4 +265,4 @@ figure to read automated disc results against, rather than assuming one.
 
 ---
 
-**Links, licence and access last checked:** 2026-09-11
+**Links, licence and access last checked:** 2026-09-11; HRF-Seg+ (section 2.3) 2026-11-19

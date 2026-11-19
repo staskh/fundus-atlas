@@ -491,7 +491,15 @@ def _outlines(
         except Unreadable:
             notes.append(f"{structure} by {reader} could not be read")
             continue
-        mask = crop.apply(layer.mask_from(published) if layer else published, square)
+        mask = layer.mask_from(published) if layer else published
+        # A mask the size of the photograph is cropped like it. One drawn on a region of interest
+        # — HRF-Seg+'s 500-pixel square round the nerve head — is traced where it was drawn and
+        # moved by where that region was found, exactly as published coordinates are: the crop
+        # frame is the photograph at full resolution, so the move is a translation and nothing else.
+        if record.roi is None:
+            mask, shift = crop.apply(mask, square), np.zeros(2)
+        else:
+            shift = offset - np.array([square.x0, square.y0])
         nodes = contours.trace(mask)
         if len(nodes) == 0:
             notes.append(f"{reader} drew no {structure}")
@@ -499,7 +507,7 @@ def _outlines(
         faithful = contours.fidelity(mask, nodes)
         if faithful < POOR_TRACE:
             notes.append(f"{structure} by {reader} traces at IoU {faithful:.2f}")
-        drawn[(structure, reader)] = nodes
+        drawn[(structure, reader)] = nodes + shift
     return drawn, notes, placed
 
 
