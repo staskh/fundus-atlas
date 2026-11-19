@@ -461,6 +461,54 @@ def test_outlines_drawn_on_a_crop_are_placed_back_on_the_photograph(tmp_path):
     assert drawn[0][1] == pytest.approx(80 - int(row["crop_y0"]))
 
 
+def test_a_mask_drawn_on_a_crop_is_traced_there_and_placed_on_the_photograph(tmp_path):
+    # HRF-Seg+ publishes its disc and cup as masks the size of a crop around the nerve head, not
+    # the size of the photograph. Cropped as though they were full-frame, they would be traced in
+    # the top-left corner of the field.
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    rng = np.random.default_rng(0)
+    photograph = rng.integers(40, 200, size=(300, 300, 3), dtype=np.uint8)
+    Image.fromarray(photograph).save(raw / "a.png")
+    Image.fromarray(photograph[60:160, 90:190]).save(raw / "a_roi.png")
+    yy, xx = np.mgrid[0:100, 0:100]
+    disc = np.zeros((100, 100), dtype=np.uint8)
+    disc[(xx - 50) ** 2 + (yy - 40) ** 2 <= 20**2] = 255
+    Image.fromarray(disc).save(raw / "a_disc.png")
+
+    def discover_roi(layers):
+        return [
+            build.SourceRecord(
+                key="a",
+                image=layers["local"] / "a.png",
+                roi=layers["local"] / "a_roi.png",
+                outlines={("disc", "expert1"): layers["local"] / "a_disc.png"},
+            )
+        ]
+
+    args = cli.parse("synthetic", ["--data-root", str(tmp_path / "store"), "--raw", str(raw)])
+    build.run(
+        slug="synthetic",
+        sources=[],
+        discover=discover_roi,
+        resolution_of=resolution.Declared(5.0, "published", "stated"),
+        args=args,
+        extra_columns=[
+            manifest.Column("roi_x0", "where the crop sits"),
+            manifest.Column("roi_y0", "where the crop sits"),
+            manifest.Column("roi_match", "how well it was found"),
+        ],
+    )
+    store = tmp_path / "store" / "synthetic"
+    row = next(iter(manifest.read(store)))
+    drawn = contours.read(store / "crop" / "contours" / "a.csv")[("disc", "expert1")]
+    # The disc is centred at 50, 40 in the crop, so 140, 100 in the photograph.
+    assert drawn[:, 0].mean() == pytest.approx(140 - int(row["crop_x0"]), abs=1.5)
+    assert drawn[:, 1].mean() == pytest.approx(100 - int(row["crop_y0"]), abs=1.5)
+    assert drawn[:, 0].max() - drawn[:, 0].min() == pytest.approx(40, abs=2)
+    assert "IoU" not in row["notes"], "the trace is faithful to the mask it came from"
+
+
 def test_a_check_on_the_finished_store_is_recorded_in_the_build(tmp_path):
     seen = {}
 
