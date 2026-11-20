@@ -85,8 +85,9 @@ or [Knudtson 2003](../papers/knudtson-2003.md), so it stays reserved rather than
 
 | Project | Region | Notes |
 | --- | --- | --- |
-| [AutoMorph](../projects/automorph.md), [AutoMorphClass](../projects/automorphclass.md) | whole image | no zone restriction |
-| [AutoMorphalyzer](../projects/automorphalyzer.md) | `@whole`, `@B`, `@C` | reports most quantities three times. **`@whole` is not an ARIC zone** — it is the whole image, and maps to `fov` |
+| [AutoMorph](../projects/automorph.md) | whole image; zone B 2–3 and zone C 2–5 disc radii | the whole-image stage has no zone restriction. Its zone stage, `M3_feature_zone`, measures over masks drawn at 2–3 and 2–5 radii (`generate_av_results.py`) — this catalogue's `B` and `C` exactly — and writes them as `…_zone_b` and `…_zone_c`. *Our finding, 2026-11-19*; the adapter does not reach that stage yet |
+| [AutoMorphClass](../projects/automorphclass.md) | whole image; zone B 2–3 and zone "C" **3–5** disc radii | its vessel features have no zone restriction, but its pipeline masks the map to zones first. Its `ZoneC_` is a ring outside zone B — the case §4 warns about — so it maps to no region here. *Our finding, 2026-11-19* |
+| [AutoMorphalyzer](../projects/automorphalyzer.md) | `@whole`, `@B`, `@C` | reports most quantities three times. **`@whole` is not an ARIC zone** — it is the whole image, and maps to `fov`. Its `@B` is 2–3 and its `@C` 2–5 disc radii, so both map to this catalogue's `B` and `C` |
 | [PVBM](../projects/pvbm.md) | 2–3 disc radii | ARIC zone B under another name, per §3 |
 | [VascX](../projects/vascx.md) | several concentric circles between a configurable inner and outer radius | its `crcl_multiplier_1p16666666667` is **7/6 written as a float**, a region the convention does not name. It keeps the largest six vessels per circle in full mode and four in temporal or nasal mode, and takes the median across circles; a circle not wholly inside the retinal mask is discarded |
 

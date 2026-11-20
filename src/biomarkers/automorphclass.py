@@ -35,9 +35,12 @@ COLUMNS: dict[str, str | None] = {
     "tortuosity_density": "tortuosity/grisan-density/{side}/length-weighted",
 }
 
-#: It computes **no central retinal equivalents and nothing zonal**: its vessel features take a
-#: segmentation and no disc, so the whole family of disc-anchored measurements is absent rather
-#: than wrong. That is a difference in scope from its two siblings, not a defect.
+#: It computes **no central retinal equivalents**, and its vessel features take a segmentation and
+#: no disc, so nothing disc-anchored is reached here. *Our finding, 2026-11-19:* its full pipeline,
+#: `AutoMorphModel` in `main.py`, does measure zones — the same six features over `ZoneB_` (2–3
+#: disc radii) and `ZoneC_` (**3–5** radii, a ring outside B rather than the catalogue's 2–5) — by
+#: masking the map before calling these same features. Those columns are listed in
+#: `docs/BIOMARKER-NAMES.md` §3 and §4, untested. That is a difference in scope from its two siblings, not a defect.
 ABSENT = (
     "calibre/CRE-knudtson",
     "calibre/CRE-hubbard",

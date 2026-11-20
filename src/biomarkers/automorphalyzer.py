@@ -14,11 +14,14 @@ CLASSES = {"binary": "vessels", "artery": "artery", "vein": "vein"}
 #:
 #: *Our finding, 2026-09-21, from reading `generate_zonal_masks`:* zone **B is the annulus between
 #: two and three disc radii**, which is exactly the region PVBM measures its equivalents over
-#: (PVBM builds it as zone C minus zone B). Zone **C is two to five radii**, which is nobody
-#: else's region. So a value from B is comparable and a value from C is not, whatever they share a
-#: name with.
+#: (PVBM builds it as zone C minus zone B). Zone **C is two to five radii**.
+#:
+#: *Updated 2026-11-19:* that C was called "nobody else's region" until the vocabulary gained one.
+#: The catalogue's `C` is Cheung et al. 2010's Extended zone, 0.5 to 2.0 disc diameters from the
+#: margin, which is two to five radii from the centre (`docs/biomarkers/regions-of-interest.md`
+#: §4) — this zone exactly. So both zones are catalogued, each under its own region.
 ZONES = ("whole", "B", "C")
-COMPARABLE_ZONE = "B"
+CATALOGUED_ZONES = ("B", "C")
 
 #: What it computes over the **whole image**, and the catalogued biomarker each answers to.
 #: `{side}` becomes `artery`, `vein` or `vessels`.
@@ -42,17 +45,17 @@ WHOLE: dict[str, str | None] = {
     "CRVE_Knudtson": None,
 }
 
-#: What it computes **inside a zone**. Only zone B is catalogued, for the reason above; the same
-#: column measured over zone C keeps its own name and is stored beside it. `{side}` becomes
-#: `artery`, `vein` or `vessels`, and a template naming one class outright answers for that class
-#: alone — the CRAE column over the vein map is a different number, not a venular equivalent.
+#: What it computes **inside a zone**, over both catalogued zones. `{side}` becomes `artery`,
+#: `vein` or `vessels` and `{zone}` becomes `B` or `C`; a template naming one class outright answers
+#: for that class alone — the CRAE column over the vein map is a different number, not a venular
+#: equivalent.
 ZONAL: dict[str, str | None] = {
-    "CRAE_Knudtson": "calibre/CRE-knudtson/artery/B",
-    "CRVE_Knudtson": "calibre/CRE-knudtson/vein/B",
+    "CRAE_Knudtson": "calibre/CRE-knudtson/artery/{zone}",
+    "CRVE_Knudtson": "calibre/CRE-knudtson/vein/{zone}",
     # Catalogued since the vocabulary carried a region: the same measure as the whole-image
     # column, over the annulus, pooled the same way.
-    "tortuosity_distance": "tortuosity/hart-tau1/{side}/B/mean",
-    "tortuosity_density": "tortuosity/grisan-density/{side}/B/mean",
+    "tortuosity_distance": "tortuosity/hart-tau1/{side}/{zone}/mean",
+    "tortuosity_density": "tortuosity/grisan-density/{side}/{zone}/mean",
     "average_local_calibre": None,
 }
 
@@ -79,7 +82,7 @@ def _answers() -> dict[str, str]:
         for zone in ("B", "C"):
             for column, mapped in ZONAL.items():
                 own = f"{column}@{zone}_{measured}"
-                if not mapped or zone != COMPARABLE_ZONE:
+                if not mapped or zone not in CATALOGUED_ZONES:
                     pairs[own] = own
                     continue
                 # An equivalent is named for the class it measures, so the artery column only
@@ -88,7 +91,7 @@ def _answers() -> dict[str, str]:
                 if wants != "{side}" and wants != side:
                     pairs[own] = own
                 else:
-                    pairs[mapped.format(side=side)] = own
+                    pairs[mapped.format(side=side, zone=zone)] = own
     return pairs
 
 

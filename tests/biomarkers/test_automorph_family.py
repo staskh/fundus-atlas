@@ -87,20 +87,25 @@ def test_a_class_it_was_not_given_comes_back_as_nothing(slug, shape) -> None:
     assert all(measured[key] is None for key in veins)
 
 
-def test_automorphalyzer_catalogues_zone_b_and_not_zone_c(shape) -> None:
-    """*Our finding:* its zone B is the annulus PVBM measures over; its zone C is not.
+def test_automorphalyzer_catalogues_zones_b_and_c(shape) -> None:
+    """*Our finding:* its two zones are the catalogue's two zones, so both are named.
 
-    B is two to three disc radii, which is exactly PVBM's region, so a value from B is comparable
-    with PVBM's. C is two to five radii and comparable with nothing, so it keeps its own name and
-    is stored beside it rather than being dropped or silently equated.
+    B is two to three disc radii, which is exactly PVBM's region. C is two to five radii, which is
+    Cheung et al.'s Extended zone as `docs/biomarkers/regions-of-interest.md` §4 defines it — the
+    annulus containing B, not a ring outside it. An equivalent stays tied to its own class: the
+    CRAE column over the vein map is a different number and keeps its own name.
     """
     adapter = catalogue.load("automorphalyzer")
     names = adapter.declare()["names"]
 
     assert names["CRAE_Knudtson@B_artery"] == "calibre/CRE-knudtson/artery/B"
     assert names["CRVE_Knudtson@B_vein"] == "calibre/CRE-knudtson/vein/B"
-    assert "CRAE_Knudtson@C_artery" in adapter.keys(), "zone C is kept under its own name"
+    assert names["CRAE_Knudtson@C_artery"] == "calibre/CRE-knudtson/artery/C"
+    assert names["CRVE_Knudtson@C_vein"] == "calibre/CRE-knudtson/vein/C"
+    assert names["tortuosity_distance@C_artery"] == "tortuosity/hart-tau1/artery/C/mean"
+    assert names["CRAE_Knudtson@C_vein"] is None, "a CRAE over the vein map is not a CRVE"
     assert adapter.declare()["zones"]["B"] == "2 to 3 disc radii"
+    assert adapter.declare()["zones"]["C"] == "2 to 5 disc radii"
 
 
 def test_automorph_declares_the_size_it_really_measures_at() -> None:
@@ -119,9 +124,8 @@ def test_automorph_declares_the_size_it_really_measures_at() -> None:
 def test_automorph_and_automorphclass_reach_no_equivalents() -> None:
     """A difference in scope, not a defect, and it is declared rather than left to be noticed.
 
-    AutoMorph assembles its equivalents in a driver script rather than a callable, and
-    AutoMorphClass's vessel features take no disc at all. Reproducing either would be measuring
-    this repository's CRAE rather than theirs.
+    AutoMorph computes its equivalents in its zone stage, a second `retipy` this adapter does not
+    reach yet, and AutoMorphClass's vessel features take no disc at all and compute none.
     """
     for slug in ("automorph", "automorphclass"):
         adapter = catalogue.load(slug)

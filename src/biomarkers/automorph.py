@@ -40,12 +40,15 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
     ("tortuosity_density", "tortuosity/grisan-density/{side}/mean"),
 )
 
-#: **AutoMorph's central retinal equivalents are not reachable.** Its zone stage returns per-vessel
-#: width lists and the equivalents are assembled from them by a driver *script*
-#: (`create_datasets.py`), not by any function this adapter could call. Reproducing that assembly
-#: here would be measuring this repository's CRAE rather than AutoMorph's, which is the one thing
-#: an adapter must never do — so the family is absent, and that is a finding rather than an
-#: omission.
+#: **AutoMorph's zone measurements and central retinal equivalents are not reached by this
+#: adapter.** *Corrected 2026-11-19:* this said the equivalents were assembled by a driver script.
+#: They are not: the zone stage's own `retipy` (`M3_feature_zone`) has an `evaluate_window` that
+#: returns `CRAE_Hubbard`, `CRVE_Hubbard`, `CRAE_Knudtson` and `CRVE_Knudtson` beside the six
+#: quantities above, over a vessel map already masked to zone B (2–3 disc radii) or zone C (2–5),
+#: and the drivers only collect them into `…_zone_b` and `…_zone_c` columns. Reaching them means
+#: drawing those masks as AutoMorph's M2 stage draws them and importing a second package also named
+#: `retipy`, which this adapter does not yet do — so the family is absent here, and
+#: `docs/BIOMARKER-NAMES.md` §3 lists AutoMorph's own column names for it as untested.
 ABSENT = (
     "calibre/CRE-knudtson",
     "calibre/CRE-hubbard",
