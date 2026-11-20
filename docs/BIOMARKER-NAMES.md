@@ -298,7 +298,7 @@ conversion, §6 says how to make it; where it is a definition, no conversion clo
 
 | Their name | Nearest canonical name | What stands between them |
 | --- | --- | --- |
-| `tortuosity_index` | `tortuosity/hart-tau1` | Returned beside the median by `GeometryAnalysis` and called a "tortuosity index" in its docstring. The definition is not stated and it is not one of Hart's seven, so it waits for a reading of the code |
+| `tortuosity_index` | `tortuosity/hart-tau1/{artery,vein}/length-weighted` | *Our finding, 2026-11-20, from reading `GeometryAnalysis.py`:* total arc over total chord for the whole map, the same ratio of sums as OCULAR's `pooled_tortuosity`. That equals each segment's ratio weighted by its **chord** length, where the `length-weighted` statistic weights by arc length. The vocabulary has no statistic for a ratio of sums |
 | `start_points` | `topology/endpoints` | Where the rooted walk begins: one per vessel leaving the optic disc, a count of trunks. `endpoints + start_points` is the catalogued free-end count |
 | `singularity_length` | `density/multifractal-d0`, `-d1`, `-d2` | The width of the singularity spectrum from the same multifractal analysis. Nothing else here computes it |
 | `median_branching_angle` | `topology/branching-angle/median` | Listed above as ⚠️; every pairwise angle at a junction, the trunk included |
