@@ -85,7 +85,14 @@ The feature calculation is a reimplementation of AutoMorph's, in
 | --- | --- | --- | --- |
 | Vascular features returned as a named feature vector — the set follows AutoMorph's measurements (calibre, tortuosity, density, fractal dimension, disc and cup geometry) | Prior literature, as cited by AutoMorph | [retipy](retipy.md) via AutoMorph | Reimplemented in this package's own code |
 
-Two flags control coverage: `include_zones`, `include_artery_vein` and `include_optic_disc` switch
+**Its zones are not the catalogue's.** *Our finding, 2026-11-19, from `define_zones` in
+`main.py`:* zone B is 2 to 3 disc radii from the disc centre, as elsewhere, but zone C is a ring
+from **3 to 5** radii — outside zone B, where the Extended zone of the
+[regions of interest](../biomarkers/regions-of-interest.md) §4 runs from 2 to 5 and contains it.
+So a `ZoneC_` feature covers different retina from AutoMorph's or AutoMorphalyzer's zone C of the
+same name.
+
+Three flags control coverage: `include_zones`, `include_artery_vein` and `include_optic_disc` switch
 whole families of features on and off, so the width of the returned tensor depends on
 configuration. Because the feature vector is positional when `return_as_tensor=True`, record the
 flags and the version alongside any results; use `return_as_tensor=False` to get named values

@@ -72,7 +72,12 @@ with another only when all five agree.
 Each takes a structure — `artery`, `vein` or `vessels` — and the optional region and statistic.
 Every one of them is measured per segment and then pooled, so all of them admit `length-weighted`
 as well as `mean`, `median` and `std`: a tortuosity averaged over segments and one averaged over
-*retina* are different numbers, and VascX, PVBM and OCULAR each report a length-weighted one.
+*retina* are different numbers. VascX and OCULAR each report a length-weighted one. *Corrected
+2026-11-20, from reading `GeometryAnalysis.py`:* PVBM does not. This page said it did, but PVBM's
+other figure, its "tortuosity index", is total arc over total chord. That works out to each
+segment's ratio weighted by its **chord** length, not its arc length, and differs from the
+length-weighted mean on any tortuous map. OCULAR computes the same ratio of sums as
+`pooled_tortuosity`, beside its arc-weighted mean.
 
 **The family spans three physical dimensions.** τ1 and τ2 are dimensionless; τ3, τ4, τ6, Grisan's
 density and the spline curvature are inverse lengths; τ5 and τ7 are inverse areas. "Tortuosity" as a column heading
@@ -167,7 +172,9 @@ Two papers define everything in the table above.
 - **Implemented by:** [AutoMorph](../projects/automorph.md) and [retipy](../projects/retipy.md)
   (`distance_measure_tortuosity`, reported as `t2`), [AutoMorphalyzer](../projects/automorphalyzer.md),
   [VascX](../projects/vascx.md) (`TortuosityMeasure.Distance`), [PVBM](../projects/pvbm.md) (as
-  "tortuosity index" over the whole vasculature and "median tortuosity" per vessel).
+  "tortuosity index", total arc over total chord across the whole vasculature, and "median
+  tortuosity" per vessel), [OCULAR](../projects/ocularnet.md) (the same two, plus an arc-weighted
+  mean).
 - **Known weakness, and why the other measures exist:** it is blind to how the curving is
   distributed. One gentle bend and a dozen tight kinks of the same total excess length score
   identically.

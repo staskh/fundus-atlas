@@ -38,9 +38,12 @@ PER_CLASS: dict[str, str | None] = {
     # shape it agrees with the rooted ground truth to within 6%.
     "length": "density/skeleton-length-rooted/{side}",
     "median_tortuosity": "tortuosity/hart-tau1/{side}/median",
-    # `GeometryAnalysis` returns this beside the median and PVBM's docstring calls it the
-    # "tortuosity index". Its definition is not stated and it is not one of Hart's seven, so it
-    # waits for a reading of the code rather than being mapped on the strength of its name.
+    # PVBM's docstring calls this the "tortuosity index". *Our finding, 2026-11-20, from reading
+    # `GeometryAnalysis.py`:* it is `arc_list.sum() / chord_list.sum()`, total arc over total
+    # chord for the whole map. That is τ1 pooled as a ratio of sums, which equals each segment's
+    # ratio weighted by its chord length. It is not the `length-weighted` statistic, which weights
+    # by arc length, and the vocabulary has no statistic for a ratio of sums. OCULAR's
+    # `pooled_tortuosity` is the same quantity and is unmapped for the same reason.
     "tortuosity_index": None,
     # *Our finding, 2026-09-20, from reading `compute_angles_dictionary`:* not the angle between
     # the daughters of a bifurcation. See the note above.
