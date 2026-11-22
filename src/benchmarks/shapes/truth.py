@@ -107,12 +107,12 @@ def truth(scene: Scene) -> dict[str, Truth]:
     """Every catalogued biomarker `scene` settles, by canonical name.
 
     Per class, over the vessels as one class (`vessels`), and for the ratios of the two (`both`).
-    Every value is the same at every rotation: the scene is turned about the centre of a circular
-    field, which carries every distance with it.
+    Every value here is the same at every rotation: the scene is turned about the centre of a
+    circular field, which carries every distance with it.
 
-    **The cup-to-disc ratios are not here.** They are read from a disc and a cup *mask*, and the
-    benchmark hands an implementation the disc as a circle and no cup at all, so a truth for them
-    would be a question no implementation is given the means to answer.
+    **The cup-to-disc ratios are not here**, because two of the three are *not* the same at every
+    rotation: a vertical ratio is read along the image's columns, and turning the photograph turns
+    the cup's axes away from them. They are `cup_ratios`, derived per rotation.
 
     :raises LookupError: if a name derived for an artery or a vein is not in the vocabulary — a
         typo must not reach the committed ground truth. A union name the vocabulary does not carry is
@@ -572,3 +572,31 @@ def _landmarks(scene: Scene) -> dict[str, Truth]:
     offset = math.hypot(*scene.disc)
     centred = offset < CENTRED_WITHIN * FOV_DIAMETER_UM
     return {"landmarks/centring": Truth("disc" if centred else "macula")}
+
+
+def cup_ratios(scene: Scene, rotation: float) -> dict[str, Truth]:
+    """The three cup-to-disc ratios of the photograph turned by `rotation` degrees.
+
+    The cup is an ellipse on the disc's centre with horizontal and vertical diameters `a` and `b`
+    times the disc's, before turning. A **vertical** ratio is the cup's extent along the image's
+    columns over the disc's, and a turned ellipse's extent along an axis is the half-width of its
+    bounding box: `√((a·sin θ)² + (b·cos θ)²)` vertically and `√((a·cos θ)² + (b·sin θ)²)`
+    horizontally. The disc is a circle, so its extent is its diameter at every angle. The **area**
+    ratio is `a·b` at every angle.
+
+    So vertical and horizontal ratios change with the turn **by design**, and a rotation check must
+    not read their movement as an implementation's fault; the area ratio must not move. The same
+    derivation as fundus-biomarkers' `evaluation/synthetic/truth.py`.
+    """
+    a, b = scene.cup
+    angle = math.radians(rotation)
+    return {
+        "landmarks/CDR-vertical": Truth(math.hypot(a * math.sin(angle), b * math.cos(angle))),
+        "landmarks/CDR-horizontal": Truth(math.hypot(a * math.cos(angle), b * math.sin(angle))),
+        "landmarks/CDR-area": Truth(a * b),
+    }
+
+
+#: The ratios `cup_ratios` derives that follow the image's axes rather than the eye, and so are
+#: expected to change when the photograph is turned.
+TURN_WITH_THE_IMAGE = ("landmarks/CDR-vertical", "landmarks/CDR-horizontal")

@@ -62,7 +62,7 @@ implementation over shapes drawn from equations, whose values follow from geomet
 anybody's annotation. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of
 exactly 1/r, and an implementation that disagrees is wrong rather than different.
 
-[What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/biomarker-synthetic.ipynb)
+[What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/synthetic/biomarker-synthetic.ipynb)
 
 ---
 

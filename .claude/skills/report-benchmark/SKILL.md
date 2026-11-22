@@ -18,7 +18,10 @@ reports about itself and part written by hand, refreshed by `--docs` rather than
 that skill to change it.
 
 **One benchmark, one results page**, named after the benchmark itself, compiled from the one
-notebook `notebooks/<benchmark>.ipynb` so that a page and its notebook cannot drift apart.
+notebook `notebooks/<benchmark>.ipynb` so that a page and its notebook cannot drift apart. The
+synthetic biomarker benchmark's page is compiled from its summary notebook and its three group
+notebooks in `notebooks/synthetic/` — still **one** page, with a section per group beside the
+comparison across them.
 
 **Do not split a benchmark's write-up by what it measured.** A page per model, per dataset or per
 implementation destroys the only thing the benchmark produced that none of its subjects could

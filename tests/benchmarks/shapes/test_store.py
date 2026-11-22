@@ -16,14 +16,14 @@ def a_store(tmp_path, families=("straight",), rotations=(0.0, 90.0)):
     return store.write(tmp_path / "av", families=families, side=SIDE, rotations=rotations)
 
 
-def test_it_writes_a_manifest_a_ground_truth_its_kinds_and_three_masks(tmp_path) -> None:
+def test_it_writes_a_manifest_a_ground_truth_its_kinds_and_five_masks(tmp_path) -> None:
     written = a_store(tmp_path)
 
     for name in ("manifest.csv", "ground_truth.csv", "ground_truth_kind.csv"):
         assert (tmp_path / "av" / name).exists(), name
     assert len(written) == 2, "one rendering per rotation"
     for row in written:
-        for which in ("artery", "vein", "fov"):
+        for which in ("artery", "vein", "fov", "disc", "cup"):
             assert (tmp_path / "av" / row[which]).exists(), f"{which} was not written"
 
 
@@ -46,6 +46,8 @@ def test_what_is_read_back_is_exactly_what_was_drawn(tmp_path) -> None:
     assert np.array_equal(read.artery, drawn.artery)
     assert np.array_equal(read.vein, drawn.vein)
     assert np.array_equal(read.fov, drawn.fov)
+    assert np.array_equal(read.disc_mask, drawn.disc_mask)
+    assert np.array_equal(read.cup, drawn.cup)
     assert read.disc == pytest.approx(drawn.disc, abs=1e-4)
     assert read.um_per_px == pytest.approx(drawn.um_per_px)
 
@@ -172,7 +174,10 @@ def test_the_committed_store_and_the_library_settle_the_same_quantities() -> Non
 
     stored = store.kinds(where)
     for row in manifest:
-        expected = {key: t.kind for key, t in library.truths(row["family"]).items()}
+        expected = {
+            key: t.kind
+            for key, t in library.truths(row["family"], float(row["rotation"])).items()
+        }
         assert stored[row["key"]] == expected, (
             f"{row['key']}: the store and the library disagree — redraw it with "
             f"`python -m benchmarks.shapes`"

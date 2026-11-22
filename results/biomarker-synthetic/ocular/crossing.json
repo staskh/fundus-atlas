@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "crossing",
-  "fingerprint": "0c520493329f69b5a6292531b1ea6cf39577b913636bea3e4887b8d9305294ea",
+  "fingerprint": "b6c9c7cbcf2064c7f1c184f391f94c35028069bce2014e4e742a99485e8ccbea",
   "model": "ocular",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 4.617428571428571,
-    "seconds_per_rendering": 4.617428571428571,
+    "seconds_per_photograph": 4.634857142857143,
+    "seconds_per_rendering": 4.634857142857143,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

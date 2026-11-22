@@ -196,3 +196,42 @@ def test_a_crash_is_recorded_rather_than_raised() -> None:
         )
 
         assert set(measured) <= set(adapter.keys())
+
+
+@pytest.mark.parametrize(
+    ("slug", "vertical", "horizontal"),
+    [
+        ("automorphclass", "cdr_vertical", "cdr_horizontal"),
+        ("automorphalyzer", "CDR_vertical", "CDR_horizontal"),
+    ],
+)
+def test_handed_a_cup_it_answers_the_cup_to_disc_ratios(slug, vertical, horizontal, shape) -> None:
+    """*Our finding, 2026-11-22:* both descendants read a ratio off the bounding boxes of a disc
+    mask and a cup mask, so handed the synthetic cup they answer close to its drawn 0.55 and 0.40.
+    Close rather than exact: an extent is the last lit index minus the first, a pixel short."""
+    adapter = catalogue.load(slug)
+    names = adapter.declare()["names"]
+    assert names[vertical] == "landmarks/CDR-vertical"
+    assert names[horizontal] == "landmarks/CDR-horizontal"
+
+    measured = adapter.measure(
+        shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px, cup=shape.cup
+    )
+
+    assert measured[vertical] == pytest.approx(0.55, abs=0.02)
+    assert measured[horizontal] == pytest.approx(0.40, abs=0.02)
+
+
+@pytest.mark.parametrize("slug", FAMILY)
+def test_handed_no_cup_it_answers_no_ratio(slug, shape) -> None:
+    adapter = catalogue.load(slug)
+    measured = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
+    ratios = [own for own, name in adapter.declare()["names"].items() if name and "CDR" in name]
+
+    assert all(measured[own] is None for own in ratios)
+
+
+def test_automorph_declares_its_ratios_out_of_reach() -> None:
+    """They live in a driver that reads its own result files, which an adapter may not write."""
+    declared = catalogue.load("automorph").declare()
+    assert "landmarks/CDR-vertical" in declared["absent"]

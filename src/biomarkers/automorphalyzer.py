@@ -3,6 +3,7 @@
 
 import numpy as np
 
+from biomarkers.utils.masks import disc_mask as circle
 from upstreams import automorphalyzer as upstream
 
 #: The three maps it measures, and the structure each answers for. It measures the union as well as
@@ -59,6 +60,28 @@ ZONAL: dict[str, str | None] = {
     "average_local_calibre": None,
 }
 
+#: What `get_disc_metrics` returns from a disc mask, a cup mask and the vessel map, and the
+#: catalogued biomarker each answers to. *Our finding, 2026-11-22, from `measure.py`:* each ratio
+#: is the cup's bounding-box extent over the disc's along the image's rows or columns, an extent
+#: being the last lit index minus the first. Unlike AutoMorph and AutoMorphClass it computes the
+#: ratios **before** its sense checks and returns them whether or not those pass; the checks only
+#: decide `macular_centred`, which is True unless the disc passes them and sits within a tenth of
+#: the frame of its centre. `laterality` is a word, from which side of the cup has more vessel.
+#: None of the rest has a canonical name: the extents and the cup's centre are pixel positions, and
+#: `macular_centred` is a yes or no where `landmarks/centring` is a category with `unknown` in it.
+DISC_COLUMNS: dict[str, str | None] = {
+    "CDR_vertical": "landmarks/CDR-vertical",
+    "CDR_horizontal": "landmarks/CDR-horizontal",
+    "disc_height": None,
+    "disc_width": None,
+    "cup_height": None,
+    "cup_width": None,
+    "cup_centre_x": None,
+    "cup_centre_y": None,
+    "macular_centred": None,
+    "laterality": None,
+}
+
 #: Where the structure sits in a catalogued name, so a mapping that names one class outright can
 #: be told from one that answers for whichever class it was computed on.
 _STRUCTURE = 2
@@ -92,6 +115,8 @@ def _answers() -> dict[str, str]:
                     pairs[own] = own
                 else:
                     pairs[mapped.format(side=side, zone=zone)] = own
+    for column, mapped in DISC_COLUMNS.items():
+        pairs[mapped or column] = column
     return pairs
 
 
@@ -145,7 +170,12 @@ class Automorphalyzer:
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
             "names": dict(CANONICAL),
-            "calls": {own: [f"measure_{own.rsplit('_', 1)[-1]}"] for own in CANONICAL},
+            "calls": {
+                own: [
+                    "disc_and_cup" if own in DISC_COLUMNS else f"measure_{own.rsplit('_', 1)[-1]}"
+                ]
+                for own in CANONICAL
+            },
             "zones": {"B": "2 to 3 disc radii", "C": "2 to 5 disc radii", "whole": "the frame"},
             "units": {"every measurement": "px"},
             "device": self.device,
@@ -166,6 +196,7 @@ class Automorphalyzer:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
+        cup: np.ndarray | None = None,
     ) -> dict[str, float | None]:
         """Everything it computes, under catalogued names, with `None` where it could not."""
         self.trouble = {}
@@ -184,7 +215,26 @@ class Automorphalyzer:
             if mask is None or not mask.any():
                 continue
             computed.update(self._one_map(mask, measured, disc_mask, (x, y), radius, side))
+        if cup is not None and maps["binary"] is not None:
+            computed.update(self._disc_and_cup(disc_mask, cup, maps["binary"]))
         return {own: computed.get(own) for own in CANONICAL}
+
+    def _disc_and_cup(self, disc_mask, cup, vessels) -> dict[str, float | str | None]:
+        """Its disc metrics, as its own driver calls them: disc, cup, and the union of the vessels."""
+        try:
+            found = self._loaded_measure().get_disc_metrics(
+                np.asarray(disc_mask, dtype=self.DTYPE),
+                np.asarray(cup, dtype=self.DTYPE),
+                np.asarray(vessels, dtype=self.DTYPE),
+            )
+        except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
+            self.trouble["disc_and_cup"] = repr(failure)
+            return {}
+        kept: dict[str, float | str | None] = {}
+        for column in DISC_COLUMNS:
+            value = found.get(column)
+            kept[column] = value if isinstance(value, str) else _number(value)
+        return kept
 
     def _one_map(self, mask, measured, disc_mask, centre, radius, side):
         """One vessel map, measured in every zone, under the column names it uses itself."""
@@ -209,10 +259,7 @@ class Automorphalyzer:
     @staticmethod
     def _disc_mask(side: int, x: float, y: float, radius: float) -> np.ndarray:
         """The disc as a filled circle. Its tracer wants a mask, not a centre and a radius."""
-        # Pixel i's centre is at i — the convention the disc is handed over in.
-        grid = np.arange(side, dtype=np.float64)
-        px, py = np.meshgrid(grid, grid)
-        return (px - x) ** 2 + (py - y) ** 2 <= radius * radius
+        return circle(side, x, y, radius)
 
     def _loaded_measure(self):
         if self._measure is None:

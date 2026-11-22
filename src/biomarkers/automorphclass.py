@@ -3,6 +3,7 @@
 
 import numpy as np
 
+from biomarkers.utils.masks import disc_mask
 from upstreams import automorphclass as upstream
 
 #: The three maps it is asked to measure, and the structure each answers for. It takes one map at a
@@ -35,6 +36,25 @@ COLUMNS: dict[str, str | None] = {
     "tortuosity_density": "tortuosity/grisan-density/{side}/length-weighted",
 }
 
+#: What `Optic_Disc_Cup_Features` returns from a disc mask and a cup mask, and the catalogued
+#: biomarker each answers to. *Our finding, 2026-11-22, from `optic_cup_features`:* each ratio is
+#: the cup's bounding-box extent over the disc's along the image's rows or columns, an extent being
+#: the last lit index minus the first — one pixel short of the number of pixels spanned. The four
+#: extents are pixel sizes, which no canonical name holds.
+#:
+#: It answers **-1 for every column** when its sense checks fail (a disc wider than a third of the
+#: frame, a cup centred outside the disc's box, a cup not smaller than the disc). That is how it
+#: says it declined, so the adapter reads -1 as no answer and records why, rather than storing -1
+#: as a cup-to-disc ratio.
+DISC_COLUMNS: dict[str, str | None] = {
+    "cdr_vertical": "landmarks/CDR-vertical",
+    "cdr_horizontal": "landmarks/CDR-horizontal",
+    "disc_width": None,
+    "disc_height": None,
+    "cup_width": None,
+    "cup_height": None,
+}
+
 #: It computes **no central retinal equivalents**, and its vessel features take a segmentation and
 #: no disc, so nothing disc-anchored is reached here. *Our finding, 2026-11-19:* its full pipeline,
 #: `AutoMorphModel` in `main.py`, does measure zones — the same six features over `ZoneB_` (2–3
@@ -50,12 +70,15 @@ ABSENT = (
 
 
 def _answers() -> dict[str, str]:
-    """Answered name → the column and map behind it, as `<column>_<class>`."""
+    """Answered name → the column and map behind it, as `<column>_<class>`; the disc and cup
+    columns under their own names, since they measure no vessel class."""
     pairs: dict[str, str] = {}
     for measured, side in CLASSES.items():
         for column, mapped in COLUMNS.items():
             own = f"{column}_{measured}"
             pairs[mapped.format(side=side) if mapped else own] = own
+    for column, mapped in DISC_COLUMNS.items():
+        pairs[mapped or column] = column
     return pairs
 
 
@@ -76,9 +99,8 @@ CANONICAL: dict[str, str | None] = {
 class Automorphclass:
     """AutoMorphClass, measured as it ships.
 
-    One call per vessel map returns its six vessel features. Its optic disc and cup features are
-    not reached: they need a cup segmentation, which a biomarker adapter is not handed, and the
-    cup-to-disc ratio is measured against ophthalmologists' own outlines in the disc benchmark.
+    One call per vessel map returns its six vessel features, and one call on the disc and the cup
+    returns its optic disc features, when it is handed a cup.
 
     Everything is in **pixels**. It takes no scale and applies none.
     """
@@ -107,7 +129,12 @@ class Automorphclass:
             "invariant": list(self.invariant),
             "keys": list(self.keys()),
             "names": dict(CANONICAL),
-            "calls": {own: [f"features_{own.rsplit('_', 1)[-1]}"] for own in CANONICAL},
+            "calls": {
+                own: [
+                    "disc_and_cup" if own in DISC_COLUMNS else f"features_{own.rsplit('_', 1)[-1]}"
+                ]
+                for own in CANONICAL
+            },
             "min_pixels_per_vessel": self.MIN_PIXELS_PER_VESSEL,
             "absent": list(ABSENT),
             "units": {"every measurement": "px"},
@@ -128,6 +155,7 @@ class Automorphclass:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
+        cup: np.ndarray | None = None,
     ) -> dict[str, float | None]:
         """Its six features per map, under catalogued names, with `None` where it could not."""
         self.trouble = {}
@@ -147,7 +175,28 @@ class Automorphclass:
                 continue
             for column, value in found.items():
                 computed[f"{column}_{measured}"] = _number(value)
+        if cup is not None:
+            computed.update(self._disc_and_cup(disc, cup))
         return {own: computed.get(own) for own in CANONICAL}
+
+    def _disc_and_cup(self, disc, cup) -> dict[str, float | None]:
+        """Its optic disc features, from the disc drawn as a circle and the cup as handed over."""
+        side = cup.shape[0]
+        stacked = (
+            np.stack(
+                [disc_mask(side, *(float(value) for value in disc)), np.asarray(cup) > 0], axis=-1
+            ).astype(self.DTYPE)
+            * 255
+        )
+        try:
+            found, _ = upstream.features().Optic_Disc_Cup_Features()(stacked)
+        except Exception as failure:  # noqa: BLE001 — a measurement that fell over has no value
+            self.trouble["disc_and_cup"] = repr(failure)
+            return {}
+        if all(_number(value) == -1 for value in found.values()):
+            self.trouble["disc_and_cup"] = "answered -1 everywhere: its sense checks declined"
+            return {}
+        return {column: _number(value) for column, value in found.items()}
 
     def _loaded_features(self):
         if self._features is None:

@@ -40,7 +40,7 @@ class Pvbm:
 
     def declare(self) -> dict        # static facts, `upstream` among them; no disk, no network
     def identity(self) -> str        # what pins the code that will run
-    def measure(self, artery, vein, fov, disc, um_per_px) -> dict[str, float | None]
+    def measure(self, artery, vein, fov, disc, um_per_px, cup=None) -> dict[str, float | None]
 ```
 
 `measure` is handed:
@@ -51,6 +51,7 @@ class Pvbm:
 | `fov` | the field of view, as a boolean mask: the region the photograph actually shows |
 | `disc` | the optic disc as `(x, y, radius)` in pixels — the form every catalogued implementation asks for, rather than a mask. **Pixel `i`'s centre is at `i`**, the convention an array index and a centroid of mask pixels share, and the one `results/disc_estimation/` and the synthetic store both use; an adapter drawing the disc as a mask samples it at `np.arange(side)`, never at `+ 0.5` |
 | `um_per_px` | microns per pixel, or `None` where the caller has no scale. An implementation that needs one and is given `None` returns `None` for the measurements that depend on it, rather than assuming a number |
+| `cup` | the optic cup as a boolean mask in the same frame, **by keyword and optional**. Only an implementation that computes cup-to-disc ratios reads it; one handed `None` returns `None` for those ratios. An adapter that wants a disc *mask* draws it from `disc` with `biomarkers.utils.masks.disc_mask`, at the same pixel-centre convention, rather than being handed a second mask that could disagree with the circle |
 
 It returns **one dictionary, keyed by catalogued name** — `biomarker/variant/structure` — for every
 column its table maps, and by the implementation's own name for every column the catalogue cannot

@@ -166,14 +166,19 @@ the authority on it:
   `results/um_resolution/` for datasets that published no microns-per-pixel figure, and
   per-photograph disc and cup estimates under `results/disc_estimation/`.
 - `data/synthetic/av/` — the synthetic artery/vein store, drawn by `python -m benchmarks.shapes`:
-  a binary mask per class, a field of view, a `manifest.csv` saying how each rendering was framed,
-  a `ground_truth.csv` of the values its geometry requires, and a `ground_truth_kind.csv` saying how
-  each is known — or that the geometry gives it none. Unlike a dataset store it is
+  a binary mask per class, a field of view, an optic disc and cup, a `manifest.csv` saying how each
+  rendering was framed, a `ground_truth.csv` of the values its geometry requires, a
+  `ground_truth_kind.csv` saying how each is known — or that the geometry gives it none — and the
+  same pair for `ground_truth_claimed`, what each implementation's unnamed columns claim to compute
+  (`src/benchmarks/shapes/claims.py`). Unlike a dataset store it is
   **committed**, because these are our own shapes rather than anybody else's photographs, and a
   measurement is then repeatable against the exact pictures it was taken on.
 - `notebooks/` — one analysis notebook per benchmark, `notebooks/<benchmark>.ipynb`, holding every
   subject that benchmark measured, and one results page compiled from it. A notebook per model or
-  per implementation would destroy the comparison the benchmark exists to make. **Every notebook,
+  per implementation would destroy the comparison the benchmark exists to make. The one exception
+  is the synthetic biomarker benchmark, whose notebooks live in `notebooks/synthetic/`: one per
+  lineage of implementations (AutoMorph's, PVBM's, VascX) beside a summary comparing the three by
+  canonical name, and the shapes notebook (`analyse-benchmark`'s `biomarker-synthetic.md`). **Every notebook,
   `notebooks/wip/` included, is committed to git with all its outputs — data and plots — from a
   clean top-to-bottom run**, so it can be read on GitHub without running it. Plotly figures do not
   render on GitHub, so a notebook that uses Plotly also shows each such figure as a PNG snapshot.

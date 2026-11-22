@@ -211,6 +211,7 @@ class Vascx:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
+        cup: np.ndarray | None = None,
     ) -> dict[str, float | None]:
         """Everything the shipped set computes, under catalogued names where one applies."""
         self.trouble = {}

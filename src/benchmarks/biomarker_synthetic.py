@@ -23,13 +23,14 @@ NAME = "biomarker-synthetic"
 #: a way of summarising many numbers in one, not a pass mark: this benchmark selects nothing.
 AGREES = 0.02
 
-#: The benchmark's own version. Changing what is measured, or how, changes this.
-VERSION = 4
+#: The benchmark's own version. Changing what is measured, or how, changes this. 5: every adapter
+#: is handed the synthetic cup, so the implementations that read one answer cup-to-disc ratios.
+VERSION = 5
 
-#: The written pages this benchmark produces, and the notebook behind each, as `(label, stem)`.
-#: **One per implementation**, because each is a different piece of somebody else's code: what is
-#: true of PVBM's chord-sum length says nothing about the next implementation, and one document
-#: holding both would bury each under the other. A second implementation adds a pair here.
+#: Where its analysis lives, under `notebooks/`. The summary across every group is this one; each
+#: group in `GROUPS` has its own beside it, `synthetic/biomarker-synthetic-<group>.ipynb`.
+NOTEBOOK = "synthetic/biomarker-synthetic.ipynb"
+
 #: What this benchmark asks, in the sentences the index has room for.
 GOAL = (
     "**Does a biomarker implementation compute the quantity it is said to compute?** Every other "
@@ -52,6 +53,15 @@ SHAPES = tuple(library.SHAPES)
 #: biomarker. So a difference between neighbours is a change somebody made on purpose, and a
 #: difference across a boundary is two programs that never shared a line — which is only legible if
 #: the columns stand in this order.
+#: The three lineages the analysis is written per group, by the slug of each notebook, and the
+#: implementations in each. Within a group a difference is an edit somebody made; across groups it is
+#: two programs that never shared a line.
+GROUPS: dict[str, tuple[str, ...]] = {
+    "automorph": ("automorph", "automorphalyzer", "automorphclass"),
+    "pvbm": ("pvbm", "ocular"),
+    "vascx": ("vascx",),
+}
+
 IMPLEMENTATIONS = (
     "pvbm",
     "ocular",
@@ -59,7 +69,6 @@ IMPLEMENTATIONS = (
     "automorphalyzer",
     "automorphclass",
     "vascx",
-    "fundus-biomarkers",
 )
 
 #: Why a declared implementation has no adapter, where the reason is worth more than "nobody wrote
@@ -242,8 +251,9 @@ def _measure(adapter, shape: str, angles: list[float]) -> list[dict[str, object]
         built = store.load(store.STORE, store.key_of(shape, SIDE, angle))
         started = time.perf_counter()
         try:
+            # The cup goes by name: only the implementations that read a cup use it.
             answered = adapter.measure(
-                built.artery, built.vein, built.fov, built.disc, built.um_per_px
+                built.artery, built.vein, built.fov, built.disc, built.um_per_px, cup=built.cup
             )
             # What the adapter caught on its way, so an empty cell always says why it is empty.
             # Without this a defect of ours — handing PVBM 8-bit masks, which overflow on a frame

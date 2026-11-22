@@ -1,0 +1,53 @@
+# ABOUTME: Tests for what the synthetic notebooks read: the noise floor, the two comparisons, and
+# ABOUTME: the ordering of a program's biomarkers from closest to furthest.
+
+from pathlib import Path
+
+import pandas as pd
+import pytest
+
+from benchmarks import synthetic_evidence as se
+from benchmarks.shapes import claims, library, store
+
+ROOT = Path(library.__file__).resolve().parents[3]
+
+
+def test_a_difference_under_the_floor_is_no_difference() -> None:
+    assert se.error(1.005, 1.0, size=1.0) == 0.0
+    assert se.error(1.5, 1.0, size=1.0) == pytest.approx(0.5)
+    assert se.signed(0.5, 1.0, size=1.0) == pytest.approx(-0.5)
+
+
+def test_a_truth_of_nought_is_judged_against_the_floor_not_divided_by() -> None:
+    """A straight vessel has no inflections; answering 0.5 is fifty floors out, not infinitely."""
+    assert se.error(0.5, 0.0, size=1.0) == pytest.approx(50.0)
+
+
+def test_spread_is_width_over_mean_and_needs_two_values() -> None:
+    assert se.spread(pd.Series([1.0, 1.2]), size=1.0) == pytest.approx(0.2 / 1.1)
+    assert pd.isna(se.spread(pd.Series([1.0]), size=1.0))
+    assert se.spread(pd.Series([1.0, 1.004]), size=1.0) == 0.0
+
+
+def test_best_and_worst_never_list_a_biomarker_twice() -> None:
+    against = pd.DataFrame(
+        {
+            "implementation": "x",
+            "canonical": ["a", "a", "b", "c", "d"],
+            "error": [0.0, 0.0, 0.1, 0.5, 2.0],
+            "shape": "straight",
+            "rotation": 0.0,
+        }
+    )
+    best, worst = se.best_and_worst(against, "x", tolerance=0.25)
+    assert list(best.index) == ["a", "b"], "the closest half, the one inside the floor first"
+    assert list(worst.index) == ["d", "c"], "only what is out of tolerance, furthest first"
+    assert not set(best.index) & set(worst.index)
+
+
+def test_what_turning_is_meant_to_move_is_read_off_the_claimed_table() -> None:
+    moving = claims.turning(ROOT / store.STORE)
+    assert ("automorphalyzer", "cup_height") in moving
+    assert ("automorphalyzer", "cup_centre_x") in moving
+    assert ("automorphalyzer", "disc_height") not in moving, "a circle is the same at every angle"
+    assert ("pvbm", "tortuosity_index_artery") not in moving

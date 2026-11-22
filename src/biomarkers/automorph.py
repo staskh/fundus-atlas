@@ -49,11 +49,20 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
 #: drawing those masks as AutoMorph's M2 stage draws them and importing a second package also named
 #: `retipy`, which this adapter does not yet do — so the family is absent here, and
 #: `docs/BIOMARKER-NAMES.md` §3 lists AutoMorph's own column names for it as untested.
+#:
+#: *Our finding, 2026-11-22:* its **cup-to-disc ratios are not reached either**, though it is now
+#: handed a cup. They are computed inside `optic_disc_centre` in `M2_lwnet_disc_cup/
+#: generate_av_results.py`, a driver function that reads its own result directories from disk
+#: rather than taking masks, and an adapter may not write files for it to read. The formula there —
+#: bounding-box extents of the disc and cup, behind the same sense checks — is the one AutoMorphClass
+#: kept, so AutoMorphClass's ratios stand for this lineage's.
 ABSENT = (
     "calibre/CRE-knudtson",
     "calibre/CRE-hubbard",
     "calibre/AVR-knudtson",
     "calibre/AVR-hubbard",
+    "landmarks/CDR-vertical",
+    "landmarks/CDR-horizontal",
 )
 
 
@@ -167,6 +176,7 @@ class Automorph:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
+        cup: np.ndarray | None = None,
     ) -> dict[str, float | None]:
         """Its six measurements per map, under catalogued names, with `None` where it could not."""
         self.trouble = {}

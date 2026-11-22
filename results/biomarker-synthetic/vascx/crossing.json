@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "crossing",
-  "fingerprint": "81a8880f26e84b675a7b1a6593da0137ede4ca7f68162950e3d70daec04356ac",
+  "fingerprint": "11f5648c08130e8ff335f9f7192fd62920e04d77db4f8d8597c0e70645cb218a",
   "model": "vascx",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 4.321571428571429,
-    "seconds_per_rendering": 4.321571428571429,
+    "seconds_per_photograph": 4.435428571428571,
+    "seconds_per_rendering": 4.435428571428571,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

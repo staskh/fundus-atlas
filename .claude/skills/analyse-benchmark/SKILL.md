@@ -11,7 +11,9 @@ holds the judgement**. They are separate artefacts because a table saying a mode
 say that the 0.82 is two populations and that one of them is a camera.
 
 **One notebook per benchmark**, `notebooks/<benchmark>.ipynb`, holding every subject it measured,
-and one results page compiled from it. A notebook per model or per implementation would destroy the
+and one results page compiled from it. *The one exception is the synthetic biomarker benchmark*,
+which has a notebook per lineage beside a summary across them, all in `notebooks/synthetic/`; its
+own file says why and how. A notebook per model or per implementation would destroy the
 comparison the benchmark exists to make: the synthetic biomarker benchmark asks whether six
 programs compute the same quantity, its rows are catalogued biomarker names and its columns are
 those six, and a reader answers that question by reading across a row. **What only one benchmark's

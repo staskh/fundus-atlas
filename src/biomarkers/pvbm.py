@@ -291,6 +291,7 @@ class Pvbm:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
+        cup: np.ndarray | None = None,
     ) -> dict[str, float | None]:
         """Everything PVBM computes, under catalogued names, with `None` where it could not.
 

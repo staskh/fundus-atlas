@@ -232,8 +232,8 @@ of its own choosing; §6 says which grid and how to convert.
 
 | Canonical name | AutoMorph | AutoMorphalyzer | AutoMorphClass | PVBM | VascX | OCULAR | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `landmarks/CDR-vertical` | ✅ ‡ `CDR_vertical` | ✅ ‡ `CDR_vertical` | ✅ ‡ `cdr_vertical` | | | | Cup height over disc height, from the bounding boxes of their own disc and cup masks. Not reached here: a biomarker adapter is handed no cup. [fundus-biomarkers](projects/fundus-biomarkers.md) computes it when handed both masks |
-| `landmarks/CDR-horizontal` | ✅ ‡ `CDR_horizontal` | ✅ ‡ `CDR_horizontal` | ✅ ‡ `cdr_horizontal` | | | | The same along the horizontal |
+| `landmarks/CDR-vertical` | ✅ ‡ `CDR_vertical` | ✅ `CDR_vertical` | ✅ `cdr_vertical` | | | | Cup height over disc height, from the bounding boxes of the disc and cup masks, an extent being the last lit index minus the first. *Since 2026-11-22* every adapter is handed the synthetic cup, so AutoMorphalyzer's and AutoMorphClass's are measured; AutoMorph's stays ‡, inside a driver that reads its own result files. AutoMorphClass answers −1 when its sense checks fail, read as no answer; AutoMorphalyzer computes the ratio before its checks and returns it regardless. [fundus-biomarkers](projects/fundus-biomarkers.md) computes it when handed both masks |
+| `landmarks/CDR-horizontal` | ✅ ‡ `CDR_horizontal` | ✅ `CDR_horizontal` | ✅ `cdr_horizontal` | | | | The same along the horizontal |
 | `landmarks/CDR-area` | | | | | | | fundus-biomarkers, as above |
 | `landmarks/centring` | | ⚠️ ‡ `macular_centred` | | | | | **A category, not a number**: `disc`, `macula` or `unknown`. AutoMorphalyzer's is a yes/no for macula-centred, with no `unknown`. fundus-biomarkers computes the canonical one |
 | `landmarks/disc-fovea-distance` | | | | | ⚠️ `disc_fovea_distance_retina` | | VascX returns pixels, or mm when given a scale, and reports a second variant, `disc_fovea_distance_center_retina`, to a different reference point |
@@ -261,13 +261,8 @@ covers exactly, and it is left out rather than filled with ✅.
 
 **An exact name is a claim, not a check.** That its answers carry canonical names is the
 implementation's own statement about what it computes, and its owner is also this atlas's owner
-(`PLAN-BIOMARKER.md` §5.6): nothing about it is independently verified. What tests the claim is the
-[synthetic benchmark](benchmarks/biomarker-synthetic-results.md) §10, where its answers are held to
-the geometry like every other project's. There, 98% of its 2,956 comparable measurements fall
-within 25% of the value the shapes require, and 11 of its 187 judged biomarkers do not. Those 11
-are the standard deviations measured on shapes whose geometry requires zero, the junction and
-endpoint counts on `deep-bifurcation`, and spline curvature on `straight`. A reader using one of
-those names from fundus-biomarkers should read that section first.
+(`PLAN-BIOMARKER.md` §5.6): nothing about it is independently verified. *Since 2026-11-22* it is
+not part of the synthetic benchmark either, so no measurement in this atlas tests the claim.
 
 **Its mapping, and its units.** The adapter answers each name as itself and converts the library's
 microns back to pixels, as every adapter here reports pixels; `canonical.from_pixels` turns them

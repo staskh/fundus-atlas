@@ -24,11 +24,8 @@ result of record.
 
 | Notebook | Asks |
 | --- | --- |
-| [biomarker-synthetic-automorph.ipynb](biomarker-synthetic-automorph.ipynb) | what AutoMorph returns on `straight`, `arc` and `sinusoid`, under its own column names, at each angle |
-| [biomarker-synthetic-automorphalyzer.ipynb](biomarker-synthetic-automorphalyzer.ipynb) | the same of AutoMorphalyzer, whose 54 columns report most quantities once per measurement zone |
-| [biomarker-synthetic-automorphclass.ipynb](biomarker-synthetic-automorphclass.ipynb) | the same of AutoMorphClass, read against the ancestor both rewrites share |
 | [vascx-features-on-photographs.ipynb](vascx-features-on-photographs.ipynb) | what VascX's features read on a few photographs, from the expert's artery/vein map and from VascX's own |
 | [vascx-tracing-one-artery.ipynb](vascx-tracing-one-artery.ipynb) | how VascX traces one artery of one HRF photograph, stage by stage, through its own objects |
 
-The comparison across all seven implementations — the one the benchmark exists to make — is in
-[../biomarker-synthetic.ipynb](../biomarker-synthetic.ipynb).
+The synthetic biomarker benchmark's notebooks, including its three work-in-progress readings of
+one AutoMorph implementation each, are in [../synthetic/](../synthetic/README.md).

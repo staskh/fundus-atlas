@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spur",
-  "fingerprint": "20626b2a722d3dc837df20647cbf974b135ef8986c5faf7db01c28dee6d4c3d0",
+  "fingerprint": "e41f9fe32689aae7226c313100e8148bd8c2e6d3700f9fd1319da1172cae2200",
   "model": "automorphalyzer",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 5.138142857142857,
-    "seconds_per_rendering": 5.138142857142857,
+    "seconds_per_photograph": 5.383571428571429,
+    "seconds_per_rendering": 5.383571428571429,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

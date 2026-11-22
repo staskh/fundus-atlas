@@ -23,8 +23,9 @@ STORE = Path("data/synthetic/av")
 ROTATIONS = (0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0)
 
 #: What the manifest says about each rendering. `key` names it, the disc is given in pixels for a
-#: measurement and in microns for a reader, and the three mask files are named outright so nothing
-#: has to reconstruct a filename from a convention.
+#: measurement and in microns for a reader, and the five mask files are named outright so nothing
+#: has to reconstruct a filename from a convention. The cup's diameters over the disc's are the
+#: scene's, before the photograph is turned.
 COLUMNS = (
     "key",
     "family",
@@ -40,10 +41,17 @@ COLUMNS = (
     "fov_cx",
     "fov_cy",
     "fov_r",
+    "cup_horizontal",
+    "cup_vertical",
     "artery",
     "vein",
     "fov",
+    "disc",
+    "cup",
 )
+
+#: The masks each rendering is stored as, by the manifest column naming its file.
+MASKS = ("artery", "vein", "fov", "disc", "cup")
 
 
 @dataclass(frozen=True)
@@ -59,6 +67,8 @@ class Rendering:
     vein: np.ndarray
     fov: np.ndarray
     disc: tuple[float, float, float]
+    disc_mask: np.ndarray | None = None
+    cup: np.ndarray | None = None
 
 
 def key_of(family: str, side: int, rotation: float) -> str:
@@ -90,8 +100,8 @@ def write(
     values: list[dict[str, object]] = []
     kinds: list[dict[str, object]] = []
     for family in chosen:
-        settled = library.truths(family)
         for rotation in rotations:
+            settled = library.truths(family, float(rotation))
             shape = library.build(family, side=side, rotation=float(rotation))
             rows.append(_render(into, shape, family, rotation))
             key = rows[-1]["key"]
@@ -114,10 +124,17 @@ def _cell(value: float | str | None) -> str:
 
 
 def _render(into: Path, shape: library.Shape, family: str, rotation: float) -> dict[str, object]:
-    """One rendering's three masks, and the manifest row that says how it was framed."""
+    """One rendering's five masks, and the manifest row that says how it was framed."""
     key = key_of(family, shape.side, rotation)
     names = {}
-    for which, mask in (("artery", shape.artery), ("vein", shape.vein), ("fov", shape.fov)):
+    masks = {
+        "artery": shape.artery,
+        "vein": shape.vein,
+        "fov": shape.fov,
+        "disc": shape.disc_mask,
+        "cup": shape.cup,
+    }
+    for which, mask in masks.items():
         names[which] = f"{key}-{which}.png"
         _save(into / names[which], mask)
     x, y, radius = shape.disc
@@ -137,6 +154,8 @@ def _render(into: Path, shape: library.Shape, family: str, rotation: float) -> d
         # The trunk's: a shape whose daughters narrow by Murray's law has more than one width.
         "artery_width_um": drawn.artery.segments[0].width,
         "vein_width_um": drawn.vein.segments[0].width,
+        "cup_horizontal": drawn.cup[0],
+        "cup_vertical": drawn.cup[1],
         "fov_cx": f"{centre:.4f}",
         "fov_cy": f"{centre:.4f}",
         "fov_r": f"{shape.side / 2.0:.4f}",
@@ -193,7 +212,7 @@ def digest(family: str, store: Path = STORE) -> str:
     running = hashlib.sha256()
     for row in sorted(rows, key=lambda entry: entry["key"]):
         running.update("|".join(f"{column}={row[column]}" for column in COLUMNS).encode())
-        for which in ("artery", "vein", "fov"):
+        for which in MASKS:
             running.update((store / row[which]).read_bytes())
     return running.hexdigest()
 
@@ -266,6 +285,8 @@ def load(store: Path = STORE, key: str | None = None) -> Rendering:
         vein=_read_mask(store / row["vein"]),
         fov=_read_mask(store / row["fov"]),
         disc=(float(row["disc_cx"]), float(row["disc_cy"]), float(row["disc_r"])),
+        disc_mask=_read_mask(store / row["disc"]),
+        cup=_read_mask(store / row["cup"]),
     )
 
 

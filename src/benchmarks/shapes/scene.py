@@ -1,5 +1,5 @@
-# ABOUTME: A synthetic retina stated in microns: the camera, the optic disc, and each vessel class as
-# ABOUTME: a network of centreline paths whose curvature and corners are known exactly.
+# ABOUTME: A synthetic retina stated in microns: the camera, the optic disc and cup, and each vessel
+# ABOUTME: class as a network of centreline paths whose curvature and corners are known exactly.
 
 import math
 from dataclasses import dataclass, field
@@ -27,6 +27,14 @@ ZONES = {"B": (2.0, 3.0), "C": (2.0, 5.0)}
 #: every rotation; a disc-centred photograph puts it in the middle.
 MACULA_CENTRED_DISC = (2600.0, 0.0)
 DISC_CENTRED_DISC = (0.0, 0.0)
+
+#: The cup, an ellipse on the disc's centre: its horizontal and vertical diameters over the disc's.
+#: The values are fundus-biomarkers' (`evaluation/synthetic/scene.py`), so the two repositories
+#: draw the same eye. Unequal on purpose: a vertical cup-to-disc ratio of 0.55 and a horizontal one
+#: of 0.40 cannot be swapped without the swap showing, and turning the photograph moves both by an
+#: amount the geometry gives exactly.
+CUP_HORIZONTAL = 0.40
+CUP_VERTICAL = 0.55
 
 #: How wide a vessel is, by class, in µm.
 ARTERY_UM = 80.0
@@ -208,8 +216,9 @@ def merged(*networks: Network) -> Network:
 @dataclass(frozen=True)
 class Scene:
     """A retina: the disc centre (µm from the frame centre), each class, the box-counting dimension
-    its vessels tend to (1 for smooth curves), and the name prefixes whose truth rests on a reading
-    of the definition rather than on the geometry alone."""
+    its vessels tend to (1 for smooth curves), the name prefixes whose truth rests on a reading of
+    the definition rather than on the geometry alone, and the cup's horizontal and vertical
+    diameters over the disc's, before the photograph is turned."""
 
     name: str
     disc: tuple[float, float]
@@ -218,6 +227,7 @@ class Scene:
     dimension: float = 1.0
     conventions: tuple[str, ...] = ()
     parameters: dict[str, float] = field(default_factory=dict)
+    cup: tuple[float, float] = (CUP_HORIZONTAL, CUP_VERTICAL)
 
     def classes(self) -> dict[str, Network]:
         return {"artery": self.artery, "vein": self.vein}
