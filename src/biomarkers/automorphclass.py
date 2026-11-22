@@ -39,8 +39,10 @@ COLUMNS: dict[str, str | None] = {
 #: What `Optic_Disc_Cup_Features` returns from a disc mask and a cup mask, and the catalogued
 #: biomarker each answers to. *Our finding, 2026-11-22, from `optic_cup_features`:* each ratio is
 #: the cup's bounding-box extent over the disc's along the image's rows or columns, an extent being
-#: the last lit index minus the first — one pixel short of the number of pixels spanned. The four
-#: extents are pixel sizes, which no canonical name holds.
+#: the last lit index minus the first — one pixel short of the number of pixels spanned.
+#: *Mapped 2026-11-22:* the four extents are the disc's and cup's vertical and horizontal
+#: diameters, which the catalogue now names; they are returned in pixels of the frame handed
+#: over and converted once by `canonical.from_pixels`, as every length here is.
 #:
 #: It answers **-1 for every column** when its sense checks fail (a disc wider than a third of the
 #: frame, a cup centred outside the disc's box, a cup not smaller than the disc). That is how it
@@ -49,10 +51,10 @@ COLUMNS: dict[str, str | None] = {
 DISC_COLUMNS: dict[str, str | None] = {
     "cdr_vertical": "landmarks/CDR-vertical",
     "cdr_horizontal": "landmarks/CDR-horizontal",
-    "disc_width": None,
-    "disc_height": None,
-    "cup_width": None,
-    "cup_height": None,
+    "disc_width": "landmarks/disc-diameter-horizontal",
+    "disc_height": "landmarks/disc-diameter-vertical",
+    "cup_width": "landmarks/cup-diameter-horizontal",
+    "cup_height": "landmarks/cup-diameter-vertical",
 }
 
 #: The zones its full pipeline measures, as `AutoMorphModel.define_zones` cuts them about the disc's
@@ -171,11 +173,6 @@ CLOSEST = (
         r"squared_curvature_tortuosity_(?P<side>vessels|artery|vein)_zone_(?P<zone>[bc])",
         "tortuosity/hart-tau3/{side}/{zone}/length-weighted",
         "as the whole-picture column, inside its zone {zone}",
-    ),
-    (
-        r"(disc|cup)_(height|width)",
-        None,
-        "a bounding-box extent; the catalogue has no disc or cup size",
     ),
 )
 CLOSEST_WORDS = {

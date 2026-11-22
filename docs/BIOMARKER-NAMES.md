@@ -127,6 +127,10 @@ over root-to-tip paths rather than over segments between intersection points.
 | `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | — | — |
 | `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | 1 | — | — |
 | `landmarks/CDR-area` | the cup's area over the disc's | 1 | — | — |
+| `landmarks/disc-diameter-vertical` | the disc's vertical diameter | µm | — | — |
+| `landmarks/disc-diameter-horizontal` | the disc's horizontal diameter | µm | — | — |
+| `landmarks/cup-diameter-vertical` | the cup's vertical diameter | µm | — | — |
+| `landmarks/cup-diameter-horizontal` | the cup's horizontal diameter | µm | — | — |
 | `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — | — |
 | `landmarks/centring` | what the photograph is centred on | category: `disc`, `macula`, `unknown` | — | — |
 <!-- /generated -->
@@ -160,9 +164,9 @@ region:
 | [VascX](projects/vascx.md) | its feature names, shipped sets `fs_od_centered` and `fs_full_v3` | `…_arteries` / `…_veins` / none | `{C}` = `crcl_multiplier_1p16666666667`, a circle at 2.33 disc radii |
 | [OCULAR](projects/ocularnet.md) | a bare list from `compute_geomVBMs`, labelled from its `return` statement | the call, not the name | — |
 
-**‡ marks a column the project's own pipeline writes but this repository's adapter does not
-reach**, so the synthetic benchmark has not tested it. The mark beside it is a reading of the
-source. The adapters store what they do reach under a key built from the upstream function's own
+**Every mark here is now tested.** A ‡ used to mark a column the project's own pipeline writes but
+this repository's adapter did not reach; the last, AutoMorphalyzer's `macular_centred`, was mapped
+on 2026-11-22. The adapters store what they reach under a key built from the upstream function's own
 names — `average_width_artery` and `average_width_artery_zone_b` in AutoMorph and AutoMorphClass,
 `average_global_calibre@whole_artery` in AutoMorphalyzer — and `src/biomarkers/<slug>.py` holds
 that table. *Since 2026-11-22* every adapter returns every column its project's own run writes,
@@ -238,7 +242,11 @@ of its own choosing; §6 says which grid and how to convert.
 | `landmarks/CDR-vertical` | ✅ `CDR_vertical` | ✅ `CDR_vertical` | ✅ `cdr_vertical` | | | | Cup height over disc height, from the bounding boxes of the disc and cup masks, an extent being the last lit index minus the first. *Since 2026-11-22* every adapter is handed the synthetic cup, and all three of the AutoMorph family's are measured — AutoMorph's through its own driver, `optic_disc_centre`, run on a temporary copy of the files it reads. AutoMorphClass answers −1 when its sense checks fail, read as no answer; AutoMorphalyzer computes the ratio before its checks and returns it regardless. [fundus-biomarkers](projects/fundus-biomarkers.md) computes it when handed both masks |
 | `landmarks/CDR-horizontal` | ✅ `CDR_horizontal` | ✅ `CDR_horizontal` | ✅ `cdr_horizontal` | | | | The same along the horizontal |
 | `landmarks/CDR-area` | | | | | | | fundus-biomarkers, as above |
-| `landmarks/centring` | | ⚠️ ‡ `macular_centred` | | | | | **A category, not a number**: `disc`, `macula` or `unknown`. AutoMorphalyzer's is a yes/no for macula-centred, with no `unknown`. fundus-biomarkers computes the canonical one |
+| `landmarks/disc-diameter-vertical` | ✅ `Disc_height` | ✅ `disc_height` | ✅ `disc_height` | | | | The disc mask's bounding-box height. *Named 2026-11-22.* AutoMorph returns microns and the adapter hands back pixels; the other two return pixels |
+| `landmarks/disc-diameter-horizontal` | ✅ `Disc_width` | ✅ `disc_width` | ✅ `disc_width` | | | | The same along the horizontal |
+| `landmarks/cup-diameter-vertical` | ✅ `Cup_height` | ✅ `cup_height` | ✅ `cup_height` | | | | The cup mask's bounding-box height |
+| `landmarks/cup-diameter-horizontal` | ✅ `Cup_width` | ✅ `cup_width` | ✅ `cup_width` | | | | The same along the horizontal |
+| `landmarks/centring` | | ✅ `macular_centred` | | | | | **A category, not a number**: `disc`, `macula` or `unknown`. *Mapped 2026-11-22:* AutoMorphalyzer's is three-valued — True, False, or −1 when its disc metrics fail — answered as `macula`, `disc` and `unknown`, macula-centred meaning the disc is more than a tenth of the frame from its centre. One difference: a disc failing its sense checks reads `macula` rather than `unknown` |
 | `landmarks/disc-fovea-distance` | | | | | ⚠️ `disc_fovea_distance_retina` | | VascX returns pixels, or mm when given a scale, and reports a second variant, `disc_fovea_distance_center_retina`, to a different reference point |
 
 ### 3.6 fundus-biomarkers — the canonical implementation

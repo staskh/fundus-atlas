@@ -82,18 +82,27 @@ RATIOS: dict[str, tuple[str, str, str]] = {
 #: ratios **before** its sense checks and returns them whether or not those pass; the checks only
 #: decide `macular_centred`, which is True unless the disc passes them and sits within a tenth of
 #: the frame of its centre. `laterality` is a word, from which side of the cup has more vessel.
-#: None of the rest has a canonical name: the extents and the cup's centre are pixel positions, and
-#: `macular_centred` is a yes or no where `landmarks/centring` is a category with `unknown` in it.
+#: The cup's centre has no canonical name: it is a pixel position.
+#: *Mapped 2026-11-22:* the four extents are the disc's and cup's vertical and horizontal
+#: diameters, which the catalogue now names; they are returned in pixels of the frame handed
+#: over and converted once by `canonical.from_pixels`, as every length here is.
+#:
+#: *Mapped 2026-11-22:* `macular_centred` is **three**-valued, not a yes or no — True, False, or −1
+#: where `get_disc_metrics` fell over — and those are the catalogue's `macula`, `disc` and
+#: `unknown`, by the same rule the shapes' ground truth uses: the disc within a tenth of the frame
+#: of its centre. It is answered in the catalogue's words (`_centring`), the one value this adapter
+#: re-spells; a category has no unit, so nothing is converted. One difference stays: a disc that
+#: fails the sense checks reads `macula` upstream where `unknown` would be the honest answer.
 DISC_COLUMNS: dict[str, str | None] = {
     "CDR_vertical": "landmarks/CDR-vertical",
     "CDR_horizontal": "landmarks/CDR-horizontal",
-    "disc_height": None,
-    "disc_width": None,
-    "cup_height": None,
-    "cup_width": None,
+    "disc_height": "landmarks/disc-diameter-vertical",
+    "disc_width": "landmarks/disc-diameter-horizontal",
+    "cup_height": "landmarks/cup-diameter-vertical",
+    "cup_width": "landmarks/cup-diameter-horizontal",
     "cup_centre_x": None,
     "cup_centre_y": None,
-    "macular_centred": None,
+    "macular_centred": "landmarks/centring",
     "laterality": None,
 }
 
@@ -191,14 +200,9 @@ CLOSEST = (
         "Knudtson's venular pairing applied to the {side} map, which upstream drops from its table",
     ),
     (
-        r"macular_centred",
-        "landmarks/centring",
-        "a yes or no for macula-centred, where the catalogue's centring is disc, macula or unknown",
-    ),
-    (
-        r"(disc|cup)_(height|width)|cup_centre_[xy]",
+        r"cup_centre_[xy]",
         None,
-        "a pixel extent or position; the catalogue has no disc or cup size",
+        "a pixel position; the catalogue has no position for the cup",
     ),
     (
         r"laterality",
@@ -318,6 +322,9 @@ class Automorphalyzer:
         kept: dict[str, float | str | None] = {}
         for column in DISC_COLUMNS:
             value = found.get(column)
+            if column == "macular_centred":
+                kept[column] = _centring(value)
+                continue
             kept[column] = value if isinstance(value, str) else _number(value)
         return kept
 
@@ -379,6 +386,14 @@ def _ratio(artery: object, vein: object) -> float | None:
     except (TypeError, ValueError, ZeroDivisionError):
         return None
     return found if np.isfinite(found) and found >= 0 else None
+
+
+def _centring(value: object) -> str:
+    """`macular_centred` in the catalogue's words. The −1 sentinel is checked first: it is truthy,
+    and True compares equal to 1, so a yes-or-no test alone would read a failure as `macula`."""
+    if value is None or (not isinstance(value, (bool, np.bool_)) and value == FAILED):
+        return "unknown"
+    return "macula" if bool(value) else "disc"
 
 
 def _number(value: object) -> float | None:

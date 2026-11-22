@@ -248,3 +248,32 @@ def test_handed_no_cup_it_answers_no_ratio(slug, shape) -> None:
     ratios = [own for own, name in adapter.declare()["names"].items() if name and "CDR" in name]
 
     assert all(measured[own] is None for own in ratios)
+
+
+@pytest.mark.parametrize(
+    ("returned", "word"), [(True, "macula"), (False, "disc"), (-1, "unknown"), (None, "unknown")]
+)
+def test_automorphalyzer_says_its_centring_in_the_catalogue_s_words(returned, word) -> None:
+    """*Our finding, 2026-11-22:* `macular_centred` is three-valued upstream — True, False, or −1
+    where `get_disc_metrics` fell over — which is the catalogue's macula, disc and unknown. The −1
+    is checked before the yes or no, because True equals 1 and −1 is truthy."""
+    from biomarkers import automorphalyzer
+
+    assert automorphalyzer._centring(returned) == word
+
+
+@pytest.mark.parametrize(
+    ("name", "centring"),
+    [("spokes-macula-centred", "macula"), ("spokes-disc-centred", "disc")],
+)
+def test_automorphalyzer_answers_the_photograph_s_centring(name, centring) -> None:
+    adapter = catalogue.load("automorphalyzer")
+    assert adapter.declare()["names"]["macular_centred"] == "landmarks/centring"
+    drawn = library.build(name, side=SIDE)
+
+    measured = adapter.measure(
+        drawn.artery, drawn.vein, drawn.fov, drawn.disc, drawn.um_per_px, cup=drawn.cup
+    )
+
+    assert measured["macular_centred"] == centring
+    assert library.truths(name)["landmarks/centring"].value == centring

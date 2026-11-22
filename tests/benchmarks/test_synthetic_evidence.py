@@ -47,10 +47,17 @@ def test_best_and_worst_never_list_a_biomarker_twice() -> None:
 
 def test_what_turning_is_meant_to_move_is_read_off_the_claimed_table() -> None:
     moving = claims.turning(ROOT / store.STORE)
-    assert ("automorphalyzer", "cup_height") in moving
     assert ("automorphalyzer", "cup_centre_x") in moving
-    assert ("automorphalyzer", "disc_height") not in moving, "a circle is the same at every angle"
     assert ("pvbm", "tortuosity_index_artery") not in moving
+
+
+def test_the_cup_s_diameters_turn_with_the_image_and_the_disc_s_do_not() -> None:
+    """*Since 2026-11-22* the disc and cup sizes are canonical, so what turning should move is said
+    beside the ratios rather than read off the claims."""
+    from benchmarks.shapes.truth import TURN_WITH_THE_IMAGE
+
+    assert "landmarks/cup-diameter-vertical" in TURN_WITH_THE_IMAGE
+    assert "landmarks/disc-diameter-vertical" not in TURN_WITH_THE_IMAGE, "a circle does not turn"
 
 
 def test_a_lineage_reads_under_its_own_projects_names() -> None:

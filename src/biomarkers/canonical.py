@@ -248,6 +248,13 @@ NAMES: dict[str, Biomarker] = {
     "landmarks/CDR-vertical": Biomarker("the cup's vertical diameter over the disc's", "1"),
     "landmarks/CDR-horizontal": Biomarker("the cup's horizontal diameter over the disc's", "1"),
     "landmarks/CDR-area": Biomarker("the cup's area over the disc's", "1"),
+    # The four sizes the ratios above are made of. *Added 2026-11-22*, because all three of the
+    # AutoMorph family return them beside the ratios. Vertical and horizontal follow the image's
+    # rows and columns, as the ratios do, so a cup turned with the photograph changes them.
+    "landmarks/disc-diameter-vertical": Biomarker("the disc's vertical diameter", "µm"),
+    "landmarks/disc-diameter-horizontal": Biomarker("the disc's horizontal diameter", "µm"),
+    "landmarks/cup-diameter-vertical": Biomarker("the cup's vertical diameter", "µm"),
+    "landmarks/cup-diameter-horizontal": Biomarker("the cup's horizontal diameter", "µm"),
     "landmarks/disc-fovea-distance": Biomarker(
         "the straight-line distance from the disc centre to the fovea", "µm", paper="vargas-2026"
     ),

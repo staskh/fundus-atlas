@@ -117,7 +117,7 @@ canonical name it answers to — or, where it answers to none, the nearest one a
 it from being that name.
 
 <!-- generated: columns -->
-**72 columns**: 53 answer to a canonical name exactly, 15 are close to one and 4 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/automorph.py` by `python -m biomarkers.pages`.
+**72 columns**: 57 answer to a canonical name exactly, 15 are close to one and 0 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/automorph.py` by `python -m biomarkers.pages`.
 
 | Its column | Canonical name | Match | What differs |
 | --- | --- | :-: | --- |
@@ -187,10 +187,10 @@ it from being that name.
 | `CRVE_Knudtson_zone_c` | `calibre/CRE-knudtson/vein/C` | exact |  |
 | `AVR_Hubbard_zone_c` | `calibre/AVR-hubbard/both/C` | exact |  |
 | `AVR_Knudtson_zone_c` | `calibre/AVR-knudtson/both/C` | exact |  |
-| `Disc_height` | — | none | a bounding-box extent; the catalogue has no disc or cup size |
-| `Disc_width` | — | none | a bounding-box extent; the catalogue has no disc or cup size |
-| `Cup_height` | — | none | a bounding-box extent; the catalogue has no disc or cup size |
-| `Cup_width` | — | none | a bounding-box extent; the catalogue has no disc or cup size |
+| `Disc_height` | `landmarks/disc-diameter-vertical` | exact |  |
+| `Disc_width` | `landmarks/disc-diameter-horizontal` | exact |  |
+| `Cup_height` | `landmarks/cup-diameter-vertical` | exact |  |
+| `Cup_width` | `landmarks/cup-diameter-horizontal` | exact |  |
 | `CDR_vertical` | `landmarks/CDR-vertical` | exact |  |
 | `CDR_horizontal` | `landmarks/CDR-horizontal` | exact |  |
 <!-- /generated -->

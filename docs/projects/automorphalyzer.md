@@ -119,7 +119,7 @@ canonical name it answers to — or, where it answers to none, the nearest one a
 it from being that name.
 
 <!-- generated: columns -->
-**66 columns**: 35 answer to a canonical name exactly, 24 are close to one and 7 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/automorphalyzer.py` by `python -m biomarkers.pages`.
+**66 columns**: 40 answer to a canonical name exactly, 23 are close to one and 3 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/automorphalyzer.py` by `python -m biomarkers.pages`.
 
 | Its column | Canonical name | Match | What differs |
 | --- | --- | :-: | --- |
@@ -181,13 +181,13 @@ it from being that name.
 | `AVR_C` | `calibre/AVR-knudtson/both/C` | exact |  |
 | `CDR_vertical` | `landmarks/CDR-vertical` | exact |  |
 | `CDR_horizontal` | `landmarks/CDR-horizontal` | exact |  |
-| `disc_height` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
-| `disc_width` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
-| `cup_height` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
-| `cup_width` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
-| `cup_centre_x` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
-| `cup_centre_y` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
-| `macular_centred` | `landmarks/centring` | close | a yes or no for macula-centred, where the catalogue's centring is disc, macula or unknown |
+| `disc_height` | `landmarks/disc-diameter-vertical` | exact |  |
+| `disc_width` | `landmarks/disc-diameter-horizontal` | exact |  |
+| `cup_height` | `landmarks/cup-diameter-vertical` | exact |  |
+| `cup_width` | `landmarks/cup-diameter-horizontal` | exact |  |
+| `cup_centre_x` | — | none | a pixel position; the catalogue has no position for the cup |
+| `cup_centre_y` | — | none | a pixel position; the catalogue has no position for the cup |
+| `macular_centred` | `landmarks/centring` | exact |  |
 | `laterality` | — | none | which eye, a word, inferred from where the vessels are; no canonical name |
 <!-- /generated -->
 

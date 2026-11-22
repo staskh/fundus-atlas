@@ -629,6 +629,16 @@ temporary directory and runs it as shipped. On its 912 × 912 maps it lands with
 as AutoMorphClass now does through its own pipeline (section 15). **PVBM, OCULAR and VascX compute
 no cup-to-disc ratio.**
 
+**The sizes behind the ratios, and the centring, since 2026-11-22.** The catalogue now names the
+disc's and cup's vertical and horizontal diameters, in microns, and all three of the AutoMorph
+family were already returning them as heights and widths beside the ratios. Against the shapes the
+disc's land within 1.3% and the cup's within 2.4% at worst, for all three, on every rendering
+(AutoMorphalyzer, measuring on the frame it is handed rather than at 912, within 1.3% on both).
+AutoMorphalyzer's `macular_centred` answers the catalogue's centring — `macula`, `disc`, or
+`unknown` when its disc metrics fail — and is right on all 91 renderings. Its rule is the
+geometry's own, a disc within a tenth of the frame of its centre, so this is a check that the
+answer is passed through faithfully rather than a hard test.
+
 AutoMorphalyzer also returns the disc's and cup's heights and widths, the cup's centre, whether the
 photograph is macula-centred, and which eye it is. Those are checked against their own description
 in section 14; the eye is a word, from which side of the disc has more vessel, and has no value on a
@@ -734,6 +744,13 @@ questions can be asked at all:
 | Topology | — | 2, 0 | — |
 | Tortuosity | 24, 12 | 4, 3 | 2, 0 |
 
+*Updated 2026-11-22, after every adapter returned every column its project writes and the disc's
+and cup's diameters were named:* the summary notebook now finds **83** names with a ground truth —
+4 answered by all three lineages, 6 by two, 73 by one. Per family, names answered and how many
+within 25% everywhere: AutoMorph lineage calibre 21, 3; density 12, 5; **landmarks 6, 6** (the two
+ratios and four diameters); tortuosity 30, 13. PVBM's and VascX's rows are unchanged. The table
+above is kept as it was first written.
+
 **Where they overlap, they disagree by an order of magnitude**, and not in the same direction on
 every family. The six names two or more lineages answer, worst error of the closest member:
 
@@ -783,7 +800,7 @@ it:
 | --- | --- | --- | --- |
 | `tortuosity_index` — total arc over total chord, over every segment | pvbm, ocular (as `pooled_tortuosity`) | 15.8% | 5.5% |
 | `average_local_calibre` — mean local width, sampled along the vessels | automorphalyzer, nine regions | within 25% | — |
-| disc and cup heights, widths, the cup's centre, centring | automorphalyzer, automorphclass | within 25% | — |
+| the cup's centre | automorphalyzer | within 25% | — |
 | `start_points` — vessels leaving the disc | pvbm, ocular | 33.3% (one rendering) | 0.0% |
 | `endpoints` — vessel ends | pvbm, ocular | 100% | 50% |
 | `median_branching_angle` — between a branch's two daughters | pvbm, ocular | 129% | 7–13% |

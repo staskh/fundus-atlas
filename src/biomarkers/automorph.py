@@ -91,11 +91,14 @@ RATIOS: dict[str, tuple[str, str, str]] = {
 #: kept. Its sense checks (a disc under a third of the frame, the cup's centre inside the disc's
 #: box, the cup smaller both ways) decide whether **any** of this, the zones included, is written:
 #: where they fail, every column is −1 and no zone is cut.
+#: *Mapped 2026-11-22:* the four extents are the disc's and cup's vertical and horizontal
+#: diameters, which the catalogue now names; they are returned in pixels of the frame handed
+#: over and converted once by `canonical.from_pixels`, as every length here is.
 DISC_COLUMNS: dict[str, str | None] = {
-    "Disc_height": None,
-    "Disc_width": None,
-    "Cup_height": None,
-    "Cup_width": None,
+    "Disc_height": "landmarks/disc-diameter-vertical",
+    "Disc_width": "landmarks/disc-diameter-horizontal",
+    "Cup_height": "landmarks/cup-diameter-vertical",
+    "Cup_width": "landmarks/cup-diameter-horizontal",
     "CDR_vertical": "landmarks/CDR-vertical",
     "CDR_horizontal": "landmarks/CDR-horizontal",
 }
@@ -179,11 +182,6 @@ CLOSEST = (
         r"vessel_density_(?P<side>binary|artery|vein)_zone_(?P<zone>[bc])",
         "density/over-image/{side}/{zone}",
         "the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone",
-    ),
-    (
-        r"(Disc|Cup)_(height|width)",
-        None,
-        "a bounding-box extent; the catalogue has no disc or cup size",
     ),
 )
 CLOSEST_WORDS = {

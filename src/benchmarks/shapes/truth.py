@@ -14,6 +14,7 @@ from shapely.geometry import LineString, MultiLineString, Point
 from biomarkers import canonical
 
 from .scene import (
+    DISC_DIAMETER_UM,
     DISC_RADIUS_UM,
     FOV_DIAMETER_UM,
     FOV_RADIUS_UM,
@@ -575,7 +576,8 @@ def _landmarks(scene: Scene) -> dict[str, Truth]:
 
 
 def cup_ratios(scene: Scene, rotation: float) -> dict[str, Truth]:
-    """The three cup-to-disc ratios of the photograph turned by `rotation` degrees.
+    """The three cup-to-disc ratios of the photograph turned by `rotation` degrees, and the disc's
+    and cup's vertical and horizontal diameters they are made of.
 
     The cup is an ellipse on the disc's centre with horizontal and vertical diameters `a` and `b`
     times the disc's, before turning. A **vertical** ratio is the cup's extent along the image's
@@ -590,13 +592,26 @@ def cup_ratios(scene: Scene, rotation: float) -> dict[str, Truth]:
     """
     a, b = scene.cup
     angle = math.radians(rotation)
+    vertical = math.hypot(a * math.sin(angle), b * math.cos(angle))
+    horizontal = math.hypot(a * math.cos(angle), b * math.sin(angle))
     return {
-        "landmarks/CDR-vertical": Truth(math.hypot(a * math.sin(angle), b * math.cos(angle))),
-        "landmarks/CDR-horizontal": Truth(math.hypot(a * math.cos(angle), b * math.sin(angle))),
+        "landmarks/CDR-vertical": Truth(vertical),
+        "landmarks/CDR-horizontal": Truth(horizontal),
         "landmarks/CDR-area": Truth(a * b),
+        # The sizes the ratios are made of, in microns. *Added 2026-11-22.* The disc is a circle,
+        # so its two diameters are its diameter at every turn; the cup's are the ratios times it.
+        "landmarks/disc-diameter-vertical": Truth(DISC_DIAMETER_UM),
+        "landmarks/disc-diameter-horizontal": Truth(DISC_DIAMETER_UM),
+        "landmarks/cup-diameter-vertical": Truth(vertical * DISC_DIAMETER_UM),
+        "landmarks/cup-diameter-horizontal": Truth(horizontal * DISC_DIAMETER_UM),
     }
 
 
-#: The ratios `cup_ratios` derives that follow the image's axes rather than the eye, and so are
-#: expected to change when the photograph is turned.
-TURN_WITH_THE_IMAGE = ("landmarks/CDR-vertical", "landmarks/CDR-horizontal")
+#: What `cup_ratios` derives that follows the image's axes rather than the eye, and so is expected
+#: to change when the photograph is turned.
+TURN_WITH_THE_IMAGE = (
+    "landmarks/CDR-vertical",
+    "landmarks/CDR-horizontal",
+    "landmarks/cup-diameter-vertical",
+    "landmarks/cup-diameter-horizontal",
+)

@@ -42,7 +42,7 @@ from shapely.geometry import Point
 
 from . import library, store
 from .scene import DISC_DIAMETER_UM, FOV_DIAMETER_UM, FOV_RADIUS_UM, Scene, merged
-from .truth import CENTRED_WITHIN, QUAD_SEGS, Truth, _tubes, cup_ratios
+from .truth import QUAD_SEGS, Truth, _tubes
 
 #: The file the claimed values are written to, beside `ground_truth.csv`, and its kinds.
 VALUES = "ground_truth_claimed.csv"
@@ -155,21 +155,6 @@ def _zone_over_frame(side: str, inner: float, outer: float) -> Callable[[Scene, 
     return derive
 
 
-def _disc_diameter(scene: Scene, row: dict) -> Truth:
-    """A circle is as tall as it is wide, at every angle."""
-    return Truth(DISC_DIAMETER_UM)
-
-
-def _cup_extent(along: str) -> Callable[[Scene, dict], Truth]:
-    """The turned cup's extent along the image's rows or columns, in microns."""
-
-    def derive(scene: Scene, row: dict) -> Truth:
-        ratio = cup_ratios(scene, float(row["rotation"]))[f"landmarks/CDR-{along}"].value
-        return Truth(ratio * DISC_DIAMETER_UM)
-
-    return derive
-
-
 def _cup_centre(axis: str) -> Callable[[Scene, dict], Truth]:
     """Where the cup's centre is, in microns from the centre of the frame's first pixel.
 
@@ -181,12 +166,6 @@ def _cup_centre(axis: str) -> Callable[[Scene, dict], Truth]:
         return Truth(float(row[f"disc_c{axis}"]) * float(row["um_per_px"]))
 
     return derive
-
-
-def _macular_centred(scene: Scene, row: dict) -> Truth:
-    """1 for a photograph centred on the macula, 0 for one centred on the disc."""
-    centred = math.hypot(*scene.disc) < CENTRED_WITHIN * FOV_DIAMETER_UM
-    return Truth(0.0 if centred else 1.0)
 
 
 # the claims ------------------------------------------------------------------------------------
@@ -281,22 +260,6 @@ def _automorph_family() -> list[Claim]:
                                 unsettled=_RING_3_TO_5,
                             )
                         )
-    found += [
-        Claim(
-            "automorph",
-            column,
-            says,
-            "AutoMorph's `optic_disc_centre`",
-            derive=derive,
-            power=1,
-        )
-        for column, says, derive in (
-            ("Disc_height", "the disc's vertical diameter", _disc_diameter),
-            ("Disc_width", "the disc's horizontal diameter", _disc_diameter),
-            ("Cup_height", "the cup's vertical diameter", _cup_extent("vertical")),
-            ("Cup_width", "the cup's horizontal diameter", _cup_extent("horizontal")),
-        )
-    ]
     for side, structure in (("artery", "artery"), ("vein", "vein"), ("binary", "vessels")):
         for zone, region in (("whole", ""), ("B", "/B"), ("C", "/C")):
             found.append(
@@ -309,46 +272,6 @@ def _automorph_family() -> list[Claim]:
                     power=1,
                 )
             )
-    for slug, prefix in (("automorphalyzer", ""), ("automorphclass", "")):
-        source = (
-            "AutoMorphalyzer's `get_disc_metrics`"
-            if slug == "automorphalyzer"
-            else "AutoMorphClass's `Optic_Disc_Cup_Features`"
-        )
-        found += [
-            Claim(
-                slug,
-                f"{prefix}disc_height",
-                "the disc's vertical diameter",
-                source,
-                derive=_disc_diameter,
-                power=1,
-            ),
-            Claim(
-                slug,
-                f"{prefix}disc_width",
-                "the disc's horizontal diameter",
-                source,
-                derive=_disc_diameter,
-                power=1,
-            ),
-            Claim(
-                slug,
-                f"{prefix}cup_height",
-                "the cup's vertical diameter",
-                source,
-                derive=_cup_extent("vertical"),
-                power=1,
-            ),
-            Claim(
-                slug,
-                f"{prefix}cup_width",
-                "the cup's horizontal diameter",
-                source,
-                derive=_cup_extent("horizontal"),
-                power=1,
-            ),
-        ]
     found += [
         Claim(
             "automorphalyzer",
@@ -365,14 +288,6 @@ def _automorph_family() -> list[Claim]:
             "AutoMorphalyzer's `get_disc_metrics`",
             derive=_cup_centre("y"),
             power=1,
-        ),
-        Claim(
-            "automorphalyzer",
-            "macular_centred",
-            "whether the photograph is macula-centred: the disc further than a tenth of the "
-            "frame from its centre",
-            "AutoMorphalyzer's `get_disc_metrics`",
-            derive=_macular_centred,
         ),
         Claim(
             "automorphalyzer",
