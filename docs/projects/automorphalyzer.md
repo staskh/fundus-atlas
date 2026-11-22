@@ -112,6 +112,85 @@ but it is not the same as physical units, and AutoMorph's micron-based columns a
 Failures are recorded rather than hidden: a traceback goes to the terminal and to a log file under
 `M3`, and affected metrics are written as `-1` in the output CSV. Filter on that before analysis.
 
+### 6.1 Every column it writes
+
+*Added 2026-11-22.* Every number the implementation returns, under its own name, beside the
+canonical name it answers to — or, where it answers to none, the nearest one and what keeps
+it from being that name.
+
+<!-- generated: columns -->
+**66 columns**: 35 answer to a canonical name exactly, 24 are close to one and 7 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/automorphalyzer.py` by `python -m biomarkers.pages`.
+
+| Its column | Canonical name | Match | What differs |
+| --- | --- | :-: | --- |
+| `fractal_dimension@whole_binary` | `density/box-counting/vessels` | exact |  |
+| `vessel_density@whole_binary` | `density/over-image/vessels` | exact |  |
+| `average_global_calibre@whole_binary` | `calibre/width/vessels/length-weighted` | exact |  |
+| `tortuosity_distance@whole_binary` | `tortuosity/hart-tau1/vessels/mean` | exact |  |
+| `tortuosity_density@whole_binary` | `tortuosity/grisan-density/vessels/mean` | exact |  |
+| `average_local_calibre@whole_binary` | `calibre/width/vessels/length-weighted` | close | a mean over every width sample along every vessel, branch points left out; `average_global_calibre` is the column named this |
+| `CRAE_Knudtson@whole_binary` | `calibre/CRE-knudtson/artery/B` | close | computed over the whole frame on the vessels map; an equivalent is defined in a zone |
+| `CRVE_Knudtson@whole_binary` | `calibre/CRE-knudtson/vein/B` | close | computed over the whole frame on the vessels map; an equivalent is defined in a zone |
+| `CRAE_Knudtson@B_binary` | `calibre/CRE-knudtson/artery/B` | close | Knudtson's arterial pairing applied to the vessels map, which upstream drops from its table |
+| `CRVE_Knudtson@B_binary` | `calibre/CRE-knudtson/vein/B` | close | Knudtson's venular pairing applied to the vessels map, which upstream drops from its table |
+| `tortuosity_distance@B_binary` | `tortuosity/hart-tau1/vessels/B/mean` | exact |  |
+| `tortuosity_density@B_binary` | `tortuosity/grisan-density/vessels/B/mean` | exact |  |
+| `average_local_calibre@B_binary` | `calibre/width/vessels/B/length-weighted` | close | a mean over every width sample along every vessel in the zone, branch points left out |
+| `CRAE_Knudtson@C_binary` | `calibre/CRE-knudtson/artery/C` | close | Knudtson's arterial pairing applied to the vessels map, which upstream drops from its table |
+| `CRVE_Knudtson@C_binary` | `calibre/CRE-knudtson/vein/C` | close | Knudtson's venular pairing applied to the vessels map, which upstream drops from its table |
+| `tortuosity_distance@C_binary` | `tortuosity/hart-tau1/vessels/C/mean` | exact |  |
+| `tortuosity_density@C_binary` | `tortuosity/grisan-density/vessels/C/mean` | exact |  |
+| `average_local_calibre@C_binary` | `calibre/width/vessels/C/length-weighted` | close | a mean over every width sample along every vessel in the zone, branch points left out |
+| `fractal_dimension@whole_artery` | `density/box-counting/artery` | exact |  |
+| `vessel_density@whole_artery` | `density/over-image/artery` | exact |  |
+| `average_global_calibre@whole_artery` | `calibre/width/artery/length-weighted` | exact |  |
+| `tortuosity_distance@whole_artery` | `tortuosity/hart-tau1/artery/mean` | exact |  |
+| `tortuosity_density@whole_artery` | `tortuosity/grisan-density/artery/mean` | exact |  |
+| `average_local_calibre@whole_artery` | `calibre/width/artery/length-weighted` | close | a mean over every width sample along every vessel, branch points left out; `average_global_calibre` is the column named this |
+| `CRAE_Knudtson@whole_artery` | `calibre/CRE-knudtson/artery/B` | close | computed over the whole frame on the artery map; an equivalent is defined in a zone |
+| `CRVE_Knudtson@whole_artery` | `calibre/CRE-knudtson/vein/B` | close | computed over the whole frame on the artery map; an equivalent is defined in a zone |
+| `CRAE_Knudtson@B_artery` | `calibre/CRE-knudtson/artery/B` | exact |  |
+| `CRVE_Knudtson@B_artery` | `calibre/CRE-knudtson/vein/B` | close | Knudtson's venular pairing applied to the artery map, which upstream drops from its table |
+| `tortuosity_distance@B_artery` | `tortuosity/hart-tau1/artery/B/mean` | exact |  |
+| `tortuosity_density@B_artery` | `tortuosity/grisan-density/artery/B/mean` | exact |  |
+| `average_local_calibre@B_artery` | `calibre/width/artery/B/length-weighted` | close | a mean over every width sample along every vessel in the zone, branch points left out |
+| `CRAE_Knudtson@C_artery` | `calibre/CRE-knudtson/artery/C` | exact |  |
+| `CRVE_Knudtson@C_artery` | `calibre/CRE-knudtson/vein/C` | close | Knudtson's venular pairing applied to the artery map, which upstream drops from its table |
+| `tortuosity_distance@C_artery` | `tortuosity/hart-tau1/artery/C/mean` | exact |  |
+| `tortuosity_density@C_artery` | `tortuosity/grisan-density/artery/C/mean` | exact |  |
+| `average_local_calibre@C_artery` | `calibre/width/artery/C/length-weighted` | close | a mean over every width sample along every vessel in the zone, branch points left out |
+| `fractal_dimension@whole_vein` | `density/box-counting/vein` | exact |  |
+| `vessel_density@whole_vein` | `density/over-image/vein` | exact |  |
+| `average_global_calibre@whole_vein` | `calibre/width/vein/length-weighted` | exact |  |
+| `tortuosity_distance@whole_vein` | `tortuosity/hart-tau1/vein/mean` | exact |  |
+| `tortuosity_density@whole_vein` | `tortuosity/grisan-density/vein/mean` | exact |  |
+| `average_local_calibre@whole_vein` | `calibre/width/vein/length-weighted` | close | a mean over every width sample along every vessel, branch points left out; `average_global_calibre` is the column named this |
+| `CRAE_Knudtson@whole_vein` | `calibre/CRE-knudtson/artery/B` | close | computed over the whole frame on the vein map; an equivalent is defined in a zone |
+| `CRVE_Knudtson@whole_vein` | `calibre/CRE-knudtson/vein/B` | close | computed over the whole frame on the vein map; an equivalent is defined in a zone |
+| `CRAE_Knudtson@B_vein` | `calibre/CRE-knudtson/artery/B` | close | Knudtson's arterial pairing applied to the vein map, which upstream drops from its table |
+| `CRVE_Knudtson@B_vein` | `calibre/CRE-knudtson/vein/B` | exact |  |
+| `tortuosity_distance@B_vein` | `tortuosity/hart-tau1/vein/B/mean` | exact |  |
+| `tortuosity_density@B_vein` | `tortuosity/grisan-density/vein/B/mean` | exact |  |
+| `average_local_calibre@B_vein` | `calibre/width/vein/B/length-weighted` | close | a mean over every width sample along every vessel in the zone, branch points left out |
+| `CRAE_Knudtson@C_vein` | `calibre/CRE-knudtson/artery/C` | close | Knudtson's arterial pairing applied to the vein map, which upstream drops from its table |
+| `CRVE_Knudtson@C_vein` | `calibre/CRE-knudtson/vein/C` | exact |  |
+| `tortuosity_distance@C_vein` | `tortuosity/hart-tau1/vein/C/mean` | exact |  |
+| `tortuosity_density@C_vein` | `tortuosity/grisan-density/vein/C/mean` | exact |  |
+| `average_local_calibre@C_vein` | `calibre/width/vein/C/length-weighted` | close | a mean over every width sample along every vessel in the zone, branch points left out |
+| `AVR_B` | `calibre/AVR-knudtson/both/B` | exact |  |
+| `AVR_C` | `calibre/AVR-knudtson/both/C` | exact |  |
+| `CDR_vertical` | `landmarks/CDR-vertical` | exact |  |
+| `CDR_horizontal` | `landmarks/CDR-horizontal` | exact |  |
+| `disc_height` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
+| `disc_width` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
+| `cup_height` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
+| `cup_width` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
+| `cup_centre_x` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
+| `cup_centre_y` | — | none | a pixel extent or position; the catalogue has no disc or cup size |
+| `macular_centred` | `landmarks/centring` | close | a yes or no for macula-centred, where the catalogue's centring is disc, macula or unknown |
+| `laterality` | — | none | which eye, a word, inferred from where the vessels are; no canonical name |
+<!-- /generated -->
+
 ## 7. Examples and notebooks
 
 - `quickstart.txt` with the bundled `example_data/` — start here. Point `config.txt` at the example
@@ -169,6 +248,10 @@ Failures are recorded rather than hidden: a traceback goes to the terminal and t
 - **Laterality** (left or right eye) is inferred from vessel density on either side of the optic
   cup, not read from image metadata.
 - Uncertainty maps from the model ensembles are not saved, unlike in AutoMorph.
+- **What this atlas measures of it.** *Our observation, 2026-11-22.* Its `feature_measurements.csv`
+  carries two columns no measuring call returns, `AVR_B` and `AVR_C`, which `merge_results` derives
+  as the zone's artery-map CRAE over its vein-map CRVE. This atlas's adapter now derives them the
+  same way. When both equivalents fail, both are −1 and the ratio is a positive 1, which it keeps.
 
 ---
 

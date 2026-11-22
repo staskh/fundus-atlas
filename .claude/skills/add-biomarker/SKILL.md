@@ -123,6 +123,16 @@ Four rules keep it honest:
   showed it medians every pairwise angle at every junction, the trunk included. The column is still
   measured; it simply no longer claims to be that biomarker.
 
+### 4.1 The nearest name, for a column the table cannot map
+
+Beside the naming table, `CLOSEST` holds rules — a pattern over the column's own name, the nearest
+canonical name (or `None`), and in a few words what keeps the column from being it — with
+`CLOSEST_WORDS` translating the pattern's named groups (`{side}`, `{zone}`, a region token). They
+are rendered onto the project page's list of every column (`document-project` §2.6) and nowhere
+else. **A close name is a pointer for a reader, never a mapping**: nothing is scored against it,
+and a column moves into the naming table only when a shape can test it. Every unmapped column
+should match a rule; a test holds each close name to the vocabulary.
+
 ## 5. Declaring an invariance is declaring something testable
 
 An adapter says which invariances its numbers claim. `rotation` means: rotate the shape about the

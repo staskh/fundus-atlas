@@ -47,9 +47,11 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
     ("intersections", "topology/junctions/{side}"),
 )
 
-#: OCULAR computes **no central retinal equivalents**. Its copy of PVBM's `CREVBMs` keeps that
-#: class's graph machinery and replaces the measuring method with one that returns geometry only,
-#: so the whole family is absent rather than wrong.
+#: OCULAR computes **no central retinal equivalents**: nothing at its pinned commit computes CRAE,
+#: CRVE or any Knudtson or Hubbard pairing, so the whole family is absent rather than wrong.
+#: *Corrected 2026-11-22:* this said OCULAR carried a copy of PVBM's `CREVBMs`; no such file is in
+#: its checkout. Its one measuring call is `compute_geomVBMs` in `utils/GeometricalVBMs.py`, and an
+#: audit of its repository found nothing else that writes a biomarker.
 ABSENT = (
     "calibre/CRE-knudtson",
     "calibre/CRE-hubbard",
@@ -80,6 +82,39 @@ ANSWERS = _answers()
 CANONICAL: dict[str, str | None] = {
     own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
 }
+
+
+#: For each column with no canonical name, the nearest one and what keeps it from being that name.
+#: Rendered into the project page's list of every column it writes (`python -m biomarkers.pages`).
+#: A close name is a pointer for a reader, never a mapping: nothing is compared against it, and a
+#: column moves into the naming table above only when the shapes can test it. Patterns are matched
+#: against the whole of the column's own name; a column no rule matches has nothing near.
+CLOSEST = (
+    (
+        r"pooled_tortuosity_(?P<side>artery|vein)",
+        "tortuosity/hart-tau1/{side}/length-weighted",
+        "PVBM's tortuosity index: total arc length over total chord length, a ratio of sums",
+    ),
+    (
+        r"median_branching_angle_(?P<side>artery|vein)",
+        "topology/branching-angle/{side}/median",
+        (
+            "the median of every pairwise angle at a junction, the parent vessel's included, not only "
+            "the angle between the two daughters"
+        ),
+    ),
+    (
+        r"endpoints_(?P<side>artery|vein)",
+        "topology/endpoints/{side}",
+        "counts the free tips of vessels rooted at the disc, leaving out the end at the disc",
+    ),
+    (
+        r"start_points_(?P<side>artery|vein)",
+        "topology/components/{side}",
+        "how many vessels leave the disc, not how many separate pieces the network is in",
+    ),
+)
+CLOSEST_WORDS: dict[str, dict[str, str]] = {}
 
 
 class Ocular:

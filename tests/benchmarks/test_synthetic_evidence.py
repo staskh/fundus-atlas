@@ -51,3 +51,32 @@ def test_what_turning_is_meant_to_move_is_read_off_the_claimed_table() -> None:
     assert ("automorphalyzer", "cup_centre_x") in moving
     assert ("automorphalyzer", "disc_height") not in moving, "a circle is the same at every angle"
     assert ("pvbm", "tortuosity_index_artery") not in moving
+
+
+def test_a_lineage_reads_under_its_own_projects_names() -> None:
+    """*Added 2026-11-22.* Each sibling's column stands on the row of the column its lineage's own
+    project gives the same quantity, so a reader finds AutoMorph's and PVBM's names, not ours."""
+    from benchmarks.synthetic_evidence import native
+
+    assert (
+        native("automorphalyzer", "average_global_calibre@whole_artery") == "average_width_artery"
+    )
+    assert (
+        native("automorphalyzer", "tortuosity_distance@C_vein") == "distance_tortuosity_vein_zone_c"
+    )
+    assert native("automorphalyzer", "CRAE_Knudtson@B_artery") == "CRAE_Knudtson_zone_b"
+    assert native("automorphalyzer", "AVR_C") == "AVR_Knudtson_zone_c"
+    assert native("automorphclass", "average_width_vessels") == "average_width_binary"
+    assert native("automorphclass", "cdr_vertical") == "CDR_vertical"
+    assert native("ocular", "pooled_tortuosity_artery") == "tortuosity_index_artery"
+    assert native("vascx", "full_cre_arteries") == "full_cre_arteries"
+
+
+def test_a_column_measuring_something_else_never_shares_a_row() -> None:
+    """AutoMorphClass's zone C is 3 to 5 disc radii and AutoMorph's 2 to 5: one spelling, two
+    regions. An arterial equivalent over the vein map is not AutoMorph's CRAE either."""
+    from benchmarks.synthetic_evidence import native
+
+    assert native("automorphclass", "average_width_artery_zone_c") != "average_width_artery_zone_c"
+    assert native("automorphalyzer", "CRAE_Knudtson@B_vein").endswith("(automorphalyzer)")
+    assert native("ocular", "length_weighted_tortuosity_artery").endswith("(ocular)")

@@ -41,10 +41,10 @@ name rather than dropped.
 | --- | --- | --- | --- |
 | [pvbm](../projects/pvbm.md) | `5edb79a` | 30 | yes |
 | [ocular](../projects/ocularnet.md) | `34b1ecc`, `5edb79a` | 18 | yes |
-| [automorph](../projects/automorph.md) | `9a953e5` | 18 | yes |
-| [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 64 | yes |
-| [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 24 | yes |
-| [vascx](../projects/vascx.md) | `d0cde1c`, `e5823fe`, `ff47bfb`, `ec1ca00` | 20 | yes |
+| [automorph](../projects/automorph.md) | `9a953e5` | 72 | yes |
+| [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 66 | yes |
+| [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 60 | yes |
+| [vascx](../projects/vascx.md) | `d0cde1c`, `e5823fe`, `ff47bfb`, `ec1ca00` | 132 | yes |
 <!-- /generated -->
 
 Three of them share a lineage and one does not: AutoMorph, AutoMorphalyzer and AutoMorphClass all

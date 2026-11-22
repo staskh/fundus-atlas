@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "crossing",
-  "fingerprint": "e4de633b9afdd2292272a094a90efe161873259ff3e163c6043fdb2e0f7725e2",
+  "fingerprint": "3242fe9c3edd2fa718ea1da15d4c9a7a5579b974c68a258c018e901103cc34d4",
   "model": "automorphalyzer",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 6.018285714285715,
-    "seconds_per_rendering": 6.018285714285715,
+    "seconds_per_photograph": 6.1411428571428575,
+    "seconds_per_rendering": 6.1411428571428575,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

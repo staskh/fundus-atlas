@@ -61,12 +61,12 @@ Every shape is drawn at 0°, 15°, 30°, 45°, 60°, 75° and 90°, where the ge
 
 | Implementation | Renderings | Columns | Values returned | Turns with the image |
 | --- | --- | --- | --- | --- |
-| [automorph](projects/automorph.md) | 91 | 18 | 1638 | 100.0% |
-| [automorphalyzer](projects/automorphalyzer.md) | 91 | 64 | 4030 | 100.0% |
-| [automorphclass](projects/automorphclass.md) | 91 | 24 | 2184 | 100.0% |
+| [automorph](projects/automorph.md) | 91 | 72 | 5484 | 100.0% |
+| [automorphalyzer](projects/automorphalyzer.md) | 91 | 66 | 4196 | 100.0% |
+| [automorphclass](projects/automorphclass.md) | 91 | 60 | 5376 | 100.0% |
 | [ocular](projects/ocularnet.md) | 91 | 18 | 1469 | 100.0% |
 | [pvbm](projects/pvbm.md) | 91 | 30 | 2517 | 100.0% |
-| [vascx](projects/vascx.md) | 91 | 20 | 1007 | 99.6% |
+| [vascx](projects/vascx.md) | 91 | 132 | 5005 | 100.0% |
 
 
 ## Disc and cup

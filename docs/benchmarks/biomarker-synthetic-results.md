@@ -43,6 +43,17 @@ difference **across a boundary** is two independent readings of the same definit
 > group beside a summary comparing the three (sections 12 and 13), and the columns the catalogue
 > cannot name are now checked against what their own authors say they compute (section 14).
 >
+> **Re-measured a third time on 2026-11-22, with every column each project writes.** An audit found
+> four adapters returning less than their project's own run: AutoMorph 18 of 72 numbers,
+> AutoMorphClass 24 of 60, VascX 20 of the 132 its two shipped feature sets compute, and
+> AutoMorphalyzer without its two ratios. All four now return everything, and AutoMorph and
+> AutoMorphClass are run through their own pipelines' steps after segmentation, which hand every map
+> on at 912 × 912. That also fixed a unit error in this repository's AutoMorph adapter, whose widths
+> had been read 2.25 times too small. **AutoMorph's and AutoMorphClass's figures in sections 3 to 10
+> predate this and are kept as history; section 15 has the current ones**, and sections 1, 7 and 11
+> are updated. PVBM's, OCULAR's and AutoMorphalyzer's existing figures did not move, and neither did
+> VascX's six judged biomarkers.
+>
 > **PVBM measures with `GeometryAnalysis`**, from 2026-09-26, and **every catalogued number is in
 > microns**, from 2026-09-30 — sections 3.1 and 9 are the history of both.
 
@@ -62,20 +73,25 @@ difference **across a boundary** is two independent readings of the same definit
 12. [Each lineage on its own](#12-each-lineage-on-its-own)
 13. [The three lineages compared, by canonical name](#13-the-three-lineages-compared-by-canonical-name)
 14. [The unnamed columns, held to their own description](#14-the-unnamed-columns-held-to-their-own-description)
+15. [Every column each project writes](#15-every-column-each-project-writes)
 
 ## 1. Summary
 
 | | pvbm | ocular | automorph | automorphalyzer | automorphclass | vascx |
 | --- | --- | --- | --- | --- | --- | --- |
-| Biomarkers produced | 30 | 18 | 18 | 64 | 24 | 20 |
-| …matching a canonical name | 20 | 10 | 15 | 33 | 17 | 6 |
-| Comparable measurements | 1,748 | 882 | 1,344 | 2,483 | 1,526 | **153** |
-| Median disagreement | 4.9% | 0.0% | 8.6% | 6.1% | 5.6% | **0.0%** |
-| Within 25% of the geometry | 93% | **97%** | 78% | 76% | 83% | 91% |
-| Quantities that move when the image turns | 24 / 30 | 13 / 18 | 16 / 18 | 23 / 43 | 10 / 20 | **8 / 20** |
-| Biomarkers disagreeing with the geometry | 15 / 20 | 4 / 10 | 11 / 15 | 17 / 33 | 7 / 17 | 2 / 6 |
-| Exceptions | 0 | 0 | 0 | **21** | 0 | 0 |
-| Seconds per image | **64.9** | 4.8 | 1.7 | 7.0 | **1.5** | 5.2 |
+| Biomarkers produced | 30 | 18 | 72 | 66 | 60 | 132 |
+| …matching a canonical name | 20 | 10 | 53 | 35 | 29 | 6 |
+| Comparable measurements | 1,748 | 882 | 3,782 | 2,649 | 2,513 | **153** |
+| Median disagreement | 4.9% | 0.0% | 10.4% | 6.3% | 8.0% | **0.0%** |
+| Within 25% of the geometry | 93% | **97%** | 75% | 73% | 77% | 91% |
+| Quantities that move when the image turns | 24 / 30 | 13 / 18 | 54 / 70 | 24 / 45 | 48 / 56 | 38 / 109 |
+| Biomarkers disagreeing with the geometry | 15 / 20 | 4 / 10 | 43 / 53 | 19 / 35 | 18 / 29 | 2 / 6 |
+| Exceptions | 0 | 0 | **42** | **21** | 0 | 0 |
+| Seconds per image | **64.9** | 4.8 | 8.5 | 7.2 | **0.5** | 9.3 |
+
+*Updated again 2026-11-22, after the adapters were extended (section 15).* AutoMorph's 42
+exceptions are its zone stage finding no window in the empty zones of `disjoint`, where its own
+drivers write −1; they are read as no answer, which is the right one there.
 
 *Updated 2026-11-22.* AutoMorphalyzer's and AutoMorphClass's columns grew by their disc and cup
 figures (section 11) and, for AutoMorphalyzer, by the zone mapping that now names its zone-C
@@ -127,8 +143,8 @@ judge, and the counts above only mean something once they are kept apart:
 
 - **The catalogue may have no name for it.** AutoMorphalyzer returns 17 quantities with no
   canonical name — `average_local_calibre` at every zone, `tortuosity_density` and
-  `tortuosity_distance` at zone C, and two Knudtson equivalents at zone C. VascX returns 14,
-  PVBM 10, OCULAR 8, AutoMorph and AutoMorphClass 3 each. These are
+  `tortuosity_distance` at zone C, and two Knudtson equivalents at zone C. VascX returns 109 that
+  carry a value, AutoMorphClass 31, AutoMorph 19, PVBM 10 and OCULAR 8. These are
   measured and stored under the implementation's own name and appear in **no** comparison, because
   a canonical name exists to make two numbers comparable and there is nothing yet to compare them
   with. The notebook's section 1.1 lists them by name.
@@ -138,8 +154,8 @@ judge, and the counts above only mean something once they are kept apart:
   canonical biomarkers these six implementations answer are judged. AutoMorphalyzer's zone-B
   columns, which section 2 used to say were "judged against nothing", now are judged, and so are its
   zone-B Knudtson equivalents.
-- **The program may simply never answer.** AutoMorphalyzer returns 64 columns of which 50 ever
-  carry a value.
+- **The program may simply never answer.** AutoMorphalyzer returns 66 columns of which 52 ever
+  carry a value, and VascX 132 of which 115 do.
 
 ## 3. What raised: AutoMorphalyzer, on vessels that never reach the disc
 
@@ -379,13 +395,16 @@ measurements with a column of 1,748 as though they answered the same question. W
   PVBM on the equivalents, at 28.5% and 30.4%, so the margin is wide. The caveat is
   scope: VascX yields six judged biomarkers, and a comparable calibre only on `deep-bifurcation` and
   the two spoke shapes.
-- **For the central retinal equivalents with Hubbard's formula, not PVBM.** It is the only one of
-  the six independent implementations that computes them, and it is 55.8% out on the venular one
-  on the shape built to settle it, for the documented reason that it applies Hubbard's micron
-  constants to pixel widths. Knudtson's version, which is scale-free, is the safer choice from any
-  of them.
-- **For tortuosity, AutoMorphClass**: 8.6% and 9.5% worst on length-weighted Hart τ1 over every
-  shape and angle, 10% under rotation, and the fastest thing here at 1.5 seconds an image. OCULAR's
+- **For Hubbard's arteriovenous ratio, AutoMorph; for Hubbard's equivalents themselves, neither
+  clearly.** *Rewritten 2026-11-22, when AutoMorph's zone stage was first measured.* AutoMorph's
+  zone-B `AVR_Hubbard` is never more than 13.8% out, where PVBM's is 47.0%, because AutoMorph
+  applies Hubbard's micron constants to widths it has put in microns and PVBM applies them to
+  pixels. The equivalents are far out at worst in both: PVBM 30.9–55.8%, AutoMorph 52.9–63.0%, with
+  AutoMorph's medians at 3–12% (section 15). Knudtson's version, which is scale-free, remains the
+  safer choice, and VascX's is the closest.
+- **For tortuosity, AutoMorphClass**: 9.2% and 9.5% worst on length-weighted Hart τ1 over every
+  shape and angle, and the fastest thing here at 0.5 seconds an image (figures since 2026-11-22,
+  through its own pipeline at 912 × 912; they were 8.6% and 9.5% before). OCULAR's
   length-weighted column is level on veins (9.5%) and no longer on arteries (23.9%).
   AutoMorphalyzer is 14.6–17%, PVBM's and OCULAR's median 15.0–30.4%,
   VascX 43%. *The earlier page put AutoMorphClass and OCULAR level; the artery figure is what
@@ -402,8 +421,8 @@ measurements with a column of 1,748 as though they answered the same question. W
   adds the fractal dimensions and the central retinal equivalents at 64.9 seconds an image; OCULAR
   adds a length-weighted tortuosity at 4.8.
 - **Do not use AutoMorph's own measuring stage for tortuosity** where either descendant is
-  available: its Hart τ1 is out by up to 1,226% and moves by 449% under rotation, and both rewrites
-  fixed exactly that.
+  available: measured as its pipeline runs it, its mean Hart τ1 is up to 161 times the geometry's
+  value and moves by 350–640% under rotation (section 15), and both rewrites fixed exactly that.
 - **Do not hand AutoMorphalyzer a picture where zones B and C may be empty** — a misplaced disc, a
   tight crop — without catching the exception: it raises and loses the whole picture (section 3).
 
@@ -604,10 +623,11 @@ Both read the ratio as the cup's extent over the disc's along one image axis, wh
 a drawn ellipse is easiest for; **a real cup, irregular and with a soft rim, is a much harder
 test**, and this one says only that the arithmetic is right.
 
-**AutoMorph itself has none here.** Its ratios are computed in a driver script that reads its own
-result files back from disk, and no adapter may write files, so the ratios are listed as absent
-rather than measured. That is a limit of what this benchmark can reach, not a finding about
-AutoMorph's arithmetic. **PVBM, OCULAR and VascX compute no cup-to-disc ratio.**
+**AutoMorph's own ratios are measured too, since 2026-11-22.** They are computed in a driver,
+`optic_disc_centre`, that reads its inputs from files; the adapter now lays those files out in a
+temporary directory and runs it as shipped. On its 912 × 912 maps it lands within 1.9% everywhere,
+as AutoMorphClass now does through its own pipeline (section 15). **PVBM, OCULAR and VascX compute
+no cup-to-disc ratio.**
 
 AutoMorphalyzer also returns the disc's and cup's heights and widths, the cup's centre, whether the
 photograph is macula-centred, and which eye it is. Those are checked against their own description
@@ -788,8 +808,62 @@ Four findings, each ours, and each a statement about a column rather than about 
 
 The full tables, with every column and every shape, are §5 of each group notebook.
 
+
+## 15. Every column each project writes
+
+*Added 2026-11-22.* Each adapter now returns every number its project's own run writes, and each
+project page lists them with the canonical name each answers to, or the nearest one and what
+differs ([AutoMorph](../projects/automorph.md) §6.1, [AutoMorphalyzer](../projects/automorphalyzer.md)
+§6.1, [AutoMorphClass](../projects/automorphclass.md) §6.1, [PVBM](../projects/pvbm.md) §6.1,
+[OCULAR](../projects/ocularnet.md) §6.2, [VascX](../projects/vascx.md) §6.4).
+
+| | before | now | what was missing |
+| --- | --- | --- | --- |
+| AutoMorph | 18 | **72** | zones B and C, Hubbard's and Knudtson's equivalents and both ratios, the disc and cup |
+| AutoMorphClass | 24 | **60** | its zones B and C |
+| AutoMorphalyzer | 64 | **66** | its two ratios, `AVR_B` and `AVR_C` |
+| VascX | 20 | **132** | every column of `od_centered` but 20, and all of `full_v3`, the set its README recommends |
+| PVBM, OCULAR | 30, 18 | 30, 18 | nothing |
+
+**How they are run.** AutoMorph through its own steps after segmentation, on a temporary copy of
+the files they pass: the two M2 stages' `filter_frag`, which resize every map to 912 × 912 and
+skeletonise it; `optic_disc_centre`, which measures the disc and cup and cuts the zones; and both
+vendored copies of retipy. AutoMorphClass through its pipeline's `forward`, with the masks
+supplied so none of its networks runs. VascX runs both shipped sets on one retina.
+
+**What the new evidence shows** — the
+[AutoMorph group notebook](../../notebooks/synthetic/biomarker-synthetic-automorph.ipynb) §9 has it
+in full, with every row under AutoMorph's own column names:
+
+- **AutoMorph's widths were read 2.25 times too small** by this repository's adapter until this
+  run: it measures at 912, and its widths were converted as if they were pixels of the 2048 frame.
+  The median width error is now 10–13% in all three members.
+- **On vessels at 45°, AutoMorph and AutoMorphClass are 59–184% out on width**, and their widths
+  move by 63–132% as the picture turns. Both measure the same 912 maps and return the same
+  whole-picture widths. AutoMorphalyzer, which measures at the size it is handed, is 40–68% out at
+  worst.
+- **AutoMorph's zone-B equivalents** have medians of 3–12% and worst cases of 42–73%, and move by at
+  most 10.4% under rotation; its Hubbard ratio is within 13.8% (section 7).
+- **AutoMorph's mean Hart τ1 is up to 161 times the geometry's value.** On its own 912 skeleton,
+  retipy finds vessel pieces with almost no chord, and a mean over vessels lets one dominate. The
+  thresholds in `retipy.config`, which every driver reads, made no difference to it on the one
+  rendering checked both ways (`arc` at 45°).
+- **AutoMorphClass returns 0.0 for arc over chord in an empty zone**, on `disjoint` in zone B — a
+  value no curve can have, where the right answer is none.
+- **AutoMorphalyzer's ratios are 50% out at the median**: where both equivalents failed,
+  `merge_results` divides −1 by −1 and keeps the 1.
+- **All three AutoMorph-lineage cup-to-disc ratios are within 1.9%** everywhere.
+- **VascX's 109 named-by-itself columns** are mostly its calibre, tortuosity, density, sparsity
+  and branching angle over regions on the disc-to-fovea axis, which a synthetic shape does not
+  have; 36 move by more than 10% under rotation, the hemifield and half-circle densities by up to
+  700%. Running both sets costs 9.3 seconds an image. Its whole-image `full_v3` columns name
+  catalogued biomarkers outright and are held to them: widths within 2.4–5.1%, whole-vessel arc
+  over chord within 8.6%, and its mean branching angle 48–60% out at worst.
+
 ---
 
 **Compiled from** [the summary notebook](../../notebooks/synthetic/biomarker-synthetic.ipynb) and
 the three group notebooks in [notebooks/synthetic/](../../notebooks/synthetic/) on 2026-11-22;
-sections 1–11 were first compiled on 2026-11-10 and their vessel figures re-measured unchanged.
+sections 1–11 were first compiled on 2026-11-10. Their PVBM, OCULAR, AutoMorphalyzer and VascX
+vessel figures were re-measured unchanged; their AutoMorph and AutoMorphClass figures are history,
+superseded by section 15.

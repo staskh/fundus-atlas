@@ -86,18 +86,6 @@ PER_PAIR: dict[str, str | None] = {
     "avr_hubbard": "calibre/AVR-hubbard/both/B",
 }
 
-#: The order a reader meets PVBM's own columns in, per class.
-GEOMETRY = (
-    "area",
-    "length",
-    "perimeter",
-    "median_tortuosity",
-    "mean_branching_angle",
-    "std_branching_angle",
-    "median_branching_angle",
-    "endpoints",
-    "intersections",
-)
 #: The order `GeometryAnalysis.compute_geomVBMs` returns its list in, from PVBM's own docstring.
 #: One call replaces the five the deprecated class needed, so the order *is* the interface and a
 #: silent change to it would be unnoticeable — which is why `zip` below is strict.
@@ -186,6 +174,47 @@ CALLS = _calls()
 #: rather than a value, and it is turned into "no answer" here rather than left to be averaged
 #: into somebody's table as a negative calibre.
 FAILED = -1
+
+
+#: For each column with no canonical name, the nearest one and what keeps it from being that name.
+#: Rendered into the project page's list of every column it writes (`python -m biomarkers.pages`).
+#: A close name is a pointer for a reader, never a mapping: nothing is compared against it, and a
+#: column moves into the naming table above only when the shapes can test it. Patterns are matched
+#: against the whole of the column's own name; a column no rule matches has nothing near.
+CLOSEST = (
+    (
+        r"tortuosity_index_(?P<side>artery|vein)",
+        "tortuosity/hart-tau1/{side}/length-weighted",
+        (
+            "total arc length over total chord length, a ratio of sums: each vessel weighted by its "
+            "chord rather than its length"
+        ),
+    ),
+    (
+        r"median_branching_angle_(?P<side>artery|vein)",
+        "topology/branching-angle/{side}/median",
+        (
+            "the median of every pairwise angle at a junction, the parent vessel's included, not only "
+            "the angle between the two daughters"
+        ),
+    ),
+    (
+        r"endpoints_(?P<side>artery|vein)",
+        "topology/endpoints/{side}",
+        "counts the free tips of vessels rooted at the disc, leaving out the end at the disc",
+    ),
+    (
+        r"start_points_(?P<side>artery|vein)",
+        "topology/components/{side}",
+        "how many vessels leave the disc, not how many separate pieces the network is in",
+    ),
+    (
+        r"singularity_length_(?P<side>artery|vein)",
+        None,
+        "the width of the multifractal spectrum; the catalogue names D0, D1 and D2 only",
+    ),
+)
+CLOSEST_WORDS: dict[str, dict[str, str]] = {}
 
 
 class Pvbm:

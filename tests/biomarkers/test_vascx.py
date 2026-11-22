@@ -27,9 +27,28 @@ def test_it_declares_the_configuration_it_ran() -> None:
     declared = an_adapter().declare()
 
     assert declared["slug"] == "vascx"
-    assert declared["feature_set"] == "fs_od_centered", "a set VascX ships, not one assembled here"
+    assert declared["feature_sets"] == ["fs_od_centered", "fs_full_v3"], "sets VascX ships"
     assert "disc diameters" in declared["circle"]
     assert declared["upstream"], "a run records the code that produced the number"
+
+
+def test_it_keeps_every_column_both_sets_compute() -> None:
+    """*Our finding, 2026-11-22:* it kept 20 of the 67 columns `od_centered` computes and threw the
+    rest away. Every column is now a key, and the list is held to what VascX itself names, so a
+    change upstream fails here rather than dropping a column silently."""
+    from biomarkers import vascx
+    from upstreams import vascx as upstream
+
+    retina, _, _, sets = upstream.features()
+    named: list[str] = []
+    for feature_set in vascx.FEATURE_SETS:
+        for name in retina.make_feature_display_names(getattr(sets, feature_set)):
+            if name not in named:
+                named.append(name)
+
+    assert list(vascx.COLUMNS) == named
+    assert set(an_adapter().keys()) == set(named)
+    assert len(named) == 132
 
 
 def test_every_name_it_answers_under_is_catalogued_or_plainly_its_own() -> None:
@@ -91,17 +110,15 @@ def test_it_converts_its_millimetres_back_to_the_pixels_every_adapter_reports(sh
     calibre = next(
         own for own, name in names.items() if name == "calibre/width/artery/length-weighted"
     )
-    equivalent = next(
-        own for own, name in names.items() if name == "calibre/CRE-knudtson/artery/B"
-    )
+    equivalent = next(own for own, name in names.items() if name == "calibre/CRE-knudtson/artery/B")
 
     for own, catalogued in (
         (calibre, "calibre/width/artery/length-weighted"),
         (equivalent, "calibre/CRE-knudtson/artery/B"),
     ):
-        assert canonical.from_pixels(
-            catalogued, measured[own], shape.um_per_px
-        ) == pytest.approx(shape.theory[catalogued], rel=0.05), catalogued
+        assert canonical.from_pixels(catalogued, measured[own], shape.um_per_px) == pytest.approx(
+            shape.theory[catalogued], rel=0.05
+        ), catalogued
 
 
 def test_it_declines_when_handed_one_class(shape) -> None:

@@ -17,14 +17,19 @@ CODE = source.Checkout(
 
 
 def features():
-    """`pytorch_automorph.feature_calculation`, for `Vessel_Features`.
-
-    Only the vessel half is reached. Its optic disc and cup features need a cup segmentation, which
-    a biomarker adapter is not handed — the cup-to-disc ratio is measured against ophthalmologists'
-    own outlines in the disc benchmark instead.
-    """
+    """`pytorch_automorph.feature_calculation`: `Vessel_Features`, `Optic_Disc_Cup_Features` and
+    the wrapper that batches them."""
     CODE.on_path()
     from pytorch_automorph import feature_calculation as module
+
+    return module
+
+
+def main():
+    """`pytorch_automorph.main`, for `AutoMorphModel.forward`: the pipeline's own order of steps,
+    zones and invalidation included. Importing it builds no network."""
+    CODE.on_path()
+    from pytorch_automorph import main as module
 
     return module
 

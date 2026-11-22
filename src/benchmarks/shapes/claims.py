@@ -136,6 +136,25 @@ def _density_in_vascx_circle(side: str) -> Callable[[Scene, dict], Truth]:
     return derive
 
 
+def _zone_over_frame(side: str, inner: float, outer: float) -> Callable[[Scene, dict], Truth]:
+    """Vessel area inside an annulus of `inner` to `outer` disc radii about the disc's centre, over
+    the area of the whole square frame — the denominator AutoMorph's `vessel_density` divides a
+    zone's vessel pixels by. The frame spans the field of view's diameter."""
+
+    def derive(scene: Scene, row: dict) -> Truth:
+        radius = DISC_DIAMETER_UM / 2.0
+        centre = Point(*scene.disc)
+        ring = centre.buffer(outer * radius, quad_segs=QUAD_SEGS).difference(
+            centre.buffer(inner * radius, quad_segs=QUAD_SEGS)
+        )
+        drawn = _tubes(_class(scene, side))
+        return Truth(
+            float(shapely.area(drawn.intersection(ring)) / FOV_DIAMETER_UM**2), "numerical"
+        )
+
+    return derive
+
+
 def _disc_diameter(scene: Scene, row: dict) -> Truth:
     """A circle is as tall as it is wide, at every angle."""
     return Truth(DISC_DIAMETER_UM)
@@ -174,6 +193,10 @@ def _macular_centred(scene: Scene, row: dict) -> Truth:
 
 _HART = "Hart et al. 1999, cited in retipy's `squared_curvature_tortuosity` docstring"
 _FOVEA = "it needs a fovea, and the synthetic shapes place none"
+_RING_3_TO_5 = (
+    "its zone C is 3 to 5 disc radii, a ring the stored ground truth does not cover; the "
+    "catalogue's zone C is 2 to 5"
+)
 
 
 def _automorph_family() -> list[Claim]:
@@ -197,6 +220,83 @@ def _automorph_family() -> list[Claim]:
                     power=-1,
                 )
             )
+    # *Added 2026-11-22*, when the AutoMorph and AutoMorphClass adapters first reached their zones.
+    for slug, maps, statistic, zones in (
+        (
+            "automorph",
+            {"artery": "artery", "vein": "vein", "binary": "vessels"},
+            "mean",
+            {"b": ("/B", 2.0, 3.0), "c": ("/C", 2.0, 5.0)},
+        ),
+        (
+            "automorphclass",
+            {"artery": "artery", "vein": "vein", "vessels": "vessels"},
+            "length-weighted",
+            {"b": ("/B", 2.0, 3.0), "c": (None, 3.0, 5.0)},
+        ),
+    ):
+        source = (
+            "AutoMorph's zone-stage `evaluate_window`"
+            if slug == "automorph"
+            else "AutoMorphClass's `Vessel_Features` over `define_zones`"
+        )
+        for own, side in maps.items():
+            for zone, (region, inner, outer) in zones.items():
+                found.append(
+                    Claim(
+                        slug,
+                        f"squared_curvature_tortuosity_{own}_zone_{zone}",
+                        "Hart's squared-curvature tortuosity, ∫κ² ds, inside the zone",
+                        _HART,
+                        canonical=(
+                            f"tortuosity/hart-tau3/{side}{region}/{statistic}" if region else None
+                        ),
+                        power=-1,
+                        unsettled="" if region else _RING_3_TO_5,
+                    )
+                )
+                found.append(
+                    Claim(
+                        slug,
+                        f"vessel_density_{own}_zone_{zone}",
+                        f"the zone's vessel pixels over every pixel of the frame, the zone being "
+                        f"{inner:g} to {outer:g} disc radii",
+                        source,
+                        derive=_zone_over_frame(side, inner, outer),
+                    )
+                )
+                if slug == "automorphclass" and zone == "c":
+                    for column, says in (
+                        ("fractal_dimension", "the box-counting dimension, inside the zone"),
+                        ("average_width", "vessel area over centreline length, inside the zone"),
+                        ("distance_tortuosity", "arc over chord, inside the zone"),
+                        ("tortuosity_density", "Grisan's tortuosity density, inside the zone"),
+                    ):
+                        found.append(
+                            Claim(
+                                slug,
+                                f"{column}_{own}_zone_c",
+                                says,
+                                source,
+                                unsettled=_RING_3_TO_5,
+                            )
+                        )
+    found += [
+        Claim(
+            "automorph",
+            column,
+            says,
+            "AutoMorph's `optic_disc_centre`",
+            derive=derive,
+            power=1,
+        )
+        for column, says, derive in (
+            ("Disc_height", "the disc's vertical diameter", _disc_diameter),
+            ("Disc_width", "the disc's horizontal diameter", _disc_diameter),
+            ("Cup_height", "the cup's vertical diameter", _cup_extent("vertical")),
+            ("Cup_width", "the cup's horizontal diameter", _cup_extent("horizontal")),
+        )
+    ]
     for side, structure in (("artery", "artery"), ("vein", "vein"), ("binary", "vessels")):
         for zone, region in (("whole", ""), ("B", "/B"), ("C", "/C")):
             found.append(
@@ -408,8 +508,70 @@ def _vascx() -> list[Claim]:
     return found
 
 
+def _vascx_sets() -> list[Claim]:
+    """Every other unnamed column of VascX's two shipped sets. *Added 2026-11-22*, when the adapter
+    first kept all 132 columns `od_centered` and `full_v3` compute.
+
+    Most measure over a region built on the disc-to-fovea axis — a quadrant or half of its circle,
+    a hemifield, the ETDRS grid, an ellipse — or are scaled by that distance, and no synthetic shape
+    has a fovea, so they are listed as unsettled. The whole-image ones claim a catalogued biomarker
+    outright, and are held to it.
+    """
+    import re
+
+    from biomarkers import vascx
+    from biomarkers.utils.closest import nearest
+
+    held = {
+        r"lw_diam_(?P<side>arteries|veins)": "calibre/width/{side}/length-weighted",
+        r"md_diam_(?P<side>arteries|veins)": "calibre/width/{side}/median",
+        r"lw_tort_dist_(?:max_segment_len_0p2_)?(?P<side>arteries|veins)": (
+            "tortuosity/hart-tau1/{side}/length-weighted"
+        ),
+        r"md_tort_dist_(?P<side>arteries|veins)": "tortuosity/hart-tau1/{side}/median",
+        r"lw_tort_dist_vessels_(?P<side>arteries|veins)": (
+            "tortuosity/vessel-hart-tau1/{side}/length-weighted"
+        ),
+        r"mn_bifangle_(?P<side>arteries|veins)": "topology/branching-angle/{side}/mean",
+    }
+    sides = {"arteries": "artery", "veins": "vein"}
+    already = {claim.column for claim in _vascx()}
+    found = []
+    for column, name in vascx.CANONICAL.items():
+        if name or column in already:
+            continue
+        near = nearest(column, vascx.CLOSEST, vascx.CLOSEST_WORDS)
+        says = f"{near[0]}, {near[1]}" if near and near[0] else (near[1] if near else column)
+        for pattern, template in held.items():
+            match = re.fullmatch(pattern, column)
+            if match:
+                found.append(
+                    Claim(
+                        "vascx",
+                        column,
+                        f"{template.format(side=sides[match['side']])}, over the whole image",
+                        "VascX's `full_v3` feature set",
+                        canonical=template.format(side=sides[match["side"]]),
+                        # A width is a length, so its pixels are converted before comparing.
+                        power=1 if template.startswith("calibre/") else 0,
+                    )
+                )
+                break
+        else:
+            if column.startswith("sharpness_"):
+                why = "it measures the photograph's focus, and a drawn shape has no photograph"
+            elif "disc_full" in column:
+                why = "the extent of its `disc_full` grid has not been read from VascX's source"
+            else:
+                why = _FOVEA
+            found.append(
+                Claim("vascx", column, says, "VascX's shipped feature sets", unsettled=why)
+            )
+    return found
+
+
 #: Every claim, in the benchmark's lineage order.
-CLAIMS: tuple[Claim, ...] = (*_pvbm_family(), *_automorph_family(), *_vascx())
+CLAIMS: tuple[Claim, ...] = (*_pvbm_family(), *_automorph_family(), *_vascx(), *_vascx_sets())
 
 
 def claimed(slug: str) -> dict[str, Claim]:

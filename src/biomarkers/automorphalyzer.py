@@ -60,6 +60,21 @@ ZONAL: dict[str, str | None] = {
     "average_local_calibre": None,
 }
 
+#: The arteriovenous ratios its full run writes, `AVR_B` and `AVR_C`, which no measuring call
+#: returns: `merge_results` divides the zone's artery-map CRAE by its vein-map CRVE as it writes the
+#: table, and records any negative ratio as failed. *Added 2026-11-22, when an audit of its
+#: `feature_measurements.csv` found them missing here.* The division is reproduced as it ships,
+#: including its one quirk: when both equivalents failed, both are −1 and the ratio is a positive 1,
+#: which it keeps.
+RATIOS: dict[str, tuple[str, str, str]] = {
+    f"AVR_{zone}": (
+        f"CRAE_Knudtson@{zone}_artery",
+        f"CRVE_Knudtson@{zone}_vein",
+        f"calibre/AVR-knudtson/both/{zone}",
+    )
+    for zone in ("B", "C")
+}
+
 #: What `get_disc_metrics` returns from a disc mask, a cup mask and the vessel map, and the
 #: catalogued biomarker each answers to. *Our finding, 2026-11-22, from `measure.py`:* each ratio
 #: is the cup's bounding-box extent over the disc's along the image's rows or columns, an extent
@@ -115,6 +130,8 @@ def _answers() -> dict[str, str]:
                     pairs[own] = own
                 else:
                     pairs[mapped.format(side=side, zone=zone)] = own
+    for own, (_, _, mapped) in RATIOS.items():
+        pairs[mapped] = own
     for column, mapped in DISC_COLUMNS.items():
         pairs[mapped or column] = column
     return pairs
@@ -131,6 +148,66 @@ ANSWERS = _answers()
 #: measurement.
 CANONICAL: dict[str, str | None] = {
     own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+}
+
+
+#: For each column with no canonical name, the nearest one and what keeps it from being that name.
+#: Rendered into the project page's list of every column it writes (`python -m biomarkers.pages`).
+#: A close name is a pointer for a reader, never a mapping: nothing is compared against it, and a
+#: column moves into the naming table above only when the shapes can test it. Patterns are matched
+#: against the whole of the column's own name; a column no rule matches has nothing near.
+CLOSEST = (
+    (
+        r"average_local_calibre@whole_(?P<side>binary|artery|vein)",
+        "calibre/width/{side}/length-weighted",
+        (
+            "a mean over every width sample along every vessel, branch points left out; "
+            "`average_global_calibre` is the column named this"
+        ),
+    ),
+    (
+        r"average_local_calibre@(?P<zone>B|C)_(?P<side>binary|artery|vein)",
+        "calibre/width/{side}/{zone}/length-weighted",
+        "a mean over every width sample along every vessel in the zone, branch points left out",
+    ),
+    (
+        r"CRAE_Knudtson@whole_(?P<side>binary|artery|vein)",
+        "calibre/CRE-knudtson/artery/B",
+        "computed over the whole frame on the {side} map; an equivalent is defined in a zone",
+    ),
+    (
+        r"CRVE_Knudtson@whole_(?P<side>binary|artery|vein)",
+        "calibre/CRE-knudtson/vein/B",
+        "computed over the whole frame on the {side} map; an equivalent is defined in a zone",
+    ),
+    (
+        r"CRAE_Knudtson@(?P<zone>B|C)_(?P<side>binary|vein)",
+        "calibre/CRE-knudtson/artery/{zone}",
+        "Knudtson's arterial pairing applied to the {side} map, which upstream drops from its table",
+    ),
+    (
+        r"CRVE_Knudtson@(?P<zone>B|C)_(?P<side>binary|artery)",
+        "calibre/CRE-knudtson/vein/{zone}",
+        "Knudtson's venular pairing applied to the {side} map, which upstream drops from its table",
+    ),
+    (
+        r"macular_centred",
+        "landmarks/centring",
+        "a yes or no for macula-centred, where the catalogue's centring is disc, macula or unknown",
+    ),
+    (
+        r"(disc|cup)_(height|width)|cup_centre_[xy]",
+        None,
+        "a pixel extent or position; the catalogue has no disc or cup size",
+    ),
+    (
+        r"laterality",
+        None,
+        "which eye, a word, inferred from where the vessels are; no canonical name",
+    ),
+)
+CLOSEST_WORDS = {
+    "side": {"binary": "vessels", "artery": "artery", "vein": "vein"},
 }
 
 
@@ -162,6 +239,7 @@ class Automorphalyzer:
         self._measure = None
         self._coordinates = None
         self._zones = None
+        self._returned: dict[str, object] = {}
 
     def declare(self) -> dict[str, object]:
         return {
@@ -172,7 +250,11 @@ class Automorphalyzer:
             "names": dict(CANONICAL),
             "calls": {
                 own: [
-                    "disc_and_cup" if own in DISC_COLUMNS else f"measure_{own.rsplit('_', 1)[-1]}"
+                    "disc_and_cup"
+                    if own in DISC_COLUMNS
+                    else "merge_results"
+                    if own in RATIOS
+                    else f"measure_{own.rsplit('_', 1)[-1]}"
                 ]
                 for own in CANONICAL
             },
@@ -200,6 +282,7 @@ class Automorphalyzer:
     ) -> dict[str, float | None]:
         """Everything it computes, under catalogued names, with `None` where it could not."""
         self.trouble = {}
+        self._returned: dict[str, object] = {}
         computed: dict[str, float | None] = dict.fromkeys(ANSWERS.values())
         x, y, radius = (float(value) for value in disc)
         side = (artery if artery is not None else vein).shape[0]
@@ -215,6 +298,8 @@ class Automorphalyzer:
             if mask is None or not mask.any():
                 continue
             computed.update(self._one_map(mask, measured, disc_mask, (x, y), radius, side))
+        for own, (top, bottom, _) in RATIOS.items():
+            computed[own] = _ratio(self._returned.get(top), self._returned.get(bottom))
         if cup is not None and maps["binary"] is not None:
             computed.update(self._disc_and_cup(disc_mask, cup, maps["binary"]))
         return {own: computed.get(own) for own in CANONICAL}
@@ -254,6 +339,8 @@ class Automorphalyzer:
         for zone, values in measured_zones.items():
             for column, value in values.items():
                 found[f"{column}@{zone}_{measured}"] = _number(value)
+                # What it returned, sentinel and all, for the ratios `merge_results` derives.
+                self._returned[f"{column}@{zone}_{measured}"] = value
         return found
 
     @staticmethod
@@ -283,6 +370,15 @@ class Automorphalyzer:
 def _union(artery: np.ndarray | None, vein: np.ndarray | None) -> np.ndarray:
     parts = [np.asarray(part) > 0 for part in (artery, vein) if part is not None]
     return parts[0] if len(parts) == 1 else parts[0] | parts[1]
+
+
+def _ratio(artery: object, vein: object) -> float | None:
+    """`merge_results`'s ratio: CRAE over CRVE as returned, and no ratio where that is negative."""
+    try:
+        found = float(artery) / float(vein)
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+    return found if np.isfinite(found) and found >= 0 else None
 
 
 def _number(value: object) -> float | None:

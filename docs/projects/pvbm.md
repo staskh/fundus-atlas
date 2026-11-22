@@ -93,6 +93,49 @@ contributions of the toolbox.
 Areas and lengths are reported in pixels, so results are not comparable across cameras or image
 sizes without a resolution conversion of the user's own.
 
+### 6.1 Every column it writes
+
+*Added 2026-11-22.* Every number the implementation returns, under its own name, beside the
+canonical name it answers to — or, where it answers to none, the nearest one and what keeps
+it from being that name.
+
+<!-- generated: columns -->
+**30 columns**: 20 answer to a canonical name exactly, 8 are close to one and 2 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/pvbm.py` by `python -m biomarkers.pages`.
+
+| Its column | Canonical name | Match | What differs |
+| --- | --- | :-: | --- |
+| `area_artery` | `density/area/artery` | exact |  |
+| `length_artery` | `density/skeleton-length-rooted/artery` | exact |  |
+| `median_tortuosity_artery` | `tortuosity/hart-tau1/artery/median` | exact |  |
+| `tortuosity_index_artery` | `tortuosity/hart-tau1/artery/length-weighted` | close | total arc length over total chord length, a ratio of sums: each vessel weighted by its chord rather than its length |
+| `median_branching_angle_artery` | `topology/branching-angle/artery/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `start_points_artery` | `topology/components/artery` | close | how many vessels leave the disc, not how many separate pieces the network is in |
+| `endpoints_artery` | `topology/endpoints/artery` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
+| `intersections_artery` | `topology/junctions/artery` | exact |  |
+| `capacity_dimension_artery` | `density/multifractal-d0/artery` | exact |  |
+| `entropy_dimension_artery` | `density/multifractal-d1/artery` | exact |  |
+| `correlation_dimension_artery` | `density/multifractal-d2/artery` | exact |  |
+| `singularity_length_artery` | — | none | the width of the multifractal spectrum; the catalogue names D0, D1 and D2 only |
+| `area_vein` | `density/area/vein` | exact |  |
+| `length_vein` | `density/skeleton-length-rooted/vein` | exact |  |
+| `median_tortuosity_vein` | `tortuosity/hart-tau1/vein/median` | exact |  |
+| `tortuosity_index_vein` | `tortuosity/hart-tau1/vein/length-weighted` | close | total arc length over total chord length, a ratio of sums: each vessel weighted by its chord rather than its length |
+| `median_branching_angle_vein` | `topology/branching-angle/vein/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `start_points_vein` | `topology/components/vein` | close | how many vessels leave the disc, not how many separate pieces the network is in |
+| `endpoints_vein` | `topology/endpoints/vein` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
+| `intersections_vein` | `topology/junctions/vein` | exact |  |
+| `capacity_dimension_vein` | `density/multifractal-d0/vein` | exact |  |
+| `entropy_dimension_vein` | `density/multifractal-d1/vein` | exact |  |
+| `correlation_dimension_vein` | `density/multifractal-d2/vein` | exact |  |
+| `singularity_length_vein` | — | none | the width of the multifractal spectrum; the catalogue names D0, D1 and D2 only |
+| `crae_knudtson` | `calibre/CRE-knudtson/artery/B` | exact |  |
+| `crve_knudtson` | `calibre/CRE-knudtson/vein/B` | exact |  |
+| `crae_hubbard` | `calibre/CRE-hubbard/artery/B` | exact |  |
+| `crve_hubbard` | `calibre/CRE-hubbard/vein/B` | exact |  |
+| `avr_knudtson` | `calibre/AVR-knudtson/both/B` | exact |  |
+| `avr_hubbard` | `calibre/AVR-hubbard/both/B` | exact |  |
+<!-- /generated -->
+
 ## 7. Examples and notebooks
 
 - [`pvbmtutorial.ipynb`](https://github.com/aim-lab/PVBM/blob/main/pvbmtutorial.ipynb) — start here.

@@ -16,6 +16,7 @@ Nothing here measures anything or writes anything. It reads three inputs and joi
 | Ground truth | the store's `ground_truth.csv`, and `ground_truth_claimed.csv` beside it | what the geometry requires, by canonical name and by each program's own description |
 """
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -100,6 +101,103 @@ def signed(value: float, truth: float, size: float) -> float:
     if abs(gap) < smallest:
         return 0.0
     return gap / max(abs(truth), smallest)
+
+
+# each lineage's own names ----------------------------------------------------------------------
+
+#: OCULAR's columns under the names PVBM gives the same ones. OCULAR runs PVBM's geometry, so its
+#: columns are PVBM's; the one it renames is the tortuosity index. Its length-weighted tortuosity
+#: has no PVBM counterpart and keeps its own name.
+_OCULAR = {"pooled_tortuosity": "tortuosity_index"}
+
+#: AutoMorphalyzer's whole-picture quantities, under the names AutoMorph gives the same ones. Both
+#: rewrote AutoMorph's measuring stage, so most of their columns are AutoMorph's under new names.
+_AUTOMORPHALYZER = {
+    "fractal_dimension": "fractal_dimension",
+    "vessel_density": "vessel_density",
+    "average_global_calibre": "average_width",
+    "tortuosity_distance": "distance_tortuosity",
+    "tortuosity_density": "tortuosity_density",
+}
+
+#: The disc and cup columns, which the three spell three ways.
+_DISC = {
+    "disc_height": "Disc_height",
+    "disc_width": "Disc_width",
+    "cup_height": "Cup_height",
+    "cup_width": "Cup_width",
+    "cdr_vertical": "CDR_vertical",
+    "cdr_horizontal": "CDR_horizontal",
+    "CDR_vertical": "CDR_vertical",
+    "CDR_horizontal": "CDR_horizontal",
+}
+
+
+def native(slug: str, own: str) -> str:
+    """A column under the name its lineage's root gives the same quantity, so a lineage's members
+    stand on one row as that project's users know them: AutoMorph's names for AutoMorphalyzer and
+    AutoMorphClass, PVBM's for OCULAR, and VascX's own for VascX.
+
+    A column is matched only where it measures the same quantity over the same map and the same
+    region; a different **statistic** still matches (AutoMorphClass length-weights where AutoMorph
+    takes a mean), because the row's canonical names say so beside it. Where there is no
+    counterpart the column keeps its own name, followed by its implementation's, so it can never be
+    mistaken for AutoMorph's column of the same spelling: AutoMorphClass's `…_zone_c` is **3 to 5**
+    disc radii and AutoMorph's 2 to 5, so those never share a row. A root's column is its own name.
+    """
+    if slug in ("automorph", "pvbm", "vascx"):
+        return own
+    if slug == "ocular":
+        found = re.fullmatch(r"(?P<column>.+)_(?P<map>artery|vein)", own)
+        if found and found["column"] != "length_weighted_tortuosity":
+            return f"{_OCULAR.get(found['column'], found['column'])}_{found['map']}"
+        return f"{own} ({slug})"
+    if slug == "automorphclass":
+        if own in _DISC:
+            return _DISC[own]
+        found = re.fullmatch(r"(?P<column>.+)_(?P<map>vessels|artery|vein)(?P<zone>_zone_b)?", own)
+        if found:
+            mapped = "binary" if found["map"] == "vessels" else found["map"]
+            return f"{found['column']}_{mapped}{found['zone'] or ''}"
+        return f"{own} ({slug})"
+    if slug == "automorphalyzer":
+        if own in _DISC:
+            return _DISC[own]
+        if own in ("AVR_B", "AVR_C"):
+            return f"AVR_Knudtson_zone_{own[-1].lower()}"
+        found = re.fullmatch(
+            r"(?P<column>\w+)@(?P<zone>whole|B|C)_(?P<map>binary|artery|vein)", own
+        )
+        if found:
+            zone = "" if found["zone"] == "whole" else f"_zone_{found['zone'].lower()}"
+            if found["column"] in _AUTOMORPHALYZER:
+                return f"{_AUTOMORPHALYZER[found['column']]}_{found['map']}{zone}"
+            # AutoMorph keeps each equivalent only from its own class's map, inside a zone.
+            pairs = {"CRAE_Knudtson": "artery", "CRVE_Knudtson": "vein"}
+            if zone and pairs.get(found["column"]) == found["map"]:
+                return f"{found['column']}{zone}"
+        return f"{own} ({slug})"
+    return own
+
+
+def comments(evidence: "Evidence") -> pd.Series:
+    """For each row of a lineage's own names, the canonical name each member's column answers to —
+    one name where all agree, each member's where they differ, `—` where none has one."""
+    said = evidence.said.drop_duplicates(["implementation", "native"])
+    written = {}
+    for row, group in said.groupby("native"):
+        named = {
+            slug: name
+            for slug, name in zip(group["implementation"], group["canonical"], strict=True)
+            if isinstance(name, str)
+        }
+        if not named:
+            written[row] = "—"
+        elif len(set(named.values())) == 1 and len(named) == len(group):
+            written[row] = next(iter(named.values()))
+        else:
+            written[row] = "; ".join(f"{slug}: {name}" for slug, name in named.items())
+    return pd.Series(written, name="canonical")
 
 
 # reading ---------------------------------------------------------------------------------------
@@ -245,6 +343,9 @@ def _tidy(long: pd.DataFrame, names: dict, scales: pd.Series) -> pd.DataFrame:
     microns by `canonical.from_pixels`, the rule the ground truth was built with."""
     long = long[~_worded(long)].astype({"returned": float})
     long["canonical"] = long["own"].map(names)
+    long["native"] = [
+        native(slug, own) for slug, own in zip(long["implementation"], long["own"], strict=True)
+    ]
     long["um_per_px"] = long["key"].map(scales)
     long["value"] = [
         canonical.from_pixels(name, number, scale)
@@ -281,11 +382,23 @@ def _claimed(where: Path, said: pd.DataFrame, implementations) -> pd.DataFrame:
             )
     if not rows:
         return pd.DataFrame(
-            columns=["implementation", "own", "key", "claimed", "kind", "claims", "as", "power"]
+            columns=[
+                "implementation",
+                "own",
+                "native",
+                "key",
+                "claimed",
+                "kind",
+                "claims",
+                "as",
+                "power",
+            ]
         )
     table = pd.DataFrame(rows)
     joined = table.merge(
-        said[["implementation", "own", "key", "shape", "rotation", "returned", "um_per_px"]],
+        said[
+            ["implementation", "own", "native", "key", "shape", "rotation", "returned", "um_per_px"]
+        ],
         on=["implementation", "own", "key"],
         how="left",
     )
@@ -298,17 +411,18 @@ def _claimed(where: Path, said: pd.DataFrame, implementations) -> pd.DataFrame:
 # the two comparisons ---------------------------------------------------------------------------
 
 
-def rotation(evidence: Evidence, named: bool = True) -> pd.Series:
+def rotation(evidence: Evidence, named: bool = True, by: str | None = None) -> pd.Series:
     """The worst spread across angles each quantity showed on any shape, by (implementation, name).
 
-    Named quantities are indexed by canonical name, unnamed ones by their own. What turning the
+    Named quantities are indexed by canonical name, unnamed ones by their own, unless `by` names
+    another key — `native`, AutoMorph's own name, for its lineage. What turning the
     photograph is *meant* to move is left out: the cup-to-disc ratios read along the image's axes,
     and the unnamed columns whose own claimed value changes with the angle (`claims.turning`).
     """
     said = evidence.said[evidence.said["value"].notna()]
     if named:
         said = said[said["canonical"].notna() & ~said["canonical"].isin(TURN_WITH_THE_IMAGE)]
-        index = "canonical"
+        index = by or "canonical"
     else:
         said = said[said["canonical"].isna()]
         moves = [
@@ -316,7 +430,7 @@ def rotation(evidence: Evidence, named: bool = True) -> pd.Series:
             for slug, own in zip(said["implementation"], said["own"], strict=True)
         ]
         said = said[~np.array(moves, dtype=bool)]
-        index = "own"
+        index = by or "own"
     if said.empty:
         return pd.Series(dtype=float)
     by_shape = said.groupby(["implementation", index, "shape"], group_keys=True).apply(
@@ -325,15 +439,24 @@ def rotation(evidence: Evidence, named: bool = True) -> pd.Series:
     return by_shape.groupby(["implementation", index]).max()
 
 
-def rotation_by_shape(evidence: Evidence) -> pd.DataFrame:
-    """Spread across angles per (implementation, canonical name, shape), for a heat map."""
-    said = evidence.said[
-        evidence.said["value"].notna()
-        & evidence.said["canonical"].notna()
-        & ~evidence.said["canonical"].isin(TURN_WITH_THE_IMAGE)
-    ]
+def rotation_by_shape(evidence: Evidence, by: str = "canonical") -> pd.DataFrame:
+    """Spread across angles per (implementation, name, shape), for a heat map.
+
+    By canonical name, only the named columns; by `native` or `own`, every column, unnamed ones
+    included. Either way, what turning the photograph is meant to move is left out.
+    """
+    said = evidence.said[evidence.said["value"].notna()]
+    said = said[~said["canonical"].isin(TURN_WITH_THE_IMAGE)]
+    if by == "canonical":
+        said = said[said["canonical"].notna()]
+    else:
+        turns = [
+            (slug, own) in evidence.turning
+            for slug, own in zip(said["implementation"], said["own"], strict=True)
+        ]
+        said = said[~np.array(turns, dtype=bool)]
     return (
-        said.groupby(["implementation", "canonical", "shape"], group_keys=True)
+        said.groupby(["implementation", by, "shape"], group_keys=True)
         .apply(lambda group: spread(group["value"], group["size"].iloc[0]), include_groups=False)
         .rename("spread")
         .reset_index()
@@ -446,7 +569,11 @@ def coverage(evidence: Evidence) -> pd.DataFrame:
 
 
 def best_and_worst(
-    against: pd.DataFrame, slug: str, top: int = 5, tolerance: float = GROUND_TRUTH_TOLERANCE
+    against: pd.DataFrame,
+    slug: str,
+    top: int = 5,
+    tolerance: float = GROUND_TRUTH_TOLERANCE,
+    by: str = "canonical",
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """One implementation's catalogued biomarkers ordered by how close they came to the geometry.
 
@@ -462,7 +589,7 @@ def best_and_worst(
     if mine.empty:
         empty = pd.DataFrame(columns=["worst", "median", "renderings", "worst on"])
         return empty, empty
-    grouped = mine.groupby("canonical")
+    grouped = mine.groupby(by)
     table = pd.DataFrame(
         {
             "worst": grouped["error"].max(),
@@ -522,10 +649,15 @@ def heat(table: pd.DataFrame, title: str, cap: float = 1.0, ax=None):
     ramp.set_bad("#ffffff")
     rows, columns = table.shape
     if ax is None:
-        _, ax = plt.subplots(figsize=(1.6 + 1.25 * columns, 0.6 + 0.27 * rows))
+        width = 1.6 + (0.75 if columns > 6 else 1.25) * columns
+        _, ax = plt.subplots(figsize=(width, 0.6 + 0.27 * rows))
     shown = np.clip(table.to_numpy(dtype=float), 0, cap)
     ax.imshow(np.ma.masked_invalid(shown), cmap=ramp, vmin=0, vmax=cap, aspect="auto")
-    ax.set_xticks(range(columns), table.columns, rotation=0, fontsize=9)
+    # Many columns — shapes rather than implementations — are tilted so their names do not collide.
+    tilt = 35 if columns > 6 else 0
+    ax.set_xticks(
+        range(columns), table.columns, rotation=tilt, ha="right" if tilt else "center", fontsize=9
+    )
     ax.set_yticks(range(rows), table.index, fontsize=8)
     ax.tick_params(length=0)
     for spine in ax.spines.values():

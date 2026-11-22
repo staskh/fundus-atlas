@@ -30,6 +30,29 @@ def test_the_committed_catalogue_pages_are_current() -> None:
         )
 
 
+@pytest.mark.parametrize("slug", sorted(pages.PROJECTS))
+def test_each_project_page_lists_every_column_its_adapter_returns(slug) -> None:
+    """*Added 2026-11-22.* A project page's list of columns is rendered from the adapter's own
+    naming table, so a column the code returns and the page leaves out cannot happen."""
+    from benchmarks import docs
+
+    path = DOCS / pages.PROJECTS[slug]
+    record = {"columns": pages.columns(slug), "source": f"{slug}.py"}
+    assert path.read_text() == docs.render(
+        path.read_text(), record, {"columns": pages._columns_table}
+    ), f"{path.relative_to(DOCS.parent)} is stale — refresh it with `python -m biomarkers.pages`"
+    assert "<!-- generated: columns -->" in path.read_text()
+
+
+@pytest.mark.parametrize("slug", sorted(set(pages.PROJECTS) - {"fundus-biomarkers"}))
+def test_every_close_name_is_a_name_the_vocabulary_has(slug) -> None:
+    """A pointer to a name that does not exist would send a reader nowhere."""
+    for row in pages.columns(slug):
+        if row["match"] == "close":
+            canonical.check(row["name"])
+            assert row["why"], f"{row['own']} is close to {row['name']} and says nothing of why"
+
+
 #: A canonical name as the hand-written tables spell it: a stem, then either one structure or a
 #: `{a,b,c}` set of them, and possibly a region or a statistic after that.
 WRITTEN = re.compile(r"`((?:[a-z]+)/(?:vessel-)?[A-Za-z0-9-]+(?:/[{}A-Za-z,-]+)*)`")

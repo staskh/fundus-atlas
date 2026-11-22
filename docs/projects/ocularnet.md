@@ -136,6 +136,37 @@ The practical reading: OCULAR removed the recursion from the walk that dominates
 it in the one that labels connected components, and offers an iterative drawing path that a caller
 gets only by asking for it by name.
 
+### 6.2 Every column it writes
+
+*Added 2026-11-22.* Every number the implementation returns, under its own name, beside the
+canonical name it answers to — or, where it answers to none, the nearest one and what keeps
+it from being that name.
+
+<!-- generated: columns -->
+**18 columns**: 10 answer to a canonical name exactly, 8 are close to one and 0 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/ocular.py` by `python -m biomarkers.pages`.
+
+| Its column | Canonical name | Match | What differs |
+| --- | --- | :-: | --- |
+| `area_artery` | `density/area/artery` | exact |  |
+| `pooled_tortuosity_artery` | `tortuosity/hart-tau1/artery/length-weighted` | close | PVBM's tortuosity index: total arc length over total chord length, a ratio of sums |
+| `median_tortuosity_artery` | `tortuosity/hart-tau1/artery/median` | exact |  |
+| `length_weighted_tortuosity_artery` | `tortuosity/hart-tau1/artery/length-weighted` | exact |  |
+| `length_artery` | `density/skeleton-length-rooted/artery` | exact |  |
+| `median_branching_angle_artery` | `topology/branching-angle/artery/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `start_points_artery` | `topology/components/artery` | close | how many vessels leave the disc, not how many separate pieces the network is in |
+| `endpoints_artery` | `topology/endpoints/artery` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
+| `intersections_artery` | `topology/junctions/artery` | exact |  |
+| `area_vein` | `density/area/vein` | exact |  |
+| `pooled_tortuosity_vein` | `tortuosity/hart-tau1/vein/length-weighted` | close | PVBM's tortuosity index: total arc length over total chord length, a ratio of sums |
+| `median_tortuosity_vein` | `tortuosity/hart-tau1/vein/median` | exact |  |
+| `length_weighted_tortuosity_vein` | `tortuosity/hart-tau1/vein/length-weighted` | exact |  |
+| `length_vein` | `density/skeleton-length-rooted/vein` | exact |  |
+| `median_branching_angle_vein` | `topology/branching-angle/vein/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `start_points_vein` | `topology/components/vein` | close | how many vessels leave the disc, not how many separate pieces the network is in |
+| `endpoints_vein` | `topology/endpoints/vein` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
+| `intersections_vein` | `topology/junctions/vein` | exact |  |
+<!-- /generated -->
+
 ## 7. Examples and notebooks
 
 - The inference command in the README against the provided

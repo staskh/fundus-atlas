@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spur",
-  "fingerprint": "846b4c6a952053bdd1bbc18651c586601e234c7a3d29efaf95a5c8f2b93434df",
+  "fingerprint": "f5b1a742e4cd485ce2d9018325b9ba4661fd3c98af0a949c4a686cee8f54b631",
   "model": "vascx",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 4.719714285714285,
-    "seconds_per_rendering": 4.719714285714285,
+    "seconds_per_photograph": 7.715714285714285,
+    "seconds_per_rendering": 7.715714285714285,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,
