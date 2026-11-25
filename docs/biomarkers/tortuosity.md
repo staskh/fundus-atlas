@@ -282,6 +282,10 @@ Two papers define everything in the table above.
   What made it visible was running VascX on a real photograph rather than a synthetic shape: the
   column reads about **1.5**, which as 1/µm would be a vessel turning through a radius of two
   thirds of a micron. On the synthetic shapes it read 0.0002 to 0.013 and looked merely noisy.
+  *On the run of 2026-11-22,* with both of VascX's feature sets run, its curvature columns read
+  from 0 to 9.1 across the shapes, and the median one reads a straight artery as 0.19 at 0° and
+  almost 0 at 30°–60° — see the [synthetic results page](../benchmarks/biomarker-synthetic-results.md)
+  §2.2.
   **There is a lesson in the pairing**: this is the second VascX feature found to be normalised by
   its own disc-to-fovea axis, after `mean_sparsity`, and the axis is a model's answer on a
   photograph and a fixture's invention on a drawn shape. Where an upstream carries an internal
@@ -344,11 +348,11 @@ choices; a value quoted without them is not reproducible.
 
 | Project | Variant | Source file | Lineage |
 | --- | --- | --- | --- |
-| [retipy](../projects/retipy.md) | 3.1, 3.2, 3.3, 3.4 | `retipy/tortuosity_measures.py` | Original |
-| [AutoMorph](../projects/automorph.md) | 3.1, 3.2, 3.3 (paper also cites 3.4) | retipy's module, vendored | Reuses retipy |
-| [AutoMorphalyzer](../projects/automorphalyzer.md) | 3.1, 3.3 | `automorph/measure/get_vessel_coords.py`, `measure.py` | Rewritten from retipy with Numba and a depth-first traversal |
-| [AutoMorphClass](../projects/automorphclass.md) | AutoMorph's set | `src/pytorch_automorph/tortuosity_utils.py` | Reimplemented |
-| [VascX](../projects/vascx.md) | 3.1, 3.5, 3.6, each with mode and length options | `vascx/fundus/features/tortuosity.py` | Original |
+| [retipy](../projects/retipy.md) | 3.1, 3.2, 3.5, 3.6 | `retipy/tortuosity_measures.py` | Original |
+| [AutoMorph](../projects/automorph.md) | 3.1, 3.2, 3.5, 3.6 | retipy's module, vendored | Reuses retipy |
+| [AutoMorphalyzer](../projects/automorphalyzer.md) | 3.1, 3.6 | `automorph/measure/get_vessel_coords.py`, `measure.py` | Rewritten from retipy with Numba and a depth-first traversal |
+| [AutoMorphClass](../projects/automorphclass.md) | 3.1, 3.2, 3.6 | `src/pytorch_automorph/tortuosity_utils.py` | Reimplemented |
+| [VascX](../projects/vascx.md) | 3.1, 3.7, each with mode and length options | `vascx/fundus/features/tortuosity.py` | Original |
 | [PVBM](../projects/pvbm.md) | 3.1, as index and median | `PVBM/GeometryAnalysis.py`, `PVBM/helpers/tortuosity.py` | Original; presented as a contribution of the PVBM paper |
 | [OCULARNet](../projects/ocularnet.md) | via PVBM | `utils/GeometricalVBMs.py` | Modified copy of PVBM |
 
@@ -419,7 +423,7 @@ choices; a value quoted without them is not reproducible.
 ### 9.4 Tortuosity density adds the count factor where the paper multiplies, and drops the last subsegment
 
 - **What is wrong:** retipy's `tortuosity_density` returns `(n−1)/n + (1/L_c)·Σ(Rᵢ − 1)`. Grisan's
-  formula **multiplies** the amplitude sum by `(n−1)/n` (section 3.4). Because the amplitude term
+  formula **multiplies** the amplitude sum by `(n−1)/n` (section 3.6). Because the amplitude term
   carries units of 1/length it is numerically small, so the reported value is dominated by the
   additive constant — that is, mostly a function of how many sign changes were counted, with the
   vessel's actual twisting a minor correction. Separately, the loop iterates over the inflection

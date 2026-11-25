@@ -32,6 +32,8 @@ its sub-challenges.
 
 ```bash
 uv run python -m datasets.deepdrid                          # clones and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset deepdrid   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset deepdrid     # and the scale
 ```
 
 - **Downloads:** a subtree checkout of the repository at commit `56d8af71`, taking only
@@ -54,7 +56,9 @@ uv run python -m datasets.deepdrid                          # clones and builds 
   scores keep their numbers, since there the number *is* the scale. Section 4.1 has every legend.
 - **Empty cells mean unknown:** eleven training photographs have no DR grade (section 7), so
   `disease` is empty for them rather than zero, and the whole dataset has no published resolution,
-  so `um_per_px` is empty in every row and `resolution_source` is `unknown`.
+  so the build leaves `um_per_px` empty and `resolution_source` `unknown` in every row.
+- **Scale:** the two follow-on commands are therefore required. They measure each of the three
+  frame sizes separately and stamp the result into the manifest as `disc_anchored` (section 3).
 - **Grouping:** `patient` is the dataset's own id and is unique across all three splits, so a
   by-person split is possible. `eye` is read from the filename suffix the authors document
   (`_l` left, `_r` right). `visit` is empty: the dataset photographs each patient once.

@@ -68,6 +68,13 @@ this repository's, computed from components the dataset did publish; `assumed` i
 supposition that a curated dataset is all sound, which means that dataset contains no bad
 photographs by construction and no ranking metric is defined on it.
 
+The one `derived` grade is [FIVES](../datasets/fives.md)'s. FIVES publishes no overall grade, only
+three yes-or-no component scores — illumination and contrast, blur, and low contrast — and this
+repository calls a photograph `good` when all three are sound, `usable` when one is not, and `bad`
+when two or more are not. A model scored on FIVES is therefore scored against that rule as much as
+against the dataset. The one `assumed` reference is [PAPILA](../datasets/papila.md)'s, and it
+contains **no bad photographs at all**: what a model does there is a keep-rate, not an accuracy.
+
 **Black canvas** is the share of the square the store built that is not photograph, at the median.
 A fundus cut off at top and bottom leaves bands there, and a model judges the square it is handed.
 

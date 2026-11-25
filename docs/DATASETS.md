@@ -79,7 +79,7 @@ labelled.
 | [BRSET](datasets/brset.md) | 16,266 | mixed | 2024 | ✅ focus / illumination / field / artefacts | — | — | — | — | ✅ multi-label + DR grades | anatomical flags, **demographics** | PhysioNet credentialed licence + DUA | ⛔ |
 | [Chákṣu](datasets/chaksu.md) | 1,345 | 2448×3264 **portrait**, 2048×1536, 1920×1440 | 2023 | — | — | — | ✅ **×5 experts** | ✅ **×5 experts** | ✅ glaucoma, **×5 independent decisions** | three cameras incl. handheld | **CC BY 4.0** | ✅ |
 | [CHASE-DB1](datasets/chase-db1.md) | 28 | 1280×960 distributor / 999×960 as circulated | 2012 | — | ✅ **×2 observers** | ✅ via OCULAR, model-drawn and hand-corrected | — | — | — | paediatric, multi-ethnic, hand-held camera | **not established** | ✅ |
-| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 (+256 UWF) | six sizes, 1592–2232 px; **dual view per eye** | 2020 | ✅ arbitrated, + artefact / clarity / field | — | — | — | — | ✅ DR, per image and per patient | dual-view pairing | **CC BY-SA 4.0** — share-alike | ✅ |
+| [DeepDRiD](datasets/deepdrid.md) +UWF | 2,000 (+256 UWF) | six sizes, 1592–2232 px; **dual view per eye** | 2022 | ✅ arbitrated, + artefact / clarity / field | — | — | — | — | ✅ DR, per image and per patient | dual-view pairing | **CC BY-SA 4.0** — share-alike | ✅ |
 | [DR HAGIS](datasets/dr-hagis.md) | 40 files, **39 distinct** | mixed, 2816×1880 to 4752×3168 | 2017 | — | ✅ one grader | ✅ via OCULAR, model-drawn and hand-corrected | — | — | ✅ by group: glaucoma, hypertension, DR, AMD, 10 each, all diabetic | field-of-view masks; three cameras | research and education only, **redistribution prohibited**; a Zenodo copy says CC BY 4.0 — conflicting | ✅ |
 | [DRiDB](datasets/dridb.md) | 50 | 720×576 | 2013 | — | ✅ **×5 experts** | ✅ via OCULAR, model-drawn and hand-corrected | ✅ **×5 experts** | — | **not established** — a DR clinic; no per-image grade found | lesions ×5 experts — microaneurysms, haemorrhages, hard and soft exudates; macula | research and education only; **copying, redistribution and commercial use prohibited** | ⛔ |
 | [DRIMDB](datasets/drimdb.md) | 216 | unknown | 2014 | ✅ good / bad / **outlier** | — | — | — | — | — | the outlier class: images that are not fundus photographs | not stated | ✅ |
@@ -174,6 +174,7 @@ in the Vessels column of the summary and are not repeated here.
 | [GAVE](datasets/gave.md) | 50 | Vessel and artery/vein labels | Reader count not stated |
 | [DRiDB](datasets/dridb.md) | 50 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader. Labels download freely; photographs by e-mail request only |
 | [ORVS](datasets/orvs.md) | 49 | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
+| [TREND](datasets/trend.md) | 48 of 104 | Artery/vein maps, via [REYIA](datasets/reyia.md)'s TREND-AV | The annotation is REYIA's, on 48 of TREND's photographs held at 2560×2560; scoring both counts the same eyes twice |
 | [HRF](datasets/hrf.md) | 45 | Arteries and veins as separate classes | The **HRF-AV** layer, added by a second group; the original release has vessels only |
 | [RAVIR](datasets/ravir.md) **(IR)** | 42 (23 with masks) | Artery and vein segmentations | **Infrared reflectance**, not colour fundus photography. Test masks withheld |
 | [DR HAGIS](datasets/dr-hagis.md) | 40 (39 distinct) | Artery, vein and crossing, via the OCULAR layer | OCULARNet's output, cut back to the dataset's own vessel tracing and corrected by hand at 1024×1024 — a model's call, not an independent reader |
@@ -326,8 +327,8 @@ These look like fundus datasets in a file browser and cannot be pooled with them
   PhysioNet credentialing, so it is marked ⛔.
 - **Microns per pixel is not a column**, because most datasets never published it and because an
   inferred figure is a per-camera fact, not a per-dataset one. The detail page records a published
-  scale when there is one. An inferred scale — the median disc of a sampled subcollection, assumed
-  1.8 mm — lives in `results/um_resolution/` and is labelled as inferred. Do not read disc sizes
+  scale when there is one. An inferred scale — the median disc of a subcollection, read from every
+  photograph's estimated disc where those exist and from a sample otherwise, assumed 1.8 mm — lives in `results/um_resolution/` and is labelled as inferred. Do not read disc sizes
   in millimetres off that scale: by construction the group's median disc *is* 1.8 mm.
 - **Not in this table, on the detail pages instead:** camera and field of view, the full download
   route, the describing paper, and inheritance. Each of those is a per-subcollection or

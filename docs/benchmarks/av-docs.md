@@ -35,7 +35,7 @@ scores the same 0.50 Dice and 0.03 clDice, its centreline no longer inside the e
 all. A break in a vessel costs both alike.
 
 **Everything is measured in the crop frame** — the full-resolution square the store built, where the
-annotator drew (see [DATASETS.md](../DATASETS.md) section 5). A model working at 1024 or 1472 has
+annotator drew (see [DATASETS.md](../DATASETS.md) section 5). A model working at 720 to 1472 pixels has
 its probabilities carried back there and thresholded **after** arrival, because thresholding first
 and resampling a binary mask throws away the boundary the score turns on.
 
@@ -112,7 +112,9 @@ twice**, and their agreement is not corroboration.
 
 **[FIVES](../datasets/fives.md) annotates vessels and neither class**, so every model is scored
 there on the vessel column alone and its artery and vein cells are empty for all of them. It earns
-its place because it is the one dataset here that the vessel reference did not train on.
+its place because it is the one dataset here whose vessel tracing is drawn for its own sake rather
+than taken from an artery/vein map, and it lies outside the vessel reference's training data — as
+every measured dataset but HRF does.
 
 [REYIA](../datasets/reyia.md) is a compilation, and its subsets are named for the collections its
 photographs came from — three of which this repository builds separately. Pooling a figure over

@@ -6,11 +6,12 @@ page. That rule is in the `analyse-benchmark` skill and these do not change it.
 
 These are the other kind — a focused reading of **one** implementation, or one question somebody
 asked once, written to be read rather than to be compiled into anything. Nothing generates them,
-no test requires them to exist, and the one link from `docs/` — in
-[calibre.md](../../docs/biomarkers/calibre.md) §9 — points at a finding they show rather than at a
-result of record.
+no test requires them to exist, and no page under `docs/` cites them as evidence. *Until
+2026-11-25* [calibre.md](../../docs/biomarkers/calibre.md) §9 linked here for a finding about
+AutoMorph's widths; that finding is now read from the synthetic benchmark's AutoMorph group
+notebook, and the link points there.
 
-## What that means for a reader
+## 1. What that means for a reader
 
 - **Nothing here is a finding of record.** A conclusion that survives belongs on the benchmark's
   results page, where it is dated and can be argued with. A conclusion here has not been through
@@ -20,7 +21,7 @@ result of record.
   `results/biomarker-synthetic/` before quoting one.
 - **They may be deleted.** That is what makes them cheap to write.
 
-## What is here
+## 2. What is here
 
 | Notebook | Asks |
 | --- | --- |

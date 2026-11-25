@@ -93,9 +93,9 @@ dataset publishes none — and the circularity that carries.
 | [OCULARNet](../projects/ocularnet.md) | **no equivalents** — its copy keeps the graph machinery and returns geometry only | `utils/GeometricalVBMs.py` | Modified copy of PVBM |
 | [AutoMorph](../projects/automorph.md) | width, both equivalents, both AVRs | retipy's `tortuosity_measures.py` | Reuses [retipy](../projects/retipy.md) |
 | [AutoMorphalyzer](../projects/automorphalyzer.md) | Knudtson only, **per zone**; a second "local" calibre beside the global one | `automorph/measure/` | Rewritten from retipy |
-| [AutoMorphClass](../projects/automorphclass.md) | AutoMorph's set | `src/pytorch_automorph/feature_calculation.py` | Reimplemented |
+| [AutoMorphClass](../projects/automorphclass.md) | width, whole picture and per zone; **no equivalents** — its `main.py` ends `# todo: add calibre features` | `src/pytorch_automorph/feature_calculation.py` | Reimplemented |
 
-**Lineage matters more here than presence.** Four of these run retipy's code or a rewrite of it, so
+**Lineage matters more here than presence.** Three of these run retipy's code or a rewrite of it, so
 their errors are correlated and their agreement is not evidence.
 
 ## 8. Sensitivity and failure modes
@@ -126,10 +126,21 @@ their errors are correlated and their agreement is not evidence.
   `average_global_calibre` and `average_local_calibre` differ by a third of the vessel's width at
   the diagonal angles of a synthetic straight vessel, while agreeing to two decimals at the
   axis-aligned ones. Which of the two answers `calibre/width` is unresolved, so only one is mapped.
-- **AutoMorph's width depends on the angle the eye sat at.** *Our finding, 2026-09-27.* On a
-  straight vein drawn at 24 µm-equivalent width, it reads 14.15 px at 0° and 90° and about 25 px at
-  30° and 60°. AutoMorphClass shows the same pattern in the opposite direction. See
-  [the per-implementation notebooks](../../notebooks/wip/).
+  *Re-measured on the run of 2026-11-22:* on the straight vein they now agree to within 3% at 0°
+  and 90° and part by about a third of the vessel's width at 45° (global 26.6 px, local 19.8 px,
+  against 19.0 px drawn). The global calibre is the one mapped.
+- **AutoMorph's width depends on the angle the eye sat at.** *Our finding, 2026-09-27,* on an
+  earlier drawing of the shapes: on a straight vein drawn at 24 µm-equivalent width it read
+  14.15 px at 0° and 90° and about 25 px at 30° and 60°, and AutoMorphClass showed the same pattern
+  in the opposite direction. *Re-measured on the run of 2026-11-22,* the dependence remains but has
+  changed shape: on a straight vein the geometry requires to be 120 µm wide, AutoMorph reads 131 µm
+  at 0°, 126–141 µm at 15°–30° and 60°–75°, and **340 µm at 45°** — the width taken along the
+  image's rows or columns rather than across the vessel. AutoMorphClass now measures the same maps
+  and returns the same widths; AutoMorphalyzer shows the same pattern, smaller. AutoMorph's
+  length-weighted width moves by up to 132% (veins) as the picture turns, and is up to 184% out
+  against the geometry. See the
+  [AutoMorph group notebook](../../notebooks/synthetic/biomarker-synthetic-automorph.ipynb) §3.3 and
+  the [synthetic results page](../benchmarks/biomarker-synthetic-results.md) §2.2.
 
 ---
 

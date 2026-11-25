@@ -341,11 +341,11 @@ moved to the name it always meant:
 | Column | Was mapped to | Withdrawn because |
 | --- | --- | --- |
 | `squared_curvature_tortuosity` | `tortuosity/hart-tau3` | off by five orders of magnitude; it squares nothing |
-| `median_branching_angle` | the angle between daughters | it medians every pairwise angle at every junction, trunk included, and reads ~120° where the daughters are 60° apart |
+| `median_branching_angle` | the angle between daughters | it medians every pairwise angle at every junction, trunk included, and read ~120° where the daughters are 60° apart. *On the run of 2026-11-22* it reads 64–71° on that fork, but 64–115° where the daughters part at 50° (`deep-bifurcation`), so the mapping stays withdrawn |
 | `endpoints` (PVBM, OCULAR) | `topology/endpoints` | their rooted walk excludes the end at the disc |
 | `mean_sparsity` (VascX) | `density/sparsity` | **normalised by the optic-disc-to-fovea distance**, so a dimensionless ratio rather than a distance in microns |
 | `lw_tort_curv` (VascX) | `tortuosity/spline-curvature` | **multiplied by the optic-disc-to-fovea distance**, so dimensionless rather than the 1/µm the name means |
-| `length` (PVBM, OCULAR) | `density/skeleton-length` | **moved, 2026-10-23, to `density/skeleton-length-rooted`**: their walk starts at the disc, so a vessel that never reaches it reads 0. On every synthetic shape it agrees with the rooted ground truth to within 6%, and on `disjoint` it reads 0 where the plain length is the whole network |
+| `length` (PVBM, OCULAR) | `density/skeleton-length` | **moved, 2026-10-23, to `density/skeleton-length-rooted`**: their walk starts at the disc, so a vessel that never reaches it reads 0. On the run of 2026-11-22 it agrees with the rooted ground truth to within 4.5% for veins on every shape, and for arteries to within 6% on all but the macula-centred spokes (30.8%) and the crossing (22.3%); on `disjoint` it reads 0 where the plain length is the whole network |
 
 **Two of the five are the same defect in one project.** VascX normalises against its disc-to-fovea
 axis in more than one feature, and a canonical name that declares a physical unit cannot hold a

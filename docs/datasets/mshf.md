@@ -28,6 +28,8 @@ quality score is available from three separate people.
 
 ```bash
 uv run python -m datasets.mshf                          # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset mshf   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset mshf     # and the scale
 ```
 
 - **Downloads:** `MSHF dataset 2.0.zip`, 1.1 GB, from figshare. No account, no form. It is read
@@ -38,8 +40,9 @@ uv run python -m datasets.mshf                          # downloads and builds t
   below — a median of 5% of the canvas and up to 26% — rather than shaved at the sides.
 - **Not built:** the 500 ultra-wide-field mosaics, a 200° instrument beside 45–60° cameras; and the
   all-zero table described in section 7, which is never read as a score.
-- **Subsets:** `cfp` and `portable`, by device class. The publishing group — `DR-XJU`, `Local1` and
-  so on — is kept in a column of its own, since the groups differ in size and in disease.
+- **Subsets:** `cfp`, and `local1` and `local2` for the two portable-camera folders (section 3.2).
+  The publishing group — `DR-XJU`, `Local1` and so on — is kept in a column of its own, since the
+  groups differ in size and in disease.
 - **Splits:** `train` and `test`, from the `AI-use` folders, matched without the file extension
   because two photographs change extension between the two places (section 7).
 - **Per-reader values:** `labels.csv` holds all three readers' verdicts on all four components —
@@ -50,6 +53,8 @@ uv run python -m datasets.mshf                          # downloads and builds t
   they do not — 19 DR-ZJU photographs come out empty that way, and every such row carries a note.
 - **Grouping:** none. The dataset publishes no patient identity, so `patient`, `visit` and `eye`
   are empty.
+- **Scale:** none is published, so the two follow-on commands are required. They measure each
+  subset and frame size separately, and several groups come out with no scale (sections 3.1 and 3.2).
 
 ## 3. The images
 
@@ -90,13 +95,16 @@ bounding square takes another 0.9% off the sides of what did survive.
 The deposit publishes these in two folders, `Local1` (199 photographs) and `Local2` (103), and this
 repository's store keeps them as **two subsets** rather than one `portable`. They are treated as two
 devices because the atlas cannot show they are one: measured separately, `local1`'s optic discs
-scatter by 5.3% of their median and `local2`'s by 10.7%, and only the first is inside the tenth a
+scatter by 9.4% of their median and `local2`'s by 11.1%, and only the first is inside the tenth a
 single camera is expected to hold. The deposit says nothing about what distinguishes the folders.
 
 The odd photograph at 1705×1705 is `train_local1_137`, the only image at that size in the dataset.
-Its three readers graded it bad on illumination, clarity, contrast and overall, and the disc model
-finds no optic disc in it — the frame is off-centre and there is none to find — so it carries no
-scale.
+Its three readers graded it bad on illumination, clarity, contrast and overall. It carries no
+scale because a frame size of one is too few for a median. *Updated 2026-11-25:* this page used to
+say the disc model finds no disc in it; since the scales were re-derived from the SegFormer disc
+estimates (2026-10-11), one is estimated there
+([`results/disc_estimation/mshf.csv`](../../results/disc_estimation/mshf.csv)), and it changes
+nothing — the photograph is still a group of one.
 
 ### 3.3 Ultra-wide-field mosaics — 500 images
 

@@ -40,8 +40,8 @@ Not applicable — no models.
 
 ## 6. Biomarkers computed
 
-*The authors' claim, which the synthetic benchmark tests:* every entry below implements the
-catalogue's definition, on the structures `artery` and `vein` (`both` for the ratios). It reports
+*The authors' claim, which no measurement in this atlas currently tests* — the synthetic benchmark
+ran it until 2026-11-22 and no longer does: every entry below implements the catalogue's definition, on the structures `artery` and `vein` (`both` for the ratios). It reports
 no `vessels` structure.
 
 | Biomarker | Defined in | Regions | This project's version |
@@ -59,7 +59,8 @@ no `vessels` structure.
 ([regions of interest](../biomarkers/regions-of-interest.md) §4) — is reported wherever zone B is.
 
 `landmarks`: the three cup-to-disc ratios, vertical, horizontal and area, are computed only from
-disc and cup **masks**, which the synthetic benchmark does not hand it, so there they are empty. The
+disc and cup **masks**, which the synthetic benchmark did not hand it while it ran it, so there
+they were empty. The
 library also answers the photograph's **centring** — `disc`, `macula` or `unknown` — from the disc
 circle: [`landmarks/centring`](../biomarkers/landmarks.md), the vocabulary's one categorical name.
 

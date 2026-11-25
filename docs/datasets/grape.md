@@ -27,6 +27,8 @@ than differing between people.
 
 ```bash
 uv run python -m datasets.grape                          # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset grape   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset grape     # and the scale
 ```
 
 - **Downloads:** four files from the figshare collection — the photographs (116 MB), the crops
@@ -48,6 +50,8 @@ uv run python -m datasets.grape                          # downloads and builds 
 - **Not built:** the annotated images, which are the crops with the contours already drawn on them;
   and the 52 visual-field point sensitivities per visit, which are not an image annotation. Both
   stay in the archives.
+- **Scale:** none is published, so the two follow-on commands are required; they measure the two
+  frame sizes separately (section 3).
 
 ## 3. The images
 

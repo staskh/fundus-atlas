@@ -168,8 +168,9 @@ The distinction matters because the two variants are not interchangeable: Knudts
 multiplicative and therefore scale-free, while Hubbard's carries an additive term that does not
 scale, so a value computed under one name is not convertible into the other. The
 [synthetic benchmark](../benchmarks/biomarker-synthetic-results.md) maps VascX's equivalents
-to the Knudtson name on the strength of the formula rather than the label, and measures them within
-0.7% of what the geometry requires.
+to the Knudtson name on the strength of the formula rather than the label, and measured them within
+0.7% of what the geometry requires on an earlier run; on the run of 2026-11-22, over the two spoke
+shapes that settle them, they are within 2.9% (CRAE) and 2.4% (CRVE) at worst.
 
 ### 6.2 Regions
 
@@ -401,7 +402,9 @@ project's unless the axis is the same**, and the axis depends on where a fovea m
 
 A real photograph is what exposed it: on HRF the curvature column reads about 1.5, which as 1/µm
 would be a vessel turning through a radius of two thirds of a micron. On this atlas's synthetic
-shapes the same column reads 0.0002 to 0.013 and merely looked noisy.
+shapes the same column read 0.0002 to 0.013 and merely looked noisy. *On the run of 2026-11-22,*
+with both of VascX's feature sets run, its curvature columns read from 0 to 9.1 across the shapes
+([synthetic results](../benchmarks/biomarker-synthetic-results.md) §2.2).
 
 ### 8.3 An arteriovenous crossing cuts a vessel, and nothing rejoins it
 

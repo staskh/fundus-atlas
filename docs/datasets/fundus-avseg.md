@@ -42,7 +42,7 @@ uv run python -m datasets.fetch_um_resolution --dataset fundus-avseg
 One 213 MB zip from figshare, unattended. It builds 100 photographs with their **artery/vein map** as
 three binary masks at native resolution — `artery`, `vein`, and `vessels` for their union —
 translated from the archive's red, blue, green and white. **A crossing is in both the artery and the
-vein mask**, being one vessel over another rather than a third kind; the 
+vein mask**, being one vessel over another rather than a third kind; the
 white pixels, where the annotator marked a vessel without saying which kind, are in `vessels` and in
 neither of the others.
 
@@ -57,15 +57,15 @@ also true of the vessel mask the dataset itself publishes (section 7). A model s
 it and the artery/vein masks has been scored twice against one annotation, and the second score is
 not corroboration.
 
-Two dataset-specific columns:
+One dataset-specific column:
 
 | Column | Meaning |
 | --- | --- |
 | `published_quality` | The authors' own grade, verbatim: `High-quality` or `Low-quality` |
 
-The authors publish no microns-per-pixel scale and state no field angle, so the second command is
-**required** to finish the store: it measures each sensor size separately — 10.012 µm/px for the 79
-square photographs, 6.105 for the 21 large ones.
+The authors publish no microns-per-pixel scale and state no field angle, so the last command is
+**required** to finish the store: it measures each sensor size separately — 9.344 µm/px for the 79
+square photographs, 5.725 for the 21 large ones (section 3).
 
 The store's `subset` column separates the two sensor sizes, `square` and `large`, which is the only
 separator the archive offers: it names a Zeiss VISUCAM and a Canon without saying which photograph

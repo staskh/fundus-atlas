@@ -31,6 +31,8 @@ Reference code: [HudenJear/BasiQA](https://github.com/HudenJear/BasiQA).
 
 ```bash
 uv run python -m datasets.fqs                          # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset fqs   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset fqs     # and the scale
 ```
 
 - **Downloads:** `FIQSDataset.zip`, 9.7 GB, from figshare. No account, no form. It is read where it
@@ -54,6 +56,8 @@ uv run python -m datasets.fqs                          # downloads and builds th
   identity — see section 7.
 - **Peculiarities:** the fold spreadsheets name photographs with a `.jpeg` extension the archive
   does not use, so they are matched without it.
+- **Scale:** no camera, field angle or scale is published, so the two follow-on commands are
+  required; they give the store one scale from its optic discs (section 3).
 
 ## 3. The images
 

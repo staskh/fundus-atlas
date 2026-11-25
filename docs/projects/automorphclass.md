@@ -98,8 +98,16 @@ configuration. Because the feature vector is positional when `return_as_tensor=T
 flags and the version alongside any results; use `return_as_tensor=False` to get named values
 instead, which is safer for analysis.
 
-Exact per-feature agreement with AutoMorph has not been established, here or by the authors. Treat
-these as AutoMorph-derived features, not as AutoMorph's numbers.
+It computes **no central retinal equivalents** and no arteriovenous ratio, although AutoMorph does:
+its `main.py` ends `# todo: add calibre features`.
+
+Exact per-feature agreement with AutoMorph on photographs has not been established, here or by the
+authors. Treat these as AutoMorph-derived features, not as AutoMorph's numbers. *Our observation,
+on the [synthetic benchmark](../benchmarks/biomarker-synthetic-results.md)'s run of 2026-11-22:*
+handed the same 912 × 912 maps, it returns the same whole-picture widths, box-counting dimensions,
+vessel density and cup-to-disc ratios as AutoMorph, while its tortuosity differs — its
+length-weighted arc over chord is within 10% of the geometry where AutoMorph's mean reaches 161
+times, and its Grisan density is about fifty times smaller than AutoMorph's.
 
 ### 6.1 Every column it writes
 

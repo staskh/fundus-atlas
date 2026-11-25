@@ -53,6 +53,7 @@ uv run python -m datasets.fetch_um_resolution --dataset fives
   as `illumination_contrast`, `blur` and `low_contrast`.
 - **The microns-per-pixel scale:** none is published, so the two follow-on commands above are
   required; they give the one camera its scale (§3).
+- **Excluded:** the vessel maps of `train_447_g` and `train_448_g`, which are empty (section 7).
 
 ## 3. The images
 
@@ -97,8 +98,15 @@ uv run python -m datasets.fetch_um_resolution --dataset fives
 
 - A stray `Thumbs.db` sits in the training image folder and must be skipped by any loader that
   enumerates files by extension.
-- Two of the 800 photographs are commonly reported as unusable by downstream users; the archive
-  itself contains 800.
+- **Two vessel annotations are empty.** *Our finding, 2026-09-19:* the published vessel masks of
+  `train_447_g` and `train_448_g` hold zero pixels, where FIVES annotates a median 8.10% of the frame
+  as vessel and no other photograph falls below 0.73%. Both photographs are present, dark, and graded
+  bad by FIVES' own quality sheet; the annotation was never drawn. Every model scores 0 on them,
+  which measures the empty reference rather than the model, so both vessel maps are recorded in
+  `src/datasets/exclusions/fives.json` and not trusted. The archive itself contains all 800
+  photographs. (This page previously said only that two photographs are "commonly reported as
+  unusable by downstream users"; whether those reports mean these two is not
+  established.)
 
 ## 8. Notes
 

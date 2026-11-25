@@ -29,6 +29,8 @@ read against.
 ```bash
 uv run python -m datasets.papila                      # downloads and builds the crop
 uv run python -m datasets.papila --archive ~/PAPILA.zip
+uv run python -m datasets.fetch_disc_estimation --dataset papila   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset papila     # and the scale
 ```
 
 **What it downloads:** one 591 MB zip from figshare, checked against its sha256. Nothing here needs
@@ -55,8 +57,10 @@ evaluation protocol rather than something published about an image.
 
 **The resolution is derived from the field angle**, which the authors state as 30°: about 300
 microns of retina to the degree, over each photograph's own detected field, which works out near
-3.77 µm/px. It is an approximation that ignores eye length, and `resolution_source` says
-`field_angle` on every row so nobody mistakes it for a published figure.
+3.77 µm/px. It is an approximation that ignores eye length, and the build writes `resolution_source`
+as `field_angle` on every row so nobody mistakes it for a published figure. The two follow-on
+commands then measure the camera from its optic discs and **replace** that figure in the manifest
+with the disc-median one, 3.799 µm/px, marked `disc_anchored`; the two agree to 0.6% (section 3.1).
 
 ## 3. The images
 
