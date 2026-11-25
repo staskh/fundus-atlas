@@ -87,3 +87,30 @@ def test_a_column_measuring_something_else_never_shares_a_row() -> None:
     assert native("automorphclass", "average_width_artery_zone_c") != "average_width_artery_zone_c"
     assert native("automorphalyzer", "CRAE_Knudtson@B_vein").endswith("(automorphalyzer)")
     assert native("ocular", "length_weighted_tortuosity_artery").endswith("(ocular)")
+
+
+def test_the_worst_reading_keeps_its_own_truth_and_the_lineage_order() -> None:
+    against = pd.DataFrame(
+        {
+            "canonical": ["cdr"] * 4,
+            "implementation": ["b", "b", "a", "a"],
+            "rotation": [0.0, 30.0, 0.0, 30.0],
+            "truth": [0.5, 0.6, 0.5, 0.6],
+            "value": [0.5, 0.9, 0.55, 0.6],
+            "error": [0.0, 0.5, 0.1, 0.0],
+        }
+    )
+    worst = se.worst_readings(against, implementations=["b", "a"])
+    assert list(dict.fromkeys(worst.columns.get_level_values(0))) == ["b", "a"]
+    assert worst.loc["cdr", ("b", "truth")] == 0.6
+    assert worst.loc["cdr", ("b", "value")] == 0.9
+    assert worst.loc["cdr", ("a", "rotation")] == 0.0
+    shown = se.readings(worst)
+    assert shown.loc["cdr", ("b", "error")] == "50.0%"
+    assert shown.loc["cdr", ("b", "rotation")] == "30°"
+
+
+def test_a_quantity_is_never_written_with_an_exponent() -> None:
+    assert se.quantity(395766.4) == "395,766"
+    assert se.quantity(0.012345) == "0.01235"
+    assert se.quantity(float("nan")) == "—"

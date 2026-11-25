@@ -115,7 +115,7 @@ see [MODELS.md](../MODELS.md).
 None recorded as of 2026-11-22 — an absence of findings rather than a clean bill of health.
 
 *Our measurement, 2026-11-22:* since the synthetic shapes gained an optic cup, the
-[synthetic benchmark](../benchmarks/biomarker-synthetic-results.md) §11 has measured the AutoMorph
+[synthetic benchmark](../benchmarks/biomarker-synthetic-results.md) §3.2 has measured the AutoMorph
 family's ratios, diameters and centring. The vertical and horizontal ratios land within 1.9%, the
 disc's diameters within 1.3% and the cup's within 2.4%, for all three implementations at every
 angle; AutoMorphalyzer's centring is right on all 91 renderings. A drawn ellipse with a hard rim is

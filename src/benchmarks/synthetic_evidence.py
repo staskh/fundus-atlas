@@ -480,6 +480,27 @@ def agreement(evidence: Evidence) -> pd.DataFrame:
     return against
 
 
+def worst_readings(
+    against: pd.DataFrame, by: str = "canonical", implementations=None
+) -> pd.DataFrame:
+    """Per name and implementation, the reading at its worst angle: what the geometry requires,
+    what came back, how far apart, and the angle. Columns are (implementation, field), the
+    implementations in the order given — lineage order, never re-sorted — or as they appear.
+
+    The truth is taken from the same row as the value, because a cup-to-disc ratio read along the
+    image's axes has a different truth at every angle.
+    """
+    fields = ["truth", "value", "error", "rotation"]
+    if against.empty:
+        return pd.DataFrame(columns=pd.MultiIndex.from_tuples([], names=["implementation", None]))
+    worst = against.loc[against.groupby([by, "implementation"])["error"].idxmax()]
+    wide = worst.set_index([by, "implementation"])[fields].unstack("implementation")
+    wide = wide.swaplevel(axis=1)
+    present = list(dict.fromkeys(against["implementation"]))
+    order = [slug for slug in (implementations or present) if slug in present]
+    return wide.reindex(columns=pd.MultiIndex.from_product([order, fields]))
+
+
 def claimed_agreement(evidence: Evidence) -> pd.DataFrame:
     """Every unnamed measurement beside the value its own description requires, with its error."""
     frame = evidence.claimed.dropna(subset=["value", "claimed"]).copy()
@@ -624,6 +645,31 @@ def readable(fraction: float) -> str:
     if fraction < 10:
         return f"{100 * fraction:.1f}%"
     return f"{fraction:,.0f}×"
+
+
+def quantity(value: float) -> str:
+    """A measured value for a reader: four significant figures, thousands grouped, no exponent."""
+    if pd.isna(value):
+        return "—"
+    if abs(value) >= 1000:
+        return f"{value:,.0f}"
+    return f"{value:.4g}"
+
+
+def readings(table: pd.DataFrame) -> pd.DataFrame:
+    """A `worst_readings` table for a reader: truths and values as quantities, errors `readable`,
+    angles in whole degrees."""
+    shown = table.astype(object)
+    for column in table.columns:
+        field = column[-1]
+        cells = table[column]
+        if field == "error":
+            shown[column] = cells.map(readable)
+        elif field == "rotation":
+            shown[column] = cells.map(lambda a: "—" if pd.isna(a) else f"{a:.0f}°")
+        else:
+            shown[column] = cells.map(quantity)
+    return shown
 
 
 def legible(table: pd.DataFrame | pd.Series) -> pd.DataFrame | pd.Series:
