@@ -201,6 +201,155 @@ any paper reporting these values. A separate `faz` (foveal avascular zone) featu
 exists in the package; whether it applies to colour-fundus photographs or only to other imaging is
 Unknown.
 
+### 6.4 Every column it writes
+
+*Added 2026-11-22.* Every number the implementation returns, under its own name, beside the
+canonical name it answers to — or, where it answers to none, the nearest one and what keeps
+it from being that name.
+
+<!-- generated: columns -->
+**132 columns**: 6 answer to a canonical name exactly, 125 are close to one and 1 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/vascx.py` by `python -m biomarkers.pages`.
+
+<details><summary>All 132 columns</summary>
+
+| Its column | Canonical name | Match | What differs |
+| --- | --- | :-: | --- |
+| `lw_diam_crcl_multiplier_1p16666666667_full_arteries` | `calibre/width/artery/length-weighted` | exact |  |
+| `full_cre_arteries` | `calibre/CRE-knudtson/artery/B` | exact |  |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_full_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | exact |  |
+| `lw_tort_dist_max_segment_len_0p15_crcl_multiplier_1p16666666667_full_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.15 disc diameters, over its circle at 2.33 disc radii |
+| `lw_tort_dist_max_segment_len_0p25_crcl_multiplier_1p16666666667_full_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.25 disc diameters, over its circle at 2.33 disc radii |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_full_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over its circle at 2.33 disc radii |
+| `vd_crcl_multiplier_1p16666666667_full_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over its circle at 2.33 disc radii |
+| `median_temporal_angle_arteries` | `topology/temporal-angle/artery` | close | measured from the disc–fovea axis; on a synthetic shape that axis is this atlas's convention, so the column is kept under VascX's name |
+| `lw_diam_crcl_multiplier_1p16666666667_full_veins` | `calibre/width/vein/length-weighted` | exact |  |
+| `full_cre_veins` | `calibre/CRE-knudtson/vein/B` | exact |  |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_full_veins` | `tortuosity/hart-tau1/vein/length-weighted` | exact |  |
+| `lw_tort_dist_max_segment_len_0p15_crcl_multiplier_1p16666666667_full_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.15 disc diameters, over its circle at 2.33 disc radii |
+| `lw_tort_dist_max_segment_len_0p25_crcl_multiplier_1p16666666667_full_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.25 disc diameters, over its circle at 2.33 disc radii |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_full_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over its circle at 2.33 disc radii |
+| `vd_crcl_multiplier_1p16666666667_full_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over its circle at 2.33 disc radii |
+| `median_temporal_angle_veins` | `topology/temporal-angle/vein` | close | measured from the disc–fovea axis; on a synthetic shape that axis is this atlas's convention, so the column is kept under VascX's name |
+| `disc_fovea_distance_retina` | `landmarks/disc-fovea-distance` | close | from the disc's edge; on a synthetic shape the fovea is this atlas's convention |
+| `disc_fovea_distance_center_retina` | `landmarks/disc-fovea-distance` | close | from the disc's centre; on a synthetic shape the fovea is this atlas's convention |
+| `mean_sparsity_vessels` | `density/sparsity/vessels/mean` | close | divided by the disc–fovea distance, so dimensionless; over the whole image |
+| `mean_sparsity_crcl_multiplier_1p16666666667_full_vessels` | `density/sparsity/vessels/mean` | close | divided by the disc–fovea distance, so dimensionless; over its circle at 2.33 disc radii |
+| `mn_bifangle_crcl_multiplier_1p16666666667_full_arteries` | `topology/branching-angle/artery/mean` | close | over its circle at 2.33 disc radii |
+| `mn_bifangle_crcl_multiplier_1p16666666667_full_veins` | `topology/branching-angle/vein/mean` | close | over its circle at 2.33 disc radii |
+| `mn_bifangle_crcl_multiplier_1p16666666667_superior_arteries` | `topology/branching-angle/artery/mean` | close | over the superior quadrant of its circle, on the disc–fovea axis |
+| `mn_bifangle_crcl_multiplier_1p16666666667_superior_veins` | `topology/branching-angle/vein/mean` | close | over the superior quadrant of its circle, on the disc–fovea axis |
+| `mn_bifangle_crcl_multiplier_1p16666666667_inferior_arteries` | `topology/branching-angle/artery/mean` | close | over the inferior quadrant of its circle, on the disc–fovea axis |
+| `mn_bifangle_crcl_multiplier_1p16666666667_inferior_veins` | `topology/branching-angle/vein/mean` | close | over the inferior quadrant of its circle, on the disc–fovea axis |
+| `mn_bifangle_crcl_multiplier_1p16666666667_temporal_arteries` | `topology/branching-angle/artery/mean` | close | over the temporal quadrant of its circle, on the disc–fovea axis |
+| `mn_bifangle_crcl_multiplier_1p16666666667_temporal_veins` | `topology/branching-angle/vein/mean` | close | over the temporal quadrant of its circle, on the disc–fovea axis |
+| `mn_bifangle_crcl_multiplier_1p16666666667_nasal_arteries` | `topology/branching-angle/artery/mean` | close | over the nasal quadrant of its circle, on the disc–fovea axis |
+| `mn_bifangle_crcl_multiplier_1p16666666667_nasal_veins` | `topology/branching-angle/vein/mean` | close | over the nasal quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_superior_arteries` | `calibre/width/artery/length-weighted` | close | over the superior quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_superior_veins` | `calibre/width/vein/length-weighted` | close | over the superior quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_inferior_arteries` | `calibre/width/artery/length-weighted` | close | over the inferior quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_inferior_veins` | `calibre/width/vein/length-weighted` | close | over the inferior quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_temporal_arteries` | `calibre/width/artery/length-weighted` | close | over the temporal quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_temporal_veins` | `calibre/width/vein/length-weighted` | close | over the temporal quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_nasal_arteries` | `calibre/width/artery/length-weighted` | close | over the nasal quadrant of its circle, on the disc–fovea axis |
+| `lw_diam_crcl_multiplier_1p16666666667_nasal_veins` | `calibre/width/vein/length-weighted` | close | over the nasal quadrant of its circle, on the disc–fovea axis |
+| `nasal_cre_arteries` | `calibre/CRE-knudtson/artery/B` | close | over the nasal half of its circle, at 2.33 disc radii, inside zone B rather than across it |
+| `nasal_cre_veins` | `calibre/CRE-knudtson/vein/B` | close | over the nasal half of its circle, at 2.33 disc radii, inside zone B rather than across it |
+| `temporal_cre_arteries` | `calibre/CRE-knudtson/artery/B` | close | over the temporal half of its circle, at 2.33 disc radii, inside zone B rather than across it |
+| `temporal_cre_veins` | `calibre/CRE-knudtson/vein/B` | close | over the temporal half of its circle, at 2.33 disc radii, inside zone B rather than across it |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_superior_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.2 disc diameters, over the superior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_superior_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.2 disc diameters, over the superior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_inferior_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.2 disc diameters, over the inferior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_inferior_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.2 disc diameters, over the inferior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_temporal_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.2 disc diameters, over the temporal quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_temporal_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.2 disc diameters, over the temporal quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_nasal_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.2 disc diameters, over the nasal quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_nasal_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.2 disc diameters, over the nasal quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_superior_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the superior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_superior_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the superior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_inferior_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the inferior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_inferior_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the inferior quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_temporal_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the temporal quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_temporal_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the temporal quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_nasal_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the nasal quadrant of its circle, on the disc–fovea axis |
+| `lw_tort_curv_crcl_multiplier_1p16666666667_nasal_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the nasal quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_superior_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over the superior quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_superior_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over the superior quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_inferior_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over the inferior quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_inferior_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over the inferior quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_temporal_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over the temporal quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_temporal_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over the temporal quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_nasal_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over the nasal quadrant of its circle, on the disc–fovea axis |
+| `vd_crcl_multiplier_1p16666666667_nasal_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over the nasal quadrant of its circle, on the disc–fovea axis |
+| `sharpness_crcl_multiplier_1p16666666667_full_vessels` | — | none | how sharply the photograph is focused at the vessels' edges; it needs the photograph |
+| `mn_bifangle_arteries` | `topology/branching-angle/artery/mean` | close | over the whole image |
+| `mn_bifangle_veins` | `topology/branching-angle/vein/mean` | close | over the whole image |
+| `mn_bifangle_hf_superior_arteries` | `topology/branching-angle/artery/mean` | close | over the superior hemifield, split along the disc–fovea axis |
+| `mn_bifangle_hf_superior_veins` | `topology/branching-angle/vein/mean` | close | over the superior hemifield, split along the disc–fovea axis |
+| `mn_bifangle_hf_inferior_arteries` | `topology/branching-angle/artery/mean` | close | over the inferior hemifield, split along the disc–fovea axis |
+| `mn_bifangle_hf_inferior_veins` | `topology/branching-angle/vein/mean` | close | over the inferior hemifield, split along the disc–fovea axis |
+| `md_diam_arteries` | `calibre/width/artery/median` | close | over the whole image |
+| `md_diam_veins` | `calibre/width/vein/median` | close | over the whole image |
+| `md_diam_hf_superior_arteries` | `calibre/width/artery/median` | close | over the superior hemifield, split along the disc–fovea axis |
+| `md_diam_hf_superior_veins` | `calibre/width/vein/median` | close | over the superior hemifield, split along the disc–fovea axis |
+| `md_diam_hf_inferior_arteries` | `calibre/width/artery/median` | close | over the inferior hemifield, split along the disc–fovea axis |
+| `md_diam_hf_inferior_veins` | `calibre/width/vein/median` | close | over the inferior hemifield, split along the disc–fovea axis |
+| `lw_diam_arteries` | `calibre/width/artery/length-weighted` | close | over the whole image |
+| `lw_diam_veins` | `calibre/width/vein/length-weighted` | close | over the whole image |
+| `lw_diam_hf_superior_arteries` | `calibre/width/artery/length-weighted` | close | over the superior hemifield, split along the disc–fovea axis |
+| `lw_diam_hf_superior_veins` | `calibre/width/vein/length-weighted` | close | over the superior hemifield, split along the disc–fovea axis |
+| `lw_diam_hf_inferior_arteries` | `calibre/width/artery/length-weighted` | close | over the inferior hemifield, split along the disc–fovea axis |
+| `lw_diam_hf_inferior_veins` | `calibre/width/vein/length-weighted` | close | over the inferior hemifield, split along the disc–fovea axis |
+| `lw_diam_disc_full_arteries` | `calibre/width/artery/length-weighted` | close | over a disc-centred circle (`disc_full`) |
+| `lw_diam_disc_full_veins` | `calibre/width/vein/length-weighted` | close | over a disc-centred circle (`disc_full`) |
+| `temporal_cre_hf_superior_arteries` | `calibre/CRE-knudtson/artery/B` | close | over the temporal half of its circle, at 2.33 disc radii, inside zone B rather than across it, superior hemifield only |
+| `temporal_cre_hf_superior_veins` | `calibre/CRE-knudtson/vein/B` | close | over the temporal half of its circle, at 2.33 disc radii, inside zone B rather than across it, superior hemifield only |
+| `temporal_cre_hf_inferior_arteries` | `calibre/CRE-knudtson/artery/B` | close | over the temporal half of its circle, at 2.33 disc radii, inside zone B rather than across it, inferior hemifield only |
+| `temporal_cre_hf_inferior_veins` | `calibre/CRE-knudtson/vein/B` | close | over the temporal half of its circle, at 2.33 disc radii, inside zone B rather than across it, inferior hemifield only |
+| `md_tort_dist_arteries` | `tortuosity/hart-tau1/artery/median` | close | over the whole image |
+| `md_tort_dist_veins` | `tortuosity/hart-tau1/vein/median` | close | over the whole image |
+| `md_tort_curv_arteries` | `tortuosity/spline-curvature/artery/median` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the whole image |
+| `md_tort_curv_veins` | `tortuosity/spline-curvature/vein/median` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the whole image |
+| `lw_tort_dist_vessels_arteries` | `tortuosity/vessel-hart-tau1/artery/length-weighted` | close | arc over chord of whole vessels rather than segments, over the whole image |
+| `lw_tort_dist_vessels_veins` | `tortuosity/vessel-hart-tau1/vein/length-weighted` | close | arc over chord of whole vessels rather than segments, over the whole image |
+| `lw_tort_dist_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | over the whole image |
+| `lw_tort_dist_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | over the whole image |
+| `lw_tort_dist_max_segment_len_0p2_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.2 disc diameters, over the whole image |
+| `lw_tort_dist_max_segment_len_0p2_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.2 disc diameters, over the whole image |
+| `lw_tort_curv_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the whole image |
+| `lw_tort_curv_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the whole image |
+| `lw_tort_dist_etdrs_full_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | over the ETDRS grid, centred on the fovea |
+| `lw_tort_dist_etdrs_full_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | over the ETDRS grid, centred on the fovea |
+| `lw_tort_dist_max_segment_len_0p2_etdrs_full_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.2 disc diameters, over the ETDRS grid, centred on the fovea |
+| `lw_tort_dist_max_segment_len_0p2_etdrs_full_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.2 disc diameters, over the ETDRS grid, centred on the fovea |
+| `lw_tort_curv_etdrs_full_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the ETDRS grid, centred on the fovea |
+| `lw_tort_curv_etdrs_full_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over the ETDRS grid, centred on the fovea |
+| `lw_tort_dist_disc_full_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | over a disc-centred circle (`disc_full`) |
+| `lw_tort_dist_disc_full_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | over a disc-centred circle (`disc_full`) |
+| `lw_tort_dist_max_segment_len_0p2_disc_full_arteries` | `tortuosity/hart-tau1/artery/length-weighted` | close | segments capped at 0.2 disc diameters, over a disc-centred circle (`disc_full`) |
+| `lw_tort_dist_max_segment_len_0p2_disc_full_veins` | `tortuosity/hart-tau1/vein/length-weighted` | close | segments capped at 0.2 disc diameters, over a disc-centred circle (`disc_full`) |
+| `lw_tort_curv_disc_full_arteries` | `tortuosity/spline-curvature/artery/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over a disc-centred circle (`disc_full`) |
+| `lw_tort_curv_disc_full_veins` | `tortuosity/spline-curvature/vein/length-weighted` | close | mean curvature multiplied by the disc–fovea distance, so dimensionless; over a disc-centred circle (`disc_full`) |
+| `vd_elps_full_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over an ellipse on the disc–fovea axis |
+| `vd_elps_full_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over an ellipse on the disc–fovea axis |
+| `vd_disc_full_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over a disc-centred circle (`disc_full`) |
+| `vd_disc_full_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over a disc-centred circle (`disc_full`) |
+| `vd_etdrs_full_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over the ETDRS grid, centred on the fovea |
+| `vd_etdrs_full_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over the ETDRS grid, centred on the fovea |
+| `vd_hf_superior_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over the superior hemifield, split along the disc–fovea axis |
+| `vd_hf_superior_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over the superior hemifield, split along the disc–fovea axis |
+| `vd_hf_inferior_arteries` | `density/over-fov/artery` | close | vessel area over the area of its region rather than the field of view; over the inferior hemifield, split along the disc–fovea axis |
+| `vd_hf_inferior_veins` | `density/over-fov/vein` | close | vessel area over the area of its region rather than the field of view; over the inferior hemifield, split along the disc–fovea axis |
+| `max_sparsity_vessels` | `density/sparsity/vessels/max` | close | divided by the disc–fovea distance, so dimensionless; over the whole image |
+| `mean_sparsity_elps_full_vessels` | `density/sparsity/vessels/mean` | close | divided by the disc–fovea distance, so dimensionless; over an ellipse on the disc–fovea axis |
+| `max_sparsity_elps_full_vessels` | `density/sparsity/vessels/max` | close | divided by the disc–fovea distance, so dimensionless; over an ellipse on the disc–fovea axis |
+| `mean_sparsity_disc_full_vessels` | `density/sparsity/vessels/mean` | close | divided by the disc–fovea distance, so dimensionless; over a disc-centred circle (`disc_full`) |
+| `max_sparsity_disc_full_vessels` | `density/sparsity/vessels/max` | close | divided by the disc–fovea distance, so dimensionless; over a disc-centred circle (`disc_full`) |
+| `mean_sparsity_etdrs_full_vessels` | `density/sparsity/vessels/mean` | close | divided by the disc–fovea distance, so dimensionless; over the ETDRS grid, centred on the fovea |
+| `max_sparsity_etdrs_full_vessels` | `density/sparsity/vessels/max` | close | divided by the disc–fovea distance, so dimensionless; over the ETDRS grid, centred on the fovea |
+
+</details>
+<!-- /generated -->
+
 ## 7. Examples and notebooks
 
 - The two-command run on the repository's own `samples/fundus/original/` folder, given in the
@@ -313,6 +462,13 @@ Nothing else was found: an absence of findings, not a clean bill of health.
   higher Dice scores and stronger agreement with ground-truth-derived biomarkers. Those are the
   authors' own measurements of their own pipeline, reported here as their claim; this repository's
   independent comparisons are separate.
+- **What this atlas measures of it.** *Our observation, 2026-11-22.* `calc-biomarkers` takes no
+  default feature set; the README recommends `full_v3`. This atlas's adapter runs both `full_v3`
+  and the disc-centred `od_centered` on one retina and keeps all **132** columns the two compute —
+  until that date it kept 20 of `od_centered`'s 67 and discarded the rest. Every feature VascX
+  declines is recorded with the warning it gave. The ones built on the disc-to-fovea axis
+  (superior, inferior, temporal, nasal, the hemifields, the ETDRS and ellipse grids) are kept under
+  their own names: on a synthetic shape that axis is a convention of the fixture.
 
 ---
 

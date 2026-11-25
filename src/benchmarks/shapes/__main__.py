@@ -5,7 +5,7 @@ import argparse
 from argparse import Namespace
 from pathlib import Path
 
-from . import library, render, store
+from . import claims, library, render, store
 
 
 def parse(argv: list[str] | None = None) -> Namespace:
@@ -49,6 +49,9 @@ def main(argv: list[str] | None = None) -> None:
         side=asked.side,
         rotations=rotations,
     )
+    # What each implementation's own columns claim, settled on the same renderings: it reads the
+    # manifest just written, so it is redrawn whenever the store is.
+    claims.write(Path(asked.into))
     drawn = sorted({str(row["family"]) for row in written})
     print(
         f"{len(written)} renderings of {len(drawn)} families at {asked.side}px, "

@@ -277,9 +277,14 @@ def test_the_disc_handed_over_sits_on_the_pixels_drawn_around_it() -> None:
 
 
 def test_truth_does_not_depend_on_the_grid_or_the_angle() -> None:
+    """Except the vertical and horizontal cup-to-disc ratios, which read the image's axes."""
     one = library.build("tree", side=512, rotation=0.0)
     other = library.build("tree", side=1024, rotation=37.0)
-    assert one.truths == other.truths
+    turning = set(truth.TURN_WITH_THE_IMAGE)
+    assert {k: v for k, v in one.truths.items() if k not in turning} == {
+        k: v for k, v in other.truths.items() if k not in turning
+    }
+    assert one.truths["landmarks/CDR-vertical"] != other.truths["landmarks/CDR-vertical"]
     assert not np.array_equal(one.artery, np.rot90(one.artery))
 
 

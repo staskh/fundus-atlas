@@ -84,27 +84,36 @@ data/synthetic/av/
   manifest.csv
   ground_truth.csv
   ground_truth_kind.csv
+  ground_truth_claimed.csv
+  ground_truth_claimed_kind.csv
   straight-2048-000-artery.png
   straight-2048-000-vein.png
   straight-2048-000-fov.png
+  straight-2048-000-disc.png
+  straight-2048-000-cup.png
   straight-2048-015-artery.png
   …
 ```
 
-At the defaults that is **91 pictures** — thirteen shapes at seven angles — and **273 mask files**,
-three per picture.
+At the defaults that is **91 pictures** — thirteen shapes at seven angles — and **455 mask files**,
+five per picture.
 
 Each picture is named `<shape>-<side>-<angle>`, so `straight-2048-030` is the straight shape on a
-2048-pixel grid turned 30°. That name is the key in all three tables and the stem of all three of
+2048-pixel grid turned 30°. That name is the key in all five tables and the stem of all five of
 its files, so a row and a picture cannot drift apart.
 
-The three masks are:
+The five masks are:
 
 | File | What it holds |
 | --- | --- |
 | `…-artery.png` | the arteries, and nothing else |
 | `…-vein.png` | the veins, and nothing else |
 | `…-fov.png` | the field of view — the lit circle a fundus camera produces |
+| `…-disc.png` | the optic disc: the circle `disc_cx`, `disc_cy`, `disc_r` describe, drawn at the same pixel centres |
+| `…-cup.png` | the optic cup, an ellipse on the disc's centre, turned with everything else |
+
+**The cup has horizontal and vertical diameters of 0.40 and 0.55** of the disc's, unequal so that a vertical and a horizontal
+ratio that were swapped would show it. *Added 2026-11-22.*
 
 They are **one-bit PNGs**: every pixel is a yes or a no, lit when the pixel's centre lies inside the
 drawn vessel. They are deliberately not saved as black and white greyscale, so that nobody can
@@ -112,7 +121,7 @@ mistake a mask for an image and threshold it at some value of their own choosing
 
 ## 4. `manifest.csv` — how each picture was framed
 
-One row per picture, seventeen columns.
+One row per picture, twenty-one columns.
 
 | Column | What it means |
 | --- | --- |
@@ -126,7 +135,8 @@ One row per picture, seventeen columns.
 | `disc_diameter_um` | the disc's diameter in microns — 1800, a clinically ordinary size |
 | `artery_width_um`, `vein_width_um` | how wide each class's trunk was drawn, in microns. A shape whose daughters narrow by Murray's law has more than one width; its ground truth carries every one |
 | `fov_cx`, `fov_cy`, `fov_r` | the field of view, in pixels |
-| `artery`, `vein`, `fov` | the three mask files, named outright |
+| `cup_horizontal`, `cup_vertical` | the cup's diameters over the disc's, before the turn |
+| `artery`, `vein`, `fov`, `disc`, `cup` | the five mask files, named outright |
 
 **Pixel `i`'s centre is at `i`** — the convention an array index has, and the one every disc
 estimate in `results/disc_estimation/` has — so the frame's centre is at 1023.5 on a 2048 grid, and
@@ -164,9 +174,24 @@ Three things are kept apart, because they are different facts:
 - **Nothing settled** — empty in both. The shape says nothing about it: a Koch curve's squared
   curvature is infinite at every corner, so no tortuosity built on it is stated there.
 
-**The values do not change with the angle.** All seven rotations of a shape carry identical
-numbers, which is exactly the property the benchmark tests an implementation for; the shapes
-notebook asserts it rather than trusting it.
+**The values do not change with the angle — with two exceptions that are meant to.** All seven
+rotations of a shape carry identical numbers, which is exactly the property the benchmark tests an
+implementation for; the shapes notebook asserts it rather than trusting it. The exceptions are the
+**vertical and horizontal cup-to-disc ratios**, which are extents along the image's columns and
+rows: the cup turns with the photograph, so at 90° the two have swapped. Each is
+`√((0.40·sin θ)² + (0.55·cos θ)²)` or its mirror; the area ratio is 0.22 at every angle.
+
+### 5.1 `ground_truth_claimed.csv` — what each unnamed column says it computes
+
+Some columns an implementation returns fit no canonical name, and so have nothing in
+`ground_truth.csv` to be checked against. This table holds, for each such column, the value **its
+own description** requires — what its name, docstring or cited paper says it computes — keyed
+`<implementation>:<column>`, in the catalogue's units. PVBM's `tortuosity_index`, for instance, is
+total arc over total chord, and that is derived here; AutoMorph's `squared_curvature_tortuosity`
+cites Hart and claims his τ3, so its claimed value is τ3's. `ground_truth_claimed_kind.csv` says how
+each is known, as above. The claims, with where each is stated and the ones no shape can settle,
+are in `src/benchmarks/shapes/claims.py`. `python -m benchmarks.shapes.claims` rewrites the pair
+without touching a picture.
 
 These values are **derived, not measured**: they come from the geometry that was drawn — clipped,
 integrated and counted in microns — never from the pixels that came out. Computing them from the
@@ -258,8 +283,8 @@ it would describe a vessel nobody drew, with nothing in the output to say so.
 - **It contains no photographs.** Every mask is clean, binary and noiseless. A program that measures
   these exactly may still fail on a segmentation of a real eye, where masks have holes, specks and a
   boundary nobody agrees on — which is a different benchmark's question.
-- **It does not hand over a cup.** An implementation is given the disc as a centre and a radius, so
-  the cup-to-disc ratios cannot be formed and are not in the ground truth.
+- **It does not find a cup.** The cup is drawn and handed over, so what is tested is the arithmetic
+  from a cup mask to a ratio, not the segmentation that would produce the mask from a photograph.
 - **It defines nothing about the fovea**, so anything anchored to the macula — the disc-fovea
   distance, the temporal angle — is out of reach. Inventing a fovea would make the answer a property
   of the fixture.
@@ -267,21 +292,18 @@ it would describe a vessel nobody drew, with nothing in the output to say so.
 ## 10. Where the shapes come from
 
 The scene model — a retina in microns, vessels as networks of centrelines whose curvature and
-corners are carried exactly — and the derivation of every value from it follow `evaluation/synthetic`
-in [fundus-biomarkers](../projects/fundus-biomarkers.md), at the commit the atlas pins. They are
-brought here, rewritten against this catalogue's vocabulary, for the reason `PLAN-BIOMARKER.md` §5.3
-gives: what a biomarker *is* is decided in the open, and a ground truth is a reading of those
-definitions, so it belongs where anybody can disagree with it. None of that library's tracing or
-measuring code is here, and none is needed: the ground truth reads the geometry, not a segmentation.
-
-Two things are this repository's own: the `deep-bifurcation` shape, and the values for the vessels as
-one class.
+corners are carried exactly — and the derivation of every value from it are written out here,
+against this catalogue's vocabulary, for the reason `PLAN-BIOMARKER.md` §5.3 gives: what a biomarker
+*is* is decided in the open, and a ground truth is a reading of those definitions, so it belongs
+where anybody can disagree with it. No tracing or measuring code is needed: the ground truth reads
+the geometry, not a segmentation.
 
 ---
 
 **The code:** `src/benchmarks/shapes/` — `scene.py` for the retina in microns, `library.py` for the
-shapes, `truth.py` for the derivations, `render.py` for the drawing, `store.py` for writing and
-reading, `__main__.py` for the command. **The pictures, drawn and explained:**
-[notebooks/biomarker-synthetic-shapes.ipynb](../../notebooks/biomarker-synthetic-shapes.ipynb).
+shapes, `truth.py` for the derivations, `claims.py` for what each unnamed column claims,
+`render.py` for the drawing, `store.py` for writing and reading, `__main__.py` for the command.
+**The pictures, drawn and explained:**
+[notebooks/synthetic/biomarker-synthetic-shapes.ipynb](../../notebooks/synthetic/biomarker-synthetic-shapes.ipynb).
 
-*Last checked: 2026-11-10.*
+*Last checked: 2026-11-22.*

@@ -26,7 +26,7 @@ up separately, on one page holding every implementation — section 8.
 <!-- /generated -->
 
 Its shapes and the derivations behind their values are in
-[the shapes notebook](../../notebooks/biomarker-synthetic-shapes.ipynb); how the pictures are drawn
+[the shapes notebook](../../notebooks/synthetic/biomarker-synthetic-shapes.ipynb); how the pictures are drawn
 is [biomarker-synthetic-shapes.md](biomarker-synthetic-shapes.md).
 
 ## 2. What takes part
@@ -41,11 +41,10 @@ name rather than dropped.
 | --- | --- | --- | --- |
 | [pvbm](../projects/pvbm.md) | `5edb79a` | 30 | yes |
 | [ocular](../projects/ocularnet.md) | `34b1ecc`, `5edb79a` | 18 | yes |
-| [automorph](../projects/automorph.md) | `9a953e5` | 18 | yes |
-| [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 54 | yes |
-| [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 18 | yes |
-| [vascx](../projects/vascx.md) | `d0cde1c`, `e5823fe`, `ff47bfb`, `ec1ca00` | 20 | yes |
-| [fundus-biomarkers](../projects/fundus-biomarkers.md) | `348da1b` | 633 | yes |
+| [automorph](../projects/automorph.md) | `9a953e5` | 72 | yes |
+| [automorphalyzer](../projects/automorphalyzer.md) | `e68843e` | 66 | yes |
+| [automorphclass](../projects/automorphclass.md) | `8f4d18f` | 60 | yes |
+| [vascx](../projects/vascx.md) | `d0cde1c`, `e5823fe`, `ff47bfb`, `ec1ca00` | 132 | yes |
 <!-- /generated -->
 
 Three of them share a lineage and one does not: AutoMorph, AutoMorphalyzer and AutoMorphClass all
@@ -62,19 +61,19 @@ the pixel grid differs.
 <!-- generated: material -->
 | Shape | What its geometry settles | What it settles has no value | Available |
 | --- | --- | --- | --- |
-| `straight` | 907 quantities with a known value | 18 an implementation should decline | yes |
-| `arc` | 907 quantities with a known value | 18 an implementation should decline | yes |
-| `clothoid` | 907 quantities with a known value | 18 an implementation should decline | yes |
-| `sinusoid` | 907 quantities with a known value | 18 an implementation should decline | yes |
-| `bifurcation` | 799 quantities with a known value | 6 an implementation should decline | yes |
-| `tree` | 745 quantities with a known value | 0 an implementation should decline | yes |
-| `deep-bifurcation` | 745 quantities with a known value | 0 an implementation should decline | yes |
-| `spur` | 833 quantities with a known value | 12 an implementation should decline | yes |
-| `crossing` | 907 quantities with a known value | 18 an implementation should decline | yes |
-| `disjoint` | 230 quantities with a known value | 695 an implementation should decline | yes |
-| `koch` | 547 quantities with a known value | 18 an implementation should decline | yes |
-| `spokes-macula-centred` | 907 quantities with a known value | 18 an implementation should decline | yes |
-| `spokes-disc-centred` | 907 quantities with a known value | 18 an implementation should decline | yes |
+| `straight` | 914 quantities with a known value | 18 an implementation should decline | yes |
+| `arc` | 914 quantities with a known value | 18 an implementation should decline | yes |
+| `clothoid` | 914 quantities with a known value | 18 an implementation should decline | yes |
+| `sinusoid` | 914 quantities with a known value | 18 an implementation should decline | yes |
+| `bifurcation` | 806 quantities with a known value | 6 an implementation should decline | yes |
+| `tree` | 752 quantities with a known value | 0 an implementation should decline | yes |
+| `deep-bifurcation` | 752 quantities with a known value | 0 an implementation should decline | yes |
+| `spur` | 840 quantities with a known value | 12 an implementation should decline | yes |
+| `crossing` | 914 quantities with a known value | 18 an implementation should decline | yes |
+| `disjoint` | 237 quantities with a known value | 695 an implementation should decline | yes |
+| `koch` | 554 quantities with a known value | 18 an implementation should decline | yes |
+| `spokes-macula-centred` | 914 quantities with a known value | 18 an implementation should decline | yes |
+| `spokes-disc-centred` | 914 quantities with a known value | 18 an implementation should decline | yes |
 <!-- /generated -->
 
 ## 4. How to run it
@@ -144,7 +143,8 @@ A fingerprint that differs means the stored result describes something that no l
 ## 8. Where the results are written up
 
 In **one** page, [biomarker-synthetic-results.md](biomarker-synthetic-results.md), compiled from
-the single notebook [`notebooks/biomarker-synthetic.ipynb`](../../notebooks/biomarker-synthetic.ipynb).
+the notebooks in [`notebooks/synthetic/`](../../notebooks/synthetic/README.md): one per lineage —
+AutoMorph's, PVBM's, VascX — and a summary that compares them by canonical name.
 
 Every implementation appears in it together, and that is the point rather than a convenience. The
 question this benchmark asks is whether these programs compute the same quantity, and that question
@@ -185,7 +185,7 @@ here is drawn to pin a zone-B measurement except the equivalents, which are defi
 ring and nowhere else.
 
 <!-- generated: biomarkers -->
-37 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **32 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
+41 definitions, most applying to one or more structures (`artery`, `vein`, `vessels`, `both`) and taking a region and a statistic besides — see [BIOMARKER-NAMES.md](../BIOMARKER-NAMES.md) §1. **39 of them have a ground truth here** — a value computed from the geometry of at least one synthetic image, which is what an implementation's answer is compared against. The rest are measured and stored, and compared against nothing. **Every unit below is physical**: a length in microns, never in pixels, so one number is comparable with another taken at a different resolution.
 
 **[calibre](../biomarkers/calibre.md)**
 
@@ -243,9 +243,13 @@ ring and nowhere else.
 
 | Canonical name | What it measures | Units | Ground truth here |
 | --- | --- | --- | --- |
-| `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | — |
-| `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | 1 | — |
-| `landmarks/CDR-area` | the cup's area over the disc's | 1 | — |
+| `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | yes |
+| `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | 1 | yes |
+| `landmarks/CDR-area` | the cup's area over the disc's | 1 | yes |
+| `landmarks/disc-diameter-vertical` | the disc's vertical diameter | µm | yes |
+| `landmarks/disc-diameter-horizontal` | the disc's horizontal diameter | µm | yes |
+| `landmarks/cup-diameter-vertical` | the cup's vertical diameter | µm | yes |
+| `landmarks/cup-diameter-horizontal` | the cup's horizontal diameter | µm | yes |
 | `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — |
 | `landmarks/centring` | what the photograph is centred on | category | yes |
 <!-- /generated -->

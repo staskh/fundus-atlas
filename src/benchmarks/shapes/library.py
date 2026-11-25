@@ -106,6 +106,7 @@ FIELD_COLOUR = (18, 18, 22)
 ARTERY_COLOUR = (214, 52, 52)
 VEIN_COLOUR = (54, 92, 214)
 DISC_COLOUR = (240, 198, 62)
+CUP_COLOUR = (250, 240, 170)
 RING_COLOUR = (72, 96, 84)
 OVERLAP_COLOUR = (255, 0, 255)
 
@@ -129,6 +130,8 @@ class Shape:
     disc: tuple[float, float, float]
     truths: dict[str, derive.Truth]
     parameters: dict[str, float] = field(default_factory=dict)
+    disc_mask: np.ndarray | None = None
+    cup: np.ndarray | None = None
 
     @property
     def theory(self) -> dict[str, float | str]:
@@ -153,8 +156,10 @@ def build(name: str, side: int = SIDE, rotation: float = 0.0) -> Shape:
         vein=drawn.vein,
         fov=drawn.fov,
         disc=drawn.disc,
-        truths=truths(name),
+        truths=truths(name, rotation),
         parameters=dict(scene(name).parameters),
+        disc_mask=drawn.disc_mask,
+        cup=drawn.cup,
     )
 
 
@@ -166,10 +171,19 @@ def scene(name: str) -> Scene:
     return SHAPES[name]()
 
 
+def truths(name: str, rotation: float = 0.0) -> dict[str, derive.Truth]:
+    """What one shape's geometry settles, in the photograph turned by `rotation` degrees.
+
+    Everything but the cup-to-disc ratios is the same at every rotation and every grid, so that part
+    is derived once per shape — a few seconds of clipping and a grid of distances. The ratios read
+    the image's axes and are derived per rotation (`truth.cup_ratios`).
+    """
+    return {**_settled(name), **derive.cup_ratios(scene(name), rotation)}
+
+
 @cache
-def truths(name: str) -> dict[str, derive.Truth]:
-    """What one shape's geometry settles. The same at every rotation and every grid, so derived
-    once per shape — it is a few seconds of clipping and a grid of distances."""
+def _settled(name: str) -> dict[str, derive.Truth]:
+    """The part of a shape's truth that does not depend on how the photograph is turned."""
     return derive.truth(scene(name))
 
 
@@ -541,12 +555,16 @@ def spokes_macula_centred() -> Scene:
 def demo_image(shape, rings: bool = True) -> np.ndarray:
     """One picture of a rendering for a person to look at, as `H×W×3` 8-bit colour.
 
-    Nothing measures this. A rendering read back from a store carries the same four things — masks,
-    field and disc — so one can be passed here in place of a shape that was just built.
+    Nothing measures this. A rendering read back from a store carries the same things — masks,
+    field, disc and cup — so one can be passed here in place of a shape that was just built.
     """
     side = shape.side
     picture = np.zeros((side, side, 3), dtype=np.uint8)
     picture[shape.fov] = FIELD_COLOUR
+    if getattr(shape, "disc_mask", None) is not None:
+        picture[shape.disc_mask] = DISC_COLOUR
+    if getattr(shape, "cup", None) is not None:
+        picture[shape.cup] = CUP_COLOUR
     if rings:
         x, y, radius = shape.disc
         grid = np.arange(side, dtype=np.float64)

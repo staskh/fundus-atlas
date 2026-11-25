@@ -68,6 +68,7 @@ class FundusBiomarkers:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
+        cup: np.ndarray | None = None,
     ) -> dict[str, float | str | None]:
         """Everything the library computes, under catalogued names, in pixels."""
         self.trouble = {}

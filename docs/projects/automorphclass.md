@@ -85,7 +85,14 @@ The feature calculation is a reimplementation of AutoMorph's, in
 | --- | --- | --- | --- |
 | Vascular features returned as a named feature vector — the set follows AutoMorph's measurements (calibre, tortuosity, density, fractal dimension, disc and cup geometry) | Prior literature, as cited by AutoMorph | [retipy](retipy.md) via AutoMorph | Reimplemented in this package's own code |
 
-Two flags control coverage: `include_zones`, `include_artery_vein` and `include_optic_disc` switch
+**Its zones are not the catalogue's.** *Our finding, 2026-11-19, from `define_zones` in
+`main.py`:* zone B is 2 to 3 disc radii from the disc centre, as elsewhere, but zone C is a ring
+from **3 to 5** radii — outside zone B, where the Extended zone of the
+[regions of interest](../biomarkers/regions-of-interest.md) §4 runs from 2 to 5 and contains it.
+So a `ZoneC_` feature covers different retina from AutoMorph's or AutoMorphalyzer's zone C of the
+same name.
+
+Three flags control coverage: `include_zones`, `include_artery_vein` and `include_optic_disc` switch
 whole families of features on and off, so the width of the returned tensor depends on
 configuration. Because the feature vector is positional when `return_as_tensor=True`, record the
 flags and the version alongside any results; use `return_as_tensor=False` to get named values
@@ -93,6 +100,79 @@ instead, which is safer for analysis.
 
 Exact per-feature agreement with AutoMorph has not been established, here or by the authors. Treat
 these as AutoMorph-derived features, not as AutoMorph's numbers.
+
+### 6.1 Every column it writes
+
+*Added 2026-11-22.* Every number the implementation returns, under its own name, beside the
+canonical name it answers to — or, where it answers to none, the nearest one and what keeps
+it from being that name.
+
+<!-- generated: columns -->
+**60 columns**: 33 answer to a canonical name exactly, 27 are close to one and 0 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/automorphclass.py` by `python -m biomarkers.pages`.
+
+| Its column | Canonical name | Match | What differs |
+| --- | --- | :-: | --- |
+| `vessel_density_vessels` | `density/over-image/vessels` | exact |  |
+| `fractal_dimension_vessels` | `density/box-counting/vessels` | exact |  |
+| `average_width_vessels` | `calibre/width/vessels/length-weighted` | exact |  |
+| `distance_tortuosity_vessels` | `tortuosity/hart-tau1/vessels/length-weighted` | exact |  |
+| `squared_curvature_tortuosity_vessels` | `tortuosity/hart-tau3/vessels/length-weighted` | close | named for Hart's τ3, the integral of squared curvature; it integrates curvature over the sample index instead, and is out by orders of magnitude on the shapes |
+| `tortuosity_density_vessels` | `tortuosity/grisan-density/vessels/length-weighted` | exact |  |
+| `vessel_density_artery` | `density/over-image/artery` | exact |  |
+| `fractal_dimension_artery` | `density/box-counting/artery` | exact |  |
+| `average_width_artery` | `calibre/width/artery/length-weighted` | exact |  |
+| `distance_tortuosity_artery` | `tortuosity/hart-tau1/artery/length-weighted` | exact |  |
+| `squared_curvature_tortuosity_artery` | `tortuosity/hart-tau3/artery/length-weighted` | close | named for Hart's τ3, the integral of squared curvature; it integrates curvature over the sample index instead, and is out by orders of magnitude on the shapes |
+| `tortuosity_density_artery` | `tortuosity/grisan-density/artery/length-weighted` | exact |  |
+| `vessel_density_vein` | `density/over-image/vein` | exact |  |
+| `fractal_dimension_vein` | `density/box-counting/vein` | exact |  |
+| `average_width_vein` | `calibre/width/vein/length-weighted` | exact |  |
+| `distance_tortuosity_vein` | `tortuosity/hart-tau1/vein/length-weighted` | exact |  |
+| `squared_curvature_tortuosity_vein` | `tortuosity/hart-tau3/vein/length-weighted` | close | named for Hart's τ3, the integral of squared curvature; it integrates curvature over the sample index instead, and is out by orders of magnitude on the shapes |
+| `tortuosity_density_vein` | `tortuosity/grisan-density/vein/length-weighted` | exact |  |
+| `vessel_density_vessels_zone_b` | `density/over-image/vessels/B` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `fractal_dimension_vessels_zone_b` | `density/box-counting/vessels/B` | exact |  |
+| `average_width_vessels_zone_b` | `calibre/width/vessels/B/length-weighted` | exact |  |
+| `distance_tortuosity_vessels_zone_b` | `tortuosity/hart-tau1/vessels/B/length-weighted` | exact |  |
+| `squared_curvature_tortuosity_vessels_zone_b` | `tortuosity/hart-tau3/vessels/B/length-weighted` | close | as the whole-picture column, inside its zone B |
+| `tortuosity_density_vessels_zone_b` | `tortuosity/grisan-density/vessels/B/length-weighted` | exact |  |
+| `vessel_density_artery_zone_b` | `density/over-image/artery/B` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `fractal_dimension_artery_zone_b` | `density/box-counting/artery/B` | exact |  |
+| `average_width_artery_zone_b` | `calibre/width/artery/B/length-weighted` | exact |  |
+| `distance_tortuosity_artery_zone_b` | `tortuosity/hart-tau1/artery/B/length-weighted` | exact |  |
+| `squared_curvature_tortuosity_artery_zone_b` | `tortuosity/hart-tau3/artery/B/length-weighted` | close | as the whole-picture column, inside its zone B |
+| `tortuosity_density_artery_zone_b` | `tortuosity/grisan-density/artery/B/length-weighted` | exact |  |
+| `vessel_density_vein_zone_b` | `density/over-image/vein/B` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `fractal_dimension_vein_zone_b` | `density/box-counting/vein/B` | exact |  |
+| `average_width_vein_zone_b` | `calibre/width/vein/B/length-weighted` | exact |  |
+| `distance_tortuosity_vein_zone_b` | `tortuosity/hart-tau1/vein/B/length-weighted` | exact |  |
+| `squared_curvature_tortuosity_vein_zone_b` | `tortuosity/hart-tau3/vein/B/length-weighted` | close | as the whole-picture column, inside its zone B |
+| `tortuosity_density_vein_zone_b` | `tortuosity/grisan-density/vein/B/length-weighted` | exact |  |
+| `vessel_density_vessels_zone_c` | `density/over-image/vessels/C` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `fractal_dimension_vessels_zone_c` | `density/box-counting/vessels/C` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `average_width_vessels_zone_c` | `calibre/width/vessels/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `distance_tortuosity_vessels_zone_c` | `tortuosity/hart-tau1/vessels/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `squared_curvature_tortuosity_vessels_zone_c` | `tortuosity/hart-tau3/vessels/C/length-weighted` | close | as the whole-picture column, inside its zone C |
+| `tortuosity_density_vessels_zone_c` | `tortuosity/grisan-density/vessels/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `vessel_density_artery_zone_c` | `density/over-image/artery/C` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `fractal_dimension_artery_zone_c` | `density/box-counting/artery/C` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `average_width_artery_zone_c` | `calibre/width/artery/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `distance_tortuosity_artery_zone_c` | `tortuosity/hart-tau1/artery/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `squared_curvature_tortuosity_artery_zone_c` | `tortuosity/hart-tau3/artery/C/length-weighted` | close | as the whole-picture column, inside its zone C |
+| `tortuosity_density_artery_zone_c` | `tortuosity/grisan-density/artery/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `vessel_density_vein_zone_c` | `density/over-image/vein/C` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `fractal_dimension_vein_zone_c` | `density/box-counting/vein/C` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `average_width_vein_zone_c` | `calibre/width/vein/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `distance_tortuosity_vein_zone_c` | `tortuosity/hart-tau1/vein/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `squared_curvature_tortuosity_vein_zone_c` | `tortuosity/hart-tau3/vein/C/length-weighted` | close | as the whole-picture column, inside its zone C |
+| `tortuosity_density_vein_zone_c` | `tortuosity/grisan-density/vein/C/length-weighted` | close | its zone C is 3 to 5 disc radii; the catalogue's C is 2 to 5 |
+| `cdr_vertical` | `landmarks/CDR-vertical` | exact |  |
+| `cdr_horizontal` | `landmarks/CDR-horizontal` | exact |  |
+| `disc_width` | `landmarks/disc-diameter-horizontal` | exact |  |
+| `disc_height` | `landmarks/disc-diameter-vertical` | exact |  |
+| `cup_width` | `landmarks/cup-diameter-horizontal` | exact |  |
+| `cup_height` | `landmarks/cup-diameter-vertical` | exact |  |
+<!-- /generated -->
 
 ## 7. Examples and notebooks
 
@@ -141,6 +221,14 @@ project.
 - Single-contributor repository, first commit history under a year old at the time of checking, no
   tests or published validation. Suitable for research use with verification of your own; not a
   substitute for the upstream pipeline where provenance of numbers matters.
+- **What this atlas measures of it.** *Our observation, 2026-11-22.* `AutoMorphModel.forward`
+  returns 60 numbers: six for the disc and cup and six vessel features on nine maps — vessels,
+  arteries and veins, whole and in zones B and C. This atlas's adapter reached the 24 whole-picture
+  and disc ones until that date; it now calls `forward` itself with the masks supplied, so the zones,
+  the resize to 912 × 912 and the rule that blanks the zones when the disc fails its checks are all
+  the pipeline's own. Its plotting titles and `mask_prefixes` list veins before arteries; the
+  feature names `forward` assigns put arteries first, matching the artery/vein network's output
+  order, so the names are right and the titles are stale.
 
 ---
 

@@ -20,9 +20,10 @@ python -m benchmarks --benchmark biomarker-synthetic          # measure what is 
 python -m benchmarks --benchmark biomarker-synthetic --model pvbm --dataset straight
 ```
 
-The store is `data/synthetic/av/`, committed: a binary mask per class, a field of view, a
-`manifest.csv` of how each rendering was framed, and a `ground_truth.csv` of what its geometry
-requires. It is committed because these are our own shapes, so a measurement can be repeated
+The store is `data/synthetic/av/`, committed: a binary mask per class, a field of view, the
+optic disc and cup, a `manifest.csv` of how each rendering was framed, a `ground_truth.csv` of what
+its geometry requires, and a `ground_truth_claimed.csv` of what each implementation's unnamed
+columns claim to compute (§2.4). It is committed because these are our own shapes, so a measurement can be repeated
 against the exact pictures it was taken on.
 
 The benchmark's name carries a hyphen and a Python module name cannot, so the module is
@@ -53,9 +54,8 @@ shape being dropped (section 2.2).
 **Each shape is a retina stated in microns** (`shapes/scene.py`): a 45° camera whose frame spans
 12,960 µm, a disc 1,800 µm across, and each class a network of centreline paths — nodes, segments of
 constant width, and the angle at each fork — whose curvature and corners are carried exactly. The
-model and the derivations follow `evaluation/synthetic` in fundus-biomarkers, brought into the open
-because a ground truth is a reading of the catalogue's definitions (`PLAN-BIOMARKER.md` §5.3); no
-tracing or measuring code of that library comes with them.
+model and the derivations are written out in the open because a ground truth is a reading of the
+catalogue's definitions (`PLAN-BIOMARKER.md` §5.3).
 
 | Shape | What is known |
 | --- | --- |
@@ -74,7 +74,8 @@ tracing or measuring code of that library comes with them.
 | `spokes-disc-centred` — the same, disc in the middle, to 5.4 radii | the same zone-B values exactly, zone C as well, and the centring `disc`. A disc-anchored measurement that differs between the two framings is reading the framing rather than the eye |
 
 Each shape is rendered as an **artery mask and a vein mask** — the two an adapter is handed — with
-an explicit **field of view** and an explicit **disc centre and radius**, because the
+an explicit **field of view**, an explicit **disc centre and radius**, a **disc mask** of that
+circle and a **cup mask**, because the
 implementations need them and because a measurement over an unstated region is not reproducible.
 **Pixel `i`'s centre is at `i`**, the convention of an array index and of every disc estimate in
 `results/disc_estimation/`, so the disc handed over sits exactly on the disc the masks were drawn
@@ -93,7 +94,13 @@ The ground truth is derived **per region** — the field of view, zone B (2–3 
 the ratios. Nothing is derived that the vocabulary does not name, and a name derived for an artery
 or a vein that the vocabulary rejects is an error rather than a column.
 
-The cup-to-disc ratios are not derived: an adapter is handed the disc as a circle and no cup.
+**Every shape carries the same cup**: an ellipse on the disc's centre whose horizontal and vertical
+diameters are 0.40 and 0.55 of the disc's, unequal so that swapped ratios would show. Every adapter is handed it as `cup`, by keyword
+(`add-biomarker` §2). The three cup-to-disc ratios are derived **per rotation** (`truth.cup_ratios`):
+the vertical and horizontal ones are extents along the image's axes and turn with the photograph,
+`√((0.40·sin θ)² + (0.55·cos θ)²)` and its mirror; the area ratio is 0.22 at every angle.
+`truth.TURN_WITH_THE_IMAGE` names the two that move, so no rotation check reads their movement as a
+fault.
 
 ### 2.2 How a value is known, and when there is none
 
@@ -120,6 +127,20 @@ rather than two retinas.
   microns and only mean anything on micron widths.
 - **A vessel that leaves the field is refused**, not clipped: every width, length and count
   measured on a truncated vessel is measured on a fragment.
+
+### 2.4 What an unnamed column claims
+
+A column no canonical name fits is measured and stored, and without more it would be checked for
+nothing but rotation. `src/benchmarks/shapes/claims.py` holds, per implementation, what each such
+column **says** it computes — from its name, its docstring or the paper it cites — and either the
+catalogued biomarker that claim is, or a derivation of it from the scene. A claim the shapes cannot
+settle (anything needing a fovea; a multifractal spectrum) is listed with the reason. The values are
+written beside the store's own truth, `ground_truth_claimed.csv` and its `_kind`, keyed
+`<implementation>:<column>`, in the catalogue's units; `power` says how a pixel answer converts.
+`python -m benchmarks.shapes` writes them with the store; `python -m benchmarks.shapes.claims`
+rewrites them alone, which never touches a picture and so never invalidates a measurement.
+
+A new adapter column with no canonical name gets a claim here in the same commit, or a test fails.
 
 ## 3. A rasterised shape is not the shape
 
@@ -195,6 +216,10 @@ evidence: a difference is an analysis, and the analysis belongs in the notebook.
 - `src/benchmarks/shapes/library.py` — one function per shape, returning a scene; `build` draws one
   and attaches its truth. Pure geometry, no implementation, no scoring.
 - `src/benchmarks/shapes/truth.py` — every value a scene settles, by canonical name, with its kind.
+- `src/benchmarks/shapes/claims.py` — what each unnamed column claims, and its value on each
+  rendering (§2.4).
+- `src/benchmarks/synthetic_evidence.py` — what the notebooks read: the evidence joined to both
+  truths, the noise floor, and the figures. It measures nothing.
 - `src/benchmarks/shapes/render.py` — a scene drawn on a frame of any side at any angle.
 - `src/benchmarks/shapes/store.py` and `__main__.py` — writing that to `data/synthetic/av/` and
   reading it back, and the `python -m benchmarks.shapes` command that does it.

@@ -1,6 +1,6 @@
 # Analysing the synthetic biomarker benchmark
 
-Load this beside `SKILL.md` when changing the synthetic biomarker benchmark's notebook. **The
+Load this beside `SKILL.md` when changing any of the synthetic biomarker benchmark's notebooks. **The
 canonical biomarker name is the primary index** throughout, and the implementation is the column —
 which is the opposite way round from every other benchmark here, where the model leads. It is that
 way because the question is *do these programs compute the same quantity*, and a reader answering
@@ -26,24 +26,43 @@ The intro states, in this order and in plain terms:
   quantity was measured on several shapes or at several angles, the cell is the **worst** of them,
   because a mean would hide the case that matters.
 
-**One notebook holds every implementation, and one results page is compiled from it.** There is no
-notebook per implementation and none per family: the comparison *is* the result, and a table split
-by implementation cannot be read across. **Order the columns so that siblings stand together** —
-implementations sharing a lineage beside each other, independent ones apart — so that a difference
-between neighbours is a change somebody made on purpose, and a difference across the gap is two
-programs that never shared a line of code.
+**The notebooks are one per lineage, beside one across them, and one results page is compiled
+from all four.** They live in `notebooks/synthetic/`:
+
+| Notebook | Holds |
+| --- | --- |
+| `biomarker-synthetic.ipynb` | the **summary**: every implementation of every group, by canonical name (§2 below), then the three groups compared (§2.3) |
+| `biomarker-synthetic-automorph.ipynb` | AutoMorph, AutoMorphalyzer, AutoMorphClass (§2.2) |
+| `biomarker-synthetic-pvbm.ipynb` | PVBM, OCULAR |
+| `biomarker-synthetic-vascx.ipynb` | VascX |
+| `biomarker-synthetic-shapes.ipynb` | the shapes and the values each settles — the specification, not an analysis |
+| `wip/` | readings of one implementation on a few shapes; not of record (`notebooks/wip/README.md`'s rules) |
+
+*Why per lineage, when every other benchmark has one notebook* (agreed with Stas, 2026-11-22): a
+lineage is the unit a reader chooses software by, and a group notebook can go further into its
+members than a seven-column table can — its own columns held to their authors' descriptions, its
+cup-to-disc ratios, the best and worst biomarker of each member. What it **cannot** do is compare
+across lineages, so the summary keeps that, by canonical name, and no group notebook is a
+substitute for it. The group is the benchmark's own `GROUPS`, never a notebook's private list.
+
+**Shared arithmetic lives in `src/benchmarks/synthetic_evidence.py`** — the reading, the noise
+floor, `spread`, `error`, the tables and the two figures. Four notebooks that each defined their own
+error would disagree about it within a month. A notebook calls it and argues about what it shows.
+
+**Order the columns so that siblings stand together** — implementations sharing a lineage beside
+each other, independent ones apart — so that a difference between neighbours is a change somebody
+made on purpose, and a difference across the gap is two programs that never shared a line of code.
 
 ### 1.1 The order of the columns
 
-Take it from the benchmark's own `IMPLEMENTATIONS`, which is **kept in lineage order** for exactly
-this reason, and never re-sort it alphabetically:
+Take it from the benchmark's own `GROUPS`, which is **kept in lineage order** for exactly this
+reason, and never re-sort it alphabetically:
 
 | Columns | Why they stand together |
 | --- | --- |
 | `pvbm`, `ocular` | OCULAR imports PVBM's measuring code, so a difference between these two is something OCULAR did on purpose |
 | `automorph`, `automorphalyzer`, `automorphclass` | the two descendants both fork AutoMorph's measuring stage; reading them side by side is what shows what each changed |
 | `vascx` | shares no code with any of the above — it reimplements every biomarker, so a disagreement across this boundary is two independent readings of the same definition |
-| `fundus-biomarkers` | Pheno's reference implementation, written against this catalogue's definitions and sharing no code with the rest; its owner is the atlas's owner, so its column is measured like the others and verified by nobody independent |
 
 A gap between groups therefore means something a reader can use: **within** a group, a difference is
 an edit; **across** one, it is two programs that never shared a line.
@@ -57,11 +76,39 @@ The notebook does the join that the benchmark deliberately does not:
 | Evidence | `results/biomarker-synthetic/<implementation>/<shape>.csv` | what each program returned, under **its own** column names |
 | The mapping | each adapter's `declare()["names"]` | which catalogued biomarker each of those columns is believed to answer to, or `None` |
 | Ground truth | the drawn store's `ground_truth.csv` | what the geometry requires, under canonical names |
+| Claimed truth | the store's `ground_truth_claimed.csv` | what each **unnamed** column's own description requires (§2.1) |
 
-A run records none of the second two. Joining them here is what lets the same evidence be re-read
+A run records none of the last three. Joining them here is what lets the same evidence be re-read
 against a corrected mapping or a corrected ground truth without measuring anything again.
 
+### 1.3 Two kinds of ground truth
+
+- **By canonical name**, for every column an adapter maps onto the vocabulary: the definition the
+  catalogue records, from the paper that introduced it where there is one.
+- **By the column's own description**, for every column the vocabulary cannot name:
+  `src/benchmarks/shapes/claims.py` reads each one the way its authors describe it — its name, its
+  docstring, the paper it cites — and either points at the catalogued biomarker that description
+  *is* (AutoMorph's `squared_curvature_tortuosity` cites Hart and is named for his τ3, though the
+  adapter withdrew that mapping because the code does not compute it) or derives the value from the
+  geometry (PVBM's tortuosity index, total arc over total chord). A description the shapes cannot
+  settle — anything needing a fovea — is listed with the reason, never silently skipped.
+
+The two are never pooled. A canonical fault says a mapped number is wrong; a claimed fault says a
+program's column does not compute what its own authors say it does, which is the claim-against-
+observation comparison `CLAUDE.md` §1 asks of every catalogued project.
+
+### 1.4 What turning the picture is meant to move
+
+The vertical and horizontal cup-to-disc ratios are read along the image's axes, and so are a cup's
+height in pixels and where its centre lands. Their truth changes with the angle **by design**, so
+every rotation check leaves them out: the named ones by `truth.TURN_WITH_THE_IMAGE`, the unnamed
+ones by `claims.turning`, which reads them off the claimed table rather than a hand-kept list. Their
+agreement with the geometry is checked at each angle like anything else.
+
 ## 2. The sections, in order
+
+These are the **summary** notebook's. §2.2 gives the group notebooks' and §2.3 the comparison the
+summary adds across groups.
 
 | # | Section | Must show |
 | --- | --- | --- |
@@ -73,6 +120,8 @@ against a corrected mapping or a corrected ground truth without measuring anythi
 
 ### 2.1 Two tolerances, named once and used everywhere
 
+*(Declared in `synthetic_evidence` and read from there by every notebook.)*
+
 | Constant | Value | Applies to |
 | --- | --- | --- |
 | `ROTATION_TOLERANCE` | **10%** | a spread across angles wider than this is a finding |
@@ -80,6 +129,36 @@ against a corrected mapping or a corrected ground truth without measuring anythi
 
 Declare both at the top of the notebook as named constants, not as numbers buried in a filter. They
 are reporting conveniences rather than standards anybody agreed, and the notebook says so.
+
+### 2.2 A group notebook's sections
+
+| # | Section | Must show |
+| --- | --- | --- |
+| 1 | Coverage | per member, columns returned, named, unnamed, and how many unnamed ones are held to their own description; then every unnamed column with what it claims |
+| 2 | Hard failures | as the summary's §2 |
+| 3 | Sensitivity to rotation | by canonical name (table and heat map), then the unnamed columns |
+| 4 | Agreement with ground truth, by canonical name | worst over everything (table and heat map), every signed error as a dot for what is out of tolerance, per shape, by kind, and where the geometry gives no value |
+| 5 | Agreement with their own description | every unnamed column against its claim, worst and median, and the signed errors |
+| 6 | Cup-to-disc ratios | *AutoMorph's group only*: measured against the required ratio at each angle |
+| next | The best and the worst biomarkers | per member, its canonical biomarkers by worst then median error — every one inside the floor as *best*, the five furthest as *worst*, with the shape — then the same across the group by its closest member |
+| last | Summary | per member: moving with the image, disagreeing by canonical name, disagreeing with its own description, median error, exceptions, seconds |
+
+The findings are **written into the notebook as prose** beneath the tables they read, after it has
+been run: a group notebook that only prints is a script.
+
+**Best and worst order biomarkers, never implementations.** They say which of a program's numbers
+can be taken at face value on these shapes; ranking the programs is §8's rule.
+
+### 2.3 The summary's comparison across groups
+
+After its §5, the summary compares the three lineages by canonical name. A group answers a name with
+its **closest member** — the one whose worst error is smallest — so a cell says what the best of
+that lineage can do, and the group notebook says what each member does. It shows, in order: how many
+names each group answers, per family; the worst error per name and group where two or more groups
+answer, as a table and a heat map; the same for rotation; a per-family count of names within
+tolerance; and each group's best and worst names side by side. Then **which group to reach for, at a
+named question** — calibre, tortuosity, density, topology, the cup — argued in prose with the
+runner-up and the caveats (`report-benchmark` §5).
 
 ## 3. Section 1 — general statistics
 

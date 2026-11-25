@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spokes-macula-centred",
-  "fingerprint": "3371e850dc181cabaab8a9c38a1b8e24b5f7959f815092a3379f96401a197821",
+  "fingerprint": "c86b0e086d2e4694e1f6b49e2da01eedcabcadda0962a2a28cb589af9a908954",
   "model": "pvbm",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 59.452,
-    "seconds_per_rendering": 59.452,
+    "seconds_per_photograph": 61.656285714285715,
+    "seconds_per_rendering": 61.656285714285715,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

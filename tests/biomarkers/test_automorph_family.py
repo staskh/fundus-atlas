@@ -87,49 +87,75 @@ def test_a_class_it_was_not_given_comes_back_as_nothing(slug, shape) -> None:
     assert all(measured[key] is None for key in veins)
 
 
-def test_automorphalyzer_catalogues_zone_b_and_not_zone_c(shape) -> None:
-    """*Our finding:* its zone B is the annulus PVBM measures over; its zone C is not.
+def test_automorphalyzer_catalogues_zones_b_and_c(shape) -> None:
+    """*Our finding:* its two zones are the catalogue's two zones, so both are named.
 
-    B is two to three disc radii, which is exactly PVBM's region, so a value from B is comparable
-    with PVBM's. C is two to five radii and comparable with nothing, so it keeps its own name and
-    is stored beside it rather than being dropped or silently equated.
+    B is two to three disc radii, which is exactly PVBM's region. C is two to five radii, which is
+    Cheung et al.'s Extended zone as `docs/biomarkers/regions-of-interest.md` §4 defines it — the
+    annulus containing B, not a ring outside it. An equivalent stays tied to its own class: the
+    CRAE column over the vein map is a different number and keeps its own name.
     """
     adapter = catalogue.load("automorphalyzer")
     names = adapter.declare()["names"]
 
     assert names["CRAE_Knudtson@B_artery"] == "calibre/CRE-knudtson/artery/B"
     assert names["CRVE_Knudtson@B_vein"] == "calibre/CRE-knudtson/vein/B"
-    assert "CRAE_Knudtson@C_artery" in adapter.keys(), "zone C is kept under its own name"
+    assert names["CRAE_Knudtson@C_artery"] == "calibre/CRE-knudtson/artery/C"
+    assert names["CRVE_Knudtson@C_vein"] == "calibre/CRE-knudtson/vein/C"
+    assert names["tortuosity_distance@C_artery"] == "tortuosity/hart-tau1/artery/C/mean"
+    assert names["CRAE_Knudtson@C_vein"] is None, "a CRAE over the vein map is not a CRVE"
     assert adapter.declare()["zones"]["B"] == "2 to 3 disc radii"
+    assert adapter.declare()["zones"]["C"] == "2 to 5 disc radii"
 
 
-def test_automorph_declares_the_size_it_really_measures_at() -> None:
-    """*Our finding:* retipy resizes every input to 912², whatever it was handed.
-
-    `Retina._open_image` calls `cv2.resize(..., (912, 912), INTER_CUBIC)` on every file it opens,
-    so a pixel-valued width is in 912-pixels rather than the frame's, and a one-pixel skeleton does
-    not survive the interpolation. An adapter may know that; it may not hide it.
-    """
+def test_automorph_measures_at_912_with_the_thresholds_its_drivers_read() -> None:
+    """*Our finding, 2026-11-22:* AutoMorph's M2 stage hands M3 a binary 912 × 912 map, and every
+    driver reads `resources/retipy.config` — 15 pixels per window and an R² of 0.96, not the
+    defaults of `evaluate_window`. Both are what its own run does, so both are what this does."""
     declared = catalogue.load("automorph").declare()
 
     assert declared["working_size"] == 912
-    assert declared["scale_written"] == 1.0, "so its width comes back in pixels, not microns"
+    assert declared["min_pixels_per_vessel"] == 15
+    assert declared["r2_threshold"] == pytest.approx(0.96)
 
 
-def test_automorph_and_automorphclass_reach_no_equivalents() -> None:
-    """A difference in scope, not a defect, and it is declared rather than left to be noticed.
+def test_automorphclass_reaches_no_equivalents() -> None:
+    """A difference in scope, not a defect: its vessel features take no disc and compute none."""
+    adapter = catalogue.load("automorphclass")
+    assert "calibre/CRE-knudtson" in adapter.declare()["absent"]
+    assert "calibre/AVR-knudtson" in adapter.declare()["absent"]
+    assert not [name for name in adapter.declare()["names"].values() if name and "/CRE-" in name]
 
-    AutoMorph assembles its equivalents in a driver script rather than a callable, and
-    AutoMorphClass's vessel features take no disc at all. Reproducing either would be measuring
-    this repository's CRAE rather than theirs.
-    """
-    for slug in ("automorph", "automorphclass"):
-        adapter = catalogue.load(slug)
-        assert "calibre/CRE-knudtson" in adapter.declare()["absent"]
-        assert "calibre/AVR-knudtson" in adapter.declare()["absent"]
-        assert not [
-            name for name in adapter.declare()["names"].values() if name and "/CRE-" in name
-        ]
+
+def test_automorph_answers_every_column_its_run_writes(shape) -> None:
+    """*Our finding, 2026-11-22:* `run.sh` writes 72 numbers a picture — six for the disc and cup,
+    18 over the whole picture, and 24 in each of zones B and C, the zone stage adding Hubbard's and
+    Knudtson's equivalents and both ratios. Every one is a key, and on spokes from the disc the
+    equivalents come back, each from its own class's map."""
+    adapter = catalogue.load("automorph")
+    names = adapter.declare()["names"]
+    assert len(names) == 72
+    assert names["CRAE_Hubbard_zone_b"] == "calibre/CRE-hubbard/artery/B"
+    assert names["CRVE_Knudtson_zone_c"] == "calibre/CRE-knudtson/vein/C"
+    assert names["AVR_Knudtson_zone_b"] == "calibre/AVR-knudtson/both/B"
+    assert names["average_width_artery_zone_c"] == "calibre/width/artery/C/length-weighted"
+    assert names["vessel_density_artery_zone_b"] is None, "its denominator is the whole frame"
+
+    measured = adapter.measure(
+        shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px, cup=shape.cup
+    )
+
+    for own in (
+        "CRAE_Hubbard_zone_b",
+        "CRVE_Hubbard_zone_b",
+        "CRAE_Knudtson_zone_b",
+        "CRVE_Knudtson_zone_b",
+        "AVR_Knudtson_zone_b",
+    ):
+        assert measured[own] is not None, own
+    assert measured["AVR_Knudtson_zone_b"] == pytest.approx(
+        measured["CRAE_Knudtson_zone_b"] / measured["CRVE_Knudtson_zone_b"]
+    )
 
 
 def test_the_family_answers_the_same_six_quantities(shape) -> None:
@@ -143,9 +169,7 @@ def test_the_family_answers_the_same_six_quantities(shape) -> None:
     shared = None
     for slug in FAMILY:
         catalogued = {
-            _measurement(name)
-            for name in catalogue.load(slug).declare()["names"].values()
-            if name
+            _measurement(name) for name in catalogue.load(slug).declare()["names"].values() if name
         }
         shared = catalogued if shared is None else shared & catalogued
 
@@ -170,9 +194,7 @@ def test_automorphclass_weights_by_length_where_its_two_siblings_take_a_mean() -
     """
     behind = {slug: catalogue.load(slug).declare()["names"] for slug in FAMILY}
 
-    assert behind["automorph"]["distance_tortuosity_artery"] == (
-        "tortuosity/hart-tau1/artery/mean"
-    )
+    assert behind["automorph"]["distance_tortuosity_artery"] == ("tortuosity/hart-tau1/artery/mean")
     assert behind["automorphalyzer"]["tortuosity_distance@whole_artery"] == (
         "tortuosity/hart-tau1/artery/mean"
     )
@@ -192,3 +214,66 @@ def test_a_crash_is_recorded_rather_than_raised() -> None:
         )
 
         assert set(measured) <= set(adapter.keys())
+
+
+@pytest.mark.parametrize(
+    ("slug", "vertical", "horizontal"),
+    [
+        ("automorphclass", "cdr_vertical", "cdr_horizontal"),
+        ("automorphalyzer", "CDR_vertical", "CDR_horizontal"),
+        ("automorph", "CDR_vertical", "CDR_horizontal"),
+    ],
+)
+def test_handed_a_cup_it_answers_the_cup_to_disc_ratios(slug, vertical, horizontal, shape) -> None:
+    """*Our finding, 2026-11-22:* both descendants read a ratio off the bounding boxes of a disc
+    mask and a cup mask, so handed the synthetic cup they answer close to its drawn 0.55 and 0.40.
+    Close rather than exact: an extent is the last lit index minus the first, a pixel short."""
+    adapter = catalogue.load(slug)
+    names = adapter.declare()["names"]
+    assert names[vertical] == "landmarks/CDR-vertical"
+    assert names[horizontal] == "landmarks/CDR-horizontal"
+
+    measured = adapter.measure(
+        shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px, cup=shape.cup
+    )
+
+    assert measured[vertical] == pytest.approx(0.55, abs=0.02)
+    assert measured[horizontal] == pytest.approx(0.40, abs=0.02)
+
+
+@pytest.mark.parametrize("slug", FAMILY)
+def test_handed_no_cup_it_answers_no_ratio(slug, shape) -> None:
+    adapter = catalogue.load(slug)
+    measured = adapter.measure(shape.artery, shape.vein, shape.fov, shape.disc, shape.um_per_px)
+    ratios = [own for own, name in adapter.declare()["names"].items() if name and "CDR" in name]
+
+    assert all(measured[own] is None for own in ratios)
+
+
+@pytest.mark.parametrize(
+    ("returned", "word"), [(True, "macula"), (False, "disc"), (-1, "unknown"), (None, "unknown")]
+)
+def test_automorphalyzer_says_its_centring_in_the_catalogue_s_words(returned, word) -> None:
+    """*Our finding, 2026-11-22:* `macular_centred` is three-valued upstream — True, False, or −1
+    where `get_disc_metrics` fell over — which is the catalogue's macula, disc and unknown. The −1
+    is checked before the yes or no, because True equals 1 and −1 is truthy."""
+    from biomarkers import automorphalyzer
+
+    assert automorphalyzer._centring(returned) == word
+
+
+@pytest.mark.parametrize(
+    ("name", "centring"),
+    [("spokes-macula-centred", "macula"), ("spokes-disc-centred", "disc")],
+)
+def test_automorphalyzer_answers_the_photograph_s_centring(name, centring) -> None:
+    adapter = catalogue.load("automorphalyzer")
+    assert adapter.declare()["names"]["macular_centred"] == "landmarks/centring"
+    drawn = library.build(name, side=SIDE)
+
+    measured = adapter.measure(
+        drawn.artery, drawn.vein, drawn.fov, drawn.disc, drawn.um_per_px, cup=drawn.cup
+    )
+
+    assert measured["macular_centred"] == centring
+    assert library.truths(name)["landmarks/centring"].value == centring

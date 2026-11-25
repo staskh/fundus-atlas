@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "koch",
-  "fingerprint": "311075ef50f9b298e4114c10eb3952c42f9e048aeb48ca78f9f6b93d9c2d2bf2",
+  "fingerprint": "f5d4b60452201e169c032639fb09b3c2ffde7a5c1871fdf4591afec1c44c5d8c",
   "model": "vascx",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 4.3387142857142855,
-    "seconds_per_rendering": 4.3387142857142855,
+    "seconds_per_photograph": 7.834142857142857,
+    "seconds_per_rendering": 7.834142857142857,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

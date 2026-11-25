@@ -127,16 +127,20 @@ over root-to-tip paths rather than over segments between intersection points.
 | `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | 1 | — | — |
 | `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | 1 | — | — |
 | `landmarks/CDR-area` | the cup's area over the disc's | 1 | — | — |
+| `landmarks/disc-diameter-vertical` | the disc's vertical diameter | µm | — | — |
+| `landmarks/disc-diameter-horizontal` | the disc's horizontal diameter | µm | — | — |
+| `landmarks/cup-diameter-vertical` | the cup's vertical diameter | µm | — | — |
+| `landmarks/cup-diameter-horizontal` | the cup's horizontal diameter | µm | — | — |
 | `landmarks/disc-fovea-distance` | the straight-line distance from the disc centre to the fovea | µm | — | — |
 | `landmarks/centring` | what the photograph is centred on | category: `disc`, `macula`, `unknown` | — | — |
 <!-- /generated -->
 
 ## 3. What each project computes
 
-**✅ means a project implements this and we believe its number is comparable.** ⚠️ means it computes
-something close that is **not** interchangeable, for a reason given in the note — a different
-region, a different unit, or a formula that differs where it matters. A blank means it does not
-compute it at all.
+**Each cell gives the project's own name for the column and a mark.** ✅ means a project implements
+this and we believe its number is comparable. ⚠️ means it computes something close that is **not**
+interchangeable, for a reason given in the note — a different region, a different unit, or a
+formula that differs where it matters. A blank means it does not compute it at all.
 
 **Both marks are claims, and the [synthetic benchmark](benchmarks/biomarker-synthetic-docs.md) is
 what tests them.** A mapping says *we believe this column computes this quantity*, usually from
@@ -147,68 +151,103 @@ and withdrawn the mapping each time.
 needs none: it answers under the canonical names themselves. Section 3.6 says what that means and
 what it does not.
 
+**How to read a name.** Each cell spells the **artery** form of the column as the project's own
+output writes it. Swap in the token from this table for the vein or all-vessel form, or for another
+region:
+
+| Project | Where the name comes from | Artery / vein / all vessels | Region |
+| --- | --- | --- | --- |
+| [AutoMorph](projects/automorph.md) | its output CSVs, `Results/M3/Disc_Features.csv` and `Macular_Features.csv` | `Artery_…` / `Vein_…` / no prefix | none = whole image; suffix `_zone_b`, `_zone_c` |
+| [AutoMorphalyzer](projects/automorphalyzer.md) | its collated feature CSV, `<feature>_<map>_<zone>` | `_artery_` / `_vein_` / `_binary_` | suffix `_whole`, `_B`, `_C` |
+| [AutoMorphClass](projects/automorphclass.md) | the feature dictionary `AutoMorphModel` returns | `Artery_…` / `Vein_…` / `Vessel_…` | none = whole image; prefix `ZoneB_`, `ZoneC_` |
+| [PVBM](projects/pvbm.md) | the names its geometry and equivalents code gives each value, one call per class | the call, not the name | the equivalents are over zone B |
+| [VascX](projects/vascx.md) | its feature names, shipped sets `fs_od_centered` and `fs_full_v3` | `…_arteries` / `…_veins` / none | `{C}` = `crcl_multiplier_1p16666666667`, a circle at 2.33 disc radii |
+| [OCULAR](projects/ocularnet.md) | a bare list from `compute_geomVBMs`, labelled from its `return` statement | the call, not the name | — |
+
+**Every mark here is now tested.** A ‡ used to mark a column the project's own pipeline writes but
+this repository's adapter did not reach; the last, AutoMorphalyzer's `macular_centred`, was mapped
+on 2026-11-22. The adapters store what they reach under a key built from the upstream function's own
+names — `average_width_artery` and `average_width_artery_zone_b` in AutoMorph and AutoMorphClass,
+`average_global_calibre@whole_artery` in AutoMorphalyzer — and `src/biomarkers/<slug>.py` holds
+that table. *Since 2026-11-22* every adapter returns every column its project's own run writes,
+after an audit found AutoMorph's at 18 of 72, AutoMorphClass's at 24 of 60, VascX's at 20 of the
+132 its two shipped sets compute, and AutoMorphalyzer's missing its two ratios.
+
+**Zones.** AutoMorph's and AutoMorphalyzer's zone B and zone C are 2–3 and 2–5 disc radii from the
+disc centre: exactly this catalogue's `B` and `C` ([regions of
+interest](biomarkers/regions-of-interest.md) §4). AutoMorphClass's `ZoneB_` is `B`, but its
+`ZoneC_` is **3–5 radii**, a ring outside B rather than the Extended zone, so it has no canonical
+name (§4).
+
+**A number is in the units of §2 only after conversion.** Each project reports pixels on a grid
+of its own choosing; §6 says which grid and how to convert.
+
 ### 3.1 [`calibre`](biomarkers/calibre.md) — how wide the vessels are
 
-| Canonical name | AutoMorph | PVBM | VascX | Note |
-| --- | :-: | :-: | :-: | --- |
-| `calibre/width/{artery,vein,vessels}` | ✅ | | ✅ | AutoMorph's `average_width`, VascX's calibre. Statistic `mean` in both |
-| `calibre/CRE-knudtson/{artery,vein}` | ⚠️ | ⚠️ | ⚠️ | All three return **pixels**, not microns; AutoMorphalyzer reports it per zone and VascX medians across several circles |
-| `calibre/CRE-hubbard/{artery,vein}` | | ⚠️ | | PVBM applies **micron-fitted constants to pixel widths** — a defect, not a unit conversion |
-| `calibre/AVR-knudtson/both` | | ⚠️ | | Inherits CRE-knudtson's units |
-| `calibre/AVR-hubbard/both` | | ⚠️ | | Inherits CRE-hubbard's defect |
-| `calibre/AVR-ratio/both` | | | | Mean artery width over mean vein width, no ring. Nothing catalogued computes it |
+| Canonical name | AutoMorph | AutoMorphalyzer | AutoMorphClass | PVBM | VascX | OCULAR | Note |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `calibre/width/{artery,vein,vessels}` | ✅ `Artery_Average_width`, `…_zone_b`, `…_zone_c` | ✅ `average_global_calibre_artery_whole` | ✅ `Artery_average_width`, `ZoneB_Artery_average_width` | | ✅ `lw_diam_{C}_full_arteries` | | Statistic `length-weighted` in all four: vessel area over centreline length in the AutoMorph family, VascX's own length weighting. VascX has no all-vessel form. AutoMorphalyzer's `average_local_calibre_*` is a second width, §4 |
+| `calibre/CRE-knudtson/{artery,vein}` | ⚠️ `CRAE_Knudtson_zone_b`, `CRAE_Knudtson_zone_c` | ⚠️ `CRAE_Knudtson_artery_B`, `CRAE_Knudtson_artery_C` | | ⚠️ `crae_knudtson` (B) | ⚠️ `full_cre_arteries` | | Vein form `CRVE_…` throughout: `CRVE_Knudtson_zone_b`, `CRVE_Knudtson_vein_B`, `crve_knudtson`, `full_cre_veins`. AutoMorph's are in µm only when its pipeline is given a real resolution; the rest return pixels (§6). VascX medians over several circles at 2.33 radii, inside zone B rather than across it |
+| `calibre/CRE-hubbard/{artery,vein}` | ⚠️ `CRAE_Hubbard_zone_b`, `CRAE_Hubbard_zone_c` | | | ⚠️ `crae_hubbard` (B) | | | Hubbard's constants were fitted in microns. AutoMorph applies them to widths already multiplied by its resolution, so they hold only when that resolution is real; PVBM applies them to **pixel** widths — a defect, not a unit conversion |
+| `calibre/AVR-knudtson/both` | ⚠️ `AVR_Knudtson_zone_b`, `AVR_Knudtson_zone_c` | ⚠️ `AVR_B`, `AVR_C` | | ⚠️ `avr_knudtson` (B) | | | A ratio, so no conversion, but it inherits CRE-knudtson's caveats. AutoMorphalyzer's `AVR_B` is `CRAE_Knudtson_artery_B / CRVE_Knudtson_vein_B` |
+| `calibre/AVR-hubbard/both` | ⚠️ `AVR_Hubbard_zone_b`, `AVR_Hubbard_zone_c` | | | ⚠️ `avr_hubbard` (B) | | | Inherits CRE-hubbard's caveats |
+| `calibre/AVR-ratio/both` | | | | | | | Mean artery width over mean vein width, no ring. Nothing catalogued computes it |
 
 ### 3.2 [`tortuosity`](biomarkers/tortuosity.md) — the shape of a vessel's path
 
-| Canonical name | AutoMorph | PVBM | VascX | Note |
-| --- | :-: | :-: | :-: | --- |
-| `tortuosity/hart-tau1/{artery,vein,vessels}` | ⚠️ | ✅ | ⚠️ | AutoMorph returns **0.0 on failure**, which is impossible for an arc over a chord and averages in as a measurement. VascX subdivides at a configurable `max_segment_len`, so it pools a different population |
-| `tortuosity/hart-tau2/{artery,vein,vessels}` | | | | Total curvature. In Hart's table; nothing catalogued computes it |
-| `tortuosity/hart-tau3/{artery,vein,vessels}` | | | | Total squared curvature, in **1/µm** |
-| `tortuosity/hart-tau4/{artery,vein,vessels}` | | | | Mean curvature, in **1/µm**. Compositional, and the closest thing to what VascX's spline curvature attempts |
-| `tortuosity/hart-tau5/{artery,vein,vessels}` | | | | Mean squared curvature, in **1/µm²** |
-| `tortuosity/hart-tau6/{artery,vein,vessels}` | | | | Total curvature over chord, in **1/µm** |
-| `tortuosity/hart-tau7/{artery,vein,vessels}` | | | | Total squared curvature over chord, in **1/µm²** |
-| `tortuosity/grisan-density/{artery,vein,vessels}` | ⚠️ | | | Non-zero where the geometry requires exactly nought, by up to 1.00 on a straight vessel |
-| `tortuosity/inflection-count` | | | | |
-| `tortuosity/arc-chord-times-inflections` | | | | |
-| `tortuosity/spline-curvature/{artery,vein}` | | | ⚠️ | VascX only; moves by 280% under rotation |
-| `tortuosity/vessel-*` | | | | The whole-vessel forms. Nothing catalogued computes them yet |
+| Canonical name | AutoMorph | AutoMorphalyzer | AutoMorphClass | PVBM | VascX | OCULAR | Note |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `tortuosity/hart-tau1/{artery,vein,vessels}` | ⚠️ `Artery_Distance_tortuosity`, `…_zone_b`, `…_zone_c` | ✅ `tortuosity_distance_artery_whole`, `…_B`, `…_C` | ✅ `Artery_distance_tortuosity` | ✅ `median_tortuosity` | ⚠️ `lw_tort_dist_max_segment_len_0p2_{C}_full_arteries` | ✅ `median_tortuosity`, `length_weighted_tortuosity` | Statistics differ and are part of the name: `mean` in AutoMorph and AutoMorphalyzer, `length-weighted` in AutoMorphClass, `median` in PVBM, `median` and `length-weighted` in OCULAR. AutoMorph returns **0.0 on failure**, which is impossible for an arc over a chord and averages in as a measurement. VascX subdivides at a configurable `max_segment_len`, so it pools a different population |
+| `tortuosity/hart-tau2/{artery,vein,vessels}` | | | | | | | Total curvature. In Hart's table; nothing catalogued computes it. The AutoMorph family's `squared_curvature_tortuosity` is the nearest thing, §4 |
+| `tortuosity/hart-tau3/{artery,vein,vessels}` | | | | | | | Total squared curvature, in **1/µm** |
+| `tortuosity/hart-tau4/{artery,vein,vessels}` | | | | | | | Mean curvature, in **1/µm**. Compositional, and the closest thing to what VascX's spline curvature attempts |
+| `tortuosity/hart-tau5/{artery,vein,vessels}` | | | | | | | Mean squared curvature, in **1/µm²** |
+| `tortuosity/hart-tau6/{artery,vein,vessels}` | | | | | | | Total curvature over chord, in **1/µm** |
+| `tortuosity/hart-tau7/{artery,vein,vessels}` | | | | | | | Total squared curvature over chord, in **1/µm²** |
+| `tortuosity/grisan-density/{artery,vein,vessels}` | ⚠️ `Artery_Tortuosity_density`, `…_zone_b`, `…_zone_c` | ⚠️ `tortuosity_density_artery_whole`, `…_B`, `…_C` | ⚠️ `Artery_tortuosity_density` | | | | Non-zero where the geometry requires exactly nought: AutoMorph and AutoMorphalyzer keep retipy's `(n−1)/n` term and read about 1 on a straight vessel; AutoMorphClass is much closer but still not nought. Statistic `mean`, `length-weighted` in AutoMorphClass |
+| `tortuosity/inflection-count` | | | | | | | |
+| `tortuosity/arc-chord-times-inflections` | | | | | | | |
+| `tortuosity/spline-curvature/{artery,vein}` | | | | | ⚠️ `lw_tort_curv_{C}_full_arteries` | | **Dimensionless**: a mean curvature multiplied by VascX's disc-to-fovea distance. Dividing by that distance recovers a curvature (§6); the mapping was withdrawn (§5) |
+| `tortuosity/vessel-*` | | | | | | | The whole-vessel forms. Nothing catalogued computes them yet |
 
 ### 3.3 [`density`](biomarkers/density.md) — how much vasculature there is, and how it is spread
 
-| Canonical name | AutoMorph | PVBM | VascX | Note |
-| --- | :-: | :-: | :-: | --- |
-| `density/over-fov/{artery,vein,vessels}` | | | ⚠️ | VascX measures over a disc-centred circle, not the field of view |
-| `density/over-image/{artery,vein,vessels}` | ✅ | | | |
-| `density/area/{artery,vein,vessels}` | | ⚠️ | | PVBM returns **pixels squared** |
-| `density/skeleton-length/{artery,vein,vessels}` | | | | PVBM's and OCULAR's length used to be mapped here; it is the rooted length below (§5) |
-| `density/skeleton-length-rooted/{artery,vein}` | | ✅ | | Only the centreline that can be followed back to the optic disc; needs the disc. PVBM's `length` and OCULAR's, which walk each tree from the disc; PVBM returns **pixels**. Also [fundus-biomarkers](projects/fundus-biomarkers.md) |
-| `density/sparsity/{artery,vein,vessels}` | | | ⚠️ | VascX only, and **not comparable**: its `mean_sparsity` is normalised by the optic-disc-to-fovea distance, so it is a dimensionless ratio rather than the distance in microns this name means |
-| `density/box-counting/{artery,vein,vessels}` | ✅ | | | |
-| `density/multifractal-d0/{artery,vein}` | | ✅ | | PVBM's `capacity_dimension`. Its three dimensions are of the **multifractal** analysis, not a plain box count |
-| `density/multifractal-d1/{artery,vein}` | | ✅ | | PVBM's `entropy_dimension` |
-| `density/multifractal-d2/{artery,vein}` | | ✅ | | PVBM's `correlation_dimension` |
+| Canonical name | AutoMorph | AutoMorphalyzer | AutoMorphClass | PVBM | VascX | OCULAR | Note |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `density/over-fov/{artery,vein,vessels}` | | | | | ⚠️ `vd_{C}_full_arteries` | | VascX measures over its disc-centred circle, not the field of view |
+| `density/over-image/{artery,vein,vessels}` | ✅ `Artery_Vessel_density` | ✅ `vessel_density_artery_whole` | ✅ `Artery_vessel_density` | | | | Over every pixel of the frame, lit or not. The zone forms count only the zone's vessels and still divide by the whole frame, §4 |
+| `density/area/{artery,vein,vessels}` | | | | ⚠️ `area` | | ⚠️ `area` | Returned in **pixels squared**; convert with p = 2 (§6) |
+| `density/skeleton-length/{artery,vein,vessels}` | | | | | | | PVBM's and OCULAR's length used to be mapped here; it is the rooted length below (§5) |
+| `density/skeleton-length-rooted/{artery,vein}` | | | | ✅ `length` | | ✅ `length` | Only the centreline that can be followed back to the optic disc; needs the disc. Returned in **pixels**. Also [fundus-biomarkers](projects/fundus-biomarkers.md) |
+| `density/sparsity/{artery,vein,vessels}` | | | | | ⚠️ `mean_sparsity_vessels` | | **Not comparable as it stands**: normalised by the optic-disc-to-fovea distance, so a dimensionless ratio. Multiplying back recovers a distance (§6) |
+| `density/box-counting/{artery,vein,vessels}` | ✅ `Artery_Fractal_dimension` | ✅ `fractal_dimension_artery_whole` | ✅ `Artery_fractal_dimension` | | | | Has no unit but depends on the grid it was counted on; compare runs on one grid only |
+| `density/multifractal-d0/{artery,vein}` | | | | ✅ `capacity_dimension` | | | PVBM's three dimensions are of the **multifractal** analysis, not a plain box count |
+| `density/multifractal-d1/{artery,vein}` | | | | ✅ `entropy_dimension` | | | |
+| `density/multifractal-d2/{artery,vein}` | | | | ✅ `correlation_dimension` | | | |
 
 ### 3.4 [`topology`](biomarkers/topology.md) — where the network branches and how it connects
 
-| Canonical name | AutoMorph | PVBM | VascX | Note |
-| --- | :-: | :-: | :-: | --- |
-| `topology/junctions/{artery,vein,vessels}` | | ✅ | | |
-| `topology/endpoints/{artery,vein,vessels}` | | ⚠️ | | PVBM's rooted walk calls the end at the disc a *start point*, so its count excludes it — a straight vessel reads 1 where the geometry requires 2 |
-| `topology/components/{artery,vein,vessels}` | | | | |
-| `topology/branching-angle/{artery,vein}` | | ⚠️ | | PVBM medians **every pairwise angle at every junction**, the trunk included — not the angle between daughters |
-| `topology/temporal-angle/{artery,vein}` | | | ✅ | VascX only, statistic `median` |
+| Canonical name | AutoMorph | AutoMorphalyzer | AutoMorphClass | PVBM | VascX | OCULAR | Note |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `topology/junctions/{artery,vein,vessels}` | | | | ✅ `intersections` | | ✅ `intersections` | |
+| `topology/endpoints/{artery,vein,vessels}` | | | | ⚠️ `endpoints` | | ⚠️ `endpoints` | The rooted walk calls the end at the disc a *start point*, so a straight vessel reads 1 where the geometry requires 2. `endpoints + start_points` is the catalogued count |
+| `topology/components/{artery,vein,vessels}` | | | | | | | |
+| `topology/branching-angle/{artery,vein}` | | | | ⚠️ `median_branching_angle` | | ⚠️ `median_branching_angle` | The median of **every pairwise angle at every junction**, the trunk included — not the angle between daughters. OCULAR inherits PVBM's function |
+| `topology/temporal-angle/{artery,vein}` | | | | | ✅ `median_temporal_angle_arteries` | | VascX only, statistic `median`. It needs a real fovea, so the adapter leaves it unmapped on the synthetic shapes, which have none |
 
 ### 3.5 [`landmarks`](biomarkers/landmarks.md) — the optic nerve head and the fovea
 
-| Canonical name | AutoMorph | PVBM | VascX | Note |
-| --- | :-: | :-: | :-: | --- |
-| `landmarks/CDR-vertical` | | | | Computed from disc and cup masks. [fundus-biomarkers](projects/fundus-biomarkers.md) computes it when handed them; the synthetic shapes carry none |
-| `landmarks/CDR-horizontal` | | | | The same along the horizontal. fundus-biomarkers, as above |
-| `landmarks/CDR-area` | | | | fundus-biomarkers, as above |
-| `landmarks/centring` | | | | **A category, not a number**: `disc`, `macula` or `unknown`, from where the disc sits in the frame. It describes the photograph rather than the eye. fundus-biomarkers computes it |
-| `landmarks/disc-fovea-distance` | | | ⚠️ | VascX returns pixels, and reports two variants — to the retina's centre and to the fovea |
+| Canonical name | AutoMorph | AutoMorphalyzer | AutoMorphClass | PVBM | VascX | OCULAR | Note |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `landmarks/CDR-vertical` | ✅ `CDR_vertical` | ✅ `CDR_vertical` | ✅ `cdr_vertical` | | | | Cup height over disc height, from the bounding boxes of the disc and cup masks, an extent being the last lit index minus the first. *Since 2026-11-22* every adapter is handed the synthetic cup, and all three of the AutoMorph family's are measured — AutoMorph's through its own driver, `optic_disc_centre`, run on a temporary copy of the files it reads. AutoMorphClass answers −1 when its sense checks fail, read as no answer; AutoMorphalyzer computes the ratio before its checks and returns it regardless. [fundus-biomarkers](projects/fundus-biomarkers.md) computes it when handed both masks |
+| `landmarks/CDR-horizontal` | ✅ `CDR_horizontal` | ✅ `CDR_horizontal` | ✅ `cdr_horizontal` | | | | The same along the horizontal |
+| `landmarks/CDR-area` | | | | | | | fundus-biomarkers, as above |
+| `landmarks/disc-diameter-vertical` | ✅ `Disc_height` | ✅ `disc_height` | ✅ `disc_height` | | | | The disc mask's bounding-box height. *Named 2026-11-22.* AutoMorph returns microns and the adapter hands back pixels; the other two return pixels |
+| `landmarks/disc-diameter-horizontal` | ✅ `Disc_width` | ✅ `disc_width` | ✅ `disc_width` | | | | The same along the horizontal |
+| `landmarks/cup-diameter-vertical` | ✅ `Cup_height` | ✅ `cup_height` | ✅ `cup_height` | | | | The cup mask's bounding-box height |
+| `landmarks/cup-diameter-horizontal` | ✅ `Cup_width` | ✅ `cup_width` | ✅ `cup_width` | | | | The same along the horizontal |
+| `landmarks/centring` | | ✅ `macular_centred` | | | | | **A category, not a number**: `disc`, `macula` or `unknown`. *Mapped 2026-11-22:* AutoMorphalyzer's is three-valued — True, False, or −1 when its disc metrics fail — answered as `macula`, `disc` and `unknown`, macula-centred meaning the disc is more than a tenth of the frame from its centre. One difference: a disc failing its sense checks reads `macula` rather than `unknown` |
+| `landmarks/disc-fovea-distance` | | | | | ⚠️ `disc_fovea_distance_retina` | | VascX returns pixels, or mm when given a scale, and reports a second variant, `disc_fovea_distance_center_retina`, to a different reference point |
 
 ### 3.6 fundus-biomarkers — the canonical implementation
 
@@ -233,13 +272,8 @@ covers exactly, and it is left out rather than filled with ✅.
 
 **An exact name is a claim, not a check.** That its answers carry canonical names is the
 implementation's own statement about what it computes, and its owner is also this atlas's owner
-(`PLAN-BIOMARKER.md` §5.6): nothing about it is independently verified. What tests the claim is the
-[synthetic benchmark](benchmarks/biomarker-synthetic-results.md) §10, where its answers are held to
-the geometry like every other project's. There, 98% of its 2,956 comparable measurements fall
-within 25% of the value the shapes require, and 11 of its 187 judged biomarkers do not. Those 11
-are the standard deviations measured on shapes whose geometry requires zero, the junction and
-endpoint counts on `deep-bifurcation`, and spline curvature on `straight`. A reader using one of
-those names from fundus-biomarkers should read that section first.
+(`PLAN-BIOMARKER.md` §5.6): nothing about it is independently verified. *Since 2026-11-22* it is
+not part of the synthetic benchmark either, so no measurement in this atlas tests the claim.
 
 **Its mapping, and its units.** The adapter answers each name as itself and converts the library's
 microns back to pixels, as every adapter here reports pixels; `canonical.from_pixels` turns them
@@ -251,41 +285,53 @@ A quantity here is **measured and stored under the project's own name**, and app
 comparison. That is a gap in the catalogue rather than a reason to discard a measurement: each one
 is either a biomarker nobody else computes, or a mapping nobody has made yet.
 
+**The nearest canonical name is our best match, not a mapping.** It says which comparison a reader
+is most likely to want and what stands between the column and that name. Where the gap is a
+conversion, §6 says how to make it; where it is a definition, no conversion closes it.
+
 ### 4.1 AutoMorph, AutoMorphalyzer, AutoMorphClass
 
-| Their name | What it appears to be |
-| --- | --- |
-| `squared_curvature_tortuosity` | *AutoMorph and AutoMorphClass.* Mapped to Hart τ3 until a shape showed it off by five orders of magnitude — **it squares nothing**. Mapping withdrawn; what it computes is unread |
-| `average_local_calibre@{B,C,whole}` | *AutoMorphalyzer.* A second calibre beside `average_global_calibre`, disagreeing with it by a third of the vessel's width at some angles. Which of the two answers `calibre/width` is unresolved |
-| `tortuosity_distance@{B,C}` | *AutoMorphalyzer.* τ1 restricted to a zone — these **will map** once the `roi` part exists |
-| `tortuosity_density@{B,C}` | *AutoMorphalyzer.* Grisan density per zone — likewise |
-| `CRAE_Knudtson@{B,C,whole}`, `CRVE_Knudtson@{B,C,whole}` | *AutoMorphalyzer.* The equivalents per zone — likewise, and `@whole` is a region the literature does not define |
-
-**Nine of AutoMorphalyzer's fourteen unmapped quantities are region variants** of something already
-named, and close when the `roi` part lands.
+| Their name | Nearest canonical name | What stands between them |
+| --- | --- | --- |
+| `squared_curvature_tortuosity` — AutoMorph `Artery_Squared_curvature_tortuosity`, AutoMorphClass `Artery_squared_curvature_tortuosity` | `tortuosity/hart-tau2` | It integrates the **signed** discrete curvature over the sample index, `abs(np.trapz(curvatures, x_values))`, where τ2 integrates its magnitude over arc length. It squares nothing, which is why the τ3 mapping was withdrawn (§5). No constant relates it to either |
+| `average_local_calibre_artery_{whole,B,C}` (AutoMorphalyzer) | `calibre/width/artery/length-weighted` | Also a mean over every width sample along every vessel, so length-weighted, but it **leaves out branch points**. It differs from `average_global_calibre` by a third of a vessel's width at some angles; the vocabulary does not separate junction handling, so the two cannot share a name |
+| `CRAE_Knudtson_artery_whole`, `CRVE_Knudtson_vein_whole` (AutoMorphalyzer) | `calibre/CRE-knudtson/{artery,vein}/B` | An equivalent over the whole image, a region the literature does not define. Its B and C forms are mapped |
+| AutoMorph `…_zone_b` and `…_zone_c` forms of `Vessel_density` and `Fractal_dimension`; AutoMorphClass `ZoneB_…` forms of the same | `density/over-image`, `density/box-counting` | The zone's vessels over **the whole frame**: neither the zone's own area nor the field of view. A box count over a ring is not one the vocabulary names |
+| AutoMorphClass `ZoneC_…`, every feature | the same feature over `C` | Its zone C is **3–5 disc radii**, a ring outside zone B. The catalogue's `C` is 2–5 radii and contains B, so the two cover different retina |
+| AutoMorph `Disc_height`, `Disc_width`, `Cup_height`, `Cup_width`; AutoMorphalyzer and AutoMorphClass the same in lower case | — | The bounding-box sizes the cup-to-disc ratios are built from, in pixels. No canonical name holds a disc diameter |
 
 ### 4.2 PVBM
 
-| Their name | What it appears to be |
-| --- | --- |
-| `tortuosity_index` | Returned beside the median by `GeometryAnalysis` and called a "tortuosity index" in its docstring. The definition is not stated and it is not one of Hart's seven |
-| `start_points` | Where the rooted walk begins — one per vessel leaving the optic disc. A count of trunks. With `endpoints` it sums to the catalogued free-end count |
-| `singularity_length` | From the multifractal analysis — the width of the singularity spectrum. Nothing else here computes it |
-| `median_branching_angle` | Listed above as ⚠️ against `topology/branching-angle`; kept under its own name because it is not the angle between daughters |
-| `endpoints` | Listed above as ⚠️; the rooted tip count rather than every free end |
+| Their name | Nearest canonical name | What stands between them |
+| --- | --- | --- |
+| `tortuosity_index` | `tortuosity/hart-tau1/{artery,vein}/length-weighted` | *Our finding, 2026-11-20, from reading `GeometryAnalysis.py`:* total arc over total chord for the whole map, the same ratio of sums as OCULAR's `pooled_tortuosity`. That equals each segment's ratio weighted by its **chord** length, where the `length-weighted` statistic weights by arc length. The vocabulary has no statistic for a ratio of sums |
+| `start_points` | `topology/endpoints` | Where the rooted walk begins: one per vessel leaving the optic disc, a count of trunks. `endpoints + start_points` is the catalogued free-end count |
+| `singularity_length` | `density/multifractal-d0`, `-d1`, `-d2` | The width of the singularity spectrum from the same multifractal analysis. Nothing else here computes it |
+| `median_branching_angle` | `topology/branching-angle/median` | Listed above as ⚠️; every pairwise angle at a junction, the trunk included |
+| `endpoints` | `topology/endpoints` | Listed above as ⚠️; the rooted tip count rather than every free end |
 
 ### 4.3 VascX
 
-| Their name | What it appears to be |
-| --- | --- |
-| `lw_tort_dist_max_segment_len_{0p15,0p25}_…` | Length-weighted τ1 at **two segment-length settings**. The parameter is the segment definition itself, which is why one canonical name cannot hold both |
-| `mean_sparsity`, `mean_sparsity_crcl_multiplier_…` | Sparsity over the whole retina and over a disc-centred circle — the second maps once `roi` exists |
-| `vd_crcl_multiplier_1p16666666667_full` | Vascular density over that same circle — likewise |
-| `median_temporal_angle_{arteries,veins}` | Listed above against `topology/temporal-angle` |
-| `disc_fovea_distance_{retina,center_retina}` | Two disc–fovea distances, to different reference points |
+`{C}` is `crcl_multiplier_1p16666666667`: **7/6 disc diameters written as a float**, a circle at 2.33
+disc radii, which the ARIC convention does not name. See [regions of
+interest](biomarkers/regions-of-interest.md).
 
-`crcl_multiplier_1p16666666667` is **7/6 disc radii written as a float**, and is a region the ARIC
-convention does not name. See [regions of interest](biomarkers/regions-of-interest.md).
+| Their name | Nearest canonical name | What stands between them |
+| --- | --- | --- |
+| `lw_tort_dist_max_segment_len_{0p15,0p25}_{C}_full_{arteries,veins}` | `tortuosity/hart-tau1/{artery,vein}/length-weighted` | The same measure at the two other segment caps. The cap is the segment definition itself, so one canonical name holds one cap, and 0.2 is the one mapped |
+| `lw_tort_curv_{C}_full_{arteries,veins}` | `tortuosity/spline-curvature/{artery,vein}/length-weighted` | Multiplied by the disc-to-fovea distance. **Convertible** on a real photograph: divide by `disc_fovea_distance_retina`, then scale as a 1/length (§6). Not on the synthetic shapes, whose fovea is a convention |
+| `mean_sparsity_vessels`, `mean_sparsity_{C}_full_vessels` | `density/sparsity/vessels/mean` | Divided by the disc-to-fovea distance. **Convertible** the same way: multiply by `disc_fovea_distance_retina`, then scale as a length. The second is over VascX's circle, which no region names |
+| `vd_{C}_full_{arteries,veins}` | `density/over-fov` | Vessel area over the area of VascX's disc-centred circle, neither the field of view nor the frame |
+| `median_temporal_angle_{arteries,veins}` | `topology/temporal-angle/{artery,vein}/median` | Listed above as ✅ on a real photograph; unmapped in the adapter because the synthetic shapes have no fovea |
+| `disc_fovea_distance_retina`, `disc_fovea_distance_center_retina` | `landmarks/disc-fovea-distance` | Listed above as ⚠️; two reference points, and pixels unless VascX is given a scale |
+
+### 4.4 OCULAR
+
+| Their name | Nearest canonical name | What stands between them |
+| --- | --- | --- |
+| `pooled_tortuosity` | `tortuosity/hart-tau1/{artery,vein}/length-weighted` | Total arc over total chord for the whole map: a ratio of sums, where the length-weighted statistic is a weighted mean of each vessel's ratio. The vocabulary has no statistic for a ratio of sums |
+| `start_points`, `endpoints` | `topology/endpoints` | As PVBM's, whose code OCULAR forks |
+| `median_branching_angle` | `topology/branching-angle/median` | As PVBM's |
 
 ## 5. Where a mapping has been withdrawn
 
@@ -311,6 +357,70 @@ unit-bearing name, not the one that misbehaved.**
 relevant family page, and the column is still measured and stored under the implementation's own
 name — see §4.
 
+## 6. Converting a project's number into canonical units
+
+**Multiply a pixel value by the microns per pixel of the grid the project actually measured on,
+raised to the powers of length its canonical unit carries.** That is `canonical.from_pixels`, and
+every adapter here reports pixels so that this is the one place a unit changes. The trap is the
+grid: a project that resized the picture measured in its own pixels, not the photograph's.
+
+```
+value_in_canonical_units = value_in_pixels × s ** p
+s = um_per_px × crop_side / N
+```
+
+`um_per_px` and `crop_side` are the manifest's own columns for that photograph (`fetch-dataset`
+skill §8), and `N` is the side of the square grid the project measured on. The power `p` comes from
+the unit in §2:
+
+| Canonical unit | p | Examples |
+| --- | :-: | --- |
+| µm | 1 | `calibre/width`, `calibre/CRE-*`, `density/skeleton-length-rooted`, `landmarks/disc-fovea-distance` |
+| µm² | 2 | `density/area` |
+| 1/µm | −1 | `tortuosity/grisan-density`, `tortuosity/spline-curvature` |
+| 1, degrees, a count | 0 | `tortuosity/hart-tau1`, `density/box-counting`, `density/over-image`, `topology/*`, the AVRs and CDRs |
+
+**What each project measures on, and what it hands back:**
+
+| Project | Grid N | What it returns | What to do |
+| --- | --- | --- | --- |
+| AutoMorph | **912, always.** retipy resizes every file it opens to 912×912, bicubically, whatever it was given | Widths and equivalents are multiplied by a per-image `Scale_resolution` read from `M0/crop_info.csv`, which its preprocessing stage derives from `resolution_information.csv`; everything else is in 912-pixels. The adapter writes a scale of 1, so its widths are pixels too | Use N = 912 even for a 2048 mask. Do not rescale widths from AutoMorph's own CSV — but trust them as microns only when a real resolution went into `resolution_information.csv`: `generate_resolution.py` writes the same default, 0.008, for every image |
+| AutoMorphalyzer | The mask it is handed. Its own pipeline resizes to 912 first | Pixels throughout; its authors state it assumes no physical resolution | N = the mask's side, 912 inside its pipeline |
+| AutoMorphClass | The mask it is handed. Its own pipeline resizes to 920 | Pixels throughout | N = the mask's side, 920 inside its pipeline |
+| PVBM | The mask it is handed | Pixels; `area` in px² | N = the mask's side. Its Hubbard equivalents cannot be converted: the constants were applied to pixels |
+| VascX | The mask it is handed. Its shipped pipeline works at 1024 | Widths, equivalents and the disc-to-fovea distance in **mm** when given `mm_per_pixel`, pixels without. Tortuosity is dimensionless | Given a scale, mm × 1000 = µm and no grid factor. The adapter divides back to pixels with the same scale, so its stored values take N = the mask's side |
+| OCULAR | The mask it is handed | Pixels; `area` in px² | N = the mask's side |
+
+**A worked example.** [HRF](datasets/hrf.md) photograph `01_dr` has `um_per_px` 4.7398 and
+`crop_side` 3271. On AutoMorph's 912 grid, s = 4.7398 × 3271 / 912 = 17.0 µm per pixel, so an
+AutoMorph width of 7 px is 119 µm.
+
+**Two of VascX's dimensionless columns convert through its own disc-to-fovea distance**, measured
+on the same retina in the same units:
+
+```
+spline curvature (1/length) = lw_tort_curv / disc_fovea_distance_retina
+sparsity (length)           = mean_sparsity × disc_fovea_distance_retina
+```
+
+then scale the result with p = −1 and p = 1. This is a conversion on a real photograph only. On a
+synthetic shape the fovea is a convention of the fixture, which is why neither is mapped (§5).
+
+**Where scaling is not enough:**
+
+- **Knudtson's equivalents scale linearly**, because their constants (0.88 and 0.95) are
+  dimensionless: a pixel CRAE times s is the micron CRAE. **Hubbard's do not** — the formula
+  carries additive constants fitted in microns (−10.76 for arterioles, +450.05 for venules), so a
+  Hubbard equivalent computed on pixel widths cannot be rescaled afterwards.
+- **A dimensionless number can still depend on resolution.** Box-counting dimension and the
+  densities change with the grid they were counted on; no factor undoes that, so compare them only
+  between runs on one grid.
+- **AutoMorph's resize blurs a binary mask.** Bicubic interpolation gives a mask grey edges and
+  thin vessels lose contrast, so its widths are biased by the resize as well as being in another
+  unit.
+- **No scale, no microns.** Where a dataset's `resolution_source` is `unknown`, report pixels and
+  say so; never borrow another camera's figure.
+
 ---
 
-**Last checked:** 2026-10-23.
+**Last checked:** 2026-11-19.

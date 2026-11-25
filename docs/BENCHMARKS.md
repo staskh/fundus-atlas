@@ -55,19 +55,18 @@ Pooled over **avrdb, fives, fundus-avseg, hrf, reyia**. **Dice** is overlap with
 
 **Does a biomarker implementation compute the quantity it is said to compute?** Every other benchmark here compares software with a human judgement; this one compares it with a number derived on paper. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of exactly 1/r, and an implementation that disagrees is wrong rather than different. It selects nothing: which implementations are fit to measure a real segmentation is a judgement made by a person on this evidence.
 
-[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/biomarker-synthetic.ipynb) · [Every score](../results/biomarker-synthetic/)
+[How it is run](benchmarks/biomarker-synthetic-docs.md) · [What came out](benchmarks/biomarker-synthetic-results.md) · [The analysis](../notebooks/synthetic/biomarker-synthetic.ipynb) · [Every score](../results/biomarker-synthetic/)
 
 Every shape is drawn at 0°, 15°, 30°, 45°, 60°, 75° and 90°, where the geometry is identical — so **turns with the image** is the largest spread one quantity showed across the 7, and anything above zero there is the implementation or the pixel grid rather than the eye. How far each measurement is from what the geometry requires is on the results page, which reads the drawn store's ground truth.
 
 | Implementation | Renderings | Columns | Values returned | Turns with the image |
 | --- | --- | --- | --- | --- |
-| [automorph](projects/automorph.md) | 91 | 18 | 1638 | 100.0% |
-| [automorphalyzer](projects/automorphalyzer.md) | 91 | 54 | 3120 | 100.0% |
-| [automorphclass](projects/automorphclass.md) | 91 | 18 | 1638 | 100.0% |
-| [fundus-biomarkers](projects/fundus-biomarkers.md) | 91 | 633 | 51494 | 100.0% |
+| [automorph](projects/automorph.md) | 91 | 72 | 5490 | 100.0% |
+| [automorphalyzer](projects/automorphalyzer.md) | 91 | 66 | 4196 | 100.0% |
+| [automorphclass](projects/automorphclass.md) | 91 | 60 | 5376 | 100.0% |
 | [ocular](projects/ocularnet.md) | 91 | 18 | 1469 | 100.0% |
 | [pvbm](projects/pvbm.md) | 91 | 30 | 2517 | 100.0% |
-| [vascx](projects/vascx.md) | 91 | 20 | 1007 | 99.6% |
+| [vascx](projects/vascx.md) | 91 | 132 | 5005 | 100.0% |
 
 
 ## Disc and cup
@@ -123,4 +122,4 @@ Read [what came out](benchmarks/quality-results.md) before acting on this: cover
 
 ---
 
-**Generated:** 2026-11-10
+**Generated:** 2026-11-22

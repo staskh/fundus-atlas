@@ -3,15 +3,18 @@
 
 import hashlib
 import json
+import warnings
 
 import numpy as np
 
 from upstreams import vascx as upstream
 
-#: The shipped feature set this adapter runs: the disc-centred one, which is the framing every
-#: disc-anchored measurement here is stated in. It is used as VascX ships it rather than assembled
-#: from parts, so what is measured is a configuration its authors published.
-FEATURE_SET = "fs_od_centered"
+#: The shipped feature sets this adapter runs, each as VascX ships it rather than assembled from
+#: parts, so what is measured is a configuration its authors published. `calc-biomarkers` has no
+#: default set: its README recommends **`full_v3`**, "the latest 'full' set", and the disc-centred
+#: one is the framing every disc-anchored measurement here is stated in. *Since 2026-11-22* both
+#: are run, after an audit found the adapter returning 20 of the 132 columns the two compute.
+FEATURE_SETS = ("fs_od_centered", "fs_full_v3")
 
 #: The circle VascX measures over in that set, as it appears in every feature's name: 1.1667 disc
 #: **diameters** from the disc centre, which is 2.33 disc *radii*. That is inside the 2-to-3 radii
@@ -80,19 +83,162 @@ RETINA_NAMES: dict[str, str | None] = {
     f"mean_sparsity_{CIRCLE}_full_vessels": None,
 }
 
+#: Every column the two sets compute, in VascX's own canonical naming, as
+#: `Retina.make_feature_display_names` lists them — od_centered's 67, then full_v3's 65 more; the
+#: ten they share compute the same number. A test holds this list to what VascX generates, so a
+#: change upstream fails loudly rather than dropping a column.
+#:
+#: Only the columns in `NAMES` and `RETINA_NAMES` are catalogued. The rest are kept under VascX's
+#: names: the superior, inferior, temporal, nasal, hemifield, ETDRS and ellipse ones are built on
+#: the disc-to-fovea axis this fixture invents (see `FOVEA`); the whole-image and `disc_full` ones
+#: wait for a mapping the shapes can test.
+COLUMNS: tuple[str, ...] = (
+    "median_temporal_angle_arteries",
+    "median_temporal_angle_veins",
+    "mn_bifangle_crcl_multiplier_1p16666666667_full_arteries",
+    "mn_bifangle_crcl_multiplier_1p16666666667_full_veins",
+    "mn_bifangle_crcl_multiplier_1p16666666667_superior_arteries",
+    "mn_bifangle_crcl_multiplier_1p16666666667_superior_veins",
+    "mn_bifangle_crcl_multiplier_1p16666666667_inferior_arteries",
+    "mn_bifangle_crcl_multiplier_1p16666666667_inferior_veins",
+    "mn_bifangle_crcl_multiplier_1p16666666667_temporal_arteries",
+    "mn_bifangle_crcl_multiplier_1p16666666667_temporal_veins",
+    "mn_bifangle_crcl_multiplier_1p16666666667_nasal_arteries",
+    "mn_bifangle_crcl_multiplier_1p16666666667_nasal_veins",
+    "lw_diam_crcl_multiplier_1p16666666667_full_arteries",
+    "lw_diam_crcl_multiplier_1p16666666667_full_veins",
+    "lw_diam_crcl_multiplier_1p16666666667_superior_arteries",
+    "lw_diam_crcl_multiplier_1p16666666667_superior_veins",
+    "lw_diam_crcl_multiplier_1p16666666667_inferior_arteries",
+    "lw_diam_crcl_multiplier_1p16666666667_inferior_veins",
+    "lw_diam_crcl_multiplier_1p16666666667_temporal_arteries",
+    "lw_diam_crcl_multiplier_1p16666666667_temporal_veins",
+    "lw_diam_crcl_multiplier_1p16666666667_nasal_arteries",
+    "lw_diam_crcl_multiplier_1p16666666667_nasal_veins",
+    "full_cre_arteries",
+    "full_cre_veins",
+    "nasal_cre_arteries",
+    "nasal_cre_veins",
+    "temporal_cre_arteries",
+    "temporal_cre_veins",
+    "lw_tort_dist_max_segment_len_0p15_crcl_multiplier_1p16666666667_full_arteries",
+    "lw_tort_dist_max_segment_len_0p15_crcl_multiplier_1p16666666667_full_veins",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_full_arteries",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_full_veins",
+    "lw_tort_dist_max_segment_len_0p25_crcl_multiplier_1p16666666667_full_arteries",
+    "lw_tort_dist_max_segment_len_0p25_crcl_multiplier_1p16666666667_full_veins",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_full_arteries",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_full_veins",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_superior_arteries",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_superior_veins",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_inferior_arteries",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_inferior_veins",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_temporal_arteries",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_temporal_veins",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_nasal_arteries",
+    "lw_tort_dist_max_segment_len_0p2_crcl_multiplier_1p16666666667_nasal_veins",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_superior_arteries",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_superior_veins",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_inferior_arteries",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_inferior_veins",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_temporal_arteries",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_temporal_veins",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_nasal_arteries",
+    "lw_tort_curv_crcl_multiplier_1p16666666667_nasal_veins",
+    "vd_crcl_multiplier_1p16666666667_full_arteries",
+    "vd_crcl_multiplier_1p16666666667_full_veins",
+    "vd_crcl_multiplier_1p16666666667_superior_arteries",
+    "vd_crcl_multiplier_1p16666666667_superior_veins",
+    "vd_crcl_multiplier_1p16666666667_inferior_arteries",
+    "vd_crcl_multiplier_1p16666666667_inferior_veins",
+    "vd_crcl_multiplier_1p16666666667_temporal_arteries",
+    "vd_crcl_multiplier_1p16666666667_temporal_veins",
+    "vd_crcl_multiplier_1p16666666667_nasal_arteries",
+    "vd_crcl_multiplier_1p16666666667_nasal_veins",
+    "disc_fovea_distance_center_retina",
+    "disc_fovea_distance_retina",
+    "mean_sparsity_vessels",
+    "mean_sparsity_crcl_multiplier_1p16666666667_full_vessels",
+    "sharpness_crcl_multiplier_1p16666666667_full_vessels",
+    "mn_bifangle_arteries",
+    "mn_bifangle_veins",
+    "mn_bifangle_hf_superior_arteries",
+    "mn_bifangle_hf_superior_veins",
+    "mn_bifangle_hf_inferior_arteries",
+    "mn_bifangle_hf_inferior_veins",
+    "md_diam_arteries",
+    "md_diam_veins",
+    "md_diam_hf_superior_arteries",
+    "md_diam_hf_superior_veins",
+    "md_diam_hf_inferior_arteries",
+    "md_diam_hf_inferior_veins",
+    "lw_diam_arteries",
+    "lw_diam_veins",
+    "lw_diam_hf_superior_arteries",
+    "lw_diam_hf_superior_veins",
+    "lw_diam_hf_inferior_arteries",
+    "lw_diam_hf_inferior_veins",
+    "lw_diam_disc_full_arteries",
+    "lw_diam_disc_full_veins",
+    "temporal_cre_hf_superior_arteries",
+    "temporal_cre_hf_superior_veins",
+    "temporal_cre_hf_inferior_arteries",
+    "temporal_cre_hf_inferior_veins",
+    "md_tort_dist_arteries",
+    "md_tort_dist_veins",
+    "md_tort_curv_arteries",
+    "md_tort_curv_veins",
+    "lw_tort_dist_vessels_arteries",
+    "lw_tort_dist_vessels_veins",
+    "lw_tort_dist_arteries",
+    "lw_tort_dist_veins",
+    "lw_tort_dist_max_segment_len_0p2_arteries",
+    "lw_tort_dist_max_segment_len_0p2_veins",
+    "lw_tort_curv_arteries",
+    "lw_tort_curv_veins",
+    "lw_tort_dist_etdrs_full_arteries",
+    "lw_tort_dist_etdrs_full_veins",
+    "lw_tort_dist_max_segment_len_0p2_etdrs_full_arteries",
+    "lw_tort_dist_max_segment_len_0p2_etdrs_full_veins",
+    "lw_tort_curv_etdrs_full_arteries",
+    "lw_tort_curv_etdrs_full_veins",
+    "lw_tort_dist_disc_full_arteries",
+    "lw_tort_dist_disc_full_veins",
+    "lw_tort_dist_max_segment_len_0p2_disc_full_arteries",
+    "lw_tort_dist_max_segment_len_0p2_disc_full_veins",
+    "lw_tort_curv_disc_full_arteries",
+    "lw_tort_curv_disc_full_veins",
+    "vd_elps_full_arteries",
+    "vd_elps_full_veins",
+    "vd_disc_full_arteries",
+    "vd_disc_full_veins",
+    "vd_etdrs_full_arteries",
+    "vd_etdrs_full_veins",
+    "vd_hf_superior_arteries",
+    "vd_hf_superior_veins",
+    "vd_hf_inferior_arteries",
+    "vd_hf_inferior_veins",
+    "max_sparsity_vessels",
+    "mean_sparsity_elps_full_vessels",
+    "max_sparsity_elps_full_vessels",
+    "mean_sparsity_disc_full_vessels",
+    "max_sparsity_disc_full_vessels",
+    "mean_sparsity_etdrs_full_vessels",
+    "max_sparsity_etdrs_full_vessels",
+)
+
 #: VascX's layer names, and the structure each answers for.
 LAYERS = {"arteries": "artery", "veins": "vein"}
 
 #: Millimetres per micron, for the one conversion this adapter makes. See `Vascx.measure`.
 MM_PER_UM = 0.001
 
-#: The features VascX returns in **millimetres**, named outright rather than recognised by the
-#: catalogued name they answer to. Which columns carry a physical length is a fact about VascX,
-#: and tying it to the catalogue's spelling would make renaming a biomarker change a unit.
-IN_MILLIMETRES = (
-    f"lw_diam_{CIRCLE}_full_{{layer}}",
-    "full_cre_{layer}",
-)
+#: The features VascX returns in **millimetres**, recognised by VascX's own names rather than by
+#: the catalogued name they answer to: every diameter (`lw_diam`, `md_diam`) and every central
+#: retinal equivalent (`full_cre`, `nasal_cre`, `temporal_cre`, and its hemifield ones). Which
+#: columns carry a physical length is a fact about VascX, and tying it to the catalogue's spelling
+#: would make renaming a biomarker change a unit.
+IN_MILLIMETRES = ("lw_diam_", "md_diam_", "full_cre_", "nasal_cre_", "temporal_cre_")
 
 
 def _answers() -> dict[str, str]:
@@ -117,7 +263,117 @@ ANSWERS = _answers()
 #: a claim, and a claim belongs in the analysis that relies on it rather than baked into the
 #: measurement.
 CANONICAL: dict[str, str | None] = {
-    own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()
+    **{own: (answered if "/" in answered else None) for answered, own in ANSWERS.items()},
+    **{own: None for own in COLUMNS if own not in set(ANSWERS.values())},
+}
+
+
+#: For each column with no canonical name, the nearest one and what keeps it from being that name.
+#: Rendered into the project page's list of every column it writes (`python -m biomarkers.pages`).
+#: A close name is a pointer for a reader, never a mapping: nothing is compared against it, and a
+#: column moves into the naming table above only when the shapes can test it. Patterns are matched
+#: against the whole of the column's own name; a column no rule matches has nothing near.
+_REGION = (
+    r"crcl_multiplier_1p16666666667_(?:full|superior|inferior|temporal|nasal)"
+    r"|disc_full|etdrs_full|elps_full|hf_superior|hf_inferior"
+)
+_SIDE = r"(?P<side>arteries|veins)"
+CLOSEST = (
+    (
+        r"sharpness_.*",
+        None,
+        "how sharply the photograph is focused at the vessels' edges; it needs the photograph",
+    ),
+    (
+        rf"(?P<stat>lw|md)_diam_(?:(?P<where>{_REGION})_)?{_SIDE}",
+        "calibre/width/{side}/{stat}",
+        "{where}",
+    ),
+    (
+        rf"lw_tort_dist_vessels_{_SIDE}",
+        "tortuosity/vessel-hart-tau1/{side}/length-weighted",
+        "arc over chord of whole vessels rather than segments, over the whole image",
+    ),
+    (
+        rf"(?P<stat>lw|md)_tort_dist_(?P<cap>max_segment_len_0p\d+_)?(?:(?P<where>{_REGION})_)?{_SIDE}",
+        "tortuosity/hart-tau1/{side}/{stat}",
+        "{cap}{where}",
+    ),
+    (
+        rf"(?P<stat>lw|md)_tort_curv_(?:(?P<where>{_REGION})_)?{_SIDE}",
+        "tortuosity/spline-curvature/{side}/{stat}",
+        "mean curvature multiplied by the disc–fovea distance, so dimensionless; {where}",
+    ),
+    (
+        rf"vd_(?P<where>{_REGION})_{_SIDE}",
+        "density/over-fov/{side}",
+        "vessel area over the area of its region rather than the field of view; {where}",
+    ),
+    (
+        rf"(?P<stat>mean|max)_sparsity_(?:(?P<where>{_REGION})_)?vessels",
+        "density/sparsity/vessels/{stat}",
+        "divided by the disc–fovea distance, so dimensionless; {where}",
+    ),
+    (
+        rf"mn_bifangle_(?:(?P<where>{_REGION})_)?{_SIDE}",
+        "topology/branching-angle/{side}/mean",
+        "{where}",
+    ),
+    (
+        rf"(?P<which>full|nasal|temporal)_cre_(?:(?P<half>hf_superior|hf_inferior)_)?{_SIDE}",
+        "calibre/CRE-knudtson/{side}/B",
+        "{which}, at 2.33 disc radii, inside zone B rather than across it{half}",
+    ),
+    (
+        rf"median_temporal_angle_{_SIDE}",
+        "topology/temporal-angle/{side}",
+        (
+            "measured from the disc–fovea axis; on a synthetic shape that axis is this atlas's "
+            "convention, so the column is kept under VascX's name"
+        ),
+    ),
+    (
+        r"disc_fovea_distance(?P<from>_center)?_retina",
+        "landmarks/disc-fovea-distance",
+        "from the disc's {from}; on a synthetic shape the fovea is this atlas's convention",
+    ),
+)
+CLOSEST_WORDS = {
+    "side": {"arteries": "artery", "veins": "vein"},
+    "stat": {"lw": "length-weighted", "md": "median", "mean": "mean", "max": "max"},
+    "where": {
+        "": "over the whole image",
+        "crcl_multiplier_1p16666666667_full": "over its circle at 2.33 disc radii",
+        "crcl_multiplier_1p16666666667_superior": "over the superior quadrant of its circle, "
+        "on the disc–fovea axis",
+        "crcl_multiplier_1p16666666667_inferior": "over the inferior quadrant of its circle, "
+        "on the disc–fovea axis",
+        "crcl_multiplier_1p16666666667_temporal": "over the temporal quadrant of its circle, "
+        "on the disc–fovea axis",
+        "crcl_multiplier_1p16666666667_nasal": "over the nasal quadrant of its circle, "
+        "on the disc–fovea axis",
+        "disc_full": "over a disc-centred circle (`disc_full`)",
+        "etdrs_full": "over the ETDRS grid, centred on the fovea",
+        "elps_full": "over an ellipse on the disc–fovea axis",
+        "hf_superior": "over the superior hemifield, split along the disc–fovea axis",
+        "hf_inferior": "over the inferior hemifield, split along the disc–fovea axis",
+    },
+    "cap": {
+        "max_segment_len_0p15_": "segments capped at 0.15 disc diameters, ",
+        "max_segment_len_0p2_": "segments capped at 0.2 disc diameters, ",
+        "max_segment_len_0p25_": "segments capped at 0.25 disc diameters, ",
+    },
+    "which": {
+        "full": "over its full circle",
+        "nasal": "over the nasal half of its circle",
+        "temporal": "over the temporal half of its circle",
+    },
+    "from": {"": "edge", "_center": "centre"},
+    "half": {
+        "": "",
+        "hf_superior": ", superior hemifield only",
+        "hf_inferior": ", inferior hemifield only",
+    },
 }
 
 
@@ -176,7 +432,7 @@ class Vascx:
             "keys": list(self.keys()),
             "names": dict(CANONICAL),
             "calls": {own: ["calc_features"] for own in CANONICAL},
-            "feature_set": FEATURE_SET,
+            "feature_sets": list(FEATURE_SETS),
             "circle": "1.1667 disc diameters from the disc centre",
             "fovea": self.FOVEA,
             "units": {
@@ -211,6 +467,7 @@ class Vascx:
         fov: np.ndarray,
         disc: tuple[float, float, float],
         um_per_px: float | None,
+        cup: np.ndarray | None = None,
     ) -> dict[str, float | None]:
         """Everything the shipped set computes, under catalogued names where one applies."""
         self.trouble = {}
@@ -254,8 +511,20 @@ class Vascx:
         retina.disc = OpticDisc(
             self._disc_mask(side, x, y, radius).astype(np.uint8), fundus=retina, size=side
         )
-        found = retina.calc_features(getattr(sets, FEATURE_SET))
-        return {name: _number(value) for name, value in found.items()}
+        found: dict[str, float | None] = {}
+        for feature_set in FEATURE_SETS:
+            # It catches every feature's exception itself and says so in a warning; those
+            # warnings are the only record of why a column is empty, so they are kept.
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                answered = retina.calc_features(getattr(sets, feature_set))
+            for warned in caught:
+                message = str(warned.message)
+                if message.startswith("Error computing feature"):
+                    self.trouble[f"{feature_set}: {message[:80]}"] = message
+            for name, value in answered.items():
+                found.setdefault(name, _number(value))
+        return found
 
     def _fovea(self, side: int, x: float, y: float) -> tuple[float, float]:
         """The fovea this fixture implies. See `FOVEA` for why it is a convention."""
@@ -282,7 +551,7 @@ class Vascx:
     def _in_pixels(
         answers: dict[str, float | None], um_per_px: float | None
     ) -> dict[str, float | None]:
-        """The two lengths VascX reports in millimetres, put back onto the pixel grid.
+        """The lengths VascX reports in millimetres, put back onto the pixel grid.
 
         Every adapter in this repository reports what its implementation measured **in pixels**,
         and the analysis is where a pixel value meets the microns its canonical name is in — one
@@ -295,11 +564,8 @@ class Vascx:
         if not um_per_px:
             return answers
         per_pixel_mm = um_per_px * MM_PER_UM
-        millimetres = {
-            template.format(layer=layer) for template in IN_MILLIMETRES for layer in LAYERS
-        }
         for own, value in answers.items():
-            if value is not None and own in millimetres:
+            if value is not None and own.startswith(IN_MILLIMETRES):
                 answers[own] = value / per_pixel_mm
         return answers
 

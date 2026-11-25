@@ -1,6 +1,7 @@
 # ABOUTME: Tests for the benchmark write-ups: one notebook and one results page per benchmark,
 # ABOUTME: named after it.
 
+import importlib
 from pathlib import Path
 
 from benchmarks import report
@@ -22,4 +23,8 @@ def test_every_benchmark_has_one_notebook_and_one_results_page() -> None:
         assert (root / "docs/benchmarks" / f"{benchmark}-results.md").exists(), (
             f"{benchmark} has no results page"
         )
-        assert (root / "notebooks" / f"{benchmark}.ipynb").exists(), f"{benchmark} has no notebook"
+        # A benchmark may keep its notebook elsewhere and say so; the synthetic biomarker one keeps
+        # its summary in notebooks/synthetic/ beside one notebook per lineage.
+        module = importlib.import_module(f"benchmarks.{benchmark.replace('-', '_')}")
+        notebook = getattr(module, "NOTEBOOK", f"{benchmark}.ipynb")
+        assert (root / "notebooks" / notebook).exists(), f"{benchmark} has no notebook"

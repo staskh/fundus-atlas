@@ -1,5 +1,5 @@
-# ABOUTME: A synthetic scene photographed: artery, vein and field-of-view masks on a square frame of
-# ABOUTME: any side, the scene turned about the frame centre, and the disc in that frame's pixels.
+# ABOUTME: A synthetic scene photographed: artery, vein, field-of-view, disc and cup masks on a square
+# ABOUTME: frame of any side, the scene turned about the frame centre, and the disc in its pixels.
 
 import math
 from dataclasses import dataclass
@@ -13,14 +13,20 @@ from .truth import _tubes
 
 @dataclass(frozen=True)
 class Drawing:
-    """What an implementation is handed: two masks and a field on a `side` × `side` frame, and the
-    disc as ``(x, y, radius)`` in that frame's pixels."""
+    """What an implementation is handed: two masks and a field on a `side` × `side` frame, the
+    disc as ``(x, y, radius)`` in that frame's pixels, and the disc and cup as masks.
+
+    The disc mask is the circle `disc` describes, drawn at the same pixel centres; it is stored so
+    a reader can see it, and so that the masks match fundus-biomarkers' renderings one for one.
+    """
 
     artery: np.ndarray
     vein: np.ndarray
     fov: np.ndarray
     disc: tuple[float, float, float]
     um_per_px: float
+    disc_mask: np.ndarray
+    cup: np.ndarray
 
 
 def um_per_px(side: int) -> float:
@@ -66,10 +72,16 @@ def render(scene: Scene, rotation: float = 0.0, side: int = 2048) -> Drawing:
         masks[vessel] = shapely.contains_xy(drawn, x, y)
     cx, cy = turn(*scene.disc, rotation)
     centre = side / 2.0 - 0.5
+    # The disc and cup in scene coordinates, so the cup's axes turn with everything else: its
+    # horizontal diameter in the scene is no longer horizontal in a turned photograph.
+    dx, dy = x - scene.disc[0], y - scene.disc[1]
+    a, b = (fraction * DISC_RADIUS_UM for fraction in scene.cup)
     return Drawing(
         artery=masks["artery"],
         vein=masks["vein"],
         fov=fx**2 + fy**2 <= FOV_RADIUS_UM**2,
         disc=(centre + cx / um, centre + cy / um, DISC_RADIUS_UM / um),
         um_per_px=um,
+        disc_mask=dx**2 + dy**2 <= DISC_RADIUS_UM**2,
+        cup=(dx / a) ** 2 + (dy / b) ** 2 <= 1.0,
     )

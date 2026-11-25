@@ -65,6 +65,118 @@ def measurements():
     return tortuosity_measures, retina
 
 
+def retipy_config() -> dict[str, float]:
+    """The thresholds in the feature stages' `resources/retipy.config`, read by retipy's own
+    `Configuration`, as every driver reads them."""
+    import importlib
+
+    measurements()
+    configuration = importlib.import_module("retipy.configuration")
+    read = configuration.Configuration(
+        str(CODE.obtain() / FEATURE_STAGE / "retipy" / "resources" / "retipy.config")
+    )
+    return {
+        "pixels_per_window": read.pixels_per_window,
+        "sampling_size": read.sampling_size,
+        "r_2_threshold": read.r_2_threshold,
+    }
+
+
+#: The top-level module names the two feature stages both own. Each stage vendors its own
+#: `retipy`, and its modules import each other by that absolute name, so the zone stage's copy can
+#: only be imported with the whole-picture copy's modules out of the way.
+_STAGE_MODULES = ("retipy", "function_")
+
+_ZONE: tuple | None = None
+
+
+def zone_measurements():
+    """`retipy.tortuosity_measures` and `retipy.retina` from the **zone** stage.
+
+    It is a second copy of retipy whose `evaluate_window` returns thirteen values rather than six —
+    the same six, then the Hubbard and Knudtson equivalents — and whose width sampling multiplies
+    by the image's scale. Both stages call it `retipy`, so it is imported with the other copy's
+    modules set aside, and those are put back afterwards: each stage's functions keep the modules
+    they were imported with, so both live in one process.
+    """
+    global _ZONE
+    if _ZONE is not None:
+        return _ZONE
+    import importlib
+    import sys
+
+    entry = str(CODE.obtain() / FEATURE_ZONE_STAGE / "retipy")
+    saved = _set_aside(_STAGE_MODULES)
+    sys.path.insert(0, entry)
+    try:
+        measures = importlib.import_module("retipy.tortuosity_measures")
+        retina = importlib.import_module("retipy.retina")
+    finally:
+        sys.path.remove(entry)
+        _set_aside(_STAGE_MODULES)
+        sys.modules.update(saved)
+    _ZONE = (measures, retina)
+    return _ZONE
+
+
+def driver(stage: str, filename: str, names: tuple[str, ...], **settings: object) -> dict:
+    """Functions from one of AutoMorph's driver scripts, exactly as its source has them.
+
+    The functions that turn a segmentation into what the feature stage reads — `filter_frag`, which
+    cleans and skeletonises the M2 maps, and `optic_disc_centre`, which measures the disc and cup
+    and cuts zones B and C — live in scripts whose top level imports the segmentation networks and
+    parses a command line. So the script is not imported: its source is parsed, and only the named
+    functions are executed, with those of its own import lines that they use. The text that runs is
+    upstream's, at the pinned commit; nothing is rewritten. A module the script imports from its
+    own folder (`FD_cal`) is imported from that folder and set aside again afterwards, because two
+    stages ship modules under one name.
+
+    :param settings: module-level names the functions read, such as `AUTOMORPH_DATA`.
+    """
+    import ast
+    import sys
+
+    folder = CODE.obtain() / stage
+    tree = ast.parse((folder / filename).read_text())
+    wanted = [node for node in tree.body if isinstance(node, ast.FunctionDef)]
+    wanted = [node for node in wanted if node.name in names]
+    if {node.name for node in wanted} != set(names):
+        raise LookupError(
+            f"{filename} defines none of {sorted(set(names) - {n.name for n in wanted})}"
+        )
+    used = {node.id for fn in wanted for node in ast.walk(fn) if isinstance(node, ast.Name)}
+    imports = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.Import | ast.ImportFrom)
+        and any((alias.asname or alias.name).split(".")[0] in used for alias in node.names)
+    ]
+    local = tuple(
+        path.stem if path.suffix == ".py" else path.name
+        for path in folder.iterdir()
+        if path.suffix == ".py" or path.is_dir()
+    )
+    namespace: dict = {"__name__": f"automorph_{stage}_{filename}", **settings}
+    saved = _set_aside(local)
+    sys.path.insert(0, str(folder))
+    try:
+        exec(  # noqa: S102 — upstream's own function source, at the pinned commit
+            compile(ast.Module(body=imports + wanted, type_ignores=[]), filename, "exec"), namespace
+        )
+    finally:
+        sys.path.remove(str(folder))
+        _set_aside(local)
+        sys.modules.update(saved)
+    return namespace
+
+
+def _set_aside(names: tuple[str, ...]) -> dict:
+    """Remove every loaded module under these top-level names, and return what was removed."""
+    import sys
+
+    return {key: sys.modules.pop(key) for key in list(sys.modules) if key.split(".")[0] in names}
+
+
 def quality_weights() -> list[Path]:
     """The eight seeds of the quality ensemble, committed in the repository."""
     tree = CODE.obtain()

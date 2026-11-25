@@ -22,6 +22,10 @@ zone around the disc, a region around the fovea — depends on it.
 | `landmarks/CDR-vertical` | the cup's vertical diameter over the disc's | none |
 | `landmarks/CDR-horizontal` | the cup's horizontal diameter over the disc's | none |
 | `landmarks/CDR-area` | the cup's area over the disc's | none |
+| `landmarks/disc-diameter-vertical` | the disc's vertical diameter, in µm | none |
+| `landmarks/disc-diameter-horizontal` | the disc's horizontal diameter, in µm | none |
+| `landmarks/cup-diameter-vertical` | the cup's vertical diameter, in µm | none |
+| `landmarks/cup-diameter-horizontal` | the cup's horizontal diameter, in µm | none |
 | `landmarks/disc-fovea-distance` | the straight-line distance between the disc centre and the fovea | none |
 | `landmarks/centring` | what the photograph is centred on: `disc`, `macula` or `unknown` | none |
 
@@ -41,6 +45,12 @@ described in `PLAN-BIOMARKER.md` §2.1.1.
   diameter for the horizontal one, the areas for the area ratio. They are **not interchangeable**:
   a cup that is wide but shallow gives a large area ratio and a modest vertical one, and the disc is
   a vertical oval, so its horizontal diameter is the shorter.
+- **Disc and cup diameters:** the sizes the vertical and horizontal ratios are made of, with no
+  defining paper. *Vertical* and *horizontal* follow the photograph's rows and columns, as the
+  ratios do, so a cup turned with the photograph changes them while a round disc does not. Unlike
+  the ratios, they carry a length and depend on the camera's scale. *Added 2026-11-22*, because all
+  three of the AutoMorph family return them beside the ratios, each as the height and width of a
+  mask's bounding box.
 - **Disc–fovea distance:** [Vargas 2026](../papers/vargas-2026.md). The straight-line distance
   between the centre of the segmented optic disc and the detected fovea.
 - **Centring** has **no defining paper**. `disc` where the optic disc sits close to the centre of
@@ -77,12 +87,17 @@ the frame.
 | Project | What it computes | Source | Lineage |
 | --- | --- | --- | --- |
 | [VascX](../projects/vascx.md) | disc–fovea distance, in two variants — to the retina's centre and to the fovea | `vascx/fundus/features/` | Original |
+| [AutoMorph](../projects/automorph.md) | the vertical and horizontal cup-to-disc ratios and the four diameters behind them | `M2_lwnet_disc_cup/generate_av_results.py`, `optic_disc_centre` | Original |
+| [AutoMorphalyzer](../projects/automorphalyzer.md) | the same six, and the centring, as `macular_centred` | `automorph/measure/measure.py`, `get_disc_metrics` | AutoMorph |
+| [AutoMorphClass](../projects/automorphclass.md) | the same six | `pytorch_automorph/feature_calculation.py`, `Optic_Disc_Cup_Features` | AutoMorph |
 | [fundus-biomarkers](../projects/fundus-biomarkers.md) | the three cup-to-disc ratios, from disc and cup masks, and the centring, from the disc circle | private repository | Original |
 | Others | **none** | — | — |
 
-fundus-biomarkers is the only biomarker adapter here that computes a cup-to-disc ratio, and only
-when it is handed disc and cup masks. The synthetic benchmark hands it none, so no ratio of its has
-been measured; several catalogued **models** segment the cup — see [MODELS.md](../MODELS.md).
+The three AutoMorph implementations share one recipe — bounding boxes of the disc and cup masks,
+an extent being the last lit index minus the first — so their agreement is not independent
+evidence. *Since 2026-11-22* the synthetic benchmark hands every adapter a cup, and measures all
+three; fundus-biomarkers is no longer run by it. Several catalogued **models** segment the cup —
+see [MODELS.md](../MODELS.md).
 
 ## 8. Sensitivity and failure modes
 
@@ -97,10 +112,16 @@ been measured; several catalogued **models** segment the cup — see [MODELS.md]
 
 ## 9. Known defects
 
-None recorded as of 2026-10-22 — an absence of findings rather than a clean bill of health. Nothing
-in this family has been through the synthetic benchmark, because the shapes settle no value for any
-ratio or for the centring.
+None recorded as of 2026-11-22 — an absence of findings rather than a clean bill of health.
+
+*Our measurement, 2026-11-22:* since the synthetic shapes gained an optic cup, the
+[synthetic benchmark](../benchmarks/biomarker-synthetic-results.md) §3.2 has measured the AutoMorph
+family's ratios, diameters and centring. The vertical and horizontal ratios land within 1.9%, the
+disc's diameters within 1.3% and the cup's within 2.4%, for all three implementations at every
+angle; AutoMorphalyzer's centring is right on all 91 renderings. A drawn ellipse with a hard rim is
+the easiest cup there is, so this says the arithmetic is right and nothing about a real cup's
+boundary. Nothing here has been measured for the area ratio or the disc–fovea distance.
 
 ---
 
-**Links and definitions last checked:** 2026-10-22.
+**Links and definitions last checked:** 2026-11-22.

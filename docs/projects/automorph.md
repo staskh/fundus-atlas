@@ -110,6 +110,91 @@ are not in physical units. Measurements are produced both for the whole image (`
 and for zones around the optic disc (`M3_feature_zone`). Failed segmentations appear as `NAN`
 rather than as silently wrong numbers.
 
+### 6.1 Every column it writes
+
+*Added 2026-11-22.* Every number the implementation returns, under its own name, beside the
+canonical name it answers to — or, where it answers to none, the nearest one and what keeps
+it from being that name.
+
+<!-- generated: columns -->
+**72 columns**: 57 answer to a canonical name exactly, 15 are close to one and 0 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/automorph.py` by `python -m biomarkers.pages`.
+
+| Its column | Canonical name | Match | What differs |
+| --- | --- | :-: | --- |
+| `fractal_dimension_binary` | `density/box-counting/vessels` | exact |  |
+| `vessel_density_binary` | `density/over-image/vessels` | exact |  |
+| `average_width_binary` | `calibre/width/vessels/length-weighted` | exact |  |
+| `distance_tortuosity_binary` | `tortuosity/hart-tau1/vessels/mean` | exact |  |
+| `squared_curvature_tortuosity_binary` | `tortuosity/hart-tau3/vessels/mean` | close | named for Hart's τ3, the integral of squared curvature; it integrates curvature over the sample index instead, and is out by orders of magnitude on the shapes |
+| `tortuosity_density_binary` | `tortuosity/grisan-density/vessels/mean` | exact |  |
+| `fractal_dimension_artery` | `density/box-counting/artery` | exact |  |
+| `vessel_density_artery` | `density/over-image/artery` | exact |  |
+| `average_width_artery` | `calibre/width/artery/length-weighted` | exact |  |
+| `distance_tortuosity_artery` | `tortuosity/hart-tau1/artery/mean` | exact |  |
+| `squared_curvature_tortuosity_artery` | `tortuosity/hart-tau3/artery/mean` | close | named for Hart's τ3, the integral of squared curvature; it integrates curvature over the sample index instead, and is out by orders of magnitude on the shapes |
+| `tortuosity_density_artery` | `tortuosity/grisan-density/artery/mean` | exact |  |
+| `fractal_dimension_vein` | `density/box-counting/vein` | exact |  |
+| `vessel_density_vein` | `density/over-image/vein` | exact |  |
+| `average_width_vein` | `calibre/width/vein/length-weighted` | exact |  |
+| `distance_tortuosity_vein` | `tortuosity/hart-tau1/vein/mean` | exact |  |
+| `squared_curvature_tortuosity_vein` | `tortuosity/hart-tau3/vein/mean` | close | named for Hart's τ3, the integral of squared curvature; it integrates curvature over the sample index instead, and is out by orders of magnitude on the shapes |
+| `tortuosity_density_vein` | `tortuosity/grisan-density/vein/mean` | exact |  |
+| `fractal_dimension_binary_zone_b` | `density/box-counting/vessels/B` | exact |  |
+| `vessel_density_binary_zone_b` | `density/over-image/vessels/B` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `average_width_binary_zone_b` | `calibre/width/vessels/B/length-weighted` | exact |  |
+| `distance_tortuosity_binary_zone_b` | `tortuosity/hart-tau1/vessels/B/mean` | exact |  |
+| `squared_curvature_tortuosity_binary_zone_b` | `tortuosity/hart-tau3/vessels/B/mean` | close | as the whole-picture column, inside zone B |
+| `tortuosity_density_binary_zone_b` | `tortuosity/grisan-density/vessels/B/mean` | exact |  |
+| `fractal_dimension_artery_zone_b` | `density/box-counting/artery/B` | exact |  |
+| `vessel_density_artery_zone_b` | `density/over-image/artery/B` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `average_width_artery_zone_b` | `calibre/width/artery/B/length-weighted` | exact |  |
+| `distance_tortuosity_artery_zone_b` | `tortuosity/hart-tau1/artery/B/mean` | exact |  |
+| `squared_curvature_tortuosity_artery_zone_b` | `tortuosity/hart-tau3/artery/B/mean` | close | as the whole-picture column, inside zone B |
+| `tortuosity_density_artery_zone_b` | `tortuosity/grisan-density/artery/B/mean` | exact |  |
+| `fractal_dimension_vein_zone_b` | `density/box-counting/vein/B` | exact |  |
+| `vessel_density_vein_zone_b` | `density/over-image/vein/B` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `average_width_vein_zone_b` | `calibre/width/vein/B/length-weighted` | exact |  |
+| `distance_tortuosity_vein_zone_b` | `tortuosity/hart-tau1/vein/B/mean` | exact |  |
+| `squared_curvature_tortuosity_vein_zone_b` | `tortuosity/hart-tau3/vein/B/mean` | close | as the whole-picture column, inside zone B |
+| `tortuosity_density_vein_zone_b` | `tortuosity/grisan-density/vein/B/mean` | exact |  |
+| `CRAE_Hubbard_zone_b` | `calibre/CRE-hubbard/artery/B` | exact |  |
+| `CRVE_Hubbard_zone_b` | `calibre/CRE-hubbard/vein/B` | exact |  |
+| `CRAE_Knudtson_zone_b` | `calibre/CRE-knudtson/artery/B` | exact |  |
+| `CRVE_Knudtson_zone_b` | `calibre/CRE-knudtson/vein/B` | exact |  |
+| `AVR_Hubbard_zone_b` | `calibre/AVR-hubbard/both/B` | exact |  |
+| `AVR_Knudtson_zone_b` | `calibre/AVR-knudtson/both/B` | exact |  |
+| `fractal_dimension_binary_zone_c` | `density/box-counting/vessels/C` | exact |  |
+| `vessel_density_binary_zone_c` | `density/over-image/vessels/C` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `average_width_binary_zone_c` | `calibre/width/vessels/C/length-weighted` | exact |  |
+| `distance_tortuosity_binary_zone_c` | `tortuosity/hart-tau1/vessels/C/mean` | exact |  |
+| `squared_curvature_tortuosity_binary_zone_c` | `tortuosity/hart-tau3/vessels/C/mean` | close | as the whole-picture column, inside zone C |
+| `tortuosity_density_binary_zone_c` | `tortuosity/grisan-density/vessels/C/mean` | exact |  |
+| `fractal_dimension_artery_zone_c` | `density/box-counting/artery/C` | exact |  |
+| `vessel_density_artery_zone_c` | `density/over-image/artery/C` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `average_width_artery_zone_c` | `calibre/width/artery/C/length-weighted` | exact |  |
+| `distance_tortuosity_artery_zone_c` | `tortuosity/hart-tau1/artery/C/mean` | exact |  |
+| `squared_curvature_tortuosity_artery_zone_c` | `tortuosity/hart-tau3/artery/C/mean` | close | as the whole-picture column, inside zone C |
+| `tortuosity_density_artery_zone_c` | `tortuosity/grisan-density/artery/C/mean` | exact |  |
+| `fractal_dimension_vein_zone_c` | `density/box-counting/vein/C` | exact |  |
+| `vessel_density_vein_zone_c` | `density/over-image/vein/C` | close | the zone's vessel pixels over every pixel of the 912 × 912 frame, not over the zone |
+| `average_width_vein_zone_c` | `calibre/width/vein/C/length-weighted` | exact |  |
+| `distance_tortuosity_vein_zone_c` | `tortuosity/hart-tau1/vein/C/mean` | exact |  |
+| `squared_curvature_tortuosity_vein_zone_c` | `tortuosity/hart-tau3/vein/C/mean` | close | as the whole-picture column, inside zone C |
+| `tortuosity_density_vein_zone_c` | `tortuosity/grisan-density/vein/C/mean` | exact |  |
+| `CRAE_Hubbard_zone_c` | `calibre/CRE-hubbard/artery/C` | exact |  |
+| `CRVE_Hubbard_zone_c` | `calibre/CRE-hubbard/vein/C` | exact |  |
+| `CRAE_Knudtson_zone_c` | `calibre/CRE-knudtson/artery/C` | exact |  |
+| `CRVE_Knudtson_zone_c` | `calibre/CRE-knudtson/vein/C` | exact |  |
+| `AVR_Hubbard_zone_c` | `calibre/AVR-hubbard/both/C` | exact |  |
+| `AVR_Knudtson_zone_c` | `calibre/AVR-knudtson/both/C` | exact |  |
+| `Disc_height` | `landmarks/disc-diameter-vertical` | exact |  |
+| `Disc_width` | `landmarks/disc-diameter-horizontal` | exact |  |
+| `Cup_height` | `landmarks/cup-diameter-vertical` | exact |  |
+| `Cup_width` | `landmarks/cup-diameter-horizontal` | exact |  |
+| `CDR_vertical` | `landmarks/CDR-vertical` | exact |  |
+| `CDR_horizontal` | `landmarks/CDR-horizontal` | exact |  |
+<!-- /generated -->
+
 ## 7. Examples and notebooks
 
 - The [Colab notebook](https://colab.research.google.com/drive/13Qh9umwRM1OMRiNLyILbpq3k9h55FjNZ) —
@@ -152,6 +237,16 @@ rather than as silently wrong numbers.
   reporting lower preprocessing success and lower segmentation agreement for AutoMorph than for
   their own pipeline. That is their measurement, not ours; this repository's own comparisons are
   reported separately.
+- **What this atlas measures of it.** *Our observation, 2026-11-22.* Its run writes 72 numbers a
+  picture into `Disc_Features.csv` (or `Macular_Features.csv`): six for the disc and cup, 18 over
+  the whole picture, and 24 in each of zones B and C — the zone stage adding Hubbard's and
+  Knudtson's equivalents and both arteriovenous ratios. Until that date this atlas's adapter reached
+  only the 18 whole-picture ones. It now reaches all 72 by running AutoMorph's own post-segmentation
+  steps on a temporary copy of the file tree they read: the two M2 stages' `filter_frag`,
+  `optic_disc_centre` from the disc stage, and both vendored copies of retipy. Two things about its
+  run that matter to anyone calling those steps outside it: every map is handed to M3 at
+  **912 × 912**, so a width is in 912-pixels until multiplied by `Scale_resolution`; and the drivers
+  read `resources/retipy.config` (15 pixels per window, R² 0.96), not `evaluate_window`'s defaults.
 
 ---
 

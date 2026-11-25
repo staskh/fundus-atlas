@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "arc",
-  "fingerprint": "038f33226be14f5e473ea6285da3f2c5d8553d74f1b660b040b57fa2b6aa898a",
+  "fingerprint": "a12b1b48aa49a7ca0a0300ec726550a228ee70fc48131fef35251b5f764028ee",
   "model": "automorphclass",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 1.1842857142857144,
-    "seconds_per_rendering": 1.1842857142857144,
+    "seconds_per_photograph": 0.4565714285714286,
+    "seconds_per_rendering": 0.4565714285714286,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

@@ -45,7 +45,7 @@ class PartlyAnswering:
     def keys(self):
         return ("area_artery", "crae_knudtson")
 
-    def measure(self, artery, vein, fov, disc, um_per_px):
+    def measure(self, artery, vein, fov, disc, um_per_px, cup=None):
         self.trouble = {"equivalents_artery": "RecursionError()"}
         return {"area_artery": 1234.0, "crae_knudtson": None}
 
@@ -80,7 +80,7 @@ class Categorising:
     def keys(self):
         return ("area_artery", "centring")
 
-    def measure(self, artery, vein, fov, disc, um_per_px):
+    def measure(self, artery, vein, fov, disc, um_per_px, cup=None):
         return {"area_artery": 1234.0, "centring": "disc"}
 
 
@@ -133,7 +133,7 @@ class Counting:
     def keys(self):
         return ("area_artery",)
 
-    def measure(self, artery, vein, fov, disc, um_per_px):
+    def measure(self, artery, vein, fov, disc, um_per_px, cup=None):
         self.asked += 1
         return {"area_artery": 1.0}
 

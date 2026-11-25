@@ -56,6 +56,12 @@ Use `template.md` verbatim as the starting point and keep its section numbering.
    that defined it and the original implementation if one exists. Say whether this project
    reimplemented the calculation or reused the original code, and note any deviation from the
    published definition.
+   Where the project has a biomarker adapter (`src/biomarkers/<slug>.py`), the section ends with a
+   subsection **Every column it writes**, holding a `<!-- generated: columns -->` block that
+   `python -m biomarkers.pages` renders from the adapter's naming table and its `CLOSEST` rules:
+   every column under the project's own name, the canonical name it answers to exactly, or the
+   nearest one and what keeps it from being that name. Never type that table by hand; a test fails
+   when it is stale. Add the page to `PROJECTS` in `src/biomarkers/pages.py`.
 7. **Examples and notebooks** — the one or two entry points a reader should run first to see the
    pipeline work, with a sentence on what each demonstrates. Point at the most useful, not all of
    them.

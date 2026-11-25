@@ -1,7 +1,7 @@
 {
   "benchmark": "biomarker-synthetic",
   "dataset": "spur",
-  "fingerprint": "292ea46979cb1e4c59d70d5f620ac326e905cb5360d688e0f15e078d87f20584",
+  "fingerprint": "c8cb35f39445e8faf2107e0156a0c8592afab84fb29795e63e1f6f6371ad4039",
   "model": "ocular",
   "summary": {
     "complete": true,
@@ -9,8 +9,8 @@
     "failed": 0,
     "processed": 7,
     "renderings": 7,
-    "seconds_per_photograph": 4.498428571428571,
-    "seconds_per_rendering": 4.498428571428571,
+    "seconds_per_photograph": 4.511714285714286,
+    "seconds_per_rendering": 4.511714285714286,
     "side": 2048,
     "timed_photographs": 7,
     "total": 7,

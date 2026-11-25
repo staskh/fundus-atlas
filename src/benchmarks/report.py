@@ -97,7 +97,7 @@ def _index(results: Path) -> Iterable[str]:
         yield (
             f"[How it is run](benchmarks/{benchmark}-docs.md) · "
             f"[What came out](benchmarks/{benchmark}-results.md) · "
-            f"[The analysis](../notebooks/{benchmark}.ipynb) · "
+            f"[The analysis](../notebooks/{getattr(module, 'NOTEBOOK', benchmark + '.ipynb')}) · "
             f"[Every score](../results/{benchmark}/)"
         )
         yield ""

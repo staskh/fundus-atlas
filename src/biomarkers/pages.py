@@ -107,6 +107,89 @@ def _units_tables(record) -> Iterable[str]:
 #: Every block these pages may mark, and what fills it.
 BLOCKS = {"families": _family_table, "units": _units_tables}
 
+#: The project pages that list every column their implementation writes, by adapter slug. Each is
+#: rendered from that adapter's own naming table — the one place a column is translated — and its
+#: `CLOSEST` rules, so a page cannot claim a mapping the code does not make.
+PROJECTS = {
+    "automorph": "projects/automorph.md",
+    "automorphalyzer": "projects/automorphalyzer.md",
+    "automorphclass": "projects/automorphclass.md",
+    "pvbm": "projects/pvbm.md",
+    "ocular": "projects/ocularnet.md",
+    "vascx": "projects/vascx.md",
+    "fundus-biomarkers": "projects/fundus-biomarkers.md",
+}
+
+#: Above this many rows a list is folded, so the page around it stays readable.
+FOLD_ABOVE = 80
+
+
+def columns(slug: str) -> list[dict[str, str | None]]:
+    """Every column an adapter returns, with the canonical name it answers to, or the nearest one
+    and why it is not that name."""
+    import importlib
+
+    from .utils import catalogue
+    from .utils.closest import nearest
+
+    module = importlib.import_module(f"biomarkers.{slug}")
+    names = getattr(module, "CANONICAL", None)
+    if names is None:
+        names = catalogue.load(slug).declare()["names"]
+    rules = getattr(module, "CLOSEST", ())
+    words = getattr(module, "CLOSEST_WORDS", {})
+    rows = []
+    for own, mapped in names.items():
+        if mapped:
+            rows.append({"own": own, "name": mapped, "match": "exact", "why": ""})
+            continue
+        near = nearest(own, rules, words)
+        if near is None or near[0] is None:
+            why = near[1] if near else ""
+            rows.append({"own": own, "name": None, "match": "none", "why": why})
+        else:
+            rows.append({"own": own, "name": near[0], "match": "close", "why": near[1]})
+    return rows
+
+
+def _columns_table(record) -> Iterable[str]:
+    """A project page's list of every column its implementation writes."""
+    rows = record["columns"]
+    counted = {
+        match: sum(row["match"] == match for row in rows) for match in ("exact", "close", "none")
+    }
+    yield (
+        f"**{len(rows)} columns**: {counted['exact']} answer to a canonical name exactly, "
+        f"{counted['close']} are close to one and {counted['none']} to none. A close name is a "
+        f"pointer for a reader, never a mapping: nothing is compared against it. Rendered from "
+        f"the naming table in `src/biomarkers/{record['source']}` by `python -m biomarkers.pages`."
+    )
+    yield ""
+    folded = len(rows) > FOLD_ABOVE
+    if folded:
+        yield f"<details><summary>All {len(rows)} columns</summary>"
+        yield ""
+    yield "| Its column | Canonical name | Match | What differs |"
+    yield "| --- | --- | :-: | --- |"
+    for row in rows:
+        name = f"`{row['name']}`" if row["name"] else "—"
+        yield f"| `{row['own']}` | {name} | {row['match']} | {row['why']} |"
+    if folded:
+        yield ""
+        yield "</details>"
+
+
+def write_projects(into: Path = DIRECTORY) -> list[Path]:
+    """Refresh the list of columns on every project page that marks one."""
+    written = []
+    for slug, page in PROJECTS.items():
+        path = Path(into) / page
+        source = f"{slug}.py"
+        record = {"columns": columns(slug), "source": source}
+        path.write_text(docs.render(path.read_text(), record, {"columns": _columns_table}))
+        written.append(path)
+    return written
+
 
 def write(into: Path = DIRECTORY) -> list[Path]:
     """Refresh every marked block on every catalogue page, in place."""
@@ -120,7 +203,7 @@ def write(into: Path = DIRECTORY) -> list[Path]:
 
 
 def main() -> int:
-    for path in write():
+    for path in [*write(), *write_projects()]:
         print(f"refreshed {path}")
     return 0
 

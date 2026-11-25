@@ -98,7 +98,7 @@ and `apply_roi`, and grows from PVBM's 338 lines to 486.
 | [Bifurcation points](../biomarkers/topology.md), arteries and veins separately, as 20-pixel regions of interest | The PVBM method | [PVBM](pvbm.md) (MIT) | Reused, via a modified copy of PVBM's `GeometricalVBMs` |
 | Major vasculature regions, arteries and veins | This project | — | Two modes: morphological opening scaled to optic disc size, or largest connected components; the authors recommend a footprint width of 2–4 with visual inspection |
 | Crossing regions of interest | This project | — | Circular masks around the centroids of detected crossings — enabled by the crossings class, and not available from the other pipelines here |
-| [Tortuosity](../biomarkers/tortuosity.md), perimeter, [branching angles](../biomarkers/topology.md) | Prior literature via PVBM | PVBM | Imported from PVBM directly |
+| [Tortuosity](../biomarkers/tortuosity.md), perimeter, [branching angles](../biomarkers/topology.md) | Prior literature via PVBM | PVBM | The per-segment arcs and chords come from PVBM's helpers, imported directly. *Our finding, 2026-11-20:* the copy adds one tortuosity PVBM does not have, a mean of the per-segment ratios weighted by arc length (`T_weighted`), beside PVBM's total-arc-over-total-chord index and median |
 
 So OCULAR's numbers are, by construction, PVBM's numbers computed on OCULARNet's segmentations.
 That makes them directly comparable to PVBM results on other segmentations, and it means the
@@ -113,7 +113,8 @@ and the switch that appears to control it does not.
 
 PVBM walks a vessel by calling a function once per skeleton pixel, so a vessel longer than Python's
 recursion limit raises `RecursionError`. This atlas measured that in the
-[synthetic biomarker benchmark](../benchmarks/biomarker-synthetic-results.md) §3: at Python's
+[synthetic biomarker benchmark](../benchmarks/biomarker-synthetic-results.md) (§3 of its results
+page as it stood before the rewrite of 2026-11-25, kept in the repository history): at Python's
 default limit of 1,000 it cost PVBM its whole geometry call on 8 of 36 renderings — every angle of
 `koch` and `deep-bifurcation`, the two shapes carrying the most skeleton — so what triggers it is
 how much vessel there is rather than anything malformed. At the 5,000 this copy sets, which the
@@ -135,6 +136,37 @@ carries PVBM's recursion limit however it is called.
 The practical reading: OCULAR removed the recursion from the walk that dominates a long vessel, left
 it in the one that labels connected components, and offers an iterative drawing path that a caller
 gets only by asking for it by name.
+
+### 6.2 Every column it writes
+
+*Added 2026-11-22.* Every number the implementation returns, under its own name, beside the
+canonical name it answers to — or, where it answers to none, the nearest one and what keeps
+it from being that name.
+
+<!-- generated: columns -->
+**18 columns**: 10 answer to a canonical name exactly, 8 are close to one and 0 to none. A close name is a pointer for a reader, never a mapping: nothing is compared against it. Rendered from the naming table in `src/biomarkers/ocular.py` by `python -m biomarkers.pages`.
+
+| Its column | Canonical name | Match | What differs |
+| --- | --- | :-: | --- |
+| `area_artery` | `density/area/artery` | exact |  |
+| `pooled_tortuosity_artery` | `tortuosity/hart-tau1/artery/length-weighted` | close | PVBM's tortuosity index: total arc length over total chord length, a ratio of sums |
+| `median_tortuosity_artery` | `tortuosity/hart-tau1/artery/median` | exact |  |
+| `length_weighted_tortuosity_artery` | `tortuosity/hart-tau1/artery/length-weighted` | exact |  |
+| `length_artery` | `density/skeleton-length-rooted/artery` | exact |  |
+| `median_branching_angle_artery` | `topology/branching-angle/artery/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `start_points_artery` | `topology/components/artery` | close | how many vessels leave the disc, not how many separate pieces the network is in |
+| `endpoints_artery` | `topology/endpoints/artery` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
+| `intersections_artery` | `topology/junctions/artery` | exact |  |
+| `area_vein` | `density/area/vein` | exact |  |
+| `pooled_tortuosity_vein` | `tortuosity/hart-tau1/vein/length-weighted` | close | PVBM's tortuosity index: total arc length over total chord length, a ratio of sums |
+| `median_tortuosity_vein` | `tortuosity/hart-tau1/vein/median` | exact |  |
+| `length_weighted_tortuosity_vein` | `tortuosity/hart-tau1/vein/length-weighted` | exact |  |
+| `length_vein` | `density/skeleton-length-rooted/vein` | exact |  |
+| `median_branching_angle_vein` | `topology/branching-angle/vein/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `start_points_vein` | `topology/components/vein` | close | how many vessels leave the disc, not how many separate pieces the network is in |
+| `endpoints_vein` | `topology/endpoints/vein` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
+| `intersections_vein` | `topology/junctions/vein` | exact |  |
+<!-- /generated -->
 
 ## 7. Examples and notebooks
 
