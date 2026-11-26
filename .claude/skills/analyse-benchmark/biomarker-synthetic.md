@@ -36,7 +36,6 @@ from all four.** They live in `notebooks/synthetic/`:
 | `biomarker-synthetic-pvbm.ipynb` | PVBM, OCULAR |
 | `biomarker-synthetic-vascx.ipynb` | VascX |
 | `biomarker-synthetic-shapes.ipynb` | the shapes and the values each settles — the specification, not an analysis |
-| `wip/` | readings of one implementation on a few shapes; not of record (`notebooks/wip/README.md`'s rules) |
 
 *Why per lineage, when every other benchmark has one notebook* (agreed with Stas, 2026-11-22): a
 lineage is the unit a reader chooses software by, and a group notebook can go further into its
