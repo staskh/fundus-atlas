@@ -19,8 +19,9 @@ It maps the field:
   biomarker calculations into one end-to-end run, from photograph to table of numbers.
 - **1.5 Comparisons** — side-by-side scores computed on the same terms, so numbers from different
   papers and different projects can be read against each other.
-- **1.6 Checks** — quality gates that decide whether a segmentation is usable before anyone trusts
-  the biomarkers derived from it.
+- **1.6 Checks** — quality gates that decide whether a photograph is good enough to measure before
+  anyone trusts the biomarkers derived from it. The check published today grades the photograph; a
+  gate on the segmentation itself is not yet measured.
 - **1.7 Papers** — published work a reader needs in order to interpret a measurement, a comparison
   or a pitfall: the formula papers, not a bibliography of every citation. `docs/PAPERS.md` also
   indexes the describing papers that stay on dataset, model and project pages.
