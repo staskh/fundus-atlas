@@ -506,6 +506,20 @@ def index_section(records: list[dict[str, object]], results: Path) -> Iterable[s
     yield from _where_to_start(pooled)
 
 
+def _together(names: list[str]) -> str:
+    """`a`, `a and b`, `a, b and c`."""
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + f" and {names[-1]}"
+
+
+def _gate(name: str, found: dict[str, object]) -> str:
+    """Where one model's shipped threshold falls, as both of the mistakes it can make."""
+    kept, dropped = found["kept_of_worth_measuring"], found["discarded_of_not_worth"]
+    if kept is None:
+        return f"{name}'s gate could not be scored"
+    said = f"{name} keeps {kept:.0%} of the photographs the readers called worth measuring"
+    return said + (f" and discards {dropped:.0%} of those they did not" if dropped is not None else "")
+
+
 def _has_two_classes(record: dict[str, object]) -> bool:
     """Whether this dataset's readers used more than one grade, so agreement can be scored."""
     return record["summary"].get("gradeable", {}).get("kappa") is not None
@@ -641,13 +655,20 @@ def _where_to_start(pooled: dict[str, dict[str, object]]) -> Iterable[str]:
         else:
             line += "."
         yield line
-        if first != best:
-            kept = pooled[first]["kept_of_worth_measuring"]
+        # A lead under 0.01 AUC is not a lead, so the models within it are named together rather
+        # than one being crowned for ordering photographs "better than anything else here".
+        leaders = [
+            name
+            for name in ranking
+            if pooled[first]["roc_auc"] - pooled[name]["roc_auc"] < 0.01
+        ]
+        if best not in leaders:
             yield (
-                f"- **Those are different models, and that is the finding.** {first} separates "
-                f"good photographs from bad ones better than anything else here and then gates in "
-                f"the wrong place: it keeps {kept:.0%} of the photographs the readers called worth "
-                f"measuring."
+                f"- **Ordering photographs and gating them are different skills.** "
+                f"{_together(leaders)} {'orders' if len(leaders) == 1 else 'order'} photographs "
+                f"best here, but at the threshold it ships with "
+                + "; ".join(_gate(name, pooled[name]) for name in leaders)
+                + f". {best} agrees with the readers best as it ships."
             )
     yield ""
     yield (
