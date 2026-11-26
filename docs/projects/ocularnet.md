@@ -153,7 +153,7 @@ it from being that name.
 | `median_tortuosity_artery` | `tortuosity/hart-tau1/artery/median` | exact |  |
 | `length_weighted_tortuosity_artery` | `tortuosity/hart-tau1/artery/length-weighted` | exact |  |
 | `length_artery` | `density/skeleton-length-rooted/artery` | exact |  |
-| `median_branching_angle_artery` | `topology/branching-angle/artery/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `median_branching_angle_artery` | `topology/branching-angle/artery/median` | close | the daughters' angle taken 30 skeleton pixels out, dropping a junction whose daughter is shorter, and adding a second angle where three vessels leave one point |
 | `start_points_artery` | `topology/components/artery` | close | how many vessels leave the disc, not how many separate pieces the network is in |
 | `endpoints_artery` | `topology/endpoints/artery` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
 | `intersections_artery` | `topology/junctions/artery` | exact |  |
@@ -162,7 +162,7 @@ it from being that name.
 | `median_tortuosity_vein` | `tortuosity/hart-tau1/vein/median` | exact |  |
 | `length_weighted_tortuosity_vein` | `tortuosity/hart-tau1/vein/length-weighted` | exact |  |
 | `length_vein` | `density/skeleton-length-rooted/vein` | exact |  |
-| `median_branching_angle_vein` | `topology/branching-angle/vein/median` | close | the median of every pairwise angle at a junction, the parent vessel's included, not only the angle between the two daughters |
+| `median_branching_angle_vein` | `topology/branching-angle/vein/median` | close | the daughters' angle taken 30 skeleton pixels out, dropping a junction whose daughter is shorter, and adding a second angle where three vessels leave one point |
 | `start_points_vein` | `topology/components/vein` | close | how many vessels leave the disc, not how many separate pieces the network is in |
 | `endpoints_vein` | `topology/endpoints/vein` | close | counts the free tips of vessels rooted at the disc, leaving out the end at the disc |
 | `intersections_vein` | `topology/junctions/vein` | exact |  |

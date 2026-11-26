@@ -365,8 +365,8 @@ testable**, and this repository has already been wrong about several:
 
 - `squared_curvature_tortuosity` was mapped to Hart τ3 until a shape showed it off by five orders of
   magnitude — it squares nothing. *Withdrawn.*
-- `median_branching_angle` was mapped to the angle between daughters until a shape showed it medians
-  every pairwise angle at every junction, trunk included. *Withdrawn.*
+- `median_branching_angle` was mapped to the angle between daughters until a shape read it far off
+  where the daughters are short and close together. *Withdrawn.*
 - `endpoints` was mapped to the catalogued endpoint count until PVBM's replacement class began
   calling the end at the disc a *start point*. *Withdrawn for PVBM and OCULAR both.*
 - `mean_sparsity_vessels` was mapped to `density/sparsity` the day that name existed, and the

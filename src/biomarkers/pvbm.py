@@ -24,9 +24,8 @@ from upstreams import pvbm as upstream
 #: implementation offers, and this one no longer offers a perimeter. Nothing in the catalogue
 #: named it, so no comparison is lost — only PVBM's own column, and it was PVBM's own column under
 #: a class nobody should still be running. `median_branching_angle` was mapped to the
-#: angle between daughters until a shape showed that it medians *every* pairwise angle at every
-#: junction, the trunk included, and reads ~120° where the daughters are 60° apart. That mapping is
-#: now `None`, which is a finding rather than an omission.
+#: angle between daughters and is now `None`, which is a finding rather than an omission — see the
+#: comment on its row for what it does measure.
 #:
 #: `None` means nothing in the catalogue matches it **yet**. Such a column is measured and stored
 #: exactly like any other, under PVBM's own name: a quantity the catalogue has no name for is a gap
@@ -45,8 +44,15 @@ PER_CLASS: dict[str, str | None] = {
     # by arc length, and the vocabulary has no statistic for a ratio of sums. OCULAR's
     # `pooled_tortuosity` is the same quantity and is unmapped for the same reason.
     "tortuosity_index": None,
-    # *Our finding, 2026-09-20, from reading `compute_angles_dictionary`:* not the angle between
-    # the daughters of a bifurcation. See the note above.
+    # *Our finding, re-read 2026-11-26 from `GeometryAnalysis.compute_geomVBMs`:* the angle between
+    # a junction's daughters, each taken as the chord from the junction to the pixel 30 steps along
+    # it. A junction is dropped when either daughter is shorter than that, and where the walk
+    # records three vessels leaving one point it adds the angle between the second and third too.
+    # The 2026-09-20 reading — every pairwise angle, trunk included, ~120° on a 60° fork — was of
+    # `compute_angles_dictionary`, which only the retired `GeometricalAnalysis` calls. The mapping
+    # stays withdrawn because the deep bifurcation still contradicts it: a short stub leaves every
+    # junction there, so each is either dropped or gains a 135–160° angle, and it reads 64–115°
+    # where the daughters part at 50°.
     "median_branching_angle": None,
     # Where the walk starts: one per vessel leaving the optic disc. A count of trunks rather than
     # of branch points, which nothing in the catalogue names.
@@ -194,8 +200,8 @@ CLOSEST = (
         r"median_branching_angle_(?P<side>artery|vein)",
         "topology/branching-angle/{side}/median",
         (
-            "the median of every pairwise angle at a junction, the parent vessel's included, not only "
-            "the angle between the two daughters"
+            "the daughters' angle taken 30 skeleton pixels out, dropping a junction whose daughter is "
+            "shorter, and adding a second angle where three vessels leave one point"
         ),
     ),
     (
