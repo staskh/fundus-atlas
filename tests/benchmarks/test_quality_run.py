@@ -318,3 +318,16 @@ def test_where_to_start_says_nothing_more_when_the_best_agreeing_model_also_orde
     text = "\n".join(quality._where_to_start(pooled))
 
     assert "different skills" not in text
+
+
+def test_where_to_start_names_every_model_within_the_margin_at_ordering() -> None:
+    pooled = {
+        "a": _pooled_entry(0.68, 0.934, 0.85, 0.80),
+        "b": _pooled_entry(0.66, 0.941, 0.96, 0.40),
+        "c": _pooled_entry(0.50, 0.940, 0.70, 0.90),
+        "d": _pooled_entry(0.40, 0.924, 0.70, 0.90),
+    }
+    text = "\n".join(quality._where_to_start(pooled))
+
+    assert "**b** (ROC AUC 0.941), with **c** at 0.940 and **a** at 0.934 — too close" in text
+    assert "**d**" not in text

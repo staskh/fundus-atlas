@@ -646,22 +646,25 @@ def _where_to_start(pooled: dict[str, dict[str, object]]) -> Iterable[str]:
             f"threshold rather than take the one it ships with: **{first}** "
             f"(ROC AUC {pooled[first]['roc_auc']:.3f})"
         )
-        if len(ranking) > 1:
-            runner = ranking[1]
-            gap = pooled[first]["roc_auc"] - pooled[runner]["roc_auc"]
-            line += f", with **{runner}** at {pooled[runner]['roc_auc']:.3f}" + (
-                " — too close to order by." if gap < 0.01 else "."
-            )
-        else:
-            line += "."
-        yield line
-        # A lead under 0.01 AUC is not a lead, so the models within it are named together rather
-        # than one being crowned for ordering photographs "better than anything else here".
+        # A lead under 0.01 AUC is not a lead, so every model within it is named beside the first
+        # rather than one being crowned for ordering photographs "better than anything else here".
         leaders = [
             name
             for name in ranking
             if pooled[first]["roc_auc"] - pooled[name]["roc_auc"] < 0.01
         ]
+        if len(leaders) > 1:
+            line += (
+                ", with "
+                + _together([f"**{name}** at {pooled[name]['roc_auc']:.3f}" for name in leaders[1:]])
+                + " — too close to order by."
+            )
+        elif len(ranking) > 1:
+            runner = ranking[1]
+            line += f", with **{runner}** at {pooled[runner]['roc_auc']:.3f}."
+        else:
+            line += "."
+        yield line
         if best not in leaders:
             yield (
                 f"- **Ordering photographs and gating them are different skills.** "

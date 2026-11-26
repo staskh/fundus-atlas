@@ -115,11 +115,10 @@ Each figure is computed over all those photographs **at once** rather than avera
 **Where to start.**
 
 - **As it ships**, agreeing with the readers at its own published threshold: **quickqual** (κ 0.679). **vascx-quality** is 0.016 behind (κ 0.663), which is close enough that the choice is about which mistake you would rather make.
-- **At ordering photographs**, which is what matters if you will set your own threshold rather than take the one it ships with: **vascx-quality** (ROC AUC 0.941), with **fit-quality** at 0.940 — too close to order by.
-- **Those are different models, and that is the finding.** vascx-quality separates good photographs from bad ones better than anything else here and then gates in the wrong place: it keeps 96% of the photographs the readers called worth measuring.
+- **At ordering photographs**, which is what matters if you will set your own threshold rather than take the one it ships with: **vascx-quality** (ROC AUC 0.941), with **fit-quality** at 0.940 and **quickqual** at 0.934 — too close to order by.
 
 Read [what came out](benchmarks/quality-results.md) before acting on this: coverage, contamination and the threshold each model happens to ship with all differ, and the caveats are there rather than here.
 
 ---
 
-**Generated:** 2026-11-22
+**Generated:** 2026-11-26
