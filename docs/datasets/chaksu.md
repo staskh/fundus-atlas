@@ -30,6 +30,8 @@ nothing else here does.
 
 ```bash
 uv run python -m datasets.chaksu                          # downloads and builds the crop
+uv run python -m datasets.fetch_disc_estimation --dataset chaksu   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset chaksu     # and the scale
 ```
 
 - **Downloads:** `Train.zip` (8.6 GB) and `Test.zip` (2.7 GB) from figshare. No account, no form.
@@ -64,6 +66,9 @@ uv run python -m datasets.chaksu                          # downloads and builds
 - **Trace quality:** each outline is scored against the mask it came from, and a score below 0.95
   is recorded in the row's `notes`. Three of the 13,450 masks fall below it — all of them broken in
   the archive, not in the tracing (section 7). A faithful trace scores about 0.98.
+- **Scale:** none is published, so the two follow-on commands are required. They give each camera
+  its own scale (section 3); the one Remidio photograph at 1969×2166 is a size of its own, too few
+  for a median, and carries none.
 
 The contours were checked against the dataset's own arithmetic rather than by eye. Chákṣu publishes
 each expert's cup-to-disc ratios alongside their outlines, so the vertical ratio recomputed from the

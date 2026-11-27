@@ -51,14 +51,15 @@ without them:
   *different* segments they are not comparable at all.
 - **Whether it survives a change of camera.** Thirty of the seventy names this catalogue held before
   the microns rule gave a different answer for the same eye at a different resolution.
-- **What the implementation actually computes.** Three mappings in this catalogue have been
-  withdrawn after a synthetic shape showed a column computing something other than its name — they
+- **What the implementation actually computes.** Five mappings in this catalogue have been
+  withdrawn after a measurement showed a column computing something other than its name — they
   are listed in [BIOMARKER-NAMES.md](BIOMARKER-NAMES.md) §5.
 
 ## 3. How these are measured here
 
-The [synthetic biomarker benchmark](benchmarks/biomarker-synthetic-docs.md) runs every catalogued
-implementation over shapes drawn from equations, whose values follow from geometry rather than from
+The [synthetic biomarker benchmark](benchmarks/biomarker-synthetic-docs.md) runs six of the catalogued
+implementations — PVBM, OCULAR, AutoMorph, AutoMorphalyzer, AutoMorphClass and VascX — over shapes
+drawn from equations, whose values follow from geometry rather than from
 anybody's annotation. A straight vessel has a tortuosity of exactly 1, a circular arc a curvature of
 exactly 1/r, and an implementation that disagrees is wrong rather than different.
 

@@ -86,14 +86,31 @@ limits match. Their agreement is evidence about a common ancestor, not about the
   limit, losing the whole geometry call rather than returning what it managed — see its page.
 - **The counts are unstable under rotation** in current implementations. On a single fork with one
   junction, PVBM's vein junction count has read 1, 4, 4, 3 across four angles of a shape that did
-  not change.
+  not change. *Re-measured on the run of 2026-11-22,* across seven angles: the single fork now reads
+  1 at every angle, and the instability has moved to the Koch curve — one unbranched vessel folded
+  back on itself — where PVBM and OCULAR report 0 to 4 junctions depending on the angle, and to the
+  deep bifurcation, 8 to 10 vein junctions for the 7 drawn. See the
+  [synthetic results page](../benchmarks/biomarker-synthetic-results.md) §2.2.
 
 ## 9. Known defects
 
-- **PVBM's `median_branching_angle` is not the angle between daughters.** *Our finding, 2026-09-20,
-  from reading `compute_angles_dictionary`.* It medians **every pairwise angle at every particular
-  point**, the trunk included, and reads about 120° where the daughters are 60° apart. Mapping
-  withdrawn; the column is kept under PVBM's own name.
+- **PVBM's `median_branching_angle` is right on a clean fork and wrong on a crowded one.**
+  *Our finding, re-read 2026-11-26 from `GeometryAnalysis.compute_geomVBMs`.* At each junction it
+  measures the angle between the two daughter vessels, each taken as a straight line from the
+  junction to the point 30 skeleton pixels along it (a skeleton is the vessel thinned to a
+  one-pixel line). Two rules change the answer where junctions are close together: a junction is
+  **dropped** when either daughter ends before 30 pixels, and where the walk records **three**
+  vessels leaving one point it adds the angle between the second and third as well. On the run of
+  2026-11-22 it reads 64–71° on the single fork where the daughters part at 60°, 73–76° on the tree
+  (70°) and 88–92° on the spur (90°), but 64–115° on the deep bifurcation (50°), up to 129% out.
+  That shape has a short stub off every junction, so PVBM sees three vessels leave each one: where
+  the stub is shorter than 30 pixels the junction is dropped (at one rotation all seven are, and
+  there is no value), and where it is not, the extra angle reads 135–160°. Mapping withdrawn; the column is kept under PVBM's own name. OCULAR
+  repeats the same code. See the
+  [PVBM group notebook](../../notebooks/synthetic/biomarker-synthetic-pvbm.ipynb) §5.
+  *Corrected 2026-11-26:* this entry used to say it medians every pairwise angle at a junction,
+  the trunk included, and reads about 120° on a 60° fork. That was read from
+  `compute_angles_dictionary`, which only PVBM's retired `GeometricalAnalysis` calls.
 - **PVBM's endpoint count excludes the end at the disc** (§3.1). Mapping withdrawn 2026-09-26 for
   PVBM and OCULARNet both.
 - **VascX's temporal angle declines on shapes with no arcade**, warning `Couldn't find valid angles

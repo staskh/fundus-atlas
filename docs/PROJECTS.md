@@ -11,12 +11,12 @@ different questions.
 
 | Project | What it produces | Segmentation models | New models introduced | Weights public | Code license | Last commit | Last checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [fundus-biomarkers](projects/fundus-biomarkers.md) | The catalogue's calibre, tortuosity (segment and whole-vessel), density and topology biomarkers, per artery and vein, over fov and zones B and C | None — masks in, numbers out | No | Not applicable | Proprietary (Pheno); private repository | 2026-10 | 2026-10-05 |
-| [OCULARNet](projects/ocularnet.md) | Segmentations plus junction, crossing and major-vessel zone masks; biomarkers via PVBM | OCULARNet and OCULARNet-nano, four classes including vessel crossings (introduced here); disc segmenter borrowed | Yes | Yes, on Hugging Face | None stated — no LICENSE file | 2026-08 | 2026-09-10 |
+| [fundus-biomarkers](projects/fundus-biomarkers.md) | The catalogue's calibre, tortuosity (segment and whole-vessel), density and topology biomarkers, per artery and vein, over fov and zones B and C | None — masks in, numbers out | No | Not applicable | Proprietary (Pheno); private repository | 2026-11 | 2026-11-10 |
+| [OCULARNet](projects/ocularnet.md) | Segmentations plus junction, crossing and major-vessel zone masks; biomarkers via PVBM | OCULARNet and OCULARNet-nano, four classes including vessel crossings (introduced here); disc segmenter borrowed | Yes | Yes, on Hugging Face | None stated — no LICENSE file | 2026-08 | 2026-10-11 |
 | [VascX](projects/vascx.md) | Central retinal equivalents, calibers, AVR, density, bifurcation and temporal angles, tortuosity, sparsity, quality metrics | VascX ensembles: vessels, artery/vein, disc, fovea, quality (all introduced here) | Yes | Yes, on Hugging Face | Not stated — no LICENSE file; weights are AGPL-3.0 | 2026-08 | 2026-09-10 |
-| [AutoMorphClass](projects/automorphclass.md) | AutoMorph's vascular features, returned as a PyTorch tensor or named dict | AutoMorph's vessel, artery/vein and disc models (all borrowed) | No | Yes, committed in the repository | Unclear — MIT declared in the README and `pyproject.toml`, but no LICENSE file | 2026-05 | 2026-09-10 |
+| [AutoMorphClass](projects/automorphclass.md) | AutoMorph's vascular features except the central retinal equivalents and AVR, returned as a PyTorch tensor or named dict | AutoMorph's vessel, artery/vein and disc models (all borrowed) | No | Yes, committed in the repository | Unclear — MIT declared in the README and `pyproject.toml`, but no LICENSE file | 2026-05 | 2026-09-10 |
 | [AutoMorphalyzer](projects/automorphalyzer.md) | Corrected AutoMorph measurements: tortuosity, calibre, density, fractal dimension, CRAE/CRVE/AVR (Knudtson only), quality probability | SEGAN vessels, BF-Net artery/vein and the lwnet-derived disc/cup model (all borrowed via AutoMorph), QuickQual quality (borrowed) | No | Yes, from this repository's releases | Apache-2.0 | 2026-03 | 2026-09-10 |
-| [PVBM](projects/pvbm.md) | 15 biomarkers per artery and vein mask: areas, lengths, tortuosity, branching angles, fractal dimensions, CRAE/CRVE | Optic disc only (borrowed from LUNet); artery/vein masks must come from elsewhere | No | Yes, downloaded at first use | MIT | 2026-01 | 2026-09-10 |
+| [PVBM](projects/pvbm.md) | 15 biomarkers per artery and vein mask: areas, lengths, tortuosity, branching angles, fractal dimensions, CRAE/CRVE | Optic disc only (borrowed from LUNet); artery/vein masks must come from elsewhere | No | Yes, downloaded at first use | MIT | 2026-01 | 2026-09-26 |
 | [AutoMorph](projects/automorph.md) | Vessel width, tortuosity, fractal dimension, CRAE/CRVE/AVR, cup-to-disc ratio | Four separate borrowed models: EyeQ quality, SEGAN-style vessel segmenter, BF-Net artery/vein, lwnet disc/cup | No — borrowed architectures, retrained weights | Yes, committed in the repository | Apache-2.0 (two borrowed components are GPL-3.0 at source) | 2025-06 | 2026-09-10 |
 | [retipy](projects/retipy.md) | Tortuosity measures, bifurcation detection | retipy vessel segmentation (classical image processing) | Yes — algorithmic | Not applicable | GPL-3.0 or later | 2019-05 | 2026-09-10 |
 | [ARIA](projects/aria.md) | Vessel diameter | Wavelet vessel detection (not a trained model) | Yes — algorithmic | Not applicable | BSD 2-clause, stated in `Copyright.m` not a LICENSE file | 2016-05 | 2026-09-10 |
@@ -36,7 +36,7 @@ different questions.
   projects move.
 - **Known defects** are not in this table. Every detail page carries a section 8 recording bugs that
   change the numbers a user would report, with the upstream issue documenting each one and whether
-  it is fixed. Read it before trusting a biomarker from any project here. Four of the nine pages
+  it is fixed. Read it before trusting a biomarker from any project here. Six of the nine pages
   currently record a defect; `None recorded` on the others means no finding, not a clean bill of
   health.
 

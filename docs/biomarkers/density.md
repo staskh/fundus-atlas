@@ -116,8 +116,9 @@ rotated.
   on the vasculature.
 - **Sparsity is dominated by the largest avascular area**, so the foveal avascular zone and any
   segmentation gap compete to set the maximum.
-- **PVBM's area and length are lost entirely on a dense tree**, because the geometry call raises —
-  see [topology](topology.md) §8.
+- **PVBM's area and length are lost entirely on a dense tree** at Python's default recursion limit,
+  because the geometry call raises — see [topology](topology.md) §8. The synthetic benchmark runs it
+  at a limit of 5,000, where nothing raises.
 
 ## 9. Known defects
 
@@ -126,9 +127,15 @@ rotated.
   not measured at all and the length reads zero. Correct for a disc-anchored measurement, and
   **not** what `density/skeleton-length` means. *Resolved 2026-10-23:* the shapes now settle
   `density/skeleton-length-rooted`, PVBM's and OCULAR's `length` agrees with it on every shape to
-  within 6%, and both are mapped there.
-- **The AutoMorph family's box-counting dimension is strongly rotation-dependent.** *Our finding,
-  2026-09-24.* Up to 80% spread across four angles of a shape that did not change.
+  within 6%, and both are mapped there. *Re-measured on the run of 2026-11-22,* over thirteen shapes:
+  the veins still agree within 4.5% everywhere, but the arteries are
+  30.8% out on the macula-centred spokes and 22.3% on the crossing, and within 6% on the rest. See
+  the [PVBM group notebook](../../notebooks/synthetic/biomarker-synthetic-pvbm.ipynb).
+- **The AutoMorph family's box-counting dimension is rotation-dependent.** *Our finding,
+  2026-09-24.* Up to 80% spread across four angles of a shape that did not change. *Re-measured on
+  the run of 2026-11-22,* across seven angles: AutoMorph and AutoMorphClass move by up to 23% over
+  the whole picture and up to 46% in zone B; AutoMorphalyzer by 6.1–10.6%. See the
+  [synthetic results page](../benchmarks/biomarker-synthetic-results.md) §2.1 and §2.3.
 
 ---
 

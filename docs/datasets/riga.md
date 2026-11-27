@@ -41,6 +41,8 @@ under a research-use agreement.
 
 ```bash
 uv run python -m datasets.riga                          # builds RIGA+ — read the caveat first
+uv run python -m datasets.fetch_disc_estimation --dataset riga   # then, required
+uv run python -m datasets.fetch_um_resolution --dataset riga     # and the scale
 ```
 
 **Read this before using the store.** The original deposit at Deep Blue answers an automated
@@ -65,6 +67,9 @@ pixels.
 - **Counts:** 195 BinRushed and 95 Magrabia as published, but **454 MESSIDOR against the deposit's
   460** — RIGA+ carries six fewer, so the store holds 744 rather than 750.
 - **Grouping:** none. No patient identity or laterality is published.
+- **Scale:** none is published, so the two follow-on commands are required. They give `binrushed`
+  and `messidor` a scale of the 800-pixel crop, not of the original photograph, and `magrabia` none
+  (section 3).
 
 ## 3. The images
 

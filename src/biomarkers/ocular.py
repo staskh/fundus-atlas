@@ -32,9 +32,10 @@ COLUMNS: tuple[tuple[str, str | None], ...] = (
     # disc, so a vessel that never reaches it is not counted: on `disjoint` it reads 0, and on every
     # shape it agrees with the rooted ground truth to within 6%.
     ("length", "density/skeleton-length-rooted/{side}"),
-    # *Our finding, carried over from PVBM:* not the angle between a bifurcation's daughters. It is
-    # the median of every pairwise angle at every particular point, the trunk included, and OCULAR
-    # inherits the function that computes it.
+    # *Carried over from PVBM, re-read 2026-11-26:* OCULAR's `GeometricalVBMs.py` repeats
+    # `GeometryAnalysis`'s angle code line for line, so it inherits PVBM's reading and PVBM's
+    # withdrawal: the daughters' angle 30 skeleton pixels out, with short daughters dropped and a
+    # second angle added where three vessels leave one point. See `src/biomarkers/pvbm.py`.
     ("median_branching_angle", None),
     # Where the walk began, which need not be one per connected component.
     ("start_points", None),
@@ -99,8 +100,8 @@ CLOSEST = (
         r"median_branching_angle_(?P<side>artery|vein)",
         "topology/branching-angle/{side}/median",
         (
-            "the median of every pairwise angle at a junction, the parent vessel's included, not only "
-            "the angle between the two daughters"
+            "the daughters' angle taken 30 skeleton pixels out, dropping a junction whose daughter is "
+            "shorter, and adding a second angle where three vessels leave one point"
         ),
     ),
     (

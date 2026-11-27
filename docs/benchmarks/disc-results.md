@@ -24,6 +24,12 @@ rebuilt in October, and are corrected here: the "within 0.05" column of section 
 version 7 too, and the page refreshed from the notebook once more. Nothing moved by more than a
 pixel or a thousandth of Dice, and no conclusion changed.*
 
+*Reviewed against the evidence on 2026-11-25, with nothing re-measured. Three statements did not
+match it and are corrected where they stand: the 0.6-threshold crossings of section 3.1 are shares
+of every comparison, not of the eyes the expert placed over the line, so "one in six missed" was in
+fact most of them (sections 3.1 and 6); VascX is not the steadiest disc model, LUNet v2 is (section
+6); and LUNet v2's median Chákṣu disc radius is 194.9, not 195.0.*
+
 ## Contents
 
 1. [Summary](#1-summary)
@@ -56,9 +62,9 @@ them has a way of declining.
 **VascX finds only the disc.** It is absent from every cup column rather than scored zero in them,
 and the cup-to-disc ratio cannot be computed without a cup.
 
-**A dash in the ratio column is not a good result.** The two models that look closest here — LUNet v2
-at −0.001 and SegFormer at −0.039 — are separated by more than that number suggests once the sign is
-taken off: section 3.
+**A pooled ratio error near zero is not a small error.** LUNet v2's −0.001 is the average of a bias
+of +0.089 on GRAPE and −0.034 on PAPILA, and every model's bias changes sign between datasets; the
+absolute error and the eyes moved across a referral threshold are in section 3.
 
 ## 2. Where the boundary sits
 
@@ -123,7 +129,7 @@ What each model drew:
 | segformer-disc-cup | chaksu | 406 | 426 | 207.2 | 191 | 187 | 93.5 |
 | | grape | 248 | 283 | 132.6 | 145 | 158 | 74.6 |
 | | papila | 468 | 483 | 236.9 | 212 | 209 | 105.8 |
-| lunetv2-odc | chaksu | 378 | 407 | 195.0 | 197 | 200 | 96.9 |
+| lunetv2-odc | chaksu | 378 | 407 | 194.9 | 197 | 200 | 96.9 |
 | | grape | 242 | 275 | 128.4 | 156 | 169 | 79.6 |
 | | papila | 422 | 456.5 | 217.7 | 138 | 146 | 69.6 |
 | automorph-disc-cup | chaksu | 391 | 427 | 200.8 | 205 | 191 | 95.3 |
@@ -171,8 +177,9 @@ on one collection carries the wrong correction to another.
 ### 3.1 How many patients this moves
 
 A ratio error of 0.05 matters at 0.65 and not at 0.30. Taking **0.6** as the threshold — in common
-use, and endorsed by nothing here — this is the share of comparisons where the model crosses it and
-the ophthalmologist did not, or the reverse:
+use, and endorsed by nothing here — this is the share of **all** comparisons on a dataset where the
+model crosses it and the ophthalmologist did not, or the reverse. Every column has the same
+denominator, so the last column says how large the group a model can miss is:
 
 | Model | Dataset | Model over 0.6, expert under | Model under 0.6, expert over | Experts over 0.6 |
 | --- | --- | --- | --- | --- |
@@ -189,12 +196,22 @@ the ophthalmologist did not, or the reverse:
 **This is the table to read before choosing.** The two failure directions are not symmetric and no
 model is good at both:
 
-- **LUNet v2 on GRAPE flags 27% of eyes over the threshold that the expert placed under it** — on a
-  glaucoma dataset where 30% genuinely are over. That is a lot of people sent forward.
-- **SegFormer and AutoMorph on Chákṣu miss about one in six of the eyes the expert placed over the
-  threshold**, the opposite and more dangerous error.
-- **AutoMorph on PAPILA flags 18% falsely high** where only 7% of eyes are genuinely over — an error
-  rate larger than the condition it is looking for.
+- **LUNet v2 on GRAPE puts 27% of all comparisons over the threshold where the expert put them
+  under it** — 39% of the eyes the expert placed under — on a glaucoma dataset where 30% are over by
+  the expert's outline. That is a lot of people sent forward.
+- **SegFormer and AutoMorph on Chákṣu miss most of the eyes the expert placed over the threshold.**
+  The expert placed 19% of comparisons over it; SegFormer put 16% of all comparisons under it among
+  those, which is **85% of the expert's over-threshold eyes**, and AutoMorph 17%, which is **89%**.
+  LUNet v2 misses 54% of the same group. This is the opposite and more dangerous error, and on
+  Chákṣu no model avoids it.
+- **AutoMorph on PAPILA flags 18% of all comparisons falsely high** where only 7% are over by the
+  expert's outline — an error rate larger than the condition it is looking for.
+
+*The shares of the expert's own over- and under-threshold groups (85%, 89%, 54%, 39%) are not
+printed by the notebook; they were computed from `results/disc/` on 2026-11-25 as the crossing
+count divided by the expert's count, on the same rows. Until 2026-11-25 this section said SegFormer
+and AutoMorph "miss about one in six" of the eyes over the threshold, which read the share of all
+comparisons as a share of that group.*
 
 ## 4. Dataset by dataset
 
@@ -286,7 +303,9 @@ the answer, below. **VascX disc**, if you need only the disc and can afford five
   own project, [PVBM](../projects/pvbm.md), **never reads the cup channel these numbers come from**,
   so nobody has evidenced it before. Its licence is unstated and its ancestor is non-commercial.
 - **[VascX disc](../models/vascx-disc.md)** has the best pooled disc Dice (0.951) and is the
-  steadiest: it never once drops below Dice 0.5 on more than 0.3% of outlines. **Its best dataset is
+  steady: 0.3% of its disc outlines fall below Dice 0.5 — LUNet v2, at 0.2%, is the only model
+  steadier. *(Until 2026-11-25 this called VascX the steadiest; the notebook's section 2.2 shows
+  LUNet v2 lower on both that share and the spread.)* **Its best dataset is
   one it trained on**: VascX's paper lists all 488 PAPILA photographs in its disc training, so its
   0.951 there is in-sample. On the two it never saw it is second — 0.954 on Chákṣu behind
   SegFormer's 0.958, and 0.921 on GRAPE behind LUNet v2's 0.927. It finds **no cup**, so it cannot
@@ -298,7 +317,8 @@ the answer, below. **VascX disc**, if you need only the disc and can afford five
   v2's 0.809. It is the only model whose licence is clean — **Apache-2.0 on both code and weights** —
   and one of the two marked `out-of-sample` on every dataset here, with AutoMorph's model, which
   came last. If licensing or provenance matters more to you than a hundredth of Dice, this is the one to
-  take. Watch its ratio: it misses one in six of Chákṣu's eyes over the 0.6 threshold.
+  take. Watch its ratio: on Chákṣu it puts 85% of the eyes the expert placed over the 0.6 threshold
+  under it (section 3.1).
 - **[AutoMorph's disc-and-cup model](../models/automorph-disc-cup.md)** is last on every pooled
   measure here and unusable on disc-centred photographs (section 4.1). If you are running AutoMorph
   on macula-centred screening images, its 0.894/0.907 disc is serviceable; on anything disc-centred,

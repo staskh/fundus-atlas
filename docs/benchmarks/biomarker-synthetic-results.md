@@ -152,8 +152,8 @@ Comparing the values at each angle in the group notebooks (§3.3 of each) shows 
 comes from. It comes from a handful of mechanisms, and each is visible on the simplest shapes.
 
 **Width measured along the image's axes (AutoMorph family).** On a straight vessel AutoMorph's
-`average_width_artery` is 72 px at 0°, 98 px at 45° and 72 px again at 90°. AutoMorphalyzer goes
-from 77 to 106 and back. The ratio, about 1.36, is close to √2 (1.41): what a width measured along
+`average_width_artery` is 72 µm at 0°, 98 µm at 45° and 72 µm again at 90°, for an artery drawn
+80 µm wide. AutoMorphalyzer goes from 77 to 106 µm and back. The ratio, about 1.36, is close to √2 (1.41): what a width measured along
 the image's rows or columns, instead of straight across the vessel, gives on a diagonal. It shows
 wherever vessels are straight and nearly disappears on curved shapes, which run in every direction
 so the error averages out. AutoMorph and AutoMorphClass share this code and return the same widths.
@@ -173,8 +173,8 @@ whole picture.
 **Junction counts on a self-approaching curve (PVBM family).** On the Koch curve, a single unbranched
 vessel folded back close to itself, PVBM reports 0 to 4 junctions depending on the angle. Whether two
 folds touch in the pixel picture depends on the turn. Counts that small make a difference of two read
-as 200%. OCULAR returns the same numbers because it runs PVBM's code. On every other shape the count
-does not move.
+as 200%. OCULAR returns the same numbers because it runs PVBM's code. Elsewhere the count moves only
+on the deep bifurcation (14% for arteries, 21% for veins).
 
 **Regions that do not turn with the picture (VascX).** VascX's density split into superior and
 inferior halves moves by 117% or 700%, the signature of a whole vessel changing halves: 700% is one
@@ -365,7 +365,7 @@ rotation is given equal weight with agreement, because a photograph's angle is n
 
 | Question | Reach for | Its worst error / worst movement | Runner-up, and the margin | Caveat that would change the answer | Seconds an image |
 | --- | --- | --- | --- | --- | --- |
-| Vessel calibre (width, Knudtson's CRAE and CRVE) | VascX | 2.2–2.9% / 1.9–4.1% | PVBM family, 28.5–30.4% / 11.9–27.0%: not close | judged on three shapes only; VascX answers four calibre biomarkers, the AutoMorph family twenty-one | 9.3 |
+| Vessel calibre (width, Knudtson's CRAE and CRVE) | VascX | 2.2–2.9% / 1.9–4.1% | PVBM family, 28.5–30.4% / 11.9–27.0%: not close | judged on few shapes: two for the equivalents, three for the widths; VascX answers four calibre biomarkers, the AutoMorph family twenty-one | 9.3 |
 | Hubbard's AVR | AutoMorph | 13.8% / 8.1% | PVBM, 47.0% / 26.3%: not close | AutoMorph's Hubbard equivalents themselves are 53–63% out at worst | 8.5 (PVBM 64.9) |
 | Arc over chord, whole picture | AutoMorphClass (length-weighted) | 9.2–9.5% / 7.4–11.2% | OCULAR: level on veins (9.5% / 8.4%), 23.9% on arteries | AutoMorphClass is 60% out in zone B and invents a value where zone B is empty | 0.5 (OCULAR 4.8) |
 | Cup-to-disc ratio | any AutoMorph member; AutoMorphalyzer is exact | 0–1.9% | no other family computes it | a drawn ellipse is the easiest cup there is | 0.5–8.5 |

@@ -15,6 +15,11 @@ QuickQual's κ on FIVES rose from 0.471 to 0.500, which widens its pooled lead o
 thousandths to sixteen. Two statements that did not match the notebook before this run are
 corrected where they stand (sections 4.3 and 4.4).*
 
+*PAPILA was measured again on 2026-10-21, after its store was rebuilt at builder version 7. Every
+model kept exactly the same photographs; only the recorded seconds changed. Reviewed against the
+evidence on 2026-11-25, with nothing re-measured: every figure on this page still matches
+`results/quality/`, and section 3.1 gains a sentence on MSHF's own split.*
+
 ## Contents
 
 1. [Summary](#1-summary)
@@ -109,7 +114,11 @@ way**, scoring markedly better on the handheld group than on the tabletop one �
 does, and not something this benchmark can explain.
 
 FIVES's own train and test halves agree closely for every model — within about 0.05 of accuracy and
-0.04 of κ — so its split is not doing any work here. FQS publishes no split.
+0.04 of κ — so its split is not doing any work here. FQS publishes no split. MSHF's split moves one
+model a long way: the toolbox ensemble scores 0.843 / κ 0.643 on MSHF's 108 test photographs and
+0.735 / κ 0.449 on its 438 training ones, where the other four stay within 0.05 of κ between the two
+halves. No model trained on MSHF, so this is a difference between the halves' photographs rather
+than contamination.
 
 ## 4. What the analysis found
 

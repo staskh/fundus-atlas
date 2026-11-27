@@ -48,7 +48,8 @@ changes the annotated area by about 3%.
 because that is how the dataset itself drew them.
 
 The authors publish no scale and the Topcon TRC-NW8's field angle is selectable and unstated, so
-the second command is **required** to finish the store: 13.320 µm/px, from the median optic disc.
+the last command is **required** to finish the store: 12.680 µm/px, from the median optic disc
+(section 3).
 
 Three things about the archive a person running this will meet, all handled by the fetcher:
 

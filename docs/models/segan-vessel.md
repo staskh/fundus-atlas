@@ -151,10 +151,14 @@ photographs from each pooled dataset — overlap moves by about a hundredth betw
 while 0.2 leaves about a quarter more topological features unmatched than 0.3 to 0.5. The figures
 are in the [A/V results](../benchmarks/av-results.md) §1.1; the benchmark keeps 0.2.
 
-**Four of the benchmark's datasets are in-sample for it, and one is not.** `ALL-SIX` includes HRF,
-LES-AV and DRIVE — whose photographs are [RITE](../datasets/rite.md)'s — so its scores there are
-not a test. [FIVES](../datasets/fives.md) is the one dataset in that benchmark outside the six, and
-is why FIVES was added to it.
+**One of the datasets the benchmark measures is in-sample for it.** `ALL-SIX` includes HRF, and
+also LES-AV and DRIVE — whose photographs are [RITE](../datasets/rite.md)'s — which the benchmark
+declares but has not fetched; its scores on any of the three are not a test. The other datasets it
+measures — [FIVES](../datasets/fives.md), AVRDB, Fundus-AVSeg and REYIA in the pool, RAV and
+AV-WIDE held apart — are outside the six and marked `out-of-sample`. FIVES was added to the
+benchmark for that reason. *(Corrected 2026-11-25: this said four of the benchmark's datasets were
+in-sample and FIVES the only one outside the six, which the benchmark's own contamination marks do
+not show.)*
 
 ## 12. Notes
 

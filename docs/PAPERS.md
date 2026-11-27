@@ -114,7 +114,7 @@ its group, so a missing paper is visible rather than silent.
 | Fang 2022 | 2022 | ADAM challenge | [ADAM](datasets/adam.md) |
 | Fang et al. | 2022 | REFUGE2 | [REFUGE](datasets/refuge.md) |
 | Farnell 2008 | 2008 | ARIA (Liverpool image set) | [ARIA (dataset)](datasets/aria-dataset.md) |
-| Fhima 2024 | 2024 | UNAF, with LUNet | [UNAF](datasets/unaf.md); [LUNet](models/lunet.md) |
+| Fhima 2024 | 2024 | UNAF, with LUNet; the stated ancestor of LUNet v2's disc model | [UNAF](datasets/unaf.md); [LUNet](models/lunet.md); [LUNet v2 ODC](models/lunetv2-odc.md) |
 | Fhima 2025 | 2025 | REYIA; RLAD | [REYIA](datasets/reyia.md); [RLAD](models/rlad.md) |
 | FOVEA | 2025 | FOVEA | [FOVEA](datasets/fovea-dataset.md) |
 | FQS | 2025 | FQS | [FQS](datasets/fqs.md) |
@@ -133,6 +133,7 @@ its group, so a missing paper is visible rather than silent.
 | Jin 2022 | 2022 | FIVES | [FIVES](datasets/fives.md) |
 | Jin 2023 | 2023 | MSHF | [MSHF](datasets/mshf.md) |
 | Kaggle EyePACS | 2015 | EyeQ photographs (competition, not a paper) | [EyeQ](datasets/eyeq.md) |
+| Khan 2023 | 2023 | RVD | [RVD](datasets/rvd.md) |
 | Kovalyk 2022 | 2022 | PAPILA | [PAPILA](datasets/papila.md) |
 | Kumar 2023 | 2023 | Chákṣu | [Chákṣu](datasets/chaksu.md) |
 | Lepetit-Aimon 2024 | 2024 | MAPLES-DR | [MAPLES-DR](datasets/maples-dr.md) |
@@ -168,7 +169,7 @@ Papers that describe a catalogued model and are not already in section 4.1.
 | --- | --- | --- | --- |
 | Ahmed 2025 | 2025 | LHU-VT | [LHU-VT](models/lhu-vt.md) |
 | Engelmann et al. | — | QuickQual (no DOI established) | [QuickQual](models/quickqual.md); [QuickQual-MEME](models/quickqual-meme.md) |
-| Galdran 2020 | 2020 | LWNet; Big W-Net | [LWNet](models/lwnet.md); [Big W-Net](models/big-wnet.md) |
+| Galdran 2020 | 2020 | LWNet; Big W-Net; the AutoMorph disc/cup architecture | [LWNet](models/lwnet.md); [Big W-Net](models/big-wnet.md); [AutoMorph disc/cup](models/automorph-disc-cup.md) |
 | Gervelmeyer 2025 | 2025 | Fundus Image Toolbox | [FIT quality](models/fit-quality.md); [FIT fovea/OD](models/fit-fovea-od.md) |
 | Jiang 2026 | 2026 | LCNet | [LCNet](models/lcnet.md) |
 | Köhler 2024 | 2024 | FR-UNet ensemble; mask QC | [FR-UNet](models/frunet-fives.md) |
@@ -176,12 +177,12 @@ Papers that describe a catalogued model and are not already in section 4.1.
 | Liu 2022 | 2022 | FR-UNet architecture | [FR-UNet](models/frunet-fives.md) |
 | Liu 2022 | 2022 | SuperRetina | [SuperRetina](models/superretina.md) |
 | Sobhan 2026 | 2026 | LightVesselNet | [LightVesselNet](models/lightvesselnet.md) |
-| Vargas 2025 | 2025 | VascX segmentation models | [VascX](projects/vascx.md); [VascX vessels](models/vascx-vessels.md) |
+| Vargas 2025 | 2025 | VascX segmentation models | [VascX](projects/vascx.md); [VascX vessels](models/vascx-vessels.md); [VascX A/V](models/vascx-artery-vein.md); [VascX disc](models/vascx-disc.md); [VascX fovea](models/vascx-fovea.md); [VascX quality](models/vascx-quality.md) |
 | Wang 2019 | 2019 | BEAL | [BEAL](models/beal.md) |
 | Xie 2021 | 2021 | SegFormer (architecture only) | [SegFormer disc/cup](models/segformer-disc-cup.md) |
 | Zhou 2021 | 2021 | BF-Net / Learning-AVSegmentation | [BF-Net](models/bf-net.md); [AutoMorph A/V](models/automorph-artery-vein.md) |
 | Zhou 2021 | 2021 | SEGAN vessel segmenter | [SEGAN](models/segan-vessel.md) |
-| Zhou 2022 | 2022 | AutoMorph pipeline | [AutoMorph](projects/automorph.md); [AutoMorphalyzer](projects/automorphalyzer.md); [AutoMorphClass](projects/automorphclass.md) |
+| Zhou 2022 | 2022 | AutoMorph pipeline | [AutoMorph](projects/automorph.md); [AutoMorph disc/cup](models/automorph-disc-cup.md); [AutoMorphalyzer](projects/automorphalyzer.md); [AutoMorphClass](projects/automorphclass.md) |
 | — | — | Retina-MVP A/V: no paper | [Retina-MVP A/V](models/retina-mvp-av.md) |
 | — | — | SegFormer disc/cup weights: no paper | [SegFormer disc/cup](models/segformer-disc-cup.md) |
 
@@ -194,4 +195,5 @@ Models* paper, not the RAV dataset preprint in 4.1.
 | --- | --- | --- | --- |
 | arXiv:2512.16044 | 2025 | retinalysis-fundusprep | [VascX](projects/vascx.md) |
 | Tummala 2023 | 2023 | FIT quality comparison cite | [FIT quality](models/fit-quality.md) |
+| — | — | fundus-biomarkers: no project paper established | [fundus-biomarkers](projects/fundus-biomarkers.md) |
 | — | — | retipy: no project paper established | [retipy](projects/retipy.md) |

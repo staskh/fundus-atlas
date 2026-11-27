@@ -19,8 +19,9 @@ It maps the field:
   biomarker calculations into one end-to-end run, from photograph to table of numbers.
 - **1.5 Comparisons** — side-by-side scores computed on the same terms, so numbers from different
   papers and different projects can be read against each other.
-- **1.6 Checks** — quality gates that decide whether a segmentation is usable before anyone trusts
-  the biomarkers derived from it.
+- **1.6 Checks** — quality gates that decide whether a photograph is good enough to measure before
+  anyone trusts the biomarkers derived from it. The check published today grades the photograph; a
+  gate on the segmentation itself is not yet measured.
 - **1.7 Papers** — published work a reader needs in order to interpret a measurement, a comparison
   or a pitfall: the formula papers, not a bibliography of every citation. `docs/PAPERS.md` also
   indexes the describing papers that stay on dataset, model and project pages.
@@ -84,8 +85,9 @@ Skills that exist today:
   columns of the `docs/PROJECTS.md` summary table.
 - **5.4** `document-model` — cataloguing a segmentation or classification model: the page structure
   in `docs/models/` and the columns of the `docs/MODELS.md` summary table.
-- **5.5** `document-biomarker` — cataloguing a biomarker: the page structure in `docs/biomarkers/`
-  and the columns of the `docs/BIOMARKERS.md` summary table.
+- **5.5** `document-biomarker` — cataloguing a biomarker: its row on one of the family pages in
+  `docs/biomarkers/` and in the `docs/BIOMARKER-NAMES.md` vocabulary, from which the
+  `docs/BIOMARKERS.md` tables are generated.
 - **5.6** `document-dataset` — cataloguing a dataset: the page structure in `docs/datasets/` and the
   columns of the `docs/DATASETS.md` summary table.
 - **5.7** `document-paper` — cataloguing a paper: the page structure in `docs/papers/` and the
@@ -142,9 +144,10 @@ one-off format inline.
 ## 7. Layout
 
 Catalogues live under `docs/`: `PROJECTS.md` and `projects/` for pipelines, `MODELS.md` and
-`models/` for models, `BIOMARKERS.md` and `biomarkers/` for measurements, `DATASETS.md` and
-`datasets/` for image collections, `PAPERS.md` and `papers/` for the publications that change how
-those entries should be read. Each summary table and its detail pages are maintained together,
+`models/` for models, `BIOMARKERS.md`, `BIOMARKER-NAMES.md` and `biomarkers/` for measurements,
+`DATASETS.md` and `datasets/` for image collections, `PAPERS.md` and `papers/` for the publications that change how
+those entries should be read, and `BENCHMARKS.md` and `benchmarks/` for each benchmark's
+configuration and results pages. Each summary table and its detail pages are maintained together,
 per the skills in section 5.
 
 Code lives under `src/`, one layer per kind of thing, and each layer's own skill in section 5 is

@@ -41,7 +41,7 @@ provenance is on those pages. Of the remaining four, one has an original publica
 | Home | The authors' own release, linked from the paper below; inside REYIA it arrives as part of the compilation |
 | Download | **direct** from the authors for the original WIDE data; not separable from REYIA's archive |
 | Citation | Estrada R, Allingham MJ, Mettu PS, Cousins SW, Tomasi C, Farsiu S. *Retinal artery-vein classification via topology estimation.* IEEE Transactions on Medical Imaging 2015;34(12):2518–2534. DOI: [10.1109/TMI.2015.2443117](https://doi.org/10.1109/TMI.2015.2443117) · [PMC4685460](https://pmc.ncbi.nlm.nih.gov/articles/PMC4685460/) |
-| Licence | The authors state the wide-field images and ground-truth labels are freely available; no formal licence was established |
+| Licence | **Research and educational purposes only; commercialisation and redistribution of the images prohibited**, per the terms on the authors' release page as recorded on [WIDE](wide.md). The authors also describe the images and labels as freely available, which is not a grant of those rights. *Corrected 2026-11-25:* this row previously read only "freely available; no formal licence was established", which understated the restriction |
 | Content | The original **WIDE** release is 30 ultra-wide-field images captured at 3900×3072 on an Optos 200Tx and analysed downsampled by two. REYIA carries 26 of them, tabulated at 829×1531 and found here as letterboxed squares of 1217 to 1631 pixels (section 7) |
 | Annotations | Supplies artery/vein labels from **two independent raters**, the second — a fellowship-trained medical retina specialist — taken as ground truth |
 
@@ -63,7 +63,7 @@ age-related macular degeneration including geographic atrophy, drusen and fibrot
   else entirely: a 95-image Saudi subcollection of [RIGA](riga.md) from the Magrabi Eye Center.
   Sources listing REYIA's contents as including "Magrabia" most likely mean MAGREBHIA.
 
-### 2.1 How to fetch
+### 2.3 How to fetch
 
 ```bash
 # the archive is link-shared on Kaggle: download it by hand first

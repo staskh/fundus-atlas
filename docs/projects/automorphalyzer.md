@@ -211,7 +211,11 @@ it from being that name.
   was removed as redundant with the other measures, so the affected column no longer exists.
 - **Status:** reported fixed by the authors; **not verified** here or, as far as could be
   established, by anyone independent. The authors themselves note that a comparison of output
-  against AutoMorph is still to be published.
+  against AutoMorph is still to be published. *Our measurement, on the
+  [synthetic benchmark](../benchmarks/biomarker-synthetic-results.md)'s run of 2026-11-22:* on
+  drawn shapes its mean arc over chord is 15–23% from the geometry at worst and moves by at most
+  26% as the picture turns, where AutoMorph's reaches 161 times the true value and moves by up to
+  640% — consistent with the repair, on drawings rather than photographs.
 - **What the code shows:** the ordering repair is real — `_reorder_coords` in
   `automorph/measure/get_vessel_coords.py` walks each branch depth-first from an endpoint, after
   branch points are erased and branches under 10 pixels dropped.

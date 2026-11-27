@@ -47,16 +47,16 @@ name rather than dropped.
 | [vascx](../projects/vascx.md) | `d0cde1c`, `e5823fe`, `ff47bfb`, `ec1ca00` | 132 | yes |
 <!-- /generated -->
 
-Three of them share a lineage and one does not: AutoMorph, AutoMorphalyzer and AutoMorphClass all
-descend from retipy, OCULAR imports PVBM's helpers at runtime, and VascX reimplements every
-measurement independently. That is why they are written up in families rather than one by one.
+They fall into three lineages: AutoMorph, AutoMorphalyzer and AutoMorphClass all descend from
+retipy, OCULAR imports PVBM's helpers at runtime, and VascX reimplements every measurement
+independently. That is why they are written up in families rather than one by one.
 
 ## 3. What they are measured on
 
 Every shape is a drawing whose values follow from its geometry rather than from anybody's opinion,
 so a disagreement is an error rather than a difference. Each carries both an artery and a vein,
-and each is drawn at four angles — 0°, 30°, 60° and 90° — where the geometry is identical and only
-the pixel grid differs.
+and each is drawn at seven angles — every 15° from 0° to 90° — where the geometry is identical and
+only the pixel grid differs.
 
 <!-- generated: material -->
 | Shape | What its geometry settles | What it settles has no value | Available |

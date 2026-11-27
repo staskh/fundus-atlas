@@ -232,7 +232,7 @@ of its own choosing; §6 says which grid and how to convert.
 | `topology/junctions/{artery,vein,vessels}` | | | | ✅ `intersections` | | ✅ `intersections` | |
 | `topology/endpoints/{artery,vein,vessels}` | | | | ⚠️ `endpoints` | | ⚠️ `endpoints` | The rooted walk calls the end at the disc a *start point*, so a straight vessel reads 1 where the geometry requires 2. `endpoints + start_points` is the catalogued count |
 | `topology/components/{artery,vein,vessels}` | | | | | | | |
-| `topology/branching-angle/{artery,vein}` | | | | ⚠️ `median_branching_angle` | | ⚠️ `median_branching_angle` | The median of **every pairwise angle at every junction**, the trunk included — not the angle between daughters. OCULAR inherits PVBM's function |
+| `topology/branching-angle/{artery,vein}` | | | | ⚠️ `median_branching_angle` | | ⚠️ `median_branching_angle` | The angle between a junction's daughters, each taken 30 skeleton pixels out; a junction with a shorter daughter is dropped, and one where three vessels leave a point adds a second angle. Right on a clean fork, up to 115° where the daughters part at 50° (`deep-bifurcation`). OCULAR repeats PVBM's code |
 | `topology/temporal-angle/{artery,vein}` | | | | | ✅ `median_temporal_angle_arteries` | | VascX only, statistic `median`. It needs a real fovea, so the adapter leaves it unmapped on the synthetic shapes, which have none |
 
 ### 3.5 [`landmarks`](biomarkers/landmarks.md) — the optic nerve head and the fovea
@@ -307,7 +307,7 @@ conversion, §6 says how to make it; where it is a definition, no conversion clo
 | `tortuosity_index` | `tortuosity/hart-tau1/{artery,vein}/length-weighted` | *Our finding, 2026-11-20, from reading `GeometryAnalysis.py`:* total arc over total chord for the whole map, the same ratio of sums as OCULAR's `pooled_tortuosity`. That equals each segment's ratio weighted by its **chord** length, where the `length-weighted` statistic weights by arc length. The vocabulary has no statistic for a ratio of sums |
 | `start_points` | `topology/endpoints` | Where the rooted walk begins: one per vessel leaving the optic disc, a count of trunks. `endpoints + start_points` is the catalogued free-end count |
 | `singularity_length` | `density/multifractal-d0`, `-d1`, `-d2` | The width of the singularity spectrum from the same multifractal analysis. Nothing else here computes it |
-| `median_branching_angle` | `topology/branching-angle/median` | Listed above as ⚠️; every pairwise angle at a junction, the trunk included |
+| `median_branching_angle` | `topology/branching-angle/median` | Listed above as ⚠️; the daughters' angle 30 skeleton pixels out, which drops short daughters and adds a second angle where three vessels leave one point |
 | `endpoints` | `topology/endpoints` | Listed above as ⚠️; the rooted tip count rather than every free end |
 
 ### 4.3 VascX
@@ -341,11 +341,11 @@ moved to the name it always meant:
 | Column | Was mapped to | Withdrawn because |
 | --- | --- | --- |
 | `squared_curvature_tortuosity` | `tortuosity/hart-tau3` | off by five orders of magnitude; it squares nothing |
-| `median_branching_angle` | the angle between daughters | it medians every pairwise angle at every junction, trunk included, and reads ~120° where the daughters are 60° apart |
+| `median_branching_angle` | the angle between daughters | it reads 64–71° where the daughters part at 60°, but 64–115° where they part at 50° (`deep-bifurcation`), and gives no value at one angle. That shape has a short stub off every junction, so three vessels leave each one: PVBM drops the junction where the stub is shorter than 30 skeleton pixels, and otherwise adds the angle between the second and third vessel, which reads 135–160°. *Corrected 2026-11-26:* the reason first given here — that it medians every pairwise angle, trunk included, and reads ~120° on a 60° fork — came from `compute_angles_dictionary`, which only PVBM's retired class calls |
 | `endpoints` (PVBM, OCULAR) | `topology/endpoints` | their rooted walk excludes the end at the disc |
 | `mean_sparsity` (VascX) | `density/sparsity` | **normalised by the optic-disc-to-fovea distance**, so a dimensionless ratio rather than a distance in microns |
 | `lw_tort_curv` (VascX) | `tortuosity/spline-curvature` | **multiplied by the optic-disc-to-fovea distance**, so dimensionless rather than the 1/µm the name means |
-| `length` (PVBM, OCULAR) | `density/skeleton-length` | **moved, 2026-10-23, to `density/skeleton-length-rooted`**: their walk starts at the disc, so a vessel that never reaches it reads 0. On every synthetic shape it agrees with the rooted ground truth to within 6%, and on `disjoint` it reads 0 where the plain length is the whole network |
+| `length` (PVBM, OCULAR) | `density/skeleton-length` | **moved, 2026-10-23, to `density/skeleton-length-rooted`**: their walk starts at the disc, so a vessel that never reaches it reads 0. On the run of 2026-11-22 it agrees with the rooted ground truth to within 4.5% for veins on every shape, and for arteries to within 6% on all but the macula-centred spokes (30.8%) and the crossing (22.3%); on `disjoint` it reads 0 where the plain length is the whole network |
 
 **Two of the five are the same defect in one project.** VascX normalises against its disc-to-fovea
 axis in more than one feature, and a canonical name that declares a physical unit cannot hold a

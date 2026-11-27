@@ -120,8 +120,9 @@ Four rules keep it honest:
   duplicate: they differ in the region or the aggregation, which the table's comment records.
 - **A mapping that a shape contradicts becomes `None`, with the reason beside it.** PVBM's
   `median_branching_angle` was mapped to the angle between a bifurcation's daughters until a shape
-  showed it medians every pairwise angle at every junction, the trunk included. The column is still
-  measured; it simply no longer claims to be that biomarker.
+  read it far off on the deep bifurcation, where a stub off every junction makes it drop the
+  junction or add a second angle.
+  The column is still measured; it simply no longer claims to be that biomarker.
 
 ### 4.1 The nearest name, for a column the table cannot map
 

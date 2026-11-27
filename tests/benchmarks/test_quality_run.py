@@ -284,3 +284,50 @@ def test_a_run_stopped_part_way_keeps_what_it_had_scored(
 
     finished = quality.run([Brightness()], ["fives"], results=tmp_path / "results", root=store)
     assert finished[0]["measured"] == 2, "only what the kill never reached"
+
+
+def _pooled_entry(kappa: float, auc: float, kept: float, dropped: float) -> dict[str, object]:
+    return {
+        "kappa": kappa,
+        "roc_auc": auc,
+        "kept_of_worth_measuring": kept,
+        "discarded_of_not_worth": dropped,
+    }
+
+
+def test_where_to_start_names_a_tie_at_ordering_rather_than_crowning_one() -> None:
+    """0.941 against 0.940 is not a lead, so neither model is said to order photographs best alone."""
+    pooled = {
+        "agrees": _pooled_entry(0.68, 0.930, 0.85, 0.80),
+        "orders": _pooled_entry(0.66, 0.941, 0.96, 0.40),
+        "close": _pooled_entry(0.50, 0.940, 0.70, 0.90),
+    }
+    text = "\n".join(quality._where_to_start(pooled))
+
+    assert "better than anything else" not in text
+    assert "orders and close order photographs best here" in text
+    assert "orders keeps 96% of the photographs the readers called worth measuring" in text
+    assert "discards 40% of those they did not" in text
+
+
+def test_where_to_start_says_nothing_more_when_the_best_agreeing_model_also_orders_best() -> None:
+    pooled = {
+        "agrees": _pooled_entry(0.68, 0.936, 0.85, 0.80),
+        "orders": _pooled_entry(0.66, 0.941, 0.96, 0.40),
+    }
+    text = "\n".join(quality._where_to_start(pooled))
+
+    assert "different skills" not in text
+
+
+def test_where_to_start_names_every_model_within_the_margin_at_ordering() -> None:
+    pooled = {
+        "a": _pooled_entry(0.68, 0.934, 0.85, 0.80),
+        "b": _pooled_entry(0.66, 0.941, 0.96, 0.40),
+        "c": _pooled_entry(0.50, 0.940, 0.70, 0.90),
+        "d": _pooled_entry(0.40, 0.924, 0.70, 0.90),
+    }
+    text = "\n".join(quality._where_to_start(pooled))
+
+    assert "**b** (ROC AUC 0.941), with **c** at 0.940 and **a** at 0.934 — too close" in text
+    assert "**d**" not in text
